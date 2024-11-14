@@ -1,36 +1,41 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import {topNavBar} from "@/components/navbar/topNavBar";
+import { TopNavBar } from "@/components/navbar/topNavBar";
+import { headers } from "next/headers";
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+    src: "./fonts/GeistVF.woff",
+    variable: "--font-geist-sans",
+    weight: "100 900",
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+    src: "./fonts/GeistMonoVF.woff",
+    variable: "--font-geist-mono",
+    weight: "100 900",
 });
 
 export const metadata: Metadata = {
-  title: "PolarLearn",
-  description: "Beter dan studygo frfr 🔥🔥🔥",
+    title: "PolarLearn",
+    description: "Beter dan studygo frfr 🔥🔥🔥",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+export default async function RootLayout({
+                                             children,
+                                         }: Readonly<{
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    const headersList = await headers();
+    const hideNavbar = headersList.get('x-hide-navbar') === 'true';
+
+    return (
+        <html lang="en">
+        <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+        {!hideNavbar && <TopNavBar />}
         {children}
-      </body>
-    </html>
-  );
+        </body>
+        </html>
+    );
 }

@@ -10,3 +10,5 @@ https://copilot.github.com/
 TailWindCSS gradient generator:
 https://www.creative-tim.com/twcomponents/gradient-generator
 
+Login page:
+https://flowbite.com/blocks/marketing/login/

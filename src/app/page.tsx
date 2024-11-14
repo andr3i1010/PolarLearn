@@ -1,6 +1,5 @@
 import './home.css';
 import Image from "next/image";
-import { topNavBar } from "@/components/navbar/topNavBar";
 
 export default function Home() {
     return (
@@ -13,11 +12,7 @@ export default function Home() {
                     <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen.</p>
                 </div>
             </div>
-
             <div className="hidden md:flex flex-col min-h-screen">
-                <div className="sticky top-0 z-20">
-                    {topNavBar()}
-                </div>
 
                 <div className="relative -mt-44 z-10 flex-grow h-screen flex items-center justify-center">
                     <section
