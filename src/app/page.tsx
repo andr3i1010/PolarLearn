@@ -13,7 +13,6 @@ export default function Home() {
                 </div>
             </div>
             <div className="hidden md:flex flex-col min-h-screen">
-
                 <div className="relative -mt-44 z-10 flex-grow h-screen flex items-center justify-center">
                     <section
                         className="w-full bg-neutral-800 pt-8 pb-8 drop-shadow-xl drop-down font-[family-name:var(--font-geist-sans)]">

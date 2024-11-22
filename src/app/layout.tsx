@@ -34,9 +34,13 @@ export default async function RootLayout({
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-        {!hideNavbar && <TopNavBar />}
+        <nav>
+            {!hideNavbar && <TopNavBar />}
+        </nav>
         {children}
-        <Footer />
+        <footer>
+            <Footer />
+        </footer>
         </body>
         </html>
     );
