@@ -4,14 +4,7 @@ import Image from "next/image";
 export default function Home() {
     return (
         <div className="flex flex-col min-h-screen">
-            <div
-                className="block md:hidden fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
-                <div className="flex flex-col items-center">
-                    <p className="text-6xl">⚠️</p>
-                    <br/>
-                    <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen.</p>
-                </div>
-            </div>
+            
             <div className="hidden md:flex flex-col min-h-screen">
                 <div className="relative -mt-44 z-10 flex-grow h-screen flex items-center justify-center">
                     <section

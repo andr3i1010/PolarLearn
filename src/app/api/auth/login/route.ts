@@ -1,53 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import pool from '@/utils/mysql';
-import { RowDataPacket } from 'mysql2';
 import jwt from 'jsonwebtoken';
+import { RowDataPacket } from 'mysql2';
 
-type User = {
-    id: number;
-    email: string;
-    passwordHash: string;
-    salt: string;
-};
-
-const JWT_SIGNING_KEY = process.env.JWT_SIGNING_KEY;
-
-if (!JWT_SIGNING_KEY) {
-    throw new Error('JWT_SIGNING_KEY is not defined');
-}
+const JWT_SIGNING_KEY = process.env.JWT_SIGNING_KEY as string;
 
 export const POST = async (req: NextRequest) => {
     try {
-        const { email, password, stayLoggedIn } = await req.json();
+        const { email, password } = await req.json();
 
         if (!email || !password) {
             return NextResponse.json({ success: false, message: 'Email and password are required' }, { status: 400 });
         }
 
-        const [rows] = await pool.query<RowDataPacket[]>('SELECT * FROM userdata WHERE email = ?', [email]);
-        const user = rows[0] as User;
+        // Query the database to get the user based on the email
+        const [rows]: [RowDataPacket[], any] = await pool.query('SELECT * FROM userdata WHERE email = ?', [email]);
+        const user = rows[0];
 
-        if (!user || !user.passwordHash || !user.salt) {
+        if (!user) {
             return NextResponse.json({ success: false, message: 'Invalid email or password' }, { status: 401 });
         }
 
+        // Hash the provided password with the stored salt
         const hash = crypto.pbkdf2Sync(password, user.salt, 1000, 64, 'sha512').toString('hex');
 
         if (hash !== user.passwordHash) {
             return NextResponse.json({ success: false, message: 'Invalid email or password' }, { status: 401 });
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SIGNING_KEY, { expiresIn: '2h' });
+        // Generate a JWT token
+        const token = jwt.sign({ id: user.uuid, email: user.email }, JWT_SIGNING_KEY, { expiresIn: '2h' });
 
         // Store the token in the database
-        await pool.query('UPDATE userdata SET token = ? WHERE id = ?', [token, user.id]);
+        await pool.query('UPDATE userdata SET token = ? WHERE uuid = ?', [token, user.uuid]);
 
+        // Create the response and set the token as a cookie
         const response = NextResponse.json({ success: true, redirectUrl: '/' });
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: true,
-            maxAge: stayLoggedIn ? 60 * 60 * 24 * 7 : 0,
+            maxAge: 60 * 60 * 2
         });
 
         return response;

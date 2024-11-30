@@ -11,6 +11,12 @@ export const POST = async (req: NextRequest) => {
             return NextResponse.json({ success: false, message: 'Username, email, and password are required' }, { status: 400 });
         }
 
+        // Check if the user already exists
+        const [rows]: any = await pool.query('SELECT * FROM userdata WHERE username = ?', [username]);
+        if (rows.length > 0) {
+            return NextResponse.json({ success: false, message: 'Username already exists' }, { status: 400 });
+        }
+
         // Generate UUID for the user
         const userId = uuidv4();
 
@@ -20,8 +26,11 @@ export const POST = async (req: NextRequest) => {
         // Hash the password with the salt
         const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
 
-        // Insert user into the database with UUID, salt, and hashed password
-        await pool.query('INSERT INTO userdata (uuid, username, email, passwordHash, salt) VALUES (?, ?, ?, ?, ?)', [userId, username, email, hash, salt]);
+        // Set default usertype
+        const usertype = 'default';
+
+        // Insert user into the database with UUID, salt, hashed password, and default usertype
+        await pool.query('INSERT INTO userdata (uuid, username, email, passwordHash, salt, userType) VALUES (?, ?, ?, ?, ?, ?)', [userId, username, email, hash, salt, usertype]);
 
         return NextResponse.json({ success: true, message: 'User registered successfully' }, { status: 201 });
     } catch (error) {

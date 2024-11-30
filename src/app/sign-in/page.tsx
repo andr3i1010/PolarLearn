@@ -8,7 +8,6 @@ import { useState } from 'react';
 
 export default function Login() {
     const [error, setError] = useState<string | null>(null);
-    const [stayLoggedIn, setStayLoggedIn] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -26,7 +25,7 @@ export default function Login() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password, stayLoggedIn }),
+                body: JSON.stringify({ email, password }),
             });
 
             if (!response.ok) {
@@ -71,10 +70,6 @@ export default function Login() {
                             <div>
                                 <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
                                 <input type="password" name="password" id="password" placeholder="••••••••" className="bg-neutral-800 border text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 dark:text-white focus:border-blue-500" required />
-                            </div>
-                            <div className="flex items-center">
-                                <input type="checkbox" id="stayLoggedIn" checked={stayLoggedIn} onChange={(e) => setStayLoggedIn(e.target.checked)} />
-                                <label htmlFor="stayLoggedIn" className="ml-2 text-sm font-medium text-gray-900 dark:text-white">Stay logged in</label>
                             </div>
                             <Button1 text="Log in" type="submit" />
                             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
