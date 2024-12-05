@@ -2,6 +2,10 @@
 
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
+<<<<<<< Updated upstream
+=======
+import Button1 from "@/components/button/Button1";
+>>>>>>> Stashed changes
 
 const errorDescriptions: { [key: string]: string } = {
     '200': 'Hoe heb je dit überhaupt gedaan!!??',

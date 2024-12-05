@@ -41,4 +41,5 @@ next-env.d.ts
 
 # Persoonlijke dingen
 .idea
-pnpm*
+pnpm-lock.yaml
+.env.local
