@@ -3,24 +3,9 @@ import Image from "next/image";
 
 export default function Home() {
     return (
-<<<<<<< Updated upstream
-        <div className="flex flex-col min-h-screen">
-            <div
-                className="block md:hidden fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
-                <div className="flex flex-col items-center">
-                    <p className="text-6xl">⚠️</p>
-                    <br/>
-                    <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen.</p>
-                </div>
-            </div>
-            <div className="hidden md:flex flex-col min-h-screen">
-
-                <div className="relative -mt-44 z-10 flex-grow h-screen flex items-center justify-center">
-=======
         <div className="flex flex-col">            
             <div className="hidden md:flex flex-col">
                 <div className="relative flex items-center justify-center">
->>>>>>> Stashed changes
                     <section
                         className="w-full bg-neutral-800 pt-8 pb-8 drop-shadow-xl drop-down font-[family-name:var(--font-geist-sans)]">
                         <h1 className="text-center text-7xl font-extrabold leading-tight bg-gradient-to-r from-sky-400 to-sky-100 bg-clip-text text-transparent drop-down">

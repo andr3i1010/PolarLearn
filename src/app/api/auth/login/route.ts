@@ -3,18 +3,22 @@ import crypto from 'crypto';
 import pool from '@/utils/mysql';
 import jwt from 'jsonwebtoken';
 import { RowDataPacket } from 'mysql2';
+import { redirect } from 'next/navigation';
 
 const JWT_SIGNING_KEY = process.env.JWT_SIGNING_KEY as string;
 
 export const POST = async (req: NextRequest) => {
     try {
-        const { email, password } = await req.json();
+        const body = await req.json(); // parse JSON
+        console.log(body);
+        
+        const { email, password } = body; // destructure email and password
 
         if (!email || !password) {
             return NextResponse.json({ success: false, message: 'Email and password are required' }, { status: 400 });
         }
 
-        // Query the database to get the user based on the email
+        // Query the xdatabase to get the user based on the email
         const [rows]: [RowDataPacket[], any] = await pool.query('SELECT * FROM userdata WHERE email = ?', [email]);
         const user = rows[0];
 
@@ -25,7 +29,7 @@ export const POST = async (req: NextRequest) => {
         // Hash the provided password with the stored salt
         const hash = crypto.pbkdf2Sync(password, user.salt, 1000, 64, 'sha512').toString('hex');
 
-        if (hash !== user.passwordHash) {
+        if (hash !== user.password_hash) {
             return NextResponse.json({ success: false, message: 'Invalid email or password' }, { status: 401 });
         }
 
@@ -40,7 +44,7 @@ export const POST = async (req: NextRequest) => {
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: true,
-            maxAge: 60 * 60 * 2
+            maxAge: 60 * 60 * 4
         });
 
         return response;

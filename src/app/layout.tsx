@@ -3,14 +3,10 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { TopNavBar } from "@/components/navbar/TopNavBar";
 import { headers } from "next/headers";
-<<<<<<< Updated upstream
-import Footer from "@/components/footer/footer";
-=======
 import Footer from "@/components/footer/Footer";
 import { disableReactDevTools } from '@fvilers/disable-react-devtools';
 import { checkDev } from "@/utils/checkdev";
 import Button1 from "@/components/button/Button1";
->>>>>>> Stashed changes
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -22,6 +18,11 @@ const geistMono = localFont({
     variable: "--font-geist-mono",
     weight: "100 900",
 });
+
+const twEmoji = localFont({
+    src: './fonts/TwitterColorEmoji-SVGinOT.ttf',
+    variable: '--font-twemoji'
+})
 
 export const metadata: Metadata = {
     title: "PolarLearn",
@@ -35,18 +36,10 @@ export default async function RootLayout({
 }>) {
     const headersList = await headers();
     const hideNavbar = headersList.get('x-hide-navbar') === 'true';
+    const polarUrl = process.env.POLARLEARN_URL;
 
-    return (
+    return await checkDev() ? (
         <html lang="en">
-<<<<<<< Updated upstream
-        <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-        {!hideNavbar && <TopNavBar />}
-        {children}
-        <Footer />
-        </body>
-=======
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
             >
@@ -84,7 +77,6 @@ export default async function RootLayout({
                     </div>
                 </div>
             </body>
->>>>>>> Stashed changes
         </html>
     );
 }

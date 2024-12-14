@@ -1,10 +1,12 @@
-// src/utils/checkDev.ts
-
 import { cookies } from 'next/headers';
 import pool from '@/utils/mysql';
 import { RowDataPacket } from 'mysql2/promise';
 
-export async function checkDev(): Promise<boolean> {  
+export async function checkDev(): Promise<boolean> {
+
+  if (process.env.ALLOW_EVERYONE_ON_DEV == "true") {
+    return true
+  }
 
   // Await the cookies() function to get the ReadonlyRequestCookies
   const cookieStore = await cookies();

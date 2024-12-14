@@ -1,45 +1,14 @@
-"use client"
-import { useEffect, useState } from 'react';
-
-export default function Recent() {
-  const [recentSubjects, setRecentSubjects] = useState<string[]>([]);
-  const [recentLists, setRecentLists] = useState<string[]>([]);
-
-  useEffect(() => {
-  async function fetchData() {
-    try {
-      const response = await fetch('/api/recents');
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      setRecentSubjects(data.recent_subjects || []);
-      setRecentLists(data.recent_lists || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  }
-
-  fetchData();
-}, []);
-
-
+export default async function Recent() {
   return (
     <>
-      <div>
-        <h2>Recent Subjects</h2>
-        <ul>
-          {recentSubjects.map((subject) => (
-            <li key={subject}>{subject}</li>
-          ))}
-        </ul>
-        <h2>Recent Lists</h2>
-        <ul>
-          {recentLists.map((list) => (
-            <li key={list}>{list}</li>
-          ))}
-        </ul>
+    <div className="subjects">
+      <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
+      <div className='wrapper'>
+        <div className="flex pt-5 pl-5 space-x-4 relative overflow-hidden">
+          <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid">TEST 🇩🇪</div>
+        </div>
       </div>
-    </>
+    </div>
+  </>
   );
 }

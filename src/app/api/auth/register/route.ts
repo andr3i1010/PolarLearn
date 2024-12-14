@@ -28,12 +28,12 @@ export const POST = async (req: NextRequest) => {
 
         // Set default usertype
         const usertype = 'default';
-        const defaultListValue = '{"recent_subjects": [], "recent_lists": []}';
+        const defaultListValue = '{"recent_subjects": [], "recent_lists": [], "all_lists_practiced": [], "lists_created": []}';
 
         // Insert user into the database with UUID, salt, hashed password, and default usertype
-        await pool.query('INSERT INTO userdata (uuid, username, email, passwordHash, salt, user_type) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, username, email, hash, salt, usertype, defaultListValue]);
+        await pool.query('INSERT INTO userdata (uuid, username, email, password_hash, salt, user_type, list_data) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, username, email, hash, salt, usertype, defaultListValue]);
 
-        return NextResponse.json({ success: true, message: 'User registered successfully' }, { status: 201 });
+        return NextResponse.json({ success: true, message: 'User registered successfully', redirectUrl: '/home/recent' }, { status: 201 });
     } catch (error) {
         console.error('Error processing request:', error);
         return NextResponse.json({ success: false, message: 'Internal Server Error' }, { status: 500 });
