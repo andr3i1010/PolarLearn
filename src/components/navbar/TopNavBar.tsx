@@ -26,7 +26,7 @@ export function TopNavBar() {
 
   // Memoize this value for better performance on repeated renders
   const shouldHideNav = useMemo(
-    () => isMounted && hiddenPaths.some((hiddenPath) => pathname.startsWith(hiddenPath)),
+    () => isMounted && pathname && hiddenPaths.some((hiddenPath) => pathname.startsWith(hiddenPath)),
     [isMounted, pathname] // Recalculate only when these change
   );
 
@@ -52,7 +52,7 @@ export function TopNavBar() {
       )}
 
       {/* /home path logic */}
-      {pathname.startsWith("/home") && (
+      {pathname && pathname.startsWith("/home") && (
         <div className={`flex space-x-4 pr-2 ${isNavVisible ? "" : "hidden"}`}>
           <NavBtn text="Recent" redirectTo="/home/recent" useClNav={true} />
           <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
