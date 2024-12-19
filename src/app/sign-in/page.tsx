@@ -14,8 +14,8 @@ export default async function SignInPage() {
   const [rows]: [RowDataPacket[], any] = await pool.query('SELECT * FROM userdata WHERE token = ?', [tokenCookie]);
 
   if (rows.length > 0 && rows[0].token === tokenCookie) {
-    // If token is valid, redirect to /home/recent
-    redirect('/home/recent');
+    // If token is valid, redirect to /home/start
+    redirect('/home/start');
   }
 
   const loginPage = (
@@ -30,9 +30,9 @@ export default async function SignInPage() {
         <div className="w-full rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 bg-neutral-800 border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Log in to your account
+              Log in
             </h1>
-            <SignInForm /> {/* Render the Client Component here */}
+            <SignInForm />
           </div>
         </div>
       </div>

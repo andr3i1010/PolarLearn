@@ -26,7 +26,7 @@ export default function SignUp() {
         if (!response.ok) {
             setError(result.message);
         } else {
-            window.location.href = result.redirectUrl || "/home/recent";
+            window.location.href = result.redirectUrl || "/home/start";
         }
     };
 

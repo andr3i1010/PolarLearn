@@ -33,7 +33,7 @@ export const POST = async (req: NextRequest) => {
         // Insert user into the database with UUID, salt, hashed password, and default usertype
         await pool.query('INSERT INTO userdata (uuid, username, email, password_hash, salt, user_type, list_data) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, username, email, hash, salt, usertype, defaultListValue]);
 
-        return NextResponse.json({ success: true, message: 'User registered successfully', redirectUrl: '/home/recent' }, { status: 201 });
+        return NextResponse.json({ success: true, message: 'User registered successfully', redirectUrl: '/home/start' }, { status: 201 });
     } catch (error) {
         console.error('Error processing request:', error);
         return NextResponse.json({ success: false, message: 'Internal Server Error' }, { status: 500 });

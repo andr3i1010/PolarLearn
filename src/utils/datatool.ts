@@ -87,7 +87,7 @@ export async function userInfo(): Promise<User | null> {
   }
 }
 
-async function lists() {
+export async function lists() {
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
 

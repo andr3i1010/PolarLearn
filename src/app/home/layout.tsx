@@ -24,6 +24,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
     return <>{children}</>;
   } catch (error) {
     // Handle errors and redirect if necessary
-    console.error('Interne serverfout')
+    console.log('Interne serverfout: ' + error)
+    redirect('/sign-in')
   }
 }

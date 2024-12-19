@@ -3,6 +3,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Button1 from '@/components/button/Button1';
 
 const SignInForm = () => {
   const [email, setEmail] = useState('');
@@ -24,7 +26,7 @@ const SignInForm = () => {
 
     if (response.ok) {
       // Redirect on success
-      window.location.replace("/home/recent ")
+      window.location.replace("/home/start")
     } else {
       // Handle error message
       setErrorMessage(result.message || 'Login failed');
@@ -56,7 +58,7 @@ const SignInForm = () => {
           htmlFor="password"
           className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
         >
-          Password
+          Wachtwoord
         </label>
         <input
           type="password"
@@ -72,12 +74,10 @@ const SignInForm = () => {
       {errorMessage && (
         <p className="text-red-500 text-sm">{errorMessage}</p>
       )}
-      <button
-        type="submit"
-        className="w-full bg-blue-500 text-white rounded-lg p-2.5"
-      >
-        Log in
-      </button>
+      <Button1 type='submit' text='Log In' className='w-full'/>
+      <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+        Don’t have an account? <Link href="/sign-up" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</Link>
+      </p>
     </form>
   );
 };

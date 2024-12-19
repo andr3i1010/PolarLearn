@@ -5,6 +5,7 @@ import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.png";
 import { usePathname } from "next/navigation";
+import DropdownBtn from "../button/DropdownBtn";
 
 export function TopNavBar() {
   const [isMounted, setIsMounted] = useState(false);
@@ -41,7 +42,7 @@ export function TopNavBar() {
   }
 
   return (
-    <div className="sticky w-full h-16 bg-neutral-900 flex items-center top-0 left-0 z-50 fade-in font-[family-name:var(--font-geist-sans)] font-bold">
+    <div className="sticky w-full h-16 bg-neutral-900 flex items-center top-0 fade-in font-[family-name:var(--font-geist-sans)] font-bold">
       <a href="/">
         <Image className="ml-4" src={pl500} alt="PolarLearn Logo" height={50} width={50} />
       </a>
@@ -53,9 +54,10 @@ export function TopNavBar() {
 
       {/* /home path logic */}
       {pathname && pathname.startsWith("/home") && (
-        <div className={`flex space-x-4 pr-2 ${isNavVisible ? "" : "hidden"}`}>
-          <NavBtn text="Recent" redirectTo="/home/recent" useClNav={true} />
+        <div className={`space-x-4  ${isNavVisible ? "" : "hidden"}`}>
+          <NavBtn text="Recent" redirectTo="/home/start" useClNav={true} />
           <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
+          <DropdownBtn/>
         </div>
       )}
 

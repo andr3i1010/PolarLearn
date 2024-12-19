@@ -40,7 +40,7 @@ export const POST = async (req: NextRequest) => {
         await pool.query('UPDATE userdata SET token = ? WHERE uuid = ?', [token, user.uuid]);
 
         // Create the response and set the token as a cookie
-        const response = NextResponse.json({ success: true, redirectUrl: '/home/recent' });
+        const response = NextResponse.json({ success: true, redirectUrl: '/home/start' });
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: true,

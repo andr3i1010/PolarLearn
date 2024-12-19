@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { lists } from "@/utils/datatool";
 export default async function Recent() {
   return (
     <>
@@ -5,7 +7,7 @@ export default async function Recent() {
       <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
       <div className='wrapper'>
         <div className="flex pt-5 pl-5 space-x-4 relative overflow-hidden">
-          <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid">TEST 🇩🇪</div>
+          <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
         </div>
       </div>
     </div>
