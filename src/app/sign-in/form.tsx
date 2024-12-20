@@ -76,7 +76,7 @@ const SignInForm = () => {
       )}
       <Button1 type='submit' text='Log In' className='w-full'/>
       <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-        Don’t have an account? <Link href="/sign-up" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</Link>
+        Heb je nog geen account? <Link href="/sign-up" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Maak er dan eentje!</Link>
       </p>
     </form>
   );

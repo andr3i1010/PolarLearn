@@ -1,4 +1,3 @@
-// pages/sign-in.tsx (or wherever your login page is)
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import pl500 from '@/../public/pl-500.png';

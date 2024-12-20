@@ -8,7 +8,7 @@ export default function Home() {
                 <div className="relative flex items-center justify-center">
                     <section
                         className="w-full bg-neutral-800 pt-8 pb-8 drop-shadow-xl drop-down font-[family-name:var(--font-geist-sans)]">
-                        <h1 className="text-center text-7xl font-extrabold leading-tight bg-gradient-to-r from-sky-400 to-sky-100 bg-clip-text text-transparent drop-down">
+                        <h1 className="text-center text-7xl font-extrabold leading-tight bg-gradient-to-r to-sky-100 from-sky-500 bg-clip-text text-transparent drop-down">
                             PolarLearn
                         </h1>
                         <br/>

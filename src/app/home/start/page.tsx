@@ -1,8 +1,6 @@
-import { cookies } from "next/headers";
-import { lists } from "@/utils/datatool";
 export default async function Recent() {
   return (
-    <>
+    <div className="flex">
     <div className="subjects">
       <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
       <div className='wrapper'>
@@ -11,6 +9,6 @@ export default async function Recent() {
         </div>
       </div>
     </div>
-  </>
+  </div>
   );
 }

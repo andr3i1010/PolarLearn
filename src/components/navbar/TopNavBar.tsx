@@ -17,11 +17,6 @@ export function TopNavBar() {
     setIsMounted(true);  // Set mounted flag to true after component is mounted on the client
   }, []);
 
-  const toggleNav = () => {
-    console.log("Toggle clicked!");
-    setIsNavVisible((prevState) => !prevState);
-  };
-
   // Define paths where the navbar should be hidden
   const hiddenPaths = ["/sign-in", "/sign-up", "/404", "/500", "/error"];
 
@@ -54,10 +49,10 @@ export function TopNavBar() {
 
       {/* /home path logic */}
       {pathname && pathname.startsWith("/home") && (
-        <div className={`space-x-4  ${isNavVisible ? "" : "hidden"}`}>
+        <div className={`flex space-x-4 ${isNavVisible ? "" : "hidden"}`}>
           <NavBtn text="Recent" redirectTo="/home/start" useClNav={true} />
           <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
-          <DropdownBtn/>
+          <DropdownBtn />
         </div>
       )}
 
@@ -66,7 +61,7 @@ export function TopNavBar() {
         <>
           <div className="flex-grow"></div>
           <div className="flex space-x-4 pr-2">
-            <NavBtn text="Log in" redirectTo="/sign-in" useClNav={false} />
+            <NavBtn text="Log in" redirectTo="/sign-in" useClNav={false} className="" />
           </div>
         </>
       )}
