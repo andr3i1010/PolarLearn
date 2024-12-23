@@ -24,13 +24,13 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.5",
     "next": "15.1.2",
-    "react": "19.0.0-rc-02c0e824-20241028",
-    "react-dom": "19.0.0-rc-02c0e824-20241028",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@types/node": "^20.17.9",
-    "@types/react": "^18.3.12",
+    "@types/react": "^19.0.2",
     "@types/react-dom": "^18.3.1",
     "bcrypt": "^5.1.1",
     "eslint": "^9.17.0",
