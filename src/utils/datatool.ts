@@ -36,7 +36,7 @@ export async function checkDev(): Promise<boolean> {
       }
   
       const userType = rows[0].user_type;
-      return userType === 'allowedDev' || userType === 'admin';
+      return userType === 'betatester' || userType === 'admin';
     } catch (error) {
       console.error('Error checking user type:', error);
       return false;
@@ -104,5 +104,5 @@ export async function lists() {
     throw new Error('User not found');
   }
 
-  return rows[0];
+  return rows[0].list_data;
 }

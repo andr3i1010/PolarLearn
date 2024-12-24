@@ -4,9 +4,9 @@ import "./globals.css";
 import { TopNavBar } from "@/components/navbar/TopNavBar";
 import { headers } from "next/headers";
 import Footer from "@/components/footer/Footer";
-import { disableReactDevTools } from '@fvilers/disable-react-devtools';
-import { checkDev } from "@/utils/checkdev";
+import { checkDev } from "@/utils/datatool";
 import Button1 from "@/components/button/Button1";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -51,12 +51,13 @@ export default async function RootLayout({
                         <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen.</p>
                     </div>
                 </div>
+                <Toaster position="bottom-center" />
             <nav>
                 {!hideNavbar && <TopNavBar />}
             </nav>
             {children}
             <footer className="mt-auto">
-                <Footer />
+                {await Footer()}
             </footer>
             </body>
         </html>
