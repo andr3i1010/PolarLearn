@@ -7,6 +7,8 @@ import Footer from "@/components/footer/Footer";
 import { checkDev } from "@/utils/datatool";
 import Button1 from "@/components/button/Button1";
 import { Toaster } from "react-hot-toast";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/utils/auth";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -30,35 +32,38 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({
-                                             children,
-                                         }: Readonly<{
+    children,
+}: Readonly<{
     children: React.ReactNode;
 }>) {
     const headersList = await headers();
     const hideNavbar = headersList.get('x-hide-navbar') === 'true';
     const polarUrl = process.env.POLARLEARN_URL;
+    const session = await auth();
 
     return await checkDev() ? (
         <html lang="en">
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
             >
-                <div
-                    className=" md:hidden fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
-                    <div className="flex flex-col items-center">
-                        <p className="text-6xl">⚠️</p>
-                        <br/>
-                        <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen.</p>
+                <SessionProvider session={session}>
+                    <div
+                        className=" md:hidden fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
+                        <div className="flex flex-col items-center">
+                            <p className="text-6xl">⚠️</p>
+                            <br />
+                            <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen.</p>
+                        </div>
                     </div>
-                </div>
-                <Toaster position="bottom-center" />
-            <nav>
-                {!hideNavbar && <TopNavBar />}
-            </nav>
-            {children}
-            <footer className="mt-auto">
-                {await Footer()}
-            </footer>
+                    <Toaster position="bottom-center" />
+                    <nav>
+                        {!hideNavbar && <TopNavBar />}
+                    </nav>
+                    {children}
+                    <footer className="mt-auto">
+                        {await Footer()}
+                    </footer>
+                </SessionProvider>
             </body>
         </html>
     ) : (
@@ -70,8 +75,8 @@ export default async function RootLayout({
                     className=" fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
                     <div className="flex flex-col items-center">
                         <p className="text-6xl">⛔</p>
-                        <br/>
-                        <p className="text-xl">Je hebt geen toegang tot de beta-build van PolarLearn. <br/>Als je hebt gedoneerd of een administrator bent, log dan eerst in op <a href={polarUrl} target="_blank" rel="noopener noreferrer">{polarUrl}</a></p>
+                        <br />
+                        <p className="text-xl">Je hebt geen toegang tot de beta-build van PolarLearn. <br />Als je hebt gedoneerd of een administrator bent, log dan eerst in op <a href={polarUrl} target="_blank" rel="noopener noreferrer">{polarUrl}</a></p>
                         <div className="pt-11">
                             <Button1 text={String(polarUrl)} useClNav={false} redirectTo={polarUrl} />
                         </div>

@@ -1,66 +1,91 @@
-import NextAuth, { CredentialsSignin, User } from "next-auth"
+import NextAuth, { CredentialsSignin, User, Session } from "next-auth"
 import Google from "next-auth/providers/google"
 import GitHub from "next-auth/providers/github"
+
+declare module "next-auth" {
+    interface Session {
+        user: User & {
+            role?: string;
+        };
+    }
+}
 import Credentials from "next-auth/providers/credentials"
 import crypto from "crypto"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/utils/prisma"
 import { AppUser } from "./types"
+import { User as DbUser, UserPassword } from "@prisma/client"
 
 class CustomSignInError extends CredentialsSignin {
-  constructor(code: string) {
-    super();
-    this.code = code;
-    this.message = code;
-    this.stack = undefined;
-  }
+    constructor(code: string) {
+        super();
+        this.code = code;
+        this.message = code;
+        this.stack = undefined;
+    }
 }
 
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  providers: [
-    Google,
-    GitHub,
-    Credentials({
-      credentials: {
-        email: {label: "Email", type: "email"},
-        password: {label: "Password", type: "password"},
-      },
-      authorize: async (credentials) => {
-        console.log("Credentials provided:", credentials);
-        let user:  User = {
-          name: "Test User",
-          email: "test@test.com",
-          id: "1234",
+export const { handlers, auth, signIn, signOut } = NextAuth({
+    adapter: PrismaAdapter(prisma),
+    secret: process.env.AUTH_SECRET,
+    pages: {
+        signIn: '/auth/sign-in',
+    },
+    providers: [
+        Google,
+        GitHub,
+        Credentials({
+            credentials: {
+                email: { label: "Email", type: "email" },
+                password: { label: "Password", type: "password" },
+            },
+            authorize: async (credentials) => {
 
-        };
-        return user;
+                const userRow = await prisma.user.findFirst({
+                    where: {
+                        email: credentials.email as string,
+                    },
+                    include: {
+                        userPassword: true,
+                    }
 
-        // const userRow = prisma.User.findFirst({
-        //   where: {
-        //     email: credentials.email,
-        //   },
-        //   include: {
-        //   }
-            
-        // });
+                });
 
-        // console.log("User found:", userRow);
+                if (!userRow) {
+                    console.log("User not found");
+                    throw new CustomSignInError("Invalid email or password");
+                }
 
-        // let user: AppUser | null = null;
+                const passwordData = userRow.userPassword as UserPassword;
 
-        // const hashedpwd = crypto.pbkdf2Sync(credentials.password as string, userRow.salt, 100000, 64, 'sha512')
-        // const isUserPasswordCorrect = hashedpwd.toString('hex') === userRow.password
-        // if (isUserPasswordCorrect) {
-        //   user = {id: userRow.uuid, email: userRow.email, name: userRow.name, role: userRow.role}
-        // } else {
-        //   //throw new Error("Invalid email or password")
-        //   console.log("Invalid email or password");
-        //   throw new CustomSignInError("Invalid email or password");
-        // }
-        // return user;
-      },
-    })
-  ],
+                let user: AppUser | null = null;
+
+                const hashedpwd = crypto.pbkdf2Sync(credentials.password as string, passwordData.salt, 100000, 64, 'sha512')
+                const isUserPasswordCorrect = hashedpwd.toString('hex') === passwordData.password_pbkdf2
+                if (isUserPasswordCorrect) {
+                    user = { id: userRow.id, email: userRow.email, name: userRow.name || '', role: userRow.role || "nobody" }
+                } else {
+                    //throw new Error("Invalid email or password")
+                    console.log("Invalid email or password");
+                    throw new CustomSignInError("Invalid email or password");
+                }
+                return user;
+            },
+        })
+    ],
+    session: {
+        strategy: 'jwt',
+    },
+    callbacks: {
+        jwt({ token, user }) {
+            const dbUser = user as DbUser
+            if (user) token.role = dbUser.role
+            return token
+        },
+        session({ session, token }) {
+            session.user.role = token?.role as string | undefined
+            return session
+        }
+    }
 })
