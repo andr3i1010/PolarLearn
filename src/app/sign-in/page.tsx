@@ -1,22 +1,8 @@
-import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import pl500 from '@/../public/pl-500.png';
 import SignInForm from '@/app/sign-in/form';
-import { RowDataPacket } from 'mysql2';
-import { cookies } from 'next/headers';
-import pool from '@/utils/mysql';
 
 export default async function SignInPage() {
-  const cookieStore = await cookies();
-  const tokenCookie = cookieStore.get('token')?.value;
-
-  const [rows]: [RowDataPacket[], any] = await pool.query('SELECT * FROM userdata WHERE token = ?', [tokenCookie]);
-
-  if (rows.length > 0 && rows[0].token === tokenCookie) {
-    // If token is valid, redirect to /home/start
-    redirect('/home/start');
-  }
-
   const loginPage = (
     <section className="bg-neutral-900 font-[family-name:var(--font-geist-sans)] py-5">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
@@ -37,10 +23,5 @@ export default async function SignInPage() {
       </div>
     </section>
   );
-
-  if (!tokenCookie) {
-    return loginPage;
-  }
-
   return loginPage;
 }

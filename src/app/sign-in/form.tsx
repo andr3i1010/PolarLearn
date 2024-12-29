@@ -3,7 +3,6 @@ import { signIn } from "@/utils/auth";
 import GoogleLogin from '@/components/button/logInGoogle';
 import GithubLogin from '@/components/button/loginGithub';
 import Button1 from '@/components/button/Button1';
-import { toast } from 'react-hot-toast';
 
 const SignInForm = () => {
   return (
@@ -36,9 +35,13 @@ const SignInForm = () => {
           const password = formData.get("password");
           if (email && password) {
             try {
-              await signIn("credentials", { email, password, redirectTo: "/home/recent" });
+              await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+                callbackUrl: "/home/start"
+              });
             } catch (error) {
-              // Do something - login failure
               console.error("Failed to sign in", error);
             }
           }
