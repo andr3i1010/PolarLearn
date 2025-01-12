@@ -9,8 +9,9 @@
     <a href="https://github.com/andr3i1010/PolarLearn/blob/stable/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/andr3i1010/PolarLearn"></a>
     <a href="https://github.com/andr3i1010/PolarLearn/commit"><img src="https://custom-icon-badges.demolab.com/github/last-commit/andr3i1010/PolarLearn?logo=history&logoColor=white&label=Last commit" alt="Badge"></img></a>
     <a href="https://github.com/andr3i1010/PolaeLearn/issues"><img src="https://custom-icon-badges.demolab.com/github/issues-raw/andr3i1010/PolarLearn?logo=issue-opened&label=Issues" alt="Badge"></img></a>
+    <a href="https://prisma.io"><img src="http://made-with.prisma.io/indigo.svg"></a>
   <br/>
-  PolarLearn is een compleet gratis en Open-Source alternatief voor StudyGo, omdat het zo duur is.
+  PolarLearn is een compleet gratis en Open-Source alternatief voor StudyGo.
 </div>
 
 ## Wat kan PolarLearn tot nu toe?
