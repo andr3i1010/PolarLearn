@@ -6,19 +6,18 @@ import { headers } from "next/headers";
 import Footer from "@/components/footer/Footer";
 import { checkDev } from "@/utils/datatool";
 import Button1 from "@/components/button/Button1";
-import { Toaster } from "react-hot-toast";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/utils/auth";
+import { Geist, Geist_Mono } from "next/font/google";
 
-const geistSans = localFont({
-    src: "./fonts/GeistVF.woff",
+const geistSans = Geist({
     variable: "--font-geist-sans",
-    weight: "100 900",
+    subsets: ["latin"],
 });
-const geistMono = localFont({
-    src: "./fonts/GeistMonoVF.woff",
+
+const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
-    weight: "100 900",
+    subsets: ["latin"],
 });
 
 const twEmoji = localFont({
@@ -40,11 +39,19 @@ export default async function RootLayout({
     const hideNavbar = headersList.get('x-hide-navbar') === 'true';
     const polarUrl = process.env.POLARLEARN_URL;
     const session = await auth();
+    const isDev = process.env.NODE_ENV === "production" || await checkDev()
+    const art = `                                          
+                                           __ 
+ _____     _         __                   |  |
+|  _  |___| |___ ___|  |   ___ ___ ___ ___|  |
+|   __| . | | .'|  _|  |__| -_| .'|  _|   |__|
+|__|  |___|_|__,|_| |_____|___|__,|_| |_|_|__|
+    `
 
-    return await checkDev() ? (
-        <html lang="en">
+    return isDev ? (
+        <html lang="en" className={`${geistSans.className} antialiased`}>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+                className={`antialiased flex flex-col min-h-screen `}
             >
                 <SessionProvider session={session}>
                     <div
@@ -55,10 +62,13 @@ export default async function RootLayout({
                             <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen.</p>
                         </div>
                     </div>
-                    <Toaster position="bottom-center" />
                     <nav>
                         {!hideNavbar && <TopNavBar />}
                     </nav>
+                    <div
+                    style={{display: 'none'}}
+                    dangerouslySetInnerHTML={{ __html: art }}
+                    ></div>
                     {children}
                     <footer className="mt-auto">
                         {await Footer()}
@@ -69,7 +79,7 @@ export default async function RootLayout({
     ) : (
         <html lang="en">
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                className={`antialiased`}
             >
                 <div
                     className=" fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">

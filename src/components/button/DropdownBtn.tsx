@@ -60,52 +60,58 @@ const Button1: React.FC<ButtonProps> = ({ className }) => {
     setIsExpanded(false);
   };
 
-  return (
-    <div
-      className="absolute inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      style={{margin: "0px 220px"}}
-    >
-      <div
-        className={`rounded-lg border-4 border-neutral-700 duration-300 hover:border-transparent`}
-        style={{
-          width: `${dropdownWidth}px`,
-          height: isExpanded ? `${48 + dropdownHeight}px` : "48px",
-          backgroundColor: isExpanded ? "transparent" : "#26",
-        }}
-      >
-        <button
-          type="button"
-          className="w-full bg-neutral-800 text-white font-bold py-2 px-4 rounded-t-md"
-        >
-          Leren
-        </button>
+  const handleLinkClick = () => {
+    setIsExpanded(false);
+  };
 
+  return (
+    <div className="absolute">
+      <div
+        className=" inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <div
-          ref={dropdownRef}
-          className={`overflow-hidden transition-all duration-300 ${
-            isExpanded ? "opacity -100" : "opacity-0"
-          }`}
+          className={`rounded-lg border-4 border-neutral-700 duration-300 hover:border-transparent`}
           style={{
-            height: isExpanded ? `${dropdownHeight}px` : "0px",
-            width: `${dropdownWidth - 8}px`,
-            backgroundColor: "#262626",
-            margin: "0 auto",
-            transition: "height 0.3s ease, opacity 0.3s ease",
+            width: `${dropdownWidth}px`,
+            height: isExpanded ? `${48 + dropdownHeight}px` : "48px",
+            backgroundColor: isExpanded ? "transparent" : "#26",
           }}
-          onMouseEnter={handleDropdownMouseEnter}
-          onMouseLeave={handleDropdownMouseLeave}
         >
-          {dropdownMatrix.map(([text, path], index) => (
-            <Link
-              key={index}
-              href={path}
-              className="block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200"
-            >
-              {text}
-            </Link>
-          ))}
+          <button
+            type="button"
+            className="w-full bg-neutral-800 text-white font-bold py-2 px-4 rounded-t-md"
+          >
+            Leren
+          </button>
+
+          <div
+            ref={dropdownRef}
+            className={`overflow-hidden transition-all duration-300 ${
+              isExpanded ? "opacity -100" : "opacity-0"
+            }`}
+            style={{
+              height: isExpanded ? `${dropdownHeight}px` : "0px",
+              width: `${dropdownWidth - 8}px`,
+              backgroundColor: "#262626",
+              margin: "0 auto",
+              transition: "height 0.3s ease, opacity 0.3s ease",
+            }}
+            onMouseEnter={handleDropdownMouseEnter}
+            onMouseLeave={handleDropdownMouseLeave}
+          >
+            {dropdownMatrix.map(([text, path], index) => (
+              <Link
+                key={index}
+                href={path}
+                className="block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200"
+                onClick={handleLinkClick}
+              >
+                {text}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>

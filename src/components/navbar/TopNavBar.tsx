@@ -41,20 +41,31 @@ export function TopNavBar() {
             <a href="/">
                 <Image className="ml-4" src={pl500} alt="PolarLearn Logo" height={50} width={50} />
             </a>
-            {process.env.NODE_ENV === "development" && (
+            {process.env.NODE_ENV === "development" ? (
                 <div className="px-6 text-4xl">
                     <p>BETA</p>
                 </div>
-            )}
+            )
+            : (
+                <div className="w-4"></div>
+            )
+            }
 
             {/* /home path logic */}
             {pathname && pathname.startsWith("/home") && (
-                <div className={`flex space-x-4 ${isNavVisible ? "" : "hidden"}`}>
-                    <NavBtn text="Recent" redirectTo="/home/start" useClNav={true} />
-                    <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
-                    <DropdownBtn />
-                    <NavBtn text="Log out" redirectTo="/auth/sign-out" useClNav={true} />
-                </div>
+                <>
+                    <div className={`flex relative space-x-4 ${isNavVisible ? "" : "hidden"}`}>
+                        <NavBtn text="Recent" redirectTo="/home/start" useClNav={true} />
+                        <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
+                        <div className="relative">
+                            <DropdownBtn />
+                        </div>
+                    </div>
+                    <div className="flex-grow"></div>
+                    <div className="flex space-x-4 pr-2">
+                        <NavBtn text="Log out" redirectTo="/auth/sign-out" useClNav={true} />
+                    </div>
+                </>
             )}
 
             {/* / path logic */}

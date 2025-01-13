@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
 import { auth } from '@/utils/auth';
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
@@ -9,6 +8,5 @@ export default async function Layout({ children }: { children: React.ReactNode }
         // User is not authenticated
         redirect('/auth/sign-in');
     }
-    console.log("Session: ", session);
-
+    return children;
 }

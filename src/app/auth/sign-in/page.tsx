@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import pl500 from '@/../public/pl-500.png';
 import SignInForm from '@/app/auth/sign-in/form';
+import { auth } from '@/utils/auth';
+import { redirect } from 'next/navigation';
 
 export default async function SignInPage() {
     const loginPage = (
@@ -23,5 +25,10 @@ export default async function SignInPage() {
             </div>
         </section>
     );
-    return loginPage;
+
+    if (await auth()) {
+        return redirect('/home/start')
+    } else {
+        return loginPage;
+    }
 }

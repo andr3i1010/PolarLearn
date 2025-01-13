@@ -27,6 +27,7 @@ class CustomSignInError extends CredentialsSignin {
 
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+    trustHost: process.env.VERTROUW_ALLE_AUTH_URLS___SCHAKEL_DIT_NIET_IN_DIT_IS_GEVAARLIJK === 'true' ? true : false,
     adapter: PrismaAdapter(prisma),
     secret: process.env.AUTH_SECRET,
     pages: {
