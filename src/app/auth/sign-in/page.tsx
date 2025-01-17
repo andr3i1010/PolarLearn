@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import pl500 from '@/../public/pl-500.png';
+import pl500 from '@/app/img/pl-500.png';
 import SignInForm from '@/app/auth/sign-in/form';
 import { auth } from '@/utils/auth';
 import { redirect } from 'next/navigation';
