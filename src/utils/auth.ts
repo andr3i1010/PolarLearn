@@ -10,11 +10,11 @@ declare module "next-auth" {
     }
 }
 import Credentials from "next-auth/providers/credentials"
-import crypto from "crypto"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/utils/prisma"
 import { AppUser } from "./types"
-import { User as DbUser, UserPassword } from "@prisma/client"
+import { account as dbUser } from "@prisma/client"
+import argon2 from "argon2"
 
 class CustomSignInError extends CredentialsSignin {
     constructor(code: string) {
@@ -24,7 +24,6 @@ class CustomSignInError extends CredentialsSignin {
         this.stack = undefined;
     }
 }
-
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     trustHost: true,
@@ -42,33 +41,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             authorize: async (credentials) => {
-
-                const userRow = await prisma.user.findFirst({
+                const userRow = await prisma.account.findFirst({
                     where: {
                         email: credentials.email as string,
                     },
                     include: {
-                        userPassword: true,
+                        user_password: true,
                     }
-
                 });
-
-                if (!userRow) {
-                    console.log("User not found");
-                    throw new CustomSignInError("Invalid email or password");
-                }
-
-                const passwordData = userRow.userPassword as UserPassword;
-
+                if (!userRow) throw new CustomSignInError("Invalid email or password");
+                const passwordRow = await prisma.user_password.findFirst({
+                    where: {
+                        user_id: userRow.uuid
+                    },
+                    include: {
+                        user: true
+                    }
+                })
+                if (!passwordRow) throw new CustomSignInError("⚠️ NO PASSWORD FOUND IN DATABASE!!!");
                 let user: AppUser | null = null;
-
-                const hashedpwd = crypto.pbkdf2Sync(credentials.password as string, passwordData.salt, 100000, 64, 'sha512')
-                const isUserPasswordCorrect = hashedpwd.toString('hex') === passwordData.password_pbkdf2
-                if (isUserPasswordCorrect) {
-                    user = { id: userRow.id, email: userRow.email, name: userRow.name || '', role: userRow.role || "nobody" }
+                const isPwdCorrect = await argon2.verify(passwordRow.password, credentials.password as string);
+                if (isPwdCorrect) {
+                    user = { id: userRow.id, email: userRow.email, name: userRow.username || '', role: userRow.role || "default" }
                 } else {
                     //throw new Error("Invalid email or password")
-                    console.log("Invalid email or password");
                     throw new CustomSignInError("Invalid email or password");
                 }
                 return user;
@@ -80,7 +76,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     callbacks: {
         jwt({ token, user }) {
-            const dbUser = user as DbUser
+            const dbUser = user as dbUser
             if (user) token.role = dbUser.role
             return token
         },

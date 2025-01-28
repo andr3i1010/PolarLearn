@@ -1,42 +1,9 @@
-"use client"; // Client-side component
-
-import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.png";
-import { usePathname } from "next/navigation";
 import DropdownBtn from "../button/DropdownBtn";
-
-export function TopNavBar() {
-    const [isMounted, setIsMounted] = useState(false);
-    const pathname = usePathname();
-    const [isNavVisible, setIsNavVisible] = useState(true);
-
-    // Handle client-only rendering
-    useEffect(() => {
-        setIsMounted(true);  // Set mounted flag to true after component is mounted on the client
-    }, []);
-
-    // Define paths where the navbar should be hidden
-    const hiddenPaths = ["/auth/sign-in", "/auth/sign-up", "/404", "/500", "/error"];
-
-    // Memoize this value for better performance on repeated renders
-    const shouldHideNav = useMemo(
-        () => isMounted && pathname && hiddenPaths.some((hiddenPath) => pathname.startsWith(hiddenPath)),
-        [isMounted, pathname] // Recalculate only when these change
-    );
-
-    // If the navbar should be hidden, return null
-    if (shouldHideNav) {
-        return null;
-    }
-
-    // Now, render only if mounted on the client to avoid hydration issues
-    if (!isMounted) {
-        return null;  // Ensure it renders nothing on the server
-    }
-
-    return (
+export function TopNavBar({ pathname }: { pathname: string }) {
+                    return (
         <div className="sticky w-full h-16 bg-neutral-900 flex items-center top-0 fade-in font-[family-name:var(--font-geist-sans)] font-bold">
             <a href="/">
                 <Image className="ml-4" src={pl500} alt="PolarLearn Logo" height={50} width={50} />
@@ -54,7 +21,7 @@ export function TopNavBar() {
             {/* /home path logic */}
             {pathname && pathname.startsWith("/home") && (
                 <>
-                    <div className={`flex relative space-x-4 ${isNavVisible ? "" : "hidden"}`}>
+                    <div className={`flex relative space-x-4`}>
                         <NavBtn text="Recent" redirectTo="/home/start" useClNav={true} />
                         <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
                         <div className="relative">
@@ -63,7 +30,7 @@ export function TopNavBar() {
                     </div>
                     <div className="flex-grow"></div>
                     <div className="flex space-x-4 pr-2">
-                        <NavBtn text="Log out" redirectTo="/auth/sign-out" useClNav={true} />
+                        <NavBtn text="Log out" redirectTo="/auth/sign-out" useClNav={false} />
                     </div>
                 </>
             )}

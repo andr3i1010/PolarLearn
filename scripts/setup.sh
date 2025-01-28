@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 NON_INTERACTIVE=false
 BUILD_MODE=""
 DB_TYPE=""
@@ -11,48 +13,40 @@ GOOGLE_CLIENT_SECRET=""
 GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
 
+# Simplify argument parsing
 for arg in "$@"; do
     case $arg in
         --non-interactive)
-        NON_INTERACTIVE=true
-        shift
-        ;;
+            NON_INTERACTIVE=true
+            ;;
         --build=*)
-        BUILD_MODE="${arg#*=}"
-        shift
-        ;;
-        --db-type=*)
-        DB_TYPE="${arg#*=}"
-        shift
-        ;;
+            BUILD_MODE="${arg#*=}"
+            ;;
         --database-url=*)
-        DATABASE_URL="${arg#*=}"
-        shift
-        ;;
+            DATABASE_URL="${arg#*=}"
+            ;;
         --polarlearn-url=*)
-        POLARLEARN_URL="${arg#*=}"
-        shift
-        ;;
+            POLARLEARN_URL="${arg#*=}"
+            ;;
         --allow-everyone-on-dev=*)
-        ALLOW_EVERYONE_ON_DEV="${arg#*=}"
-        shift
-        ;;
+            ALLOW_EVERYONE_ON_DEV="${arg#*=}"
+            ;;
         --google-client-id=*)
-        GOOGLE_CLIENT_ID="${arg#*=}"
-        shift
-        ;;
+            GOOGLE_CLIENT_ID="${arg#*=}"
+            ;;
         --google-client-secret=*)
-        GOOGLE_CLIENT_SECRET="${arg#*=}"
-        shift
-        ;;
+            GOOGLE_CLIENT_SECRET="${arg#*=}"
+            ;;
         --github-client-id=*)
-        GITHUB_CLIENT_ID="${arg#*=}"
-        shift
-        ;;
+            GITHUB_CLIENT_ID="${arg#*=}"
+            ;;
         --github-client-secret=*)
-        GITHUB_CLIENT_SECRET="${arg#*=}"
-        shift
-        ;;
+            GITHUB_CLIENT_SECRET="${arg#*=}"
+            ;;
+        *)
+            echo "Unknown option: $arg" >&2
+            exit 1
+            ;;
     esac
 done
 
@@ -64,66 +58,24 @@ check_env() {
 }
 
 check_whiptail() {
-    if ! [ -x "$(command -v whiptail)" ]; then
-        echo 'Error: Whiptail is niet geinstalleerd.' >&2
+    if ! command -v whiptail &> /dev/null; then
+        echo 'Error: Whiptail is niet geïnstalleerd.' >&2
         exit 1
     fi
 }
 
-select_database() {
-    if [ "$NON_INTERACTIVE" = true ]; then
-        db="$DB_TYPE"
-    else
-        db=$(whiptail --title "PolarLearn" --menu "Kies de database" 15 78 6 \
-                    "PostgreSQL" "" \
-                    "MySQL" "" \
-                    "MSSQL" "" \
-                    "PlanetScale" "" \
-                    "CockroachDB" "" \
-                    "MongoDB" "" 3>&1 1>&2 2>&3)
-    fi
-    case $db in
-        "PostgreSQL")
-        echo -e "\033[1;33m🐘 PostgreSQL geselecteerd\033[0m"
-        sed -i '/datasource db {/!b;n;s/provider = ".*"/provider = "postgresql"/' prisma/schema.prisma
-        ;;
-        "MySQL")
-        echo -e "\033[1;33m🐬 MySQL geselecteerd\033[0m"
-        sed -i '/datasource db {/!b;n;s/provider = ".*"/provider = "mysql"/' prisma/schema.prisma
-        ;;
-        "MSSQL")
-        echo -e "\033[1;33m🪟 MSSQL geselecteerd\033[0m"
-        sed -i '/datasource db {/!b;n;s/provider = ".*"/provider = "sqlserver"/' prisma/schema.prisma
-        ;;
-        "PlanetScale")
-        echo -e "\033[1;33m🪐 PlanetScale geselecteerd\033[0m"
-        sed -i '/datasource db {/!b;n;s/provider = ".*"/provider = "mysql"/' prisma/schema.prisma
-        ;;
-        "CockroachDB")
-        echo -e "\033[1;33m🪳 CockroachDB geselecteerd\033[0m"
-        sed -i '/datasource db {/!b;n;s/provider = ".*"/provider = "cockroachdb"/' prisma/schema.prisma
-        ;;
-        "MongoDB")
-        echo -e "\033[1;33m🌿 MongoDB geselecteerd\033[0m"
-        sed -i '/datasource db {/!b;n;s/provider = ".*"/provider = "mongodb"/' prisma/schema.prisma
-        ;;
-        *)
-        echo -e "\033[1;31m########## Annuleren gedrukt. ##########"
-        exit 1
-        ;;
-    esac
-}
-
+# Consolidate environment variable configuration
 configure_env() {
-    echo "DATABASE_URL=\"$DATABASE_URL\"" >> .env
-    select_database
-    echo "POLARLEARN_URL=\"$POLARLEARN_URL\"" >> .env
-    echo "ALLOW_EVERYONE_ON_DEV=\"$ALLOW_EVERYONE_ON_DEV\"" >> .env
-    echo "AUTH_GOOGLE_ID=\"$GOOGLE_CLIENT_ID\"" >> .env
-    echo "AUTH_GOOGLE_SECRET=\"$GOOGLE_CLIENT_SECRET\"" >> .env
-    echo "AUTH_GITHUB_ID=\"$GITHUB_CLIENT_ID\"" >> .env
-    echo "AUTH_GITHUB_SECRET=\"$GITHUB_CLIENT_SECRET\"" >> .env
-    echo "AUTH_SECRET=\"$(openssl rand --base64 32)\"" >> .env
+    cat <<EOF >> .env
+DATABASE_URL="$DATABASE_URL"
+POLARLEARN_URL="$POLARLEARN_URL"
+ALLOW_EVERYONE_ON_DEV="$ALLOW_EVERYONE_ON_DEV"
+AUTH_GOOGLE_ID="$GOOGLE_CLIENT_ID"
+AUTH_GOOGLE_SECRET="$GOOGLE_CLIENT_SECRET"
+AUTH_GITHUB_ID="$GITHUB_CLIENT_ID"
+AUTH_GITHUB_SECRET="$GITHUB_CLIENT_SECRET"
+AUTH_SECRET="$(openssl rand --base64 32)"
+EOF
     echo -e "\033[1;32m🎉 .env is geconfigureerd! Voer dit script opnieuw uit om PolarLearn te bouwen."
 }
 
@@ -133,32 +85,15 @@ first_time() {
             configure_env
         else
             if whiptail --title "PolarLearn" --yesno "Dit lijkt de eerste keer te zijn dat je PolarLearn bouwt. Wil je door deze script de .env configureren?" 8 78; then
-                dburl=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de URL van de database:" 8 78 3>&1 1>&2 2>&3)
-                echo "DATABASE_URL=\"$dburl\"" >> .env
-                select_database
-                polarlearn_url=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de URL van waar PolarLearn wordt gehost:" 8 78 3>&1 1>&2 2>&3)
-                echo "POLARLEARN_URL=\"$polarlearn_url\"" >> .env
-
-                if whiptail --title "PolarLearn" --yesno "Wil je dat iedereen op de development build kan komen zelfs als de gebruiker niet is ingelogd?" 8 78; then
-                    echo "ALLOW_EVERYONE_ON_DEV=\"true\"" >> .env
-                else 
-                    echo "ALLOW_EVERYONE_ON_DEV=\"false\"" >> .env
-                fi
-
-                googlecid=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de Google OAuth2 Client ID:" 8 78 3>&1 1>&2 2>&3)
-                googlecsecret=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de Google OAuth2 Client Secret:" 8 78 3>&1 1>&2 2>&3)
-                echo "GOOGLE_CLIENT_ID=$googlecid" >> .env
-                echo "GOOGLE_CLIENT_SECRET=\"$googlecsecret\"" >> .env
-
-                ghid=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de GitHub OAuth2 Client ID:" 8 78 3>&1 1>&2 2>&3)
-                ghsecret=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de GitHub OAuth2 Client Secret:" 8 78 3>&1 1>&2 2>&3)
-
-                echo "GITHUB_CLIENT_ID=\"$ghid\"" >> .env
-                echo "GITHUB_CLIENT_SECRET=\"$ghsecret\"" >> .env
-
-                echo "AUTH_SECRET=\"$(openssl rand --base64 32)\"" >> .env
-
-                echo -e "\033[1;32m🎉 .env is geconfigureerd! Voer dit script opnieuw uit om PolarLearn te bouwen."
+                DATABASE_URL=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de URL van de database:" 8 78 3>&1 1>&2 2>&3)
+                POLARLEARN_URL=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de URL van waar PolarLearn wordt gehost:" 8 78 3>&1 1>&2 2>&3)
+                ALLOW_EVERYONE_ON_DEV=$(whiptail --title "PolarLearn" --yesno "Wil je dat iedereen op de development build kan komen zelfs als de gebruiker niet is ingelogd?" 8 78 && echo "true" || echo "false")
+                GOOGLE_CLIENT_ID=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de Google OAuth2 Client ID:" 8 78 3>&1 1>&2 2>&3)
+                GOOGLE_CLIENT_SECRET=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de Google OAuth2 Client Secret:" 8 78 3>&1 1>&2 2>&3)
+                GITHUB_CLIENT_ID=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de GitHub OAuth2 Client ID:" 8 78 3>&1 1>&2 2>&3)
+                GITHUB_CLIENT_SECRET=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de GitHub OAuth2 Client Secret:" 8 78 3>&1 1>&2 2>&3)
+                configure_env
+                pnpm i
             else
                 echo -e "\033[1;31m########## Annuleren gedrukt. ##########"
                 exit 1
@@ -173,63 +108,58 @@ confirm_env() {
         exit 1
     fi
 
-    if ! grep -q "DATABASE_URL" .env || ! grep -q "POLARLEARN_URL" .env || ! grep -q "ALLOW_EVERYONE_ON_DEV" .env || ! grep -q "AUTH_GOOGLE_ID" .env || ! grep -q "AUTH_GOOGLE_SECRET" .env || ! grep -q "AUTH_GITHUB_ID" .env || ! grep -q "AUTH_GITHUB_SECRET" .env || ! grep -q "AUTH_SECRET" .env; then
-        echo -e "\033[1;31m########### .env bestand is niet volledig ingevuld ###########"
+    required_vars=("DATABASE_URL" "POLARLEARN_URL" "ALLOW_EVERYONE_ON_DEV" "AUTH_GOOGLE_ID" "AUTH_GOOGLE_SECRET" "AUTH_GITHUB_ID" "AUTH_GITHUB_SECRET" "AUTH_SECRET")
+    for var in "${required_vars[@]}"; do
+        if ! grep -q "$var" .env; then
+            echo -e "\033[1;31m########### .env bestand is niet volledig ingevuld ###########"
+            exit 1
+        fi
+    done
+}
+# Refactor build mode selection and confirmation
+select_build_mode() {
+    if whiptail --title "PolarLearn" --yesno "Builden voor:" --yes-button "Productie" --no-button "Development" 8 78; then
+        BUILD_MODE="prod"
+    else
+        BUILD_MODE="dev"
+    fi
+
+    if [ "$BUILD_MODE" = "prod" ]; then
+        echo -e "\033[1m\033[92m#### 🌐 Productie build geselecteerd ####\033[0m"
+    else
+        echo -e "\033[1m\033[38;5;214m#### 🧑‍💻 Development build geselecteerd ####\033[0m"
+    fi
+
+    echo -n "Zijn deze instellingen correct? (y/n): "
+    read -r confirm
+    if [ "$confirm" != "y" ]; then
+        echo -e "\033[1;31m########## Annuleren gedrukt. ##########"
         exit 1
     fi
 }
 
-build() {
-    echo -e "\033[1;33m🚀 PolarLearn wordt gebouwd...\033[0m"
-    pnpx prisma generate
-    pnpm build
-    echo -e "\033[1;32m🎉 PolarLearn is gebouwd!"
-}
-
-check_env
 check_whiptail
 first_time
 
 if [ "$BUILD_MODE" = "prod" ]; then
-    echo -e "\033[1m\033[92m#### 🌐 Productie build geselecteerd ####\033[0m"
-    confirm_env
-    select_database
     build
     echo -e "\033[1;33m🚀 PolarLearn wordt gestart...\033[0m"
     pnpm start
 elif [ "$BUILD_MODE" = "dev" ]; then
     echo -e "\033[1m\033[38;5;214m#### 🧑‍💻 Development build geselecteerd ####\033[0m"
-    confirm_env
-    select_database
-    build
     echo -e "\033[1;33m🚀 Dev server starten...\033[0m"
     pnpm dev
 else
-    if whiptail --title "PolarLearn " --yesno "Builden voor:" --yes-button "Productie" --no-button "Development" 8 78; then
-        echo -e "\033[1m\033[92m#### 🌐 Productie build geselecteerd ####\033[0m"
-        confirm_env
-        select_database
-        echo -n "Zijn deze instellingen correct? (y/n): "
-        read -r confirm
-        if [ "$confirm" != "y" ]; then
-            echo -e "\033[1;31m########## Annuleren gedrukt. ##########"
-            exit 1
-        fi 
-        build
+    select_build_mode
+    if [ "$BUILD_MODE" = "prod" ]; then
         echo -e "\033[1;33m🚀 PolarLearn wordt gestart...\033[0m"
+        pnpx prisma generate
+        pnpx prisma db push
         pnpm start
     else
-        echo -e "\033[1m\033[38;5;214m#### 🧑‍💻 Development build geselecteerd ####\033[0m"
-        confirm_env
-        select_database
-        echo -n "Zijn deze instellingen correct? (y/n): "
-        read -r confirm
-        if [ "$confirm" != "y" ]; then
-            echo -e "\033[1;31m########## Annuleren gedrukt. ##########"
-            exit 1
-        fi
-        build
         echo -e "\033[1;33m🚀 Dev server starten...\033[0m"
+        pnpx prisma generate
+        pnpx prisma db push
         pnpm dev
     fi
 fi

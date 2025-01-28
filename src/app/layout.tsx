@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { TopNavBar } from "@/components/navbar/TopNavBar";
-import { headers } from "next/headers";
 import Footer from "@/components/footer/Footer";
 import { checkDev } from "@/utils/datatool";
 import Button1 from "@/components/button/Button1";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/utils/auth";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -35,8 +35,8 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const headersList = await headers();
-    const hideNavbar = headersList.get('x-hide-navbar') === 'true';
+    const headerslist = await headers();
+    const currentPath = headerslist.get('x-current-path') || '/';
     const polarUrl = process.env.POLARLEARN_URL;
     const session = await auth();
     const isDev = process.env.NODE_ENV === "production" || await checkDev()
@@ -46,8 +46,7 @@ export default async function RootLayout({
 |  _  |___| |___ ___|  |   ___ ___ ___ ___|  |
 |   __| . | | .'|  _|  |__| -_| .'|  _|   |__|
 |__|  |___|_|__,|_| |_____|___|__,|_| |_|_|__|
-    `
-
+    `;    
     return isDev ? (
         <html lang="en" className={`${geistSans.className} antialiased`}>
             <body
@@ -63,7 +62,7 @@ export default async function RootLayout({
                         </div>
                     </div>
                     <nav>
-                        {!hideNavbar && <TopNavBar />}
+                        <TopNavBar pathname={currentPath}/>
                     </nav>
                     <div
                     style={{display: 'none'}}
