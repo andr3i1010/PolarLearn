@@ -20,14 +20,9 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 
-const twEmoji = localFont({
-    src: './fonts/TwitterColorEmoji-SVGinOT.ttf',
-    variable: '--font-twemoji'
-})
-
 export const metadata: Metadata = {
     title: "PolarLearn",
-    description: "Beter dan studygo frfr 🔥🔥🔥",
+    description: "Beter dan studygo frfr "
 };
 
 export default async function RootLayout({
@@ -53,6 +48,7 @@ export default async function RootLayout({
                 className={`antialiased flex flex-col min-h-screen `}
             >
                 <SessionProvider session={session}>
+
                     <div
                         className=" md:hidden fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
                         <div className="flex flex-col items-center">

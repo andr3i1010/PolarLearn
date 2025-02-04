@@ -6,58 +6,51 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+ 
+model user {
+  id             String    @id @default(uuid()) @map("_id")
+  name           String?
+  email          String?   @unique
+  role           String
+  email_verified DateTime?
+  image          String?
+  accounts       account[]
+  sessions       sessions[]
 
+  listdata       Json
+ 
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+ 
 model account {
-  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
-  uuid                String     @unique
-  username            String     @unique
-  email               String     @unique
-  role                String
-  // provider            String
-  // provider_account_id String
-  // refresh_token       String?   @db.String
-  // access_token        String?   @db.String
-  // expires_at          Int?
-  // token_type          String?
-  // scope               String?
-  // id_token            String?   @db.String
-  sessions            sessions[]
-  user_password       user_password[]
-  totp                totp[]
-  
-  created_at          DateTime? @default(now())
-  updated_at          DateTime? @updatedAt
-  
-  @@unique([uuid, username, email])
+  id                  String  @id @default(uuid()) @map("_id")
+  user_id             String
+  provider            String
+  providerAccountId   String  @map("provider_account_id")
+  refresh_token       String? @db.String
+  access_token        String? @db.String
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String? @db.String
+  session_state       String?
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+ 
+  @@unique([provider, providerAccountId])
 }
  
 model sessions {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  session_token String   @unique
-  device_type   String
-  user_id       String
-  expires       DateTime
-  user          account  @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-}
+  id           String   @id @default(uuid()) @map("_id")
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
  
-model totp {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  identifier String
-  token      String
-  expires    DateTime
-  user       account  @relation(fields: [identifier], references: [uuid], onDelete: Cascade)
- 
-  @@unique([identifier, token])
-}
-
-model user_password {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  user_id   String
-  password  String
-  user      account  @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
-  updatedAt String?
-
-  @@unique([user_id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

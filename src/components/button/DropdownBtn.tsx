@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { relative } from "path";
 
 const dropdownMatrix = [
   ["Groepen", "/home/start"],
@@ -14,12 +13,13 @@ interface ButtonProps {
   className?: string;
 }
 
-const Button1: React.FC<ButtonProps> = ({ className }) => {
+const Dropdown: React.FC<ButtonProps> = ({ className }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [dropdownWidth, setDropdownWidth] = useState<number>(0);
   const [dropdownHeight, setDropdownHeight] = useState<number>(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isMouseOverDropdown = useRef(false);
+  const isMouseOverMainButton = useRef(false);
 
   useEffect(() => {
     const canvas = document.createElement("canvas");
@@ -42,11 +42,13 @@ const Button1: React.FC<ButtonProps> = ({ className }) => {
   }, [isExpanded]);
 
   const handleMouseEnter = () => {
+    isMouseOverMainButton.current = true;
     setIsExpanded(true);
   };
 
   const handleMouseLeave = (event: React.MouseEvent) => {
-    if (!isMouseOverDropdown.current) {
+    isMouseOverMainButton.current = false;
+    if (!isMouseOverDropdown.current && !isMouseOverMainButton.current) {
       setIsExpanded(false);
     }
   };
@@ -57,7 +59,9 @@ const Button1: React.FC<ButtonProps> = ({ className }) => {
 
   const handleDropdownMouseLeave = (event: React.MouseEvent) => {
     isMouseOverDropdown.current = false;
-    setIsExpanded(false);
+    if (!isMouseOverMainButton.current) {
+      setIsExpanded(false);
+    }
   };
 
   const handleLinkClick = () => {
@@ -89,7 +93,7 @@ const Button1: React.FC<ButtonProps> = ({ className }) => {
           <div
             ref={dropdownRef}
             className={`overflow-hidden transition-all duration-300 ${
-              isExpanded ? "opacity -100" : "opacity-0"
+              isExpanded ? "opacity-100" : "opacity-0"
             }`}
             style={{
               height: isExpanded ? `${dropdownHeight}px` : "0px",
@@ -118,4 +122,4 @@ const Button1: React.FC<ButtonProps> = ({ className }) => {
   );
 };
 
-export default Button1;
+export default Dropdown;

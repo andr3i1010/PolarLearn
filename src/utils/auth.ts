@@ -13,7 +13,7 @@ import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/utils/prisma"
 import { AppUser } from "./types"
-import { account as dbUser } from "@prisma/client"
+import { user as dbUser } from "@prisma/client"
 import argon2 from "argon2"
 
 class CustomSignInError extends CredentialsSignin {
@@ -33,7 +33,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         signIn: '/auth/sign-in',
     },
     providers: [
-        Google,
+        Google({
+            clientId:                          process.env.GOOGLE_CLIENT_ID,
+            clientSecret:                      process.env.GOOGLE_CLIENT_SECRET,
+            allowDangerousEmailAccountLinking: true,
+        }),
         GitHub,
         Credentials({
             credentials: {
@@ -41,33 +45,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             authorize: async (credentials) => {
-                const userRow = await prisma.account.findFirst({
+                const user = await prisma.user.findFirst({
                     where: {
-                        email: credentials.email as string,
+                        email: credentials.email as string
                     },
                     include: {
-                        user_password: true,
-                    }
-                });
-                if (!userRow) throw new CustomSignInError("Invalid email or password");
-                const passwordRow = await prisma.user_password.findFirst({
-                    where: {
-                        user_id: userRow.uuid
-                    },
-                    include: {
-                        user: true
+                        accounts: true
                     }
                 })
-                if (!passwordRow) throw new CustomSignInError("⚠️ NO PASSWORD FOUND IN DATABASE!!!");
-                let user: AppUser | null = null;
-                const isPwdCorrect = await argon2.verify(passwordRow.password, credentials.password as string);
-                if (isPwdCorrect) {
-                    user = { id: userRow.id, email: userRow.email, name: userRow.username || '', role: userRow.role || "default" }
+                if (!user || !user.accounts || user.accounts.length === 0) throw new CustomSignInError("User not found")
+                
+                if (await argon2.verify(user.accounts[0].access_token as string, credentials.password as string)) {
+                    return user
                 } else {
-                    //throw new Error("Invalid email or password")
-                    throw new CustomSignInError("Invalid email or password");
+                    throw new CustomSignInError("Incorrect password")
                 }
-                return user;
             },
         })
     ],
@@ -75,9 +67,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         strategy: 'jwt',
     },
     callbacks: {
+        async signIn({ user, account, profile, email, credentials }) {
+            
+        },
         jwt({ token, user }) {
             const dbUser = user as dbUser
             if (user) token.role = dbUser.role
+            token.exp = Math.floor(Date.now() / 1000) + 2 * 24 * 60 * 60
             return token
         },
         session({ session, token }) {
