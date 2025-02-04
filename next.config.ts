@@ -2,9 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-
-  images: {
-    domains: ['picsum.photos'],
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'obscure-winner-445jj64q9vh7ppp-3000.app.github.dev'],
+    },
   },
 };
 

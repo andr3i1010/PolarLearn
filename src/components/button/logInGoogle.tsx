@@ -1,8 +1,11 @@
+import { signIn } from "next-auth/react";
+
 export default function GoogleLogin() {
   return (
     <button
+      type="button"
       className="flex bg-white rounded-lg w-fit h-10"
-      type="submit"
+      onClick={() => signIn("google")}
     >
       <div className="flex items-center space-x-2 px-2">
         <svg

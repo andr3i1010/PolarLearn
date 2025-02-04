@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import { auth } from './auth';
-import { User } from '@prisma/client';
-
+import { account, user } from '@prisma/client';
+import { prisma } from './prisma';
 
 export async function checkDev(): Promise<boolean> {
   if (process.env.ALLOW_EVERYONE_ON_DEV === 'true') {
@@ -11,7 +11,7 @@ export async function checkDev(): Promise<boolean> {
   if (!session) {
     return false;
   }
-  const user = session.user as User;
+  const user = session.user as user;
   if (user.role === 'dev') {
     return true;
   }
@@ -30,15 +30,15 @@ export async function gitInfo() {
   }
 }
 
-export async function userInfo(): Promise<User | null> {
-
+export async function userInfo(): Promise<user | null> {
   const session = await auth();
   if (!session) {
     return null;
   }
-  return session.user as User;
-}
-
-export async function lists() {
-  
+  const userrow = await prisma.user.findFirst({
+    where: {
+      email: session.user.email as string
+    }
+  })
+  return userrow as user;
 }

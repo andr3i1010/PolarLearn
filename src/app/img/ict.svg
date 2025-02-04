@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="800px" height="800px" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#000000" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:export>
+      <bx:file format="svg" href="#object-0"/>
+    </bx:export>
+  </defs>
+  <g id="object-0">
+    <ellipse style="fill: rgb(32, 181, 255); stroke: rgb(32, 181, 255);" cx="31.953" cy="31.996" rx="31.453" ry="31.422"/>
+    <path d="M 21.894 50.505 C 18.249 50.505 15.293 47.554 15.293 43.914 L 15.293 34.028 L 11.994 30.733 L 15.293 27.438 L 15.293 17.552 C 15.293 13.912 18.249 10.961 21.894 10.961" style="stroke: rgb(255, 255, 255); stroke-width: 3px; fill-opacity: 0;"/>
+    <path d="M 41.7 10.961 C 45.339 10.961 48.29 13.912 48.29 17.552 L 48.29 27.438 L 51.586 30.733 L 48.29 34.028 L 48.29 43.914 C 48.29 47.554 45.339 50.505 41.7 50.505" style="stroke: rgb(255, 255, 255); stroke-width: 3px; fill-opacity: 0;"/>
+  </g>
+</svg>

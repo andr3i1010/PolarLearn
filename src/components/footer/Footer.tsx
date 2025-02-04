@@ -1,4 +1,3 @@
-// Footer.tsx
 import { faCodeCommit } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitInfo, userInfo } from '@/utils/datatool';
@@ -25,7 +24,6 @@ export default async function Footer() {
         gitBranch: git.split('@')[1],
     } : null;
     const loadingGit = !gitInfoData;
-
     return (
         <footer>
             <div>
@@ -47,7 +45,7 @@ export default async function Footer() {
                             {error && error !== 'Token not found' && <p className="mt-4 text-red-500">{error}</p>}
                             {user && !error && (
                                 <div className="mt-4 text-white">
-                                    <p>UUID: {user.id}</p>
+                                    <p>UUID: {user.uuid}</p>
                                     <p>Email: {user.email}</p>
                                     <p>Gebruikersnaam: {user.username}</p>
                                 </div>

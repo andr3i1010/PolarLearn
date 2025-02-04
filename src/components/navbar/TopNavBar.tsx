@@ -1,10 +1,13 @@
 import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.png";
-import DropdownBtn from "../button/DropdownBtn";
+import DropdownBtn from "@/components/button/DropdownBtn";
 export function TopNavBar({ pathname }: { pathname: string }) {
-                    return (
-        <div className="sticky w-full h-16 bg-neutral-900 flex items-center top-0 fade-in font-[family-name:var(--font-geist-sans)] font-bold">
+    if (pathname != "/" && !pathname.startsWith("/home")) {
+        return null;
+    }
+    return (
+        <div className="sticky w-full h-16 bg-neutral-900 flex items-center top-0 z-50 fade-in font-[family-name:var(--font-geist-sans)] font-bold">
             <a href="/">
                 <Image className="ml-4" src={pl500} alt="PolarLearn Logo" height={50} width={50} />
             </a>
@@ -17,8 +20,6 @@ export function TopNavBar({ pathname }: { pathname: string }) {
                 <div className="w-4"></div>
             )
             }
-
-            {/* /home path logic */}
             {pathname && pathname.startsWith("/home") && (
                 <>
                     <div className={`flex relative space-x-4`}>
@@ -34,8 +35,6 @@ export function TopNavBar({ pathname }: { pathname: string }) {
                     </div>
                 </>
             )}
-
-            {/* / path logic */}
             {pathname === "/" && (
                 <>
                     <div className="flex-grow"></div>
