@@ -19,3 +19,37 @@
 - [ ] Forum
 - [ ] LiveQuiz
 - [ ] Challenges
+
+---
+
+# Waarom PolarLearn?
+
+Je kan voor PolarLearn kiezen, omdat:
+
+* ## **Gratis en Open-Source:**
+
+  PolarLearn is volledig gratis en Open-Source. Dit betekent dat je de code kan bekijken en aanpassen naar jouw wensen (zie CONTRIBUTING.md). Ook kan je PolarLearn zelf hosten doordat het Open-Source is.
+
+* ## **Gebruiksvriendelijk:**
+
+   PolarLearn is gemaakt met de gebruiker in gedachten. Dit betekent dat PolarLearn makkelijk te gebruiken is en dat je snel kan vinden wat je zoekt.
+
+* ## **Veilig:**
+
+  PolarLearn is veilig. We gebruiken de nieuwste technologieën om ervoor te zorgen dat jouw gegevens veilig zijn. Ook kan je zelf je gegevens verwijderen op aanvraag.
+
+* ## **Snel:**
+
+  PolarLearn is supersnel. Wij gebruiken Next.js en Prisma om ervoor te zorgen dat PolarLearn snel is en dat jij snel kan vinden wat je zoekt. Niet zoals StudyGo die tien seconden duurt om de homepagina te laden.
+
+---
+
+# Hoe kan je PolarLearn gebruiken?
+
+Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) (P.S: PolarLearn is nog niet officieel uit! Het domein bestaat nog niet 😉) te gaan. Hier kan je je aanmelden en beginnen met leren. Je kan ook PolarLearn zelf hosten door de code te downloaden en te volgen wat er in de wiki staat.
+
+---
+
+# Hoe kan je bijdragen aan PolarLearn?
+
+Je kan bijdragen aan PolarLearn door de code te downloaden en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een feature request hebt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie CONTRIBUTING.md voor meer informatie.
