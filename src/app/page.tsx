@@ -1,6 +1,5 @@
 import Button1 from '@/components/button/Button1';
 import './home.css';
-import Image from 'next/image';
 export default function Home() {
     return (
         <div className="flex flex-col">

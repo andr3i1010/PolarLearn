@@ -1,7 +1,18 @@
 "use client"
 import Button1 from "@/components/button/Button1";
+import { redirect } from "next/navigation";
 import { toast } from "react-toastify";
+import type { Metadata } from 'next'
+ 
+export const metadata: Metadata = {
+  title: 'PolarLearn - Account aanmaken',
+  description: 'Accountcreatiepagina van PolarLearn',
+}
+
 export default function SignUpForm() {
+  const delay = (ms: number) => new Promise(
+    resolve => setTimeout(resolve, ms)
+  );
     return (
             <form className="space-y-4 md:space-y-6"
             action={async (formData) => {
@@ -18,6 +29,8 @@ export default function SignUpForm() {
               });
             if (response.ok) {
               toast.success("Account aangemaakt!");
+              await delay(5000);
+              redirect("/auth/sign-in");
             } else {
                 if (response.status === 409) {
                   toast.error("Gebruiker bestaat al");

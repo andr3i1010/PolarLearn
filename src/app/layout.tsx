@@ -54,7 +54,7 @@ export default async function RootLayout({
                         <div className="flex flex-col items-center">
                             <p className="text-6xl">⚠️</p>
                             <br />
-                            <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen.</p>
+                            <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen. Er wordt gewerkt aan deze functionaliteit.</p>
                         </div>
                     </div>
                     <nav>

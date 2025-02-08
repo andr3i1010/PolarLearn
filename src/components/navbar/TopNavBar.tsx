@@ -2,8 +2,13 @@ import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.png";
 import DropdownBtn from "@/components/button/DropdownBtn";
+const dropdownMatrixStart = [
+  ["Groepen", "/home/start"],
+  ["Gemaakte lijsten", "/home/forum"],
+  ["Vakken", "/sign-in"],
+];
 export function TopNavBar({ pathname }: { pathname: string }) {
-    if (pathname != "/" && !pathname.startsWith("/home")) {
+    if (pathname === "/home/createlist" || (pathname !== "/" && !pathname.startsWith("/home"))) {
         return null;
     }
     return (
@@ -26,7 +31,7 @@ export function TopNavBar({ pathname }: { pathname: string }) {
                         <NavBtn text="Recent" redirectTo="/home/start" useClNav={true} />
                         <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
                         <div className="relative">
-                            <DropdownBtn />
+                            <DropdownBtn selectorMode={false} text={"Leren"} dropdownMatrix={dropdownMatrixStart}/>
                         </div>
                     </div>
                     <div className="flex-grow"></div>

@@ -4,6 +4,12 @@ import SignInForm from '@/app/auth/sign-in/form';
 import { auth } from '@/utils/auth';
 import { redirect } from 'next/navigation';
 import ToastProvider from '@/components/toast/toast';
+import type { Metadata } from 'next'
+ 
+export const metadata: Metadata = {
+  title: 'PolarLearn - Log in',
+  description: 'Inlogpagina van PolarLearn',
+}
 
 export default async function SignInPage() {
     const loginPage = (

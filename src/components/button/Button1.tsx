@@ -8,9 +8,10 @@ interface ButtonProps {
     type?: "button" | "submit" | "reset";
     className?: string;
     useClNav?: boolean;
+    onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, useClNav }) => {
+const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, useClNav, onClick }) => {
     const handleClick = () => {
         if (redirectTo && !useClNav) {
           window.location.href = redirectTo;
@@ -27,7 +28,7 @@ const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, use
               ) : (
                 <button
                     type={type || "button"}
-                    onClick={type ? undefined : handleClick}
+                    onClick={ type ? undefined : (onClick || handleClick) }
                     className="w-full bg-neutral-800 text-white font-bold py-2 px-4 rounded transition-all duration-300">
                     {text}
                 </button>
