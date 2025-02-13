@@ -45,9 +45,9 @@ export default async function Footer() {
                             {error && error !== 'Token not found' && <p className="mt-4 text-red-500">{error}</p>}
                             {user && !error && (
                                 <div className="mt-4 text-white">
-                                    <p>UUID: {user.uuid}</p>
+                                    <p>UUID: {user.id}</p>
                                     <p>Email: {user.email}</p>
-                                    <p>Gebruikersnaam: {user.username}</p>
+                                    <p>Gebruikersnaam: {user.name}</p>
                                 </div>
                             )}
                         </>

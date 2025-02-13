@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     // Create user with nested account creation (relation auto-assigns userId)
     const user = await prisma.user.create({
       data: {
-      //id: crypto.randomUUID() as string,
+      id: crypto.randomUUID() as string,
       role: "default",
       name: username as string,
       email: email as string,
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
     await prisma.account.create({
       data: {
-        userId: user.id,
+        userId: crypto.randomUUID() as string,
         provider: "credentials",
         providerAccountId: fixedEmail.toLowerCase(),
         token_type: "a2id_password_hash",

@@ -8,7 +8,7 @@ generator client {
 }
  
 model User {
-  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  id            String          @id @map("_id") @db.String
   name          String?
   email         String?         @unique
   emailVerified DateTime?
@@ -27,7 +27,7 @@ model User {
  
 model Account {
   id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String  @db.ObjectId
+  userId            String  @db.String
   type              String
   provider          String
   providerAccountId String
@@ -50,7 +50,7 @@ model Account {
 model Session {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique
-  userId       String   @db.ObjectId
+  userId       String   @db.String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
  
@@ -70,7 +70,7 @@ model VerificationToken {
 // Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @id @map("_id")
-  userId               String  @db.ObjectId
+  userId               String  @db.String
   providerAccountId    String
   credentialPublicKey  String
   counter              Int

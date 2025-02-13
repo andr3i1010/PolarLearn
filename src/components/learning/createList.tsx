@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   DndContext,
@@ -60,6 +60,7 @@ export default function CreateListTool({ language }: CreateListToolProps) {
   const [selectedInput, setSelectedInput] = useState<string | null>(null);
   // New state to control blur behavior.
   const [preventBlur, setPreventBlur] = useState(false);
+  const translationDelayRef = useRef<number | null>(null);
 
   const addPair = () => {
     setPairs([...pairs, { id: nextId, word: '', secondInput: '', translation: '' }]);
@@ -87,9 +88,6 @@ export default function CreateListTool({ language }: CreateListToolProps) {
         pair.id === id ? { ...pair, word: value } : pair
       )
     );
-    getTranslation(value, language).then(translation => {
-      setPairs(p => p.map(innerPair => innerPair.id === id ? { ...innerPair, translation } : innerPair));
-    });
   };
 
   const handleSecondInputChange = (id: number, value: string) => {
@@ -225,7 +223,22 @@ export default function CreateListTool({ language }: CreateListToolProps) {
                           <input
                             value={pair.secondInput}
                             onChange={(e) => handleSecondInputChange(pair.id, e.target.value)}
-                            onFocus={() => { setSelectedPairId(pair.id); setSelectedInput('secondInput'); }}
+                            onFocus={() => {
+                              setSelectedPairId(pair.id);
+                              setSelectedInput('secondInput');
+                              if (pair.word.trim().length > 0) {
+                                if (translationDelayRef.current) {
+                                  clearTimeout(translationDelayRef.current);
+                                }
+                                translationDelayRef.current = window.setTimeout(() => {
+                                  getTranslation(pair.word, language).then(translation => {
+                                    setPairs(p => p.map(innerPair =>
+                                      innerPair.id === pair.id ? { ...innerPair, translation } : innerPair
+                                    ));
+                                  });
+                                }, 500);
+                              }
+                            }}
                             className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
                             type="text"
                             placeholder="Vertaling of uitleg"

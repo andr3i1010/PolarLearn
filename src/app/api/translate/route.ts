@@ -5,7 +5,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const text = searchParams.get('text');
   const to = searchParams.get('to');
-  // Convert "to" to lowercase:
   const targetLang = to ? to.toLowerCase() : null;
   
   if (!text || !targetLang) {
@@ -13,12 +12,9 @@ export async function GET(request: NextRequest) {
   }
 
   const options: any = { to: targetLang };
+  options.from = "nl";
   if (targetLang === "fr") {
     options.forceTo = true;
-  }
-  // Add support for Dutch to English and Dutch to German
-  if (targetLang === "en" || targetLang === "de") {
-    options.from = "nl";
   }
 
   try {

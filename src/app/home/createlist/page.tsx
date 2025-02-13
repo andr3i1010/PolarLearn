@@ -71,10 +71,7 @@ export default function CreateListPage() {
             </div>), "DE"]
           ]}
           selectorMode={true}
-          onChange={(selected) => {
-            console.log("language selected:", selected);
-            setSelectedLanguage(selected);
-          }}
+          onChange={(selected) => {setSelectedLanguage(selected);}}
         />
         <input
           className="mt-16 bg-neutral-800 text-white h-12 w-full rounded-lg text-center text-xl"

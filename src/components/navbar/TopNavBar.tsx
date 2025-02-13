@@ -2,7 +2,7 @@ import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.png";
 import DropdownBtn from "@/components/button/DropdownBtn";
-const dropdownMatrixStart = [
+const dropdownMatrixStart: [React.ReactNode, string][] = [
   ["Groepen", "/home/start"],
   ["Gemaakte lijsten", "/home/forum"],
   ["Vakken", "/sign-in"],

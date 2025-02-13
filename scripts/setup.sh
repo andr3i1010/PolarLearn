@@ -86,7 +86,11 @@ first_time() {
             if whiptail --title "PolarLearn" --yesno "Dit lijkt de eerste keer te zijn dat je PolarLearn bouwt. Wil je door deze script de .env configureren?" 8 78; then
                 DATABASE_URL=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de URL van de database:" 8 78 3>&1 1>&2 2>&3)
                 POLARLEARN_URL=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de URL van waar PolarLearn wordt gehost:" 8 78 3>&1 1>&2 2>&3)
-                ALLOW_EVERYONE_ON_DEV=$(whiptail --title "PolarLearn" --yesno "Wil je dat iedereen op de development build kan komen zelfs als de gebruiker niet is ingelogd?" 8 78 && echo "true" || echo "false")
+                if whiptail --title "PolarLearn" --yesno "Wil je dat iedereen op de development build kan komen, zelfs als de gebruiker niet is ingelogd?" 8 78; then
+                    ALLOW_EVERYONE_ON_DEV="true"
+                else
+                    ALLOW_EVERYONE_ON_DEV="false"
+                fi
                 GOOGLE_CLIENT_ID=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de Google OAuth2 Client ID:" 8 78 3>&1 1>&2 2>&3)
                 GOOGLE_CLIENT_SECRET=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de Google OAuth2 Client Secret:" 8 78 3>&1 1>&2 2>&3)
                 GITHUB_CLIENT_ID=$(whiptail --title "PolarLearn" --inputbox "Voer hier in de GitHub OAuth2 Client ID:" 8 78 3>&1 1>&2 2>&3)

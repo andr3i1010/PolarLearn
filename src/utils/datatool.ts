@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 import { auth } from './auth';
-import { account, user } from '@prisma/client';
+import { Account, User } from '@prisma/client';
 import { prisma } from './prisma';
 
 export async function checkDev(): Promise<boolean> {
@@ -11,7 +11,7 @@ export async function checkDev(): Promise<boolean> {
   if (!session) {
     return false;
   }
-  const user = session.user as user;
+  const user = session.user as User;
   if (user.role === 'dev') {
     return true;
   }
@@ -30,7 +30,7 @@ export async function gitInfo() {
   }
 }
 
-export async function userInfo(): Promise<user | null> {
+export async function userInfo(): Promise<User | null> {
   const session = await auth();
   if (!session) {
     return null;
@@ -40,5 +40,5 @@ export async function userInfo(): Promise<user | null> {
       email: session.user.email as string
     }
   })
-  return userrow as user;
+  return userrow as User;
 }

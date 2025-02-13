@@ -2,7 +2,6 @@ import NextAuth, { CredentialsSignin, User, Session } from "next-auth"
 import Google from "next-auth/providers/google"
 import GitHub from "next-auth/providers/github"
 import { User as DbUser } from "@prisma/client"
-
 declare module "next-auth" {
     interface Session {
         user: User & {
@@ -96,24 +95,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return session
         },
         async signIn({ user, account, profile, email, credentials }) {
-            console.log("OAuth profile:", profile);
             if (account?.provider === "google" && account.access_token) {
                 const res = await fetch(
                     "https://people.googleapis.com/v1/people/me?personFields=emailAddresses",
                     { headers: { Authorization: `Bearer ${account.access_token}` } }
                 );
                 const peopleData = await res.json();
-                console.log("Google alternate emails:", peopleData?.emailAddresses);
                 if (peopleData?.emailAddresses && Array.isArray(peopleData.emailAddresses)) {
                     for (const emailAddress of peopleData.emailAddresses) {
-                        // Check if the alternate email exists in DB
                         const altEmail = emailAddress.value;
                         const existingUser = await prisma.user.findUnique({
                             where: { email: altEmail }
                         });
                         if (existingUser) {
                             console.log("Merging account: found existing user with email:", altEmail);
-                            // Use upsert with all fields from your schema
                             await prisma.account.upsert({
                                 where: {
                                     provider_providerAccountId: {
