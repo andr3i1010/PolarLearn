@@ -60,7 +60,6 @@ export default function CreateListTool({ language }: CreateListToolProps) {
   const [selectedInput, setSelectedInput] = useState<string | null>(null);
   // New state to control blur behavior.
   const [preventBlur, setPreventBlur] = useState(false);
-  const translationDelayRef = useRef<number | null>(null);
 
   const addPair = () => {
     setPairs([...pairs, { id: nextId, word: '', secondInput: '', translation: '' }]);
@@ -169,9 +168,8 @@ export default function CreateListTool({ language }: CreateListToolProps) {
                             placeholder="Begrip"
                           />
                           <div className="flex flex-row items-center gap-2">
-                            {/* Attach drag listeners only to the circles */}
-                            <div 
-                              className="cursor-grab" 
+                            <div
+                              className="cursor-grab"
                               {...dragListeners}
                               onMouseDown={(e) => (e.currentTarget.style.cursor = "grabbing")}
                               onMouseUp={(e) => (e.currentTarget.style.cursor = "grab")}
@@ -226,17 +224,13 @@ export default function CreateListTool({ language }: CreateListToolProps) {
                             onFocus={() => {
                               setSelectedPairId(pair.id);
                               setSelectedInput('secondInput');
-                              if (pair.word.trim().length > 0) {
-                                if (translationDelayRef.current) {
-                                  clearTimeout(translationDelayRef.current);
-                                }
-                                translationDelayRef.current = window.setTimeout(() => {
-                                  getTranslation(pair.word, language).then(translation => {
-                                    setPairs(p => p.map(innerPair =>
-                                      innerPair.id === pair.id ? { ...innerPair, translation } : innerPair
-                                    ));
-                                  });
-                                }, 500);
+                              const trimmedWord = pair.word.trim();
+                              if (trimmedWord.length > 0) {
+                                getTranslation(pair.word, language).then(translation => {
+                                  setPairs(p => p.map(innerPair =>
+                                    innerPair.id === pair.id ? { ...innerPair, translation } : innerPair
+                                  ));
+                                });
                               }
                             }}
                             className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
@@ -246,8 +240,8 @@ export default function CreateListTool({ language }: CreateListToolProps) {
                         </div>
                         {pair.translation && selectedPairId === pair.id && selectedInput === 'secondInput' && (
                           <div className="mt-2 border-t border-neutral-600 pt-2 flex justify-end">
-                            <Button1 
-                              text={pair.translation} 
+                            <Button1
+                              text={pair.translation}
                               onClick={() => { handleTranslationClick(pair.id); }}
                             />
                           </div>

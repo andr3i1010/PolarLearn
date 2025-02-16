@@ -3,11 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitInfo, userInfo } from '@/utils/datatool';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
-interface GitInfo {
-    gitCommit: string;
-    gitBranch: string;
-}
-
 export default async function Footer() {
     const git = await gitInfo();
     const user = await userInfo();

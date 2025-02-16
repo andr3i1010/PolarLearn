@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   const text = searchParams.get('text');
   const to = searchParams.get('to');
   const targetLang = to ? to.toLowerCase() : null;
-  
+
   if (!text || !targetLang) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }

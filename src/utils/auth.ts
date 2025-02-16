@@ -12,7 +12,6 @@ declare module "next-auth" {
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/utils/prisma"
-import { AppUser } from "./types"
 import { User as dbUser } from "@prisma/client"
 import argon2 from "argon2"
 
@@ -35,8 +34,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     providers: [
         Google({
-            clientId:                          process.env.AUTH_GOOGLE_ID,
-            clientSecret:                      process.env.AUTH_GOOGLE_SECRET,
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
             allowDangerousEmailAccountLinking: true,
             authorization: {
                 params: {
@@ -45,7 +44,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
         }),
         GitHub({
-            clientId:     process.env.AUTH_GITHUB_ID,
+            clientId: process.env.AUTH_GITHUB_ID,
             clientSecret: process.env.AUTH_GITHUB_SECRET,
             allowDangerousEmailAccountLinking: true,
 
@@ -64,14 +63,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         accounts: true
                     }
                 })
-                if (!user || !user.accounts || user.accounts.length === 0) 
+                if (!user || !user.accounts || user.accounts.length === 0)
                     throw new CustomSignInError("User not found")
 
-               
+
                 if (await argon2.verify(
                     user.accounts[0].access_token as string
                     , credentials.password as string
-                    )
+                )
                 ) {
                     return user
                 } else {
@@ -108,7 +107,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             where: { email: altEmail }
                         });
                         if (existingUser) {
-                            console.log("Merging account: found existing user with email:", altEmail);
                             await prisma.account.upsert({
                                 where: {
                                     provider_providerAccountId: {
@@ -137,7 +135,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
             }
             const dbUser = user as DbUser;
-            console.log(dbUser);
             if (dbUser.listData === null) {
                 await prisma.user.update({
                     where: {

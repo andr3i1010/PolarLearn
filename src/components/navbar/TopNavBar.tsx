@@ -3,9 +3,9 @@ import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.png";
 import DropdownBtn from "@/components/button/DropdownBtn";
 const dropdownMatrixStart: [React.ReactNode, string][] = [
-  ["Groepen", "/home/start"],
-  ["Gemaakte lijsten", "/home/forum"],
-  ["Vakken", "/sign-in"],
+    ["Groepen", "/home/start"],
+    ["Gemaakte lijsten", "/home/forum"],
+    ["Vakken", "/sign-in"],
 ];
 export function TopNavBar({ pathname }: { pathname: string }) {
     if (pathname === "/home/createlist" || (pathname !== "/" && !pathname.startsWith("/home"))) {
@@ -21,9 +21,9 @@ export function TopNavBar({ pathname }: { pathname: string }) {
                     <p>BETA</p>
                 </div>
             )
-            : (
-                <div className="w-4"></div>
-            )
+                : (
+                    <div className="w-4"></div>
+                )
             }
             {pathname && pathname.startsWith("/home") && (
                 <>
@@ -31,7 +31,7 @@ export function TopNavBar({ pathname }: { pathname: string }) {
                         <NavBtn text="Recent" redirectTo="/home/start" useClNav={true} />
                         <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
                         <div className="relative">
-                            <DropdownBtn selectorMode={false} text={"Leren"} dropdownMatrix={dropdownMatrixStart}/>
+                            <DropdownBtn selectorMode={false} text={"Leren"} dropdownMatrix={dropdownMatrixStart} />
                         </div>
                     </div>
                     <div className="flex-grow"></div>
