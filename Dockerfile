@@ -1,34 +1,22 @@
-FROM node:lts-alpine
-
+# ----- Builder Stage -----
+FROM node:lts-alpine AS builder
 WORKDIR /app
-
 RUN npm install -g pnpm
-
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install
+COPY . .
 RUN pnpm build
 
-COPY .next .next
+# ----- Production Stage -----
+FROM node:lts-alpine
+WORKDIR /app
+RUN npm install -g pnpm
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --prod
+# Copy the built .next folder from builder stage
+COPY --from=builder /app/.next .next
 COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
-
-ARG DATABASE_URL
-ARG POLARLEARN_URL
-ARG ALLOW_EVERYONE_ON_DEV
-ARG AUTH_GOOGLE_ID
-ARG AUTH_GOOGLE_SECRET
-ARG AUTH_GITHUB_ID
-ARG AUTH_GITHUB_SECRET
-ARG AUTH_SECRET
-
-ENV DATABASE_URL=${DATABASE_URL}
-ENV POLARLEARN_URL=${POLARLEARN_URL}
-ENV ALLOW_EVERYONE_ON_DEV=${ALLOW_EVERYONE_ON_DEV}
-ENV AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID}
-ENV AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET}
-ENV AUTH_GITHUB_ID=${AUTH_GITHUB_ID}
-ENV AUTH_GITHUB_SECRET=${AUTH_GITHUB_SECRET}
-ENV AUTH_SECRET=${AUTH_SECRET}
 
 EXPOSE 3000
 
