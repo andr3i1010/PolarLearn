@@ -6,11 +6,11 @@ RUN npm install -g pnpm
 
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install
+RUN pnpm build
 
-COPY . .
-
-RUN pnpx prisma generate
-RUN pnpm run build
+COPY .next .next
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 ARG DATABASE_URL
 ARG POLARLEARN_URL
@@ -32,4 +32,5 @@ ENV AUTH_SECRET=${AUTH_SECRET}
 
 EXPOSE 3000
 
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["pnpm", "start"]
