@@ -58,8 +58,6 @@ export default function CreateListTool({ language }: CreateListToolProps) {
   // State to track the selected pair id and input field.
   const [selectedPairId, setSelectedPairId] = useState<number | null>(null);
   const [selectedInput, setSelectedInput] = useState<string | null>(null);
-  // New state to control blur behavior.
-  const [preventBlur, setPreventBlur] = useState(false);
 
   const addPair = () => {
     setPairs([...pairs, { id: nextId, word: '', secondInput: '', translation: '' }]);
