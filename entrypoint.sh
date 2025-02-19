@@ -9,6 +9,5 @@
 : "${AUTH_GITHUB_SECRET:?Missing AUTH_GITHUB_SECRET}"
 : "${AUTH_SECRET:?Missing AUTH_SECRET}"
 
-# ...existing code if needed...
-
-exec "$@"
+echo "Starting app..."
+exec pnpm start
