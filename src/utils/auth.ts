@@ -38,7 +38,9 @@ async function scanAlternateGoogleEmails(account: any): Promise<User | null> {
     const peopleData = await res.json();
     if (peopleData?.emailAddresses && Array.isArray(peopleData.emailAddresses)) {
         for (const emailAddress of peopleData.emailAddresses) {
-            const altEmail = emailAddress.value;
+            // Ensure altEmail is defined
+            const altEmail = emailAddress?.value;
+            if (!altEmail) continue;
             const existingUser = await prisma.user.findUnique({
                 where: { email: altEmail }
             });
