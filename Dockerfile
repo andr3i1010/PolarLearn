@@ -21,5 +21,5 @@ RUN chmod +x ./entrypoint.sh
 
 EXPOSE 3000
 
-ENTRYPOINT ["sh", "./entrypoint.sh"]
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]
 CMD ["pnpm", "start"]
