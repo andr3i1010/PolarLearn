@@ -10,4 +10,5 @@
 : "${AUTH_SECRET:?Missing AUTH_SECRET}"
 
 echo "Starting app..."
+exec pnpx prisma db push
 exec pnpm start
