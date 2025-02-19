@@ -12,4 +12,4 @@
 
 echo "Starting app..."
 # Run prisma db push first then start the app
-exec sh -c "pnpm start"
+exec sh -c "pnpx prisma db push && pnpm start"
