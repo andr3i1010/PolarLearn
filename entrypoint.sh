@@ -8,7 +8,8 @@
 : "${AUTH_GITHUB_ID:?Missing AUTH_GITHUB_ID}"
 : "${AUTH_GITHUB_SECRET:?Missing AUTH_GITHUB_SECRET}"
 : "${AUTH_SECRET:?Missing AUTH_SECRET}"
+: "${AUTH_URL:?Missing AUTH_URL}"
 
 echo "Starting app..."
 # Run prisma db push first then start the app
-exec sh -c "pnpx prisma db push && pnpm start"
+exec sh -c "pnpm start"

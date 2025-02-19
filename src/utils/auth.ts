@@ -29,14 +29,52 @@ class CustomSignInError extends CredentialsSignin {
     }
 }
 
+// Add new function to scan for alternative Google emails
+async function scanAlternateGoogleEmails(account: any): Promise<User | null> {
+    const res = await fetch(
+        "https://people.googleapis.com/v1/people/me?personFields=emailAddresses",
+        { headers: { Authorization: `Bearer ${account.access_token}` } }
+    );
+    const peopleData = await res.json();
+    if (peopleData?.emailAddresses && Array.isArray(peopleData.emailAddresses)) {
+        for (const emailAddress of peopleData.emailAddresses) {
+            const altEmail = emailAddress.value;
+            const existingUser = await prisma.user.findUnique({
+                where: { email: altEmail }
+            });
+            if (existingUser) {
+                await prisma.account.upsert({
+                    where: {
+                        provider_providerAccountId: {
+                            provider: account.provider,
+                            providerAccountId: account.providerAccountId
+                        }
+                    },
+                    update: { userId: existingUser.id },
+                    create: {
+                        provider: account.provider,
+                        providerAccountId: account.providerAccountId,
+                        userId: existingUser.id,
+                        type: account.type,
+                        refresh_token: account.refresh_token,
+                        access_token: account.access_token,
+                        expires_at: account.expires_at,
+                        token_type: account.token_type,
+                        scope: account.scope,
+                        id_token: account.id_token,
+                    }
+                });
+                return existingUser;
+            }
+        }
+    }
+    return null;
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
     trustHost: true,
     adapter: PrismaAdapter(prisma),
     secret: process.env.AUTH_SECRET,
-    pages: {
-        // Changed signIn page to redirect with notAllowed query parameter when access is denied
-        signIn: '/auth/sign-in?notAllowed=1',
-    },
     providers: [
         Google({
             clientId: process.env.AUTH_GOOGLE_ID,
@@ -61,25 +99,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
             authorize: async (credentials) => {
                 const user = await prisma.user.findFirst({
-                    where: {
-                        email: credentials.email as string
-                    },
-                    include: {
-                        accounts: true
-                    }
-                })
+                    where: { email: credentials.email as string },
+                    include: { accounts: true }
+                });
                 if (!user || !user.accounts || user.accounts.length === 0)
-                    throw new CustomSignInError("User not found")
-
-
+                    throw new CustomSignInError("User not found");
                 if (await argon2.verify(
-                    user.accounts[0].access_token as string
-                    , credentials.password as string
-                )
-                ) {
-                    return user
+                    user.accounts[0].access_token as string,
+                    credentials.password as string
+                )) {
+                    // Removed any code to create a credentials account.
+                    return user;
                 } else {
-                    throw new CustomSignInError("Incorrect password")
+                    throw new CustomSignInError("Incorrect password");
                 }
             },
         })
@@ -100,43 +132,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
         async signIn({ user, account, profile, email, credentials }) {
             if (account?.provider === "google" && account.access_token) {
-                const res = await fetch(
-                    "https://people.googleapis.com/v1/people/me?personFields=emailAddresses",
-                    { headers: { Authorization: `Bearer ${account.access_token}` } }
-                );
-                const peopleData = await res.json();
-                if (peopleData?.emailAddresses && Array.isArray(peopleData.emailAddresses)) {
-                    for (const emailAddress of peopleData.emailAddresses) {
-                        const altEmail = emailAddress.value;
-                        const existingUser = await prisma.user.findUnique({
-                            where: { email: altEmail }
-                        });
-                        if (existingUser) {
-                            await prisma.account.upsert({
-                                where: {
-                                    provider_providerAccountId: {
-                                        provider: account.provider,
-                                        providerAccountId: account.providerAccountId
-                                    }
-                                },
-                                update: { userId: existingUser.id },
-                                create: {
-                                    provider: account.provider,
-                                    providerAccountId: account.providerAccountId,
-                                    userId: existingUser.id,
-                                    type: account.type,
-                                    refresh_token: account.refresh_token,
-                                    access_token: account.access_token,
-                                    expires_at: account.expires_at,
-                                    token_type: account.token_type,
-                                    scope: account.scope,
-                                    id_token: account.id_token,
-                                }
-                            });
-                            user = existingUser;
-                            break;
-                        }
+                const alternateUser = await scanAlternateGoogleEmails(account);
+                if (alternateUser) {
+                    user = alternateUser;
+                }
+            }
+            // Enforce that OAuth providers require an existing credentials account
+            if (account?.provider !== "credentials") {
+                const credAccount = await prisma.account.findFirst({
+                    where: {
+                        OR: [
+                            { userId: user.id, provider: "credentials" },
+                            // Fallback: if the credentials provider record stored the email as providerAccountId
+                            { provider: "credentials", providerAccountId: user.email as string }
+                        ]
                     }
+                });
+                if (!credAccount) {
+                    return false;
                 }
             }
             const prismaUser = user as PrismaUser;
@@ -150,7 +163,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     },
                 });
             }
-            // Allow login if loginAllowed is not explicitly false
             if (user && (prismaUser.loginAllowed !== false)) {
                 return true;
             }
