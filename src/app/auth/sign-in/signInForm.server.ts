@@ -14,8 +14,8 @@ export async function signInFormAction(formData: FormData) {
       return { redirectTo: "/home/start" };
     } catch (error) {
       const errorCode = (error && (error as any).code) || "Default";
-      return { redirectTo: `/auth/error?error=${errorCode}` };
+      return { redirectTo: `/auth/sign-in?error=${errorCode}` };
     }
   }
-  return { redirectTo: "/auth/error?error=Default" };
+  return { redirectTo: "/auth/sign-in?error=Default" };
 }

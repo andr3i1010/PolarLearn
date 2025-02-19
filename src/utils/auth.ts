@@ -113,7 +113,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     user.accounts[0].access_token as string,
                     credentials.password as string
                 )) {
-                    // Removed any code to create a credentials account.
                     return user;
                 } else {
                     throw new CustomSignInError("Incorrect password");
@@ -168,7 +167,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     },
                 });
             }
-            if (user && (prismaUser.loginAllowed !== false)) {
+            // Updated loginAllowed check
+            if (user && (prismaUser.loginAllowed === false)) {
+                throw new CustomSignInError("AccessDenied");
+            } else if (user) {
                 return true;
             }
             return false;
