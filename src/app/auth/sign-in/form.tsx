@@ -19,7 +19,7 @@ export default function SignInForm() {
 			const result = await signInFormAction(formData);
 			if (result.redirectTo) {
 				router.push(result.redirectTo);
-			} else if (result.error) {
+			} else {
 				router.replace(`${window.location.pathname}?error=1`);
 			}
 		});

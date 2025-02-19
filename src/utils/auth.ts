@@ -74,6 +74,9 @@ async function scanAlternateGoogleEmails(account: any): Promise<User | null> {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+    pages: {
+        error: "/auth/sign-in",
+    },
     trustHost: true,
     adapter: PrismaAdapter(prisma),
     secret: process.env.AUTH_SECRET,
