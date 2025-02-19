@@ -14,6 +14,8 @@ WORKDIR /app
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --prod
+# New: copy the prisma folder from the builder stage
+COPY --from=builder /app/prisma ./prisma
 # Copy the built .next folder from builder stage
 COPY --from=builder /app/.next .next
 COPY entrypoint.sh ./entrypoint.sh
