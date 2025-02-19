@@ -1,7 +1,6 @@
 import NextAuth, { CredentialsSignin, User, Session } from "next-auth"
 import Google from "next-auth/providers/google"
 import GitHub from "next-auth/providers/github"
-import { User as DbUser } from "@prisma/client"
 declare module "next-auth" {
     interface Session {
         user: User & {
@@ -12,8 +11,14 @@ declare module "next-auth" {
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/utils/prisma"
-import { User as dbUser } from "@prisma/client"
 import argon2 from "argon2"
+
+interface PrismaUser {
+    role?: string;
+    email?: string;
+    listData?: any;
+    loginAllowed?: boolean;
+}
 
 class CustomSignInError extends CredentialsSignin {
     constructor(code: string) {
@@ -84,14 +89,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     callbacks: {
         async jwt({ token, user }) {
-            const dbUser = user as dbUser
-            if (user) token.role = dbUser.role
-            token.exp = Math.floor(Date.now() / 1000) + 2 * 24 * 60 * 60
-            return token
+            const prismaUser = user as PrismaUser;
+            if (user) token.role = prismaUser.role;
+            token.exp = Math.floor(Date.now() / 1000) + 2 * 24 * 60 * 60;
+            return token;
         },
         async session({ session, token }) {
-            session.user.role = token?.role as string | undefined
-            return session
+            session.user.role = token?.role as string | undefined;
+            return session;
         },
         async signIn({ user, account, profile, email, credentials }) {
             if (account?.provider === "google" && account.access_token) {
@@ -134,11 +139,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     }
                 }
             }
-            const dbUser = user as DbUser;
-            if (dbUser.listData === null) {
+            const prismaUser = user as PrismaUser;
+            if (prismaUser.listData === null) {
                 await prisma.user.update({
                     where: {
-                        email: dbUser.email || "",
+                        email: prismaUser.email || "",
                     },
                     data: {
                         listData: { recent_lists: [], liked_lists: [], created_lists: [], recent_subjects: [] },
@@ -146,7 +151,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 });
             }
             // Allow login if loginAllowed is not explicitly false
-            if (user && (dbUser.loginAllowed !== false)) {
+            if (user && (prismaUser.loginAllowed !== false)) {
                 return true;
             }
             return false;

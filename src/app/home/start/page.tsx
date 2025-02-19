@@ -112,7 +112,7 @@ export default async function Start() {
             <div className="flex items-center text-center">
                 <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">Recente Lijsten:</h1>
                 <div className="ml-auto mr-5">
-                  <PlusBtn redir="/home/createlist" />
+                  <PlusBtn redir="/learn/createlist" />
                 </div>
             </div>
             <div className="h-4"/>
