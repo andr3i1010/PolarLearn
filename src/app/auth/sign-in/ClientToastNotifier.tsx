@@ -28,6 +28,11 @@ export default function ClientToastNotifier() {
 				message = errorMessages[errorParam] || errorMessages.Default;
 			}
 			toast.error(message);
+			// Clear all cookies
+			document.cookie.split(";").forEach((c) => {
+				const cookieName = c.split("=")[0].trim();
+				document.cookie = cookieName + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;";
+			});
 			router.replace(window.location.pathname);
 		}
 	}, [searchParams, router]);

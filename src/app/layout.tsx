@@ -57,9 +57,8 @@ export default async function RootLayout({
                             <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen. Er wordt gewerkt aan deze functionaliteit.</p>
                         </div>
                     </div>
-                    <nav>
-                        <TopNavBar pathname={currentPath}/>
-                    </nav>
+                    <TopNavBar pathname={currentPath}/>
+                    <div className="h-16"/>
                     <div
                     style={{display: 'none'}}
                     dangerouslySetInnerHTML={{ __html: art }}

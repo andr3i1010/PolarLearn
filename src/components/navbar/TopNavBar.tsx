@@ -12,7 +12,7 @@ export function TopNavBar({ pathname }: { pathname: string }) {
         return null;
     }
     return (
-        <div className="sticky w-full h-16 bg-neutral-900 flex items-center top-0 z-50 fade-in font-[family-name:var(--font-geist-sans)] font-bold">
+        <nav className="fixed top-0 min-w-full shadow-md start-0 max-w-screen-xl z-50 flex flex-wrap justify-between h-16 bg-neutral-900/70 backdrop-blur-sm items-center fade-in font-[family-name:var(--font-geist-sans)] font-bold">
             <a href="/">
                 <Image className="ml-4" src={pl500} alt="PolarLearn Logo" height={50} width={50} />
             </a>
@@ -48,6 +48,6 @@ export function TopNavBar({ pathname }: { pathname: string }) {
                     </div>
                 </>
             )}
-        </div>
+        </nav>
     );
 }
