@@ -75,6 +75,7 @@ async function scanAlternateGoogleEmails(account: any): Promise<User | null> {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     pages: {
+        signIn: "/auth/sign-in",
         error: "/auth/sign-in",
     },
     trustHost: true,
@@ -147,13 +148,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     where: {
                         OR: [
                             { userId: user.id, provider: "credentials" },
-                            // Fallback: if the credentials provider record stored the email as providerAccountId
                             { provider: "credentials", providerAccountId: user.email as string }
                         ]
                     }
                 });
                 if (!credAccount) {
-                    return false;
+                    throw new CustomSignInError("User not found");
                 }
             }
             const prismaUser = user as PrismaUser;
@@ -167,7 +167,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     },
                 });
             }
-            // Updated loginAllowed check
             if (user && (prismaUser.loginAllowed === false)) {
                 throw new CustomSignInError("AccessDenied");
             } else if (user) {

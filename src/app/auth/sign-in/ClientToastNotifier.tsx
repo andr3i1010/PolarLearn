@@ -10,13 +10,23 @@ export default function ClientToastNotifier() {
 	useEffect(() => {
 		const errorParam = searchParams.get("error");
 		if (errorParam) {
-			const errorMessages: Record<string, string> = {
-				Configuration: "🚨 Interne serverfout!",
-				AccessDenied: "Je bent verbannen van PolarLearn. Check je E-mail voor meer informatie.",
-				Verification: "Deze error zou niet moeten bestaan.",
-				Default: "Email of wachtwoord is onjuist. Controleer uw gegevens en probeer het opnieuw."
-			};
-			const message = errorMessages[errorParam] || errorMessages.Default;
+			let message = "";
+			if (errorParam === "CredentialsSignin") {
+				const codeParam = searchParams.get("code");
+				if (codeParam === "User not found") {
+					message = "Email of wachtwoord is onjuist. Controleer uw gegevens en probeer het opnieuw.";
+				} else {
+					message = codeParam || "Onbekende fout?";
+				}
+			} else {
+				const errorMessages: Record<string, string> = {
+					Configuration: "🚨 Interne serverfout!",
+					AccessDenied: "Je bent verbannen van PolarLearn. Check je E-mail voor meer informatie.",
+					Verification: "Deze error zou niet moeten bestaan.",
+					Default: "Email of wachtwoord is onjuist. Controleer uw gegevens en probeer het opnieuw."
+				};
+				message = errorMessages[errorParam] || errorMessages.Default;
+			}
 			toast.error(message);
 			router.replace(window.location.pathname);
 		}
