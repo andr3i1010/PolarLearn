@@ -58,7 +58,6 @@ export default async function RootLayout({
                         </div>
                     </div>
                     <TopNavBar pathname={currentPath}/>
-                    <div className="h-16"/>
                     <div
                     style={{display: 'none'}}
                     dangerouslySetInnerHTML={{ __html: art }}
