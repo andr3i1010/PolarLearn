@@ -32,7 +32,7 @@ export default function SignUpForm() {
               await delay(5000);
               redirect("/auth/sign-in");
             } else {
-                if (response.status === 409) {
+                if (response.status === 400) {
                   toast.error("Gebruiker bestaat al");
                 } else if (response.status === 500) {
                   toast.error("🚨 Interne serverfout!");

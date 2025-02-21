@@ -2,21 +2,25 @@ import { prisma } from '@/utils/prisma';
 import crypto from 'crypto';
 import argon2 from 'argon2';
 import { NextResponse } from 'next/server';
-// accounts: {
-//   create: {
-//   provider: "credentials",
-//   providerAccountId: fixedEmail.toLowerCase(),
 
-//   token_type: "a2id_password_hash",
-//   access_token: await argon2.hash(password as string, { salt: pwdsalt }),
-//   }
-// },
 export async function POST(req: Request) {
   const { username, email, password } = await req.json();
-  //const pwdsalt = await crypto.randomBytes(32);
   const fixedEmail = email as string;
+
+  // Check if a user with the same email or username already exists
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: fixedEmail },
+        { name: username as string }
+      ]
+    }
+  });
+  if (existingUser) {
+    return NextResponse.json({ error: 'Gebruiker bestaat al' }, { status: 400 });
+  }
+
   try {
-    // Create user with nested account creation (relation auto-assigns userId)
     const user = await prisma.user.create({
       data: {
         id: crypto.randomUUID() as string,
@@ -45,16 +49,11 @@ export async function POST(req: Request) {
   } catch (error) {
     if (error instanceof Error) {
       console.log("Error: ", error.stack)
+      return NextResponse.json({ error: '🚨 Interne serverfout!' }, { status: 500 });
     }
-    // if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-    //   return NextResponse.json({ error: 'User already exists' }, { status: 409 });
-    // } else {
-    //   console.error(error);
-    //   return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-    // }
   }
 }
 
 export async function GET(req: Request) {
-  return NextResponse.json({ message: "This is a JSON response for GET requests" }, { status: 405 });
+  return NextResponse.json({ message: "Slimpie, dit endpoint is niet bedoeld om zomaar in een browser te openen, schei uit!/j" }, { status: 405 });
 }
