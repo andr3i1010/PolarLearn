@@ -59,7 +59,7 @@ export default function SignUpForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                className="block mb-2 text-sm font-medium text-white"
               >
                 E-mail
               </label>
@@ -68,7 +68,7 @@ export default function SignUpForm() {
                 maxLength={255}
                 name="email"
                 id="email"
-                className="bg-neutral-800 border text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 dark:text-white focus:border-blue-500"
+                className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
                 placeholder="email@mail.nl"
                 required
               />
@@ -76,7 +76,7 @@ export default function SignUpForm() {
             <div>
               <label
                 htmlFor="password"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                className="block mb-2 text-sm font-medium text-white"
               >
                 Wachtwoord
               </label>
@@ -86,7 +86,7 @@ export default function SignUpForm() {
                 name="password"
                 id="password"
                 placeholder="••••••••••••••••••••••••••••••••"
-                className="bg-neutral-800 border text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 dark:text-white focus:border-blue-500"
+                className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
