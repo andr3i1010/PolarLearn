@@ -13,6 +13,7 @@ import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
 import ak_img from '@/app/img/geography.svg';
 import ckv_img from '@/app/img/ckv.svg';
+import FirstMarketingComponent from '@/components/marketing/1';
 
 export default function Home() {
     return (
@@ -129,17 +130,38 @@ export default function Home() {
                         CKV
                     </span>
                 </div>
-                
+
             </Marquee>
             <hr className="flex-grow border-neutral-600 m-3" />
             <div className='flex w-full items-center justify-center flex-col'>
                 <h1 className='text-2xl font-bold'>Wat onze fans vinden:</h1>
+                <div className='flex flex-row gap-x-2 items-center'>
+                <h1 className="text-2xl font-bold">4.2</h1>
+                    <div className='flex'>
+                        {[...Array(5)].map((_, index) => {
+                            const starValue = 4.3 - index;
+                            if (starValue >= 1) {
+                                return <span key={index} className="text-yellow-400 text-2xl">★</span>;
+                            } else if (starValue > 0) {
+                                const widthPercent = Math.round(starValue * 100);
+                                return (
+                                    <span key={index} className="relative text-2xl">
+                                        <span className="text-gray-400">★</span>
+                                        <span className="absolute top-0 left-0 overflow-hidden" style={{ width: `${widthPercent}%`, color: "#facc15" }}>★</span>
+                                    </span>
+                                );
+                            } else {
+                                return <span key={index} className="text-gray-400 text-2xl">★</span>;
+                            }
+                        })}
+                    </div>
+                </div>
                 <div className='h-4' />
                 <Marquee direction='left'>
                     <div className='flex flex-row gap-x-4 w-min'>
                         <ReviewCard stars={5} author='andrei1010' comment='Door de gratis forum en de samenvattingen heb ik eindelijk topcijfers voor geschiedenis!' />
                         <ReviewCard stars={4.7} author='EGaming200' comment='PolarLearn heeft mij geholpen met leren voor toetsen' />
-                        <ReviewCard stars={5} author='mrapfelstrudel' comment='Door PolarLearn heb ik eindelijk goede cijfers voor frans!' />
+                        <ReviewCard stars={5} author='MrApfelstrudel' comment='Door PolarLearn heb ik eindelijk goede cijfers voor frans!' />
                         <ReviewCard stars={0} author='StudyGo Admin' comment='waarom bestaat dit' />
                         <ReviewCard stars={5} author='anoniem' comment='Ik merk dat PolarLearn veeel sneller is dan StudyGo, ook heel fijn dat het gratis is' />
                         <ReviewCard stars={5} author='kabab33' comment='Ik had een StudyGo abonnement, maar nu niet meer! Bedankt voor mijn € 143,88 per jaar besparen PolarLearn!' />
@@ -151,15 +173,16 @@ export default function Home() {
             <div className='h-full'>
                 <div className='w-full h-64 flex'>
                     <div className='w-1/2'>
-                        Lorem Ipsum
+                        <FirstMarketingComponent/>
                     </div>
                     <div className='border-r border-neutral-600 h-full'></div>
                     <div className='w-1/2 pl-5'>
                         <p className='justify-center flex font-bold text-3xl'>
                             Wat is PolarLearn?
                         </p>
+                        <div className='h-4'/>
                         <p className='text-xl'>
-                            Lorem Ipsum
+                            PolarLearn is een FOSS (gratis en Open-Source) leerprogramma, voor al je vakken. PolarLearn kan ook gebruikt worden als een alternatief voor het betaalde StudyGo.
                         </p>
                     </div>
                 </div>

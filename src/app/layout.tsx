@@ -41,12 +41,16 @@ export default async function RootLayout({
 |  _  |___| |___ ___|  |   ___ ___ ___ ___|  |
 |   __| . | | .'|  _|  |__| -_| .'|  _|   |__|
 |__|  |___|_|__,|_| |_____|___|__,|_| |_|_|__|
-    `;    
+    `;
     return isDev ? (
         <html lang="en" className={`${geistSans.className} antialiased`}>
             <body
                 className={`antialiased flex flex-col min-h-screen `}
             >
+                <div
+                    style={{ display: 'none' }}
+                    dangerouslySetInnerHTML={{ __html: art }}
+                />
                 <SessionProvider session={session}>
 
                     <div
@@ -57,11 +61,7 @@ export default async function RootLayout({
                             <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen. Er wordt gewerkt aan deze functionaliteit.</p>
                         </div>
                     </div>
-                    <TopNavBar pathname={currentPath}/>
-                    <div
-                    style={{display: 'none'}}
-                    dangerouslySetInnerHTML={{ __html: art }}
-                    ></div>
+                    <TopNavBar pathname={currentPath} />
                     {children}
                     <footer className="mt-auto">
                         {await Footer()}
