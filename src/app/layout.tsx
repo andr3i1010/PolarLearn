@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
     title: "PolarLearn",
-    description: "Beter dan studygo frfr "
+    description: "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
 };
 
 export default async function RootLayout({

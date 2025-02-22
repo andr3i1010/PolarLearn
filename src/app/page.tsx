@@ -1,8 +1,32 @@
+"use client"
 import Button1 from '@/components/button/Button1';
 import './home.css';
 import ReviewCard from '@/components/misc/reviewCard';
 import Marquee from '@/components/misc/Marquee';
 import Image from 'next/image';
+
+// Magic //
+import { motion } from "motion/react"
+import {
+    Animator,
+    ScrollContainer,
+    ScrollPage,
+    batch,
+    Fade,
+    FadeIn,
+    FadeOut,
+    Move,
+    MoveIn,
+    MoveOut,
+    Sticky,
+    StickyIn,
+    StickyOut,
+    Zoom,
+    ZoomIn,
+    ZoomOut
+}
+    from "react-scroll-motion";
+
 // Subject images //
 
 import nsk_img from '@/app/img/nask.svg';
@@ -13,7 +37,13 @@ import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
 import ak_img from '@/app/img/geography.svg';
 import ckv_img from '@/app/img/ckv.svg';
+
+// Other images //
+import down from '@/app/img/down.svg';
+import shield from '@/app/img/secure-icon-marketing.svg';
+
 import FirstMarketingComponent from '@/components/marketing/1';
+import SecondMarketingComponent from '@/components/marketing/2';
 
 export default function Home() {
     return (
@@ -136,7 +166,7 @@ export default function Home() {
             <div className='flex w-full items-center justify-center flex-col'>
                 <h1 className='text-2xl font-bold'>Wat onze fans vinden:</h1>
                 <div className='flex flex-row gap-x-2 items-center'>
-                <h1 className="text-2xl font-bold">4.2</h1>
+                    <h1 className="text-2xl font-bold">4.2</h1>
                     <div className='flex'>
                         {[...Array(5)].map((_, index) => {
                             const starValue = 4.3 - index;
@@ -170,24 +200,124 @@ export default function Home() {
                 </Marquee>
             </div>
             <hr className="flex-grow border-neutral-600 m-3" />
-            <div className='h-full'>
-                <div className='w-full h-64 flex'>
-                    <div className='w-1/2'>
-                        <FirstMarketingComponent/>
-                    </div>
-                    <div className='border-r border-neutral-600 h-full'></div>
-                    <div className='w-1/2 pl-5'>
-                        <p className='justify-center flex font-bold text-3xl'>
-                            Wat is PolarLearn?
-                        </p>
-                        <div className='h-4'/>
-                        <p className='text-xl'>
-                            PolarLearn is een FOSS (gratis en Open-Source) leerprogramma, voor al je vakken. PolarLearn kan ook gebruikt worden als een alternatief voor het betaalde StudyGo.
-                        </p>
-                    </div>
+
+            <div className='h-20'/>
+
+            {/* ✨ Scoll magie ✨ */}
+            <div className="my-12">
+                <ScrollContainer>
+                    <ScrollPage>
+                        <Animator animation={batch(Fade(), Move(), Sticky())}>
+                            <div className='h-svh flex justify-center items-center flex-col'>
+                                <h1 className='text-4xl font-bold'>Waarom PolarLearn?</h1>
+                                <div className='h-4' />
+                                <div className='flex flex-row gap-x-4'>
+                                    <Image src={down} alt="down arrow" width={20} height={20} />
+                                    <p>Scroll naar beneden om te zien!</p>
+                                    <Image src={down} alt="down arrow" width={20} height={20} />
+                                </div>
+                            </div>
+                        </Animator>
+                    </ScrollPage>
+                    <ScrollPage>
+                        <Animator animation={batch(Fade())}>
+                            <div className='h-svh'>
+                                <div className='w-full h-full flex items-center'>
+                                    <div className='w-1/2'>
+                                        <FirstMarketingComponent />
+                                    </div>
+                                    <div className='border-r border-neutral-600 h-full'></div>
+                                    <div className='w-1/2 pl-5'>
+                                        <motion.p
+                                            initial={{ y: -30, opacity: 0 }}
+                                            whileInView={{ y: 0, opacity: 1 }}
+                                            transition={{ duration: 0.7, delay: 0.4 }}
+                                            className='justify-center flex font-bold text-3xl'>
+                                            Wat is PolarLearn?
+                                        </motion.p>
+                                        <div className='h-4' />
+                                        <motion.p
+                                            initial={{ y: -30, opacity: 0 }}
+                                            whileInView={{ y: 0, opacity: 1 }}
+                                            transition={{ duration: 0.7, delay: 0.7 }}
+                                            className='text-xl'>
+                                            PolarLearn is een FOSS (gratis en Open-Source) leerprogramma, voor al je vakken. PolarLearn kan ook gebruikt worden als een alternatief voor het betaalde StudyGo.
+                                        </motion.p>
+                                    </div>
+                                </div>
+                            </div>
+                        </Animator>
+                    </ScrollPage>
+                    <ScrollPage>
+                        <Animator animation={batch(MoveIn(1000, 0))}>
+                            <div className="h-screen flex flex-row items-center justify-center">
+                                <div className="w-1/2 h-full flex flex-col items-center justify-center pl-5">
+                                    <motion.p
+                                        initial={{ y: -30, opacity: 0 }}
+                                        whileInView={{ y: 0, opacity: 1 }}
+                                        transition={{ duration: 0.7, delay: 0.8 }}
+                                        className='justify-center flex font-bold text-3xl'>
+                                        PolarLearn is snel
+                                    </motion.p>
+                                    <motion.p
+                                        className="mt-4 text-center text-xl"
+                                        initial={{ y: -30, opacity: 0 }}
+                                        whileInView={{ y: 0, opacity: 1 }}
+                                        transition={{ duration: 0.7, delay: 1 }}
+                                        >
+                                        PolarLearn gebruikt de nieuwste technologieën, zoals Next.js, Prisma (ORM) en NextAuth.js om jouw leerervaring zo snel mogelijk te maken. Zo kan je snel en efficiënt leren.
+                                    </motion.p>
+                                </div>
+                                <div className="border-r border-neutral-600 h-full"></div>
+                                <div className="w-1/2 h-full flex items-center justify-center">
+                                    <SecondMarketingComponent />
+                                </div>
+                            </div>
+                        </Animator>
+                    </ScrollPage>
+                    <ScrollPage>
+                        <Animator animation={batch(MoveIn(-1000, 0))}>
+                        <div className="h-screen flex flex-row items-center justify-center">
+                                <div className="w-1/2 h-full flex flex-col items-center justify-center pl-5">
+                                    <motion.p
+                                        initial={{ y: -30, opacity: 0 }}
+                                        whileInView={{ y: 0, opacity: 1 }}
+                                        transition={{ duration: 0.7, delay: 0.8 }}
+                                        className='justify-center flex font-bold text-3xl'>
+                                        PolarLearn is veilig
+                                    </motion.p>
+                                    <motion.p
+                                        className="mt-4 text-center text-xl"
+                                        initial={{ y: -30, opacity: 0 }}
+                                        whileInView={{ y: 0, opacity: 1 }}
+                                        transition={{ duration: 0.7, delay: 1 }}
+                                        >
+                                        PolarLearn gebruikt de nieuwste beveiligingstechnologieën, zoals Argon2id <a target='_blank' className='text-sky-400' href='https://www.sentinelone.com/cybersecurity-101/cybersecurity/hashing/'>hashing</a> en salting, om jouw gegevens zo veilig mogelijk te houden. Zo kan je met een gerust hart leren.
+                                    </motion.p>
+                                </div>
+                                <div className="border-r border-neutral-600 h-full"></div>
+                                <div className="w-1/2 h-full flex items-center justify-center">
+                                    <motion.div
+                                        initial={{ y: -30, opacity: 0 }}
+                                        whileInView={{ y: 0, opacity: 1 }}
+                                        transition={{ duration: 0.7, delay: 0.8 }}
+                                    >
+                                        <Image src={shield} alt="shield" width={400} height={400} />
+                                    </motion.div>
+                                </div>
+                            </div>
+                        </Animator>
+                    </ScrollPage>
+                </ScrollContainer>
+            </div>
+            <div>
+                <div className='flex flex-col items-center justify-center'>
+                    <h1 className='text-4xl font-bold'>Wat doe jij nog hier?</h1>
+                    <div className='h-8' />
+                    <Button1 text='Start met leren!' redirectTo='/home/start' />
                 </div>
             </div>
-            <hr className="flex-grow border-neutral-600 m-3" />
+            <div className='h-8'/>
         </div>
     );
 }
