@@ -188,6 +188,7 @@ export default function Home() {
                         <ReviewCard stars={5} author='anoniem' comment='Ik merk dat PolarLearn veeel sneller is dan StudyGo, ook heel fijn dat het gratis is' />
                         <ReviewCard stars={5} author='kabab33' comment='Ik had een StudyGo abonnement, maar nu niet meer! Bedankt voor mijn € 143,88 per jaar besparen PolarLearn!' />
                         <ReviewCard stars={5} author='luna' comment="Mijn cijfers waren eerst heel slecht, maar sinds ik PolarLearn gebruik zijn ze super hoog!" />
+                        <ReviewCard stars={4.5} author='waterliefhebber' comment="Te weinig water" />
                     </div>
                 </Marquee>
             </div>
