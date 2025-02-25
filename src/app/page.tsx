@@ -13,19 +13,11 @@ import {
     ScrollPage,
     batch,
     Fade,
-    FadeIn,
-    FadeOut,
     Move,
     MoveIn,
-    MoveOut,
     Sticky,
-    StickyIn,
-    StickyOut,
-    Zoom,
-    ZoomIn,
-    ZoomOut
 }
-    from "react-scroll-motion";
+from "react-scroll-motion";
 
 // Subject images //
 

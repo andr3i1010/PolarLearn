@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import { TopNavBar } from "@/components/navbar/TopNavBar";
 import Footer from "@/components/footer/Footer";
@@ -7,16 +6,12 @@ import { checkDev } from "@/utils/datatool";
 import Button1 from "@/components/button/Button1";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/utils/auth";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import { headers } from "next/headers";
+import ToastProvider from '@/components/toast/toast';
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
     subsets: ["latin"],
 });
 
@@ -52,20 +47,21 @@ export default async function RootLayout({
                     dangerouslySetInnerHTML={{ __html: art }}
                 />
                 <SessionProvider session={session}>
-
-                    <div
-                        className=" md:hidden fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
-                        <div className="flex flex-col items-center">
-                            <p className="text-6xl">⚠️</p>
-                            <br />
-                            <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen. Er wordt gewerkt aan deze functionaliteit.</p>
+                    <ToastProvider>
+                        <div
+                            className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
+                            <div className="flex flex-col items-center">
+                                <p className="text-6xl">⚠️</p>
+                                <br />
+                                <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen. Er wordt gewerkt aan deze functionaliteit.</p>
+                            </div>
                         </div>
-                    </div>
-                    <TopNavBar pathname={currentPath} />
-                    {children}
-                    <footer className="mt-auto">
-                        {await Footer()}
-                    </footer>
+                        <TopNavBar pathname={currentPath} />
+                        {children}
+                        <footer className="mt-auto hidden md:block">
+                            {await Footer()}
+                        </footer>
+                    </ToastProvider>
                 </SessionProvider>
             </body>
         </html>
@@ -75,7 +71,7 @@ export default async function RootLayout({
                 className={`antialiased`}
             >
                 <div
-                    className=" fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
                     <div className="flex flex-col items-center">
                         <p className="text-6xl">⛔</p>
                         <br />

@@ -1,4 +1,3 @@
-"use client"
 import CreateListTool from "@/components/learning/createList";
 
 export default function CreateListPage() {

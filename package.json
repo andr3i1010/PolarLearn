@@ -3,7 +3,7 @@
   "version": "0-ALPHA ",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": " NEXT_DEBUG=true next dev --turbopack",
     "build": "next build",
     "start": "next start"
   },
@@ -33,7 +33,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-scroll-motion": "^0.3.5",
-    "react-toastify": "^11.0.3",
+    "react-toastify": "^11.0.5",
     "react-transition-group": "^4.4.5",
     "uuid": "^11.1.0"
   },

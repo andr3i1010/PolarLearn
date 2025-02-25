@@ -163,7 +163,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         email: prismaUser.email || "",
                     },
                     data: {
-                        listData: { recent_lists: [], liked_lists: [], created_lists: [], recent_subjects: [] },
+                        list_data: { recent_lists: [], liked_lists: [], created_lists: [], recent_subjects: [] },
                     },
                 });
             }

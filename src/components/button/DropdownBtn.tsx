@@ -14,18 +14,21 @@ interface DropdownProps {
   text: string;
   dropdownMatrix: [ReactNode, string][];
   selectorMode?: boolean;
-  onChangeSelected?: (selected: string) => void;
+  onChangeSelected?: (selected: { id: string; display: ReactNode }) => void; // UPDATED
   width?: number; // new optional width parameter
   onSelect?: (value: string) => void; // Added onSelect callback
   onChange?: (selected: any) => void; // Added onChange prop
+  disabled?: boolean; // NEW disabled prop
+  value?: string; // NEW value prop
 }
 
 export interface DropdownHandle {
   getSelectedItem: () => string;
+  setValue: (newId: string, newDisplay: ReactNode) => void; // NEW method
 }
 
 const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
-  ({ text, dropdownMatrix, selectorMode, onChangeSelected, width, onSelect, onChange }, ref) => {
+  ({ text, dropdownMatrix, selectorMode, onChangeSelected, width, onSelect, onChange, disabled, value }, ref) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [computedWidth, setComputedWidth] = useState<number>(0);
     const [dropdownHeight, setDropdownHeight] = useState<number>(0);
@@ -42,6 +45,9 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
       ref,
       () => ({
         getSelectedItem: () => selectedOption.id,
+        setValue: (newId: string, newDisplay: ReactNode) => {
+          setSelectedOption({ id: newId, display: newDisplay });
+        }
       }),
       [selectedOption]
     );
@@ -96,7 +102,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
     const handleItemClick = (optionId: string, optionDisplay: ReactNode) => {
       if (selectorMode) {
         setSelectedOption({ id: optionId, display: optionDisplay });
-        onChangeSelected && onChangeSelected(optionId);
+        onChangeSelected && onChangeSelected({ id: optionId, display: optionDisplay }); // UPDATED
         onSelect && onSelect(optionId); // Call onSelect if provided
         if (onChange) {
           onChange(optionId);
@@ -112,9 +118,11 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
     };
 
     return (
-      <div className="absolute">
+      <div 
+        className={`absolute z-50 ${disabled ? "pointer-events-none opacity-50" : ""}`} // Added z-50 for high stacking order
+      >
         <div
-          className=" inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg"
+          className="inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -131,13 +139,12 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
               className="w-full bg-neutral-800 text-white font-bold py-2 px-4 rounded-t-md"
               onClick={handleButtonClick}
             >
-              {selectorMode ? selectedOption.display : text}
+              {selectorMode ? (value || selectedOption.display) : text}
             </button>
 
             <div
               ref={dropdownRef}
-              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100" : "opacity-0"
-                }`}
+              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100" : "opacity-0"} shadow-lg`} // Add shadow if needed
               style={{
                 height: isExpanded ? `${dropdownHeight}px` : "0px",
                 width: `${effectiveWidth - 8}px`,

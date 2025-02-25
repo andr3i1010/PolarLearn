@@ -16,7 +16,7 @@ async function getRecentSubjects() {
   const account = await prisma.user.findUnique({
     where: { id: user?.id },
   });
-  return (account?.listData as any)?.recent_subjects || [];
+  return (account?.list_data as any)?.recent_subjects || [];
 }
 
 async function getRecentLists() {
@@ -24,7 +24,7 @@ async function getRecentLists() {
   const account = await prisma.user.findUnique({
     where: { id: user?.id }
   })
-  return (account?.listData as any)?.recent_lists || []
+  return (account?.list_data as any)?.recent_lists || []
 }
 
 export default async function Start() {

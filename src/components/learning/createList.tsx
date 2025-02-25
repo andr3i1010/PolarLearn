@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   DndContext,
@@ -17,9 +17,14 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Button1 from "@/components/button/Button1";
-// New imports for client side form
 import Dropdown, { DropdownHandle } from "@/components/button/DropdownBtn";
 import Image from "next/image";
+import { ReactNode } from "react";
+import { createListAction } from "@/serverActions/createList";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+
+// Subject images //
 import nsk_img from '@/app/img/nask.svg';
 import math_img from '@/app/img/math.svg';
 import eng_img from '@/app/img/english.svg';
@@ -31,9 +36,8 @@ import ak_img from '@/app/img/geography.svg';
 // Define the pair type.
 type Pair = {
   id: number;
-  word: string;
-  secondInput: string;
-  translation: string;
+  "1": string;
+  "2": string;
 };
 
 // SortableItem component for each draggable pair.
@@ -57,42 +61,80 @@ function SortableItem({
 }
 
 export default function CreateListTool() {
-  // New client-side states:
+  const router = useRouter(); // Add router instance
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined);
   const [listName, setListName] = useState("");
   const dropdownRef = useRef<DropdownHandle>(null);
+  const naarDropdownRef = useRef<DropdownHandle>(null);
+  const vanDropdownRef = useRef<DropdownHandle>(null); // NEW ref for first language dropdown
 
-  // Existing pair states:
-  const [pairs, setPairs] = useState<Pair[]>([{ id: 0, word: '', secondInput: '', translation: '' }]);
+  const [pairs, setPairs] = useState<Pair[]>([{ id: 0, "1": '', "2": '' }]);
   const [nextId, setNextId] = useState(1);
   const [selectedPairId, setSelectedPairId] = useState<number | null>(null);
   const [selectedInput, setSelectedInput] = useState<string | null>(null);
-  const [preventBlur, setPreventBlur] = useState(false);
+  const [translations, setTranslations] = useState<{ [id: number]: string }>({});
+  const [selectedTaal, setSelectedTaal] = useState<string | undefined>(undefined);
+  const [selectedSubject, setSelectedSubject] = useState<{ id: string; display: ReactNode } | undefined>(undefined);
+
+  const languageIds = ["NL", "FR", "EN", "DE"];
+  const subjectIsLanguage = selectedSubject ? languageIds.includes(selectedSubject.id) : false;
+
+  useEffect(() => {
+    const defaultDutchDisplay = (
+      <div className="flex items-center gap-2">
+        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+        <p>Nederlands</p>
+      </div>
+    );
+    if (vanDropdownRef.current) {
+      vanDropdownRef.current.setValue("NL", defaultDutchDisplay);
+    }
+    if (naarDropdownRef.current) {
+      if (selectedSubject && ["FR","EN","DE","NL"].includes(selectedSubject.id)) {
+        // Lock "naar" dropdown to the chosen subject language.
+        naarDropdownRef.current.setValue(selectedSubject.id, selectedSubject.display);
+      } else {
+        naarDropdownRef.current.setValue("NL", defaultDutchDisplay);
+      }
+    }
+  }, [selectedSubject]);
+
+  useEffect(() => {
+    if (selectedSubject) {
+      setSelectedTaal(selectedSubject.id);
+    }
+  }, [selectedSubject]);
+
+  useEffect(() => {
+    // On load, default both language dropdowns to Dutch.
+    const defaultDutchDisplay = (
+      <div className="flex items-center gap-2">
+        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+        <p>Nederlands</p>
+      </div>
+    );
+    if (vanDropdownRef.current) {
+      vanDropdownRef.current.setValue("NL", defaultDutchDisplay);
+    }
+    if (naarDropdownRef.current) {
+      naarDropdownRef.current.setValue("NL", defaultDutchDisplay);
+    }
+  }, []);
 
   const addPair = () => {
-    setPairs([...pairs, { id: nextId, word: '', secondInput: '', translation: '' }]);
+    setPairs([...pairs, { id: nextId, "1": '', "2": '' }]);
     setNextId(nextId + 1);
+    console.log(pairs)
   };
 
   const removePair = (id: number) => {
     setPairs(pairs.filter((pair) => pair.id !== id));
   };
 
-  // Handle translation filling
-  const handleTranslationClick = (id: number) => {
-    setPairs((prev) =>
-      prev.map((pair) =>
-        pair.id === id ? { ...pair, secondInput: pair.translation } : pair
-      )
-    );
-    setSelectedPairId(null);
-    setSelectedInput(null);
-  };
-
   const handleWordChange = (id: number, value: string) => {
     setPairs((prev) =>
       prev.map((pair) =>
-        pair.id === id ? { ...pair, word: value } : pair
+        pair.id === id ? { ...pair, "1": value } : pair
       )
     );
   };
@@ -100,7 +142,7 @@ export default function CreateListTool() {
   const handleSecondInputChange = (id: number, value: string) => {
     setPairs((prev) =>
       prev.map((pair) =>
-        pair.id === id ? { ...pair, secondInput: value } : pair
+        pair.id === id ? { ...pair, "2": value } : pair
       )
     );
   };
@@ -139,78 +181,169 @@ export default function CreateListTool() {
     }
   };
 
+  // Add constant to check if the selected subject is a language
+  const isLanguage = selectedLanguage && ["FR", "EN", "DE"].includes(selectedLanguage);
+
+  // NEW: Function to save the list (published: false)
+  async function saveList() {
+    // Check for list name
+    if (!listName.trim()) {
+      toast.error("Voer een lijstnaam in.");
+      return;
+    }
+    if (!selectedSubject) {
+      toast.error("Selecteer alstublieft een vak.");
+      return;
+    }
+    // Check that at least one pair field "1" is filled.
+    const hasFilledPair = pairs.some(pair => pair["1"].trim() !== "");
+    if (!hasFilledPair) {
+      toast.error("Vul ten minste één paar in.");
+      return;
+    }
+
+    const listData = {
+      name: listName,
+      mode: "list",
+      data: pairs,
+      lang_from: vanDropdownRef .current?.getSelectedItem(),
+      lang_to: naarDropdownRef.current?.getSelectedItem(),
+    };
+    try {
+      const data = await createListAction(listData);
+      console.log("List saved", data);
+      if (data && data.list_id) {
+        toast.success("Lijst succesvol opgeslagen.");
+        router.push(`/home/viewlist/${data.list_id}`);
+      }
+    } catch (error) {
+      console.error("Error saving list", error);
+      toast.error("Er trad een fout op bij het opslaan.");
+    }
+  }
+
+  async function publishList() {
+    // Check for list name
+    if (!listName.trim()) {
+      toast.error("Voer een lijstnaam in.");
+      return;
+    }
+    if (!selectedSubject) {
+      toast.error("Selecteer alstublieft een vak.");
+      return;
+    }
+    const hasFilledPair = pairs.some(pair => pair["1"].trim() !== "");
+    if (!hasFilledPair) {
+      toast.error("Vul ten minste één paar in.");
+      return;
+    }
+    const listData = {
+      name: listName,
+      mode: "list",
+      data: pairs,
+      lang_from: vanDropdownRef.current?.getSelectedItem(),
+      lang_to:  naarDropdownRef.current?.getSelectedItem(),
+    };
+    try {
+      const data = await createListAction(listData);
+      console.log("List published", data);
+      toast.success("Lijst succesvol geüpload.");
+      if (data && data.list_id) {
+        router.push(`/home/viewlist/${data.list_id}`);
+      }
+    } catch (error) {
+      console.error("Error publishing list", error instanceof Error ? error.stack : error);
+      toast.error("Er trad een fout op bij het uploaden.");
+    }
+  }
+
+  async function logRawData() {
+    const listData = {
+      name: listName,
+      mode: "list",
+      data: pairs,
+      lang_from: vanDropdownRef.current?.getSelectedItem(),
+      lang_to: naarDropdownRef.current?.getSelectedItem(),
+    };
+    console.log("Raw list data:", listData);
+  }
+
   return (
     <>
-      {/* New client-side form moved from page */}
       <div className="mx-2">
         <div className="h-3" />
         <form className="relative z-50">
-          <Dropdown   
-            ref={dropdownRef}
-            text="Kies een vak"
-            width={200}
-            dropdownMatrix={[
-              [
-                (
-                  <div className="flex items-center gap-2">
-                    <Image src={nl_img} alt="nederlands plaatje" width={20} height={20} />
-                    <p>Nederlands</p>
-                  </div>
-                ),
-                "NL"
-              ],
-              [
-                (
-                  <div className="flex items-center gap-2">
-                    <Image src={math_img} alt="wiskunde plaatje" width={20} height={20} />
-                    <p>Wiskunde</p>
-                  </div>
-                ), "WI"
-              ],
-              [
-                (
-                  <div className="flex items-center gap-2">
-                    <Image src={nsk_img} alt="nask plaatje" width={20} height={20} />
-                    <p>NaSk</p>
-                  </div>
-                ), "NSK"
-              ],
-              [
-                (
-                  <div className="flex items-center gap-2">
-                    <Image src={ak_img} alt="aardrijkskunde plaatje" width={20} height={20} />
-                    <p>Aardrijkskunde</p>
-                  </div>
-                ), "AK"
-              ],
-              [
-                (
-                  <div className="flex items-center gap-2">
-                    <Image src={fr_img} alt="frans plaatje" width={20} height={20} />
-                    <p>Frans</p>
-                  </div>
-                ), "FR"
-              ],
-              [
-                (
-                  <div className="flex items-center gap-2">
-                    <Image src={eng_img} alt="engels plaatje" width={20} height={20} />
-                    <p>Engels</p>
-                  </div>
-                ), "EN"
-              ],
-              [
-                (
-                  <div className="flex items-center gap-2">
-                    <Image src={de_img} alt="duits plaatje" width={20} height={20} />
-                    <p>Duits</p>
-                  </div>
-                ), "DE"
-              ]
-            ]}
-            selectorMode={true}
-            onChange={(selected) => setSelectedLanguage(selected)}
-          />
+          <div className="flex flex-row gap-4">
+            <Dropdown
+              ref={dropdownRef}
+              text="Kies een vak"
+              width={200}
+              dropdownMatrix={[
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={nl_img} alt="nederlands plaatje" width={20} height={20} />
+                      <p>Nederlands</p>
+                    </div>
+                  ),
+                  "NL"
+                ],
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={math_img} alt="wiskunde plaatje" width={20} height={20} />
+                      <p>Wiskunde</p>
+                    </div>
+                  ), "WI"
+                ],
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={nsk_img} alt="nask plaatje" width={20} height={20} />
+                      <p>NaSk</p>
+                    </div>
+                  ), "NSK"
+                ],
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={ak_img} alt="aardrijkskunde plaatje" width={20} height={20} />
+                      <p>Aardrijkskunde</p>
+                    </div>
+                  ), "AK"
+                ],
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={fr_img} alt="frans plaatje" width={20} height={20} />
+                      <p>Frans</p>
+                    </div>
+                  ), "FR"
+                ],
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={eng_img} alt="engels plaatje" width={20} height={20} />
+                      <p>Engels</p>
+                    </div>
+                  ), "EN"
+                ],
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={de_img} alt="duits plaatje" width={20} height={20} />
+                      <p>Duits</p>
+                    </div>
+                  ), "DE"
+                ]
+              ]}
+              selectorMode={true}
+              onChangeSelected={(selected) => {
+                setSelectedSubject(selected);
+                setSelectedLanguage(selected.id);
+              }}
+            />
+          </div>
           <input
             value={listName}
             onChange={(e) => setListName(e.target.value)}
@@ -218,8 +351,105 @@ export default function CreateListTool() {
             type="text"
             placeholder="Lijstnaam komt hier"
           />
+          <div className="mt-4 flex justify-center gap-4">
+            {/* Update the "Van.." dropdown to disable when subject is Dutch */}
+            <div className="w-1/2 z-0 ml-52">
+              <Dropdown
+                ref={vanDropdownRef} // attach new ref here
+                text="Van.."
+                width={200}
+                dropdownMatrix={[
+                  [
+                    (
+                      <div className="flex items-center gap-2">
+                        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+                        <p>Nederlands</p>
+                      </div>
+                    ),
+                    "NL"
+                  ],
+                  [
+                    (
+                      <div className="flex items-center gap-2">
+                        <Image src={fr_img} alt="Frans" width={20} height={20} />
+                        <p>Frans</p>
+                      </div>
+                    ),
+                    "FR"
+                  ],
+                  [
+                    (
+                      <div className="flex items-center gap-2">
+                        <Image src={eng_img} alt="Engels" width={20} height={20} />
+                        <p>Engels</p>
+                      </div>
+                    ),
+                    "EN"
+                  ],
+                  [
+                    (
+                      <div className="flex items-center gap-2">
+                        <Image src={de_img} alt="Duits" width={20} height={20} />
+                        <p>Duits</p>
+                      </div>
+                    ),
+                    "DE"
+                  ]
+                ]}
+                selectorMode={true}
+                onChange={(selected) => setSelectedTaal(selected)}
+              />
+            </div>
+            <div className="w-1/2 pl-28">
+              <Dropdown
+                ref={naarDropdownRef}
+                text="Naar.."
+                width={200}
+                dropdownMatrix={[
+                  [
+                    (
+                      <div className="flex items-center gap-2">
+                        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+                        <p>Nederlands</p>
+                      </div>
+                    ),
+                    "NL"
+                  ],
+                  [
+                    (
+                      <div className="flex items-center gap-2">
+                        <Image src={fr_img} alt="Frans" width={20} height={20} />
+                        <p>Frans</p>
+                      </div>
+                    ),
+                    "FR"
+                  ],
+                  [
+                    (
+                      <div className="flex items-center gap-2">
+                        <Image src={eng_img} alt="Engels" width={20} height={20} />
+                        <p>Engels</p>
+                      </div>
+                    ),
+                    "EN"
+                  ],
+                  [
+                    (
+                      <div className="flex items-center gap-2">
+                        <Image src={de_img} alt="Duits" width={20} height={20} />
+                        <p>Duits</p>
+                      </div>
+                    ),
+                    "DE"
+                  ]
+                ]}
+                selectorMode={true}
+                disabled={selectedSubject && ["FR","EN","DE","NL"].includes(selectedSubject.id)}
+              />
+            </div>
+          </div>
         </form>
-        <div className="h-4"/>
+        <div className="h-16" />
       </div>
       <DndContext
         sensors={sensors}
@@ -247,13 +477,13 @@ export default function CreateListTool() {
                         <div className="flex flex-row items-center gap-2">
                           <span className="text-white mr-2 text-xl">{index + 1}</span>
                           <input
-                            value={pair.word}
+                            value={pair["1"]}
                             onChange={(e) => handleWordChange(pair.id, e.target.value)}
                             onFocus={() => { setSelectedPairId(pair.id); setSelectedInput('word'); }}
                             onBlur={() => { if (selectedInput !== 'translationButton') { setSelectedPairId(null); setSelectedInput(null); } }}
                             className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pr-4 text-xl"
                             type="text"
-                            placeholder="Begrip"
+                            placeholder={isLanguage ? "Woord in het Nederlands" : "Begrip"}
                           />
                           <div className="flex flex-row items-center gap-2">
                             <div
@@ -307,30 +537,36 @@ export default function CreateListTool() {
                             </button>
                           </div>
                           <input
-                            value={pair.secondInput}
+                            value={pair["2"]}
                             onChange={(e) => handleSecondInputChange(pair.id, e.target.value)}
                             onFocus={() => {
                               setSelectedPairId(pair.id);
                               setSelectedInput('secondInput');
-                              const trimmedWord = pair.word.trim();
+                              const trimmedWord = pair["1"].trim();
                               if (trimmedWord.length > 0) {
-                                getTranslation(pair.word, selectedLanguage).then(translation => {
-                                  setPairs(p => p.map(innerPair =>
-                                    innerPair.id === pair.id ? { ...innerPair, translation } : innerPair
-                                  ));
+                                getTranslation(pair["1"], selectedLanguage).then(translatedText => {
+                                  setTranslations(prev => ({ ...prev, [pair.id]: translatedText }));
                                 });
                               }
                             }}
                             className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
                             type="text"
-                            placeholder="Vertaling of uitleg"
+                            placeholder={isLanguage ? "Vertaling" : "Uitleg van het begrip"}
                           />
                         </div>
-                        {pair.translation && selectedPairId === pair.id && selectedInput === 'secondInput' && (
+                        {translations[pair.id] && selectedPairId === pair.id && selectedInput === 'secondInput' && (
                           <div className="mt-2 border-t border-neutral-600 pt-2 flex justify-end">
                             <Button1
-                              text={pair.translation}
-                              onClick={() => { handleTranslationClick(pair.id); }}
+                              text={translations[pair.id]}
+                              onClick={() => {
+                                setPairs(p => p.map(innerPair =>
+                                  innerPair.id === pair.id ? { ...innerPair, "2": translations[pair.id] } : innerPair
+                                ));
+                                setTranslations(prev => {
+                                  const { [pair.id]: removed, ...rest } = prev;
+                                  return rest;
+                                });
+                              }}
                             />
                           </div>
                         )}
@@ -340,7 +576,6 @@ export default function CreateListTool() {
                 </motion.div>
               ))}
             </AnimatePresence>
-            {/* Add new pair button remains outside sortable context */}
             <div className="relative flex items-center rounded-lg bg-neutral-800 shadow-lg p-4 h-20 transition-all hover:bg-neutral-700">
               <button
                 onClick={addPair}
@@ -376,6 +611,21 @@ export default function CreateListTool() {
           </div>
         </SortableContext>
       </DndContext>
-    </>
-  );
+      <div className="mt-4 flex justify-center space-x-4">
+        <Button1
+          text="Lijst uploaden"
+          onClick={publishList}
+        />
+        <Button1
+          text="Lijst opslaan"
+          onClick={saveList}
+        />
+        {/* NEW: Button to log raw list data */}
+        <Button1
+          text="Log Raw Data"
+          onClick={logRawData}
+        />
+      </div>
+      <div className="h-8" />
+    </>);
 }
