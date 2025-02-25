@@ -13,15 +13,18 @@ export default function ClientToastNotifier() {
 			let message = "";
 			if (errorParam === "CredentialsSignin") {
 				const codeParam = searchParams.get("code");
+				console.log(codeParam)
 				if (codeParam === "User not found") {
 					message = "Email of wachtwoord is onjuist. Controleer uw gegevens en probeer het opnieuw.";
-				} else {
+				} else if (codeParam === "AccessDenied") {
+					message = "Je bent verbannen van PolarLearn. Check je E-mail voor meer informatie."
+				}
+				else {
 					message = codeParam || "Onbekende fout?";
 				}
 			} else {
 				const errorMessages: Record<string, string> = {
 					Configuration: "🚨 Interne serverfout!",
-					AccessDenied: "Je bent verbannen van PolarLearn. Check je E-mail voor meer informatie.",
 					Verification: "Deze error zou niet moeten bestaan.",
 					Default: "Email of wachtwoord is onjuist. Controleer uw gegevens en probeer het opnieuw."
 				};

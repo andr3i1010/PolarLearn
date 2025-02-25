@@ -37,7 +37,7 @@ export default async function RootLayout({
 |   __| . | | .'|  _|  |__| -_| .'|  _|   |__|
 |__|  |___|_|__,|_| |_____|___|__,|_| |_|_|__|
     `;
-    return isDev ? (
+    return (
         <html lang="en" className={`${geistSans.className} antialiased`}>
             <body
                 className={`antialiased flex flex-col min-h-screen `}
@@ -63,24 +63,6 @@ export default async function RootLayout({
                         </footer>
                     </ToastProvider>
                 </SessionProvider>
-            </body>
-        </html>
-    ) : (
-        <html lang="en">
-            <body
-                className={`antialiased`}
-            >
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black text-white text-center p-4">
-                    <div className="flex flex-col items-center">
-                        <p className="text-6xl">⛔</p>
-                        <br />
-                        <p className="text-xl">Je hebt geen toegang tot de beta-build van PolarLearn. <br />Als je hebt gedoneerd of een administrator bent, log dan eerst in op <a href={polarUrl} target="_blank" rel="noopener noreferrer">{polarUrl}</a></p>
-                        <div className="pt-11">
-                            <Button1 text={String(polarUrl)} useClNav={false} redirectTo={polarUrl} />
-                        </div>
-                    </div>
-                </div>
             </body>
         </html>
     );
