@@ -1,6 +1,14 @@
 import { prisma } from "@/utils/prisma"
-export default async function ViewListPage({ params }: { params: { id: string } }) {
+import { NextPage, GetServerSideProps } from 'next';
 
+interface PageParams {
+  params: {
+    id: string;
+  };
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
+const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) => {
     const listData = await prisma.practice.findFirst({
         where: {
             list_id: params.id
@@ -26,3 +34,5 @@ export default async function ViewListPage({ params }: { params: { id: string } 
         </div>
     )
 }
+
+export default ViewListPage;

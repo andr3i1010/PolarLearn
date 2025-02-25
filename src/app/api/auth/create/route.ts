@@ -30,7 +30,7 @@ export async function POST(req: Request) {
         createdAt: new Date(),
         updatedAt: new Date(),
         emailVerified: new Date(),
-        listData: { recent_lists: [], liked_lists: [], created_lists: [], recent_subjects: [] },
+        list_data: { recent_lists: [], liked_lists: [], created_lists: [], recent_subjects: [] },
         loginAllowed: true,
       }
     });
