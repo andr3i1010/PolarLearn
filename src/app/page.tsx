@@ -46,8 +46,8 @@ export default function Home() {
                         className="w-screen h-[calc(100vh-4rem)] bg-neutral-800 pt-8 pb-8 drop-shadow-xl drop-down">
                         <div className='flex flex-row h-full'>
                             <div className="flex flex-col justify-center">
-                                <div className="flex ml-20">
-                                    <h1 className="text-center text-6xl font-bold leading-tight bg-gradient-to-r to-sky-100 from-sky-500 bg-clip-text text-transparent drop-down">
+                                <div className="flex pl-5">
+                                    <h1 className="text-center text-6xl font-bold leading-tight bg-gradient-to-r ml-9 to-sky-100 from-sky-500 bg-clip-text text-transparent drop-down">
                                         PolarLearn
                                     </h1>
                                 </div>

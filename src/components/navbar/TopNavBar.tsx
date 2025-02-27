@@ -40,16 +40,13 @@ export function TopNavBar({ pathname }: { pathname: string }) {
         <>
             <nav className="fixed top-0 min-w-full shadow-md start-0 max-w-screen-xl z-50 flex flex-wrap justify-between h-16 bg-neutral-900/70 backdrop-blur-sm items-center fade-in font-[family-name:var(--font-geist-sans)] font-bold">
                 <a href="/">
-                    <Image className="ml-4" src={pl500} alt="PolarLearn Logo" height={50} width={50} />
+                    <Image className="mx-2" src={pl500} alt="PolarLearn Logo" height={50} width={50} />
                 </a>
-                {process.env.NODE_ENV === "development" ? (
-                    <div className="px-6 text-4xl">
+                {process.env.NODE_ENV === "development" && (
+                    <div className="text-4xl mx-2">
                         <p>BETA</p>
                     </div>
                 )
-                    : (
-                        <div className="w-4"></div>
-                    )
                 }
                 {pathname && pathname.startsWith("/home") && (
                     <>
@@ -75,7 +72,7 @@ export function TopNavBar({ pathname }: { pathname: string }) {
                     </>
                 )}
             </nav>
-            <div className="h-16"/>
+            <div className="h-16" />
         </>
     );
 }
