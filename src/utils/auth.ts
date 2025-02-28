@@ -122,7 +122,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
     ],
     session: {
-        strategy: 'jwt',
+        strategy: 'database',
+        maxAge: 2 * 24 * 60 * 60,
     },
     callbacks: {
         async jwt({ token, user }) {
@@ -133,6 +134,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
         async session({ session, token }) {
             session.user.role = token?.role as string | undefined;
+            
             return session;
         },
         async signIn({ user, account, profile, email, credentials }) {

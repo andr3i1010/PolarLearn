@@ -14,6 +14,7 @@ model User {
   emailVerified DateTime?
   image         String?
   accounts      Account[]
+  sessions      Session[]
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -44,25 +45,25 @@ model Account {
   @@unique([provider, providerAccountId])
 }
  
-// model Session {
-//   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-//   sessionToken String   @unique
-//   userId       String   @db.String
-//   expires      DateTime
-//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
  
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
  
-// model VerificationToken {
-//   id         String   @id @default(auto()) @map("_id") @db.ObjectId
-//   identifier String
-//   token      String
-//   expires    DateTime
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String
+  expires    DateTime
  
-//   @@unique([identifier, token])
-// }
+  @@unique([identifier, token])
+}
  
 // Optional for WebAuthn support
 // model Authenticator {
@@ -85,6 +86,7 @@ model practice {
   list_id   String
   name      String
   mode      String
+  subject   String
   lang_from String
   lang_to   String
   data      Json

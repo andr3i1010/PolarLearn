@@ -22,6 +22,7 @@ import Image from "next/image";
 import { ReactNode } from "react";
 import { createListAction } from "@/serverActions/createList";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation"; // Add router import
 
 // Subject images //
 import nsk_img from '@/app/img/nask.svg';
@@ -60,6 +61,7 @@ function SortableItem({
 }
 
 export default function CreateListTool() {
+  const router = useRouter(); // Initialize router
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined);
   const [listName, setListName] = useState("");
   const dropdownRef = useRef<DropdownHandle>(null);
@@ -184,6 +186,11 @@ export default function CreateListTool() {
 
   // NEW: Function to save the list (published: false)
   async function saveList() {
+    // Check for list name
+    if (!listName.trim()) {
+      toast.error("Voer een naam in voor de lijst.");
+      return;
+    }
     // Check for subject selection.
     if (!selectedSubject) {
       toast.error("Selecteer alstublieft een vak.");
@@ -200,18 +207,29 @@ export default function CreateListTool() {
       name: listName,
       mode: "list",
       data: pairs,
-      lang_from: vanDropdownRef .current?.getSelectedItem(),
+      lang_from: vanDropdownRef.current?.getSelectedItem(),
       lang_to: naarDropdownRef.current?.getSelectedItem(),
+      subject: selectedSubject.id, // Include the subject
     };
     try {
       const data = await createListAction(listData);
       console.log("List saved", data);
+      toast.success("Lijst succesvol opgeslagen.");
+      if (data && data.id) {
+        router.push(`/learn/viewlist/${data.id}`);
+      }
     } catch (error) {
       console.error("Error saving list", error);
+      toast.error("Er trad een fout op bij het opslaan.");
     }
   }
 
   async function publishList() {
+    // Check for list name
+    if (!listName.trim()) {
+      toast.error("Voer een naam in voor de lijst.");
+      return;
+    }
     if (!selectedSubject) {
       toast.error("Selecteer alstublieft een vak.");
       return;
@@ -226,12 +244,16 @@ export default function CreateListTool() {
       mode: "list",
       data: pairs,
       lang_from: vanDropdownRef.current?.getSelectedItem(),
-      lang_to:  naarDropdownRef.current?.getSelectedItem(),
+      lang_to: naarDropdownRef.current?.getSelectedItem(),
+      subject: selectedSubject.id, // Include the subject
     };
     try {
       const data = await createListAction(listData);
       console.log("List published", data);
       toast.success("Lijst succesvol geüpload.");
+      if (data && data.id) {
+        router.push(`/learn/viewlist/${data.list_id}`);
+      }
     } catch (error) {
       console.error("Error publishing list", error instanceof Error ? error.stack : error);
       toast.error("Er trad een fout op bij het uploaden.");
@@ -245,6 +267,7 @@ export default function CreateListTool() {
       data: pairs,
       lang_from: vanDropdownRef.current?.getSelectedItem(),
       lang_to: naarDropdownRef.current?.getSelectedItem(),
+      subject: selectedSubject?.id, // Include the subject
     };
     console.log("Raw list data:", listData);
   }

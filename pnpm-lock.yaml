@@ -68,6 +68,9 @@ importers:
       google-translate-api-x:
         specifier: ^10.7.2
         version: 10.7.2
+      jdenticon:
+        specifier: ^3.3.0
+        version: 3.3.0
       motion:
         specifier: ^12.4.7
         version: 12.4.7(@emotion/is-prop-valid@1.3.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -86,6 +89,9 @@ importers:
       react-dom:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
+      react-jdenticon:
+        specifier: ^1.4.0
+        version: 1.4.0(react@19.0.0)
       react-scroll-motion:
         specifier: ^0.3.5
         version: 0.3.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1074,6 +1080,9 @@ packages:
   caniuse-lite@1.0.30001701:
     resolution: {integrity: sha512-faRs/AW3jA9nTwmJBSO1PQ6L/EOgsB5HMQQq4iCu5zhPgVVgO/pZRHlmatwijZKetFw8/Pr4q6dEN8sJuq8qTw==}
 
+  canvas-renderer@2.2.1:
+    resolution: {integrity: sha512-RrBgVL5qCEDIXpJ6NrzyRNoTnXxYarqm/cS/W6ERhUJts5UQtt/XPEosGN3rqUkZ4fjBArlnCbsISJ+KCFnIAg==}
+
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
@@ -1793,6 +1802,11 @@ packages:
     resolution: {integrity: sha512-H0dkQoCa3b2VEeKQBOxFph+JAbcrQdE7KC0UkqwpLmv2EC4P41QXP+rqo9wYodACiG5/WM5s9oDApTU8utwj9g==}
     engines: {node: '>= 0.4'}
 
+  jdenticon@3.3.0:
+    resolution: {integrity: sha512-DhuBRNRIybGPeAjMjdHbkIfiwZCCmf8ggu7C49jhp6aJ7DYsZfudnvnTY5/1vgUhrGA7JaDAx1WevnpjCPvaGg==}
+    engines: {node: '>=6.4.0'}
+    hasBin: true
+
   jiti@2.4.2:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
@@ -2209,6 +2223,11 @@ packages:
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
+
+  react-jdenticon@1.4.0:
+    resolution: {integrity: sha512-yq9laq2ccH0MeSOZ7aTD21TNl0MsmADgDqVV5JIIMIaQOY7Ybpstbv/4T3ArSRatr+fuo2Xh2HUhwJG/UoELKQ==}
+    peerDependencies:
+      react: ^18.2.0
 
   react-scroll-motion@0.3.5:
     resolution: {integrity: sha512-TMlk0IEc2WsU5+3P+RHEir7KcdjxAvIitW7aABV01k9LMrsZucwQWQUq0dS1QwySGaQXUT3mujDJJYPeqDjshQ==}
@@ -3412,6 +3431,10 @@ snapshots:
 
   caniuse-lite@1.0.30001701: {}
 
+  canvas-renderer@2.2.1:
+    dependencies:
+      '@types/node': 22.13.5
+
   chalk@4.1.2:
     dependencies:
       ansi-styles: 4.3.0
@@ -4324,6 +4347,10 @@ snapshots:
       has-symbols: 1.1.0
       set-function-name: 2.0.2
 
+  jdenticon@3.3.0:
+    dependencies:
+      canvas-renderer: 2.2.1
+
   jiti@2.4.2: {}
 
   jose@4.15.9: {}
@@ -4687,6 +4714,12 @@ snapshots:
       scheduler: 0.25.0
 
   react-is@16.13.1: {}
+
+  react-jdenticon@1.4.0(react@19.0.0):
+    dependencies:
+      jdenticon: 3.3.0
+      prop-types: 15.8.1
+      react: 19.0.0
 
   react-scroll-motion@0.3.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
