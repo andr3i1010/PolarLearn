@@ -71,7 +71,7 @@ export default function Home() {
                                     </h1>
                                     <br />
                                     <div className='justify-center flex'>
-                                        <Button1 text="Meer weten" />
+                                        <Button1 text="Meer weten" onClick={() => { alert("o nee dit bestaat nog niet )=") }} />
                                     </div>
                                 </div>
                             </div>
@@ -191,7 +191,7 @@ export default function Home() {
                 </div>
                 <div className='h-4' />
                 <Marquee direction='left'>
-                    <div className='flex flex-row gap-x-4 w-min'>
+                    <div className='flex flex-row gap-x-4 w-min '>
                         <ReviewCard stars={5} author='andrei1010' comment='Door de gratis forum en de samenvattingen heb ik eindelijk topcijfers voor geschiedenis!' />
                         <ReviewCard stars={4.7} author='EGaming200' comment='PolarLearn heeft mij geholpen met leren voor toetsen' />
                         <ReviewCard stars={5} author='MrApfelstrudel' comment='Door PolarLearn heb ik eindelijk goede cijfers voor frans!' />
