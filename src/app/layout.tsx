@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { TopNavBar } from "@/components/navbar/TopNavBar";
 import Footer from "@/components/footer/Footer";
-import { checkDev } from "@/utils/datatool";
-import Button1 from "@/components/button/Button1";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/utils/auth";
 import { Geist } from "next/font/google";
 import { headers } from "next/headers";
 import ToastProvider from '@/components/toast/toast';
+import { WSProvider } from "../components/ws-provider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -27,15 +26,28 @@ export default async function RootLayout({
 }>) {
     const headerslist = await headers();
     const currentPath = headerslist.get('x-current-path') || '/';
-    const polarUrl = process.env.POLARLEARN_URL;
     const session = await auth();
-    const isDev = process.env.NODE_ENV === "production" || await checkDev()
     const art = `                                          
-                                           __ 
- _____     _         __                   |  |
-|  _  |___| |___ ___|  |   ___ ___ ___ ___|  |
-|   __| . | | .'|  _|  |__| -_| .'|  _|   |__|
-|__|  |___|_|__,|_| |_____|___|__,|_| |_|_|__|
+                                               __ 
+     _____     _         __                   |  |
+    |  _  |___| |___ ___|  |   ___ ___ ___ ___|  |
+    |   __| . | | .'|  _|  |__| -_| .'|  _|   |__|
+    |__|  |___|_|__,|_| |_____|___|__,|_| |_|_|__|
+
+
+    <!-- 
+
+        Hallo daar, developer!
+    
+        Voel je vrij om in de gegenereerde HTML-code te kijken. 
+        
+        De jsx-* classes zijn client-componenten, dus interactief. De rest van de classes zijn van TailwindCSS.
+
+        PolarLearn is FOSS, dus je kunt de code bekijken op GitHub: https://github.com/polarnl/polarlearn
+
+        Groetjes, andrei1010
+
+    -->
     `;
     return (
         <html lang="en" className={`${geistSans.className} antialiased`}>
@@ -48,19 +60,21 @@ export default async function RootLayout({
                 />
                 <SessionProvider session={session}>
                     <ToastProvider>
-                        <div
-                            className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
-                            <div className="flex flex-col items-center">
-                                <p className="text-6xl">⚠️</p>
-                                <br />
-                                <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen. Er wordt gewerkt aan deze functionaliteit.</p>
+                        <WSProvider>
+                            <div
+                                className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
+                                <div className="flex flex-col items-center">
+                                    <p className="text-6xl">⚠️</p>
+                                    <br />
+                                    <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen. Er wordt gewerkt aan deze functionaliteit.</p>
+                                </div>
                             </div>
-                        </div>
-                        <TopNavBar pathname={currentPath} />
-                        {children}
-                        <footer className="mt-auto hidden md:block">
-                            {await Footer()}
-                        </footer>
+                            <TopNavBar pathname={currentPath} />
+                            {children}
+                            <footer className="mt-auto hidden md:block">
+                                {await Footer()}
+                            </footer>
+                        </WSProvider>
                     </ToastProvider>
                 </SessionProvider>
             </body>

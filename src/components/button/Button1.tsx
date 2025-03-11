@@ -9,18 +9,38 @@ interface ButtonProps {
   className?: string;
   useClNav?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean; // Add disabled prop
 }
 
-const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, useClNav, onClick }) => {
+const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, useClNav, onClick, disabled = false }) => {
   const handleClick = () => {
-    if (redirectTo && !useClNav) {
+    if (redirectTo && !useClNav && !disabled) {
       window.location.href = redirectTo;
     }
   };
+
+  // Create conditional classes for disabled state
+  const containerClasses = cn(
+    "relative inline-block transition-transform rounded-lg",
+    !disabled && "hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-110",
+    disabled && "opacity-70 cursor-not-allowed",
+    className
+  );
+
+  const borderClasses = cn(
+    "rounded-lg border-4 border-neutral-700 duration-300",
+    !disabled && "hover:border-transparent"
+  );
+
+  const buttonClasses = cn(
+    "w-full bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-md duration-300",
+    disabled && "cursor-not-allowed"
+  );
+
   return (
-    <div className={`relative inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform hover:scale-110 rounded-lg  ${className}`}>
-      <div className="rounded-lg border-4 border-neutral-700 duration-300 hover:border-transparent">
-        {useClNav == true && redirectTo ? (
+    <div className={containerClasses}>
+      <div className={borderClasses}>
+        {useClNav === true && redirectTo && !disabled ? (
           <Link
             href={redirectTo}
             prefetch={true}
@@ -32,7 +52,8 @@ const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, use
           <button
             type={type || "button"}
             onClick={type ? undefined : (onClick || handleClick)}
-            className="w-full bg-neutral-800 text-white font-bold py-2 px-4 transition-all duration-300">
+            disabled={disabled}
+            className={buttonClasses}>
             {text}
           </button>
         )}
@@ -40,5 +61,10 @@ const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, use
     </div>
   );
 };
+
+// Add missing cn utility if not available in your project
+function cn(...classes: (string | boolean | undefined)[]): string {
+  return classes.filter(Boolean).join(' ');
+}
 
 export default Button1;

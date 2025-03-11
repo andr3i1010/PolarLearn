@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <ellipse style="fill: rgb(10, 219, 93); stroke: rgb(10, 219, 93);" cx="248.8" cy="249.217" rx="249.843" ry="249.843"/>
+  <g transform="matrix(0.775216, 0, 0, 0.775216, 55.93794, 33.924085)" style="">
+    <path d="    M96.033,433.106h318.685c17.613,0,32.032,14.419,32.032,32.033l0,0c0,17.614-14.419,32.034-32.032,32.034H96.033    C78.419,497.173,64,482.754,64,465.14l0,0C64,447.525,78.419,433.106,96.033,433.106L96.033,433.106z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+    <path d="    M381.923,259.809c19.724,0,35.842-16.09,35.842-35.844s-16.119-35.873-35.842-35.873c-19.753,0-35.872,16.12-35.872,35.873    S362.169,259.809,381.923,259.809L381.923,259.809z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+    <rect fill="none" height="166.363" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" transform="matrix(0.7311 0.6823 -0.6823 0.7311 143.7113 -143.748)" width="59.409" x="224.513" y="27.259" style="stroke: rgb(255, 255, 255); stroke-width: 32.2484px;"/>
+    <path d="    M148.463,125.52l95.541,89.154l-63.684,68.258l-2.052-1.905l0,0c9.759-10.462-2.784-38.071-28.047-61.634    c-25.234-23.563-53.632-34.173-63.391-23.71l0,0l-2.052-1.905L148.463,125.52z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+    <path d="    M150.221,219.393c25.263,23.563,37.806,51.172,28.047,61.634c-9.759,10.463-38.158-0.175-63.391-23.739    c-25.263-23.563-37.806-51.143-28.047-61.605C96.589,185.22,124.987,195.83,150.221,219.393L150.221,219.393z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+    <path d="    M410.146,246.063v187.043h-56.475V246.063c6.565,8.381,16.793,13.746,28.252,13.746S403.581,254.445,410.146,246.063    L410.146,246.063z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+    <path d="    M304.229,100.403l90.383,90.004c-3.957-1.495-8.235-2.315-12.69-2.315c-19.079,0-34.67,14.918-35.813,33.704l-80.418-80.098    L304.229,100.403z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+    <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="148.932" x2="148.932" y1="368.336" y2="430.703" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+    <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="117.749" x2="180.114" y1="366.255" y2="366.255" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+    <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="321.756" x2="344.468" y1="15" y2="36.366" style="stroke: rgb(255, 255, 255); stroke-width: 32.2491px;"/>
+  </g>
+</svg>

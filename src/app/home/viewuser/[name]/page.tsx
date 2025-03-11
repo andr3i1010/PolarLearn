@@ -3,6 +3,7 @@ import * as jdenticon from "jdenticon";
 import Tabs, { TabItem } from "@/components/Tabs";
 import Image from "next/image";
 import Link from "next/link";
+import Button1 from "@/components/button/Button1";
 
 import construction from '@/app/img/construction.gif'
 
@@ -17,64 +18,74 @@ import ak_img from '@/app/img/geography.svg';
 
 // Add an interface for list data structure
 interface ListData {
-  created_lists?: string[] | null;
-  // Add other properties as needed
+    created_lists?: string[] | null;
+    // Add other properties as needed
 }
 
 // Function to get the appropriate icon for each subject
 const getSubjectIcon = (subjectCode: string) => {
-  switch (subjectCode) {
-    case 'NL':
-      return nl_img;
-    case 'FR':
-      return fr_img;
-    case 'EN':
-      return eng_img;
-    case 'DE':
-      return de_img;
-    case 'WI':
-      return math_img;
-    case 'NSK':
-      return nsk_img;
-    case 'AK':
-      return ak_img;
-    default:
-      return null;
-  }
+    switch (subjectCode) {
+        case 'NL':
+            return nl_img;
+        case 'FR':
+            return fr_img;
+        case 'EN':
+            return eng_img;
+        case 'DE':
+            return de_img;
+        case 'WI':
+            return math_img;
+        case 'NSK':
+            return nsk_img;
+        case 'AK':
+            return ak_img;
+        default:
+            return null;
+    }
 };
 
 // Function to get the full subject name
 const getSubjectName = (subjectCode: string) => {
-  switch (subjectCode) {
-    case 'NL':
-      return 'Nederlands';
-    case 'FR':
-      return 'Frans';
-    case 'EN':
-      return 'Engels';
-    case 'DE':
-      return 'Duits';
-    case 'WI':
-      return 'Wiskunde';
-    case 'NSK':
-      return 'NaSk';
-    case 'AK':
-      return 'Aardrijkskunde';
-    default:
-      return subjectCode;
-  }
+    switch (subjectCode) {
+        case 'NL':
+            return 'Nederlands';
+        case 'FR':
+            return 'Frans';
+        case 'EN':
+            return 'Engels';
+        case 'DE':
+            return 'Duits';
+        case 'WI':
+            return 'Wiskunde';
+        case 'NSK':
+            return 'NaSk';
+        case 'AK':
+            return 'Aardrijkskunde';
+        default:
+            return subjectCode;
+    }
 };
 
-export default async function Page({ params }: { params: { name: string } }) {
+export default async function Page({ params }: { params: Promise<{ name: string }> }) {
     const user = await prisma.user.findFirst({
         where: {
             name: (await params).name
         },
     });
-    
+
+    if (!user) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 space-y-6">
+                <h1 className="text-5xl font-bold text-red-600">☹️ Oeps!</h1>
+                <p className="mt-2 text-2xl">De opgegeven gebruiker is niet gevonden</p>
+                <Button1 text={"Terug naar leren"} redirectTo={'/home/start'} />
+            </div>
+        )
+    }
+
     // Safely access list data with optional chaining and type casting
     const listdata = user?.list_data as ListData | undefined;
-    
+
     // Fetch the actual list details if there are created lists
     const createdLists = listdata?.created_lists && listdata.created_lists.length > 0
         ? await prisma.practice.findMany({
@@ -91,7 +102,7 @@ export default async function Page({ params }: { params: { name: string } }) {
             }
         })
         : [];
-    
+
     // Generate Identicon SVG as fallback
     const svg = jdenticon.toSvg(user?.name || "default", 100);
 
@@ -107,9 +118,9 @@ export default async function Page({ params }: { params: { name: string } }) {
                             {createdLists.map((list) => {
                                 const subjectIcon = getSubjectIcon(list.subject);
                                 return (
-                                    <Link 
-                                        key={list.list_id} 
-                                        href={`/learn/viewlist/${list.list_id}`} 
+                                    <Link
+                                        key={list.list_id}
+                                        href={`/learn/viewlist/${list.list_id}`}
                                         className="block transition-transform"
                                     >
                                         <div className="bg-neutral-800 p-4 rounded-lg shadow hover:bg-neutral-700 transition-colors">
@@ -132,8 +143,8 @@ export default async function Page({ params }: { params: { name: string } }) {
                         </div>
                     ) : (
                         <p className="text-gray-500">
-                            Geen lijsten gevonden 
-                            {listdata?.created_lists && listdata.created_lists.length > 0 ? 
+                            Geen lijsten gevonden
+                            {listdata?.created_lists && listdata.created_lists.length > 0 ?
                                 ` (${listdata.created_lists.length} IDs gevonden, maar geen lijsten)` : ''}
                         </p>
                     )}

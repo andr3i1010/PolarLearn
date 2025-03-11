@@ -9,12 +9,16 @@
     <a href="https://github.com/andr3i1010/PolarLearn/blob/stable/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/andr3i1010/PolarLearn"></a>
     <a href="https://github.com/andr3i1010/PolarLearn/commit"><img src="https://custom-icon-badges.demolab.com/github/last-commit/andr3i1010/PolarLearn?logo=history&logoColor=white&label=Last commit" alt="Badge"></img></a>
     <a href="https://github.com/andr3i1010/PolaeLearn/issues"><img src="https://custom-icon-badges.demolab.com/github/issues-raw/andr3i1010/PolarLearn?logo=issue-opened&label=Issues" alt="Badge"></img></a>
-    <a href="https://prisma.io"><img src="http://made-with.prisma.io/indigo.svg"></a>
+    <a href="https://prisma.io">
+      <img width="122" height="20" src="http://made-with.prisma.io/dark.svg" alt="Made with Prisma" />
+    </a>
+    <a href="https://ko-fi.com/P5P31BIVLA"><img src="https://ko-fi.com/img/githubbutton_sm.svg" width="122" height= "20"/></a>
   <br/>
   PolarLearn is een compleet gratis en Open-Source alternatief voor StudyGo.
 </div>
 
 ## Wat kan PolarLearn tot nu toe?
+
 - [ ] Lijsten
 - [ ] Forum
 - [ ] LiveQuiz
@@ -26,19 +30,19 @@
 
 Je kan voor PolarLearn kiezen, omdat:
 
-* ## **Gratis en Open-Source:**
+- ## **Gratis en Open-Source:**
 
   PolarLearn is volledig gratis en Open-Source. Dit betekent dat je de code kan bekijken en aanpassen naar jouw wensen (zie CONTRIBUTING.md). Ook kan je PolarLearn zelf hosten doordat het Open-Source is.
 
-* ## **Gebruiksvriendelijk:**
+- ## **Gebruiksvriendelijk:**
 
-   PolarLearn is gemaakt met de gebruiker in gedachten. Dit betekent dat PolarLearn makkelijk te gebruiken is en dat je snel kan vinden wat je zoekt.
+  PolarLearn is gemaakt met de gebruiker in gedachten. Dit betekent dat PolarLearn makkelijk te gebruiken is en dat je snel kan vinden wat je zoekt.
 
-* ## **Veilig:**
+- ## **Veilig:**
 
   PolarLearn is veilig. We gebruiken de nieuwste technologieën om ervoor te zorgen dat jouw gegevens veilig zijn. Ook kan je zelf je gegevens verwijderen op aanvraag.
 
-* ## **Snel:**
+- ## **Snel:**
 
   PolarLearn is supersnel. Wij gebruiken Next.js en Prisma om ervoor te zorgen dat PolarLearn snel is en dat jij snel kan vinden wat je zoekt. Niet zoals StudyGo die tien seconden duurt om de homepagina te laden.
 

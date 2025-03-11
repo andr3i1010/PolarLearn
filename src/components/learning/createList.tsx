@@ -32,6 +32,8 @@ import fr_img from '@/app/img/baguette.svg';
 import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
 import ak_img from '@/app/img/geography.svg';
+import gs_img from '@/app/img/history.svg';
+import bi_img from '@/app/img/bio.svg';
 
 // Define the pair type.
 type Pair = {
@@ -339,6 +341,22 @@ export default function CreateListTool() {
                       <p>Duits</p>
                     </div>
                   ), "DE"
+                ],
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={gs_img} alt="geschiedenis plaatje" width={20} height={20} />
+                      <p>Geschiedenis</p>
+                    </div>
+                  ), "GS"
+                ],
+                [
+                  (
+                    <div className="flex items-center gap-2">
+                      <Image src={bi_img} alt="biologie plaatje" width={20} height={20} />
+                      <p>Biologie</p>
+                    </div>
+                  ), "BI"
                 ]
               ]}
               selectorMode={true}

@@ -12,6 +12,8 @@ import eng_img from '@/app/img/english.svg'
 import fr_img from '@/app/img/baguette.svg'
 import de_img from '@/app/img/pretzel.svg'
 import nl_img from '@/app/img/nl.svg'
+import gs_img from '@/app/img/history.svg'
+import bi_img from '@/app/img/bio.svg'
 
 async function getRecentSubjects() {
   const user = await userInfo();
@@ -27,21 +29,23 @@ async function getRecentLists() {
     where: { id: user?.id }
   });
   
-  // Get list IDs from user's recent_lists
+  // Get list IDs from user's recent_lists and created_lists
   const recentListIds = (account?.list_data as any)?.recent_lists || [];
+  const createdListIds = (account?.list_data as any)?.created_lists || [];
+  const combinedListIds = [...recentListIds, ...createdListIds];
   
   // Fetch complete list data from the database if we have IDs
-  if (recentListIds.length > 0) {
+  if (combinedListIds.length > 0) {
     const lists = await prisma.practice.findMany({
       where: {
         list_id: {
-          in: recentListIds
+          in: combinedListIds
         }
       }
     });
     
-    // Sort lists to match the order in recent_lists
-    const orderedLists = recentListIds
+    // Sort lists based on the combined order of recent and created lists
+    const orderedLists = combinedListIds
       .map((id: string) => lists.find(list => list.list_id === id))
       .filter(Boolean);
       
@@ -99,6 +103,20 @@ export default async function Start() {
         NaSk
       </span>
     ),
+    "GS": (
+      <span className="flex items-center">
+        <Image src={gs_img} alt={"geschiedenis plaatje"} width={20} height={20}/>
+        <div className="w-2"/>
+        Geschiedenis
+      </span>
+    ),
+    "BI": (
+      <span className="flex items-center">
+        <Image src={bi_img} alt={"biologie plaatje"} width={20} height={20}/>
+        <div className="w-2"/>
+        Biologie
+      </span>
+    ),
   };
   
   return (
@@ -110,7 +128,7 @@ export default async function Start() {
             <div className="flex pt-5 pl-5 space-x-4 relative overflow-hidden w-screen">
               {recentSubjects.length === 0 && (
                 <>
-                  <p className="absolute top-[35px] w-full pl-16 text-neutral-400 font-bold">
+                  <p className="absolute top-[35px] w-full pl-9 text-neutral-400 font-bold">
                     Je hebt nog geen vakken geoefend. Leer een lijst van een bepaalde vak, en de geoefende vak van de lijst komt hier.
                   </p>
                   <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
@@ -168,7 +186,9 @@ export default async function Start() {
                                   list.subject === "FR" ? fr_img :
                                   list.subject === "EN" ? eng_img :
                                   list.subject === "WI" ? math_img :
-                                  list.subject === "NSK" ? nsk_img : ''
+                                  list.subject === "NSK" ? nsk_img :
+                                  list.subject === "GS" ? gs_img :
+                                  list.subject === "BI" ? bi_img : ''
                                 } 
                                 alt={`${list.subject} icon`} 
                                 width={24} 
