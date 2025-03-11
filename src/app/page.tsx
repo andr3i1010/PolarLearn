@@ -17,7 +17,7 @@ import {
     MoveIn,
     Sticky,
 }
-from "react-scroll-motion";
+    from "react-scroll-motion";
 
 // Subject images //
 
@@ -29,10 +29,13 @@ import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
 import ak_img from '@/app/img/geography.svg';
 import ckv_img from '@/app/img/ckv.svg';
+import logo from '@/app/img/pl-500.png';
+
 
 // Other images //
 import down from '@/app/img/down.svg';
 import shield from '@/app/img/secure-icon-marketing.svg';
+
 
 import FirstMarketingComponent from '@/components/marketing/1';
 import SecondMarketingComponent from '@/components/marketing/2';
@@ -46,8 +49,16 @@ export default function Home() {
                         className="w-screen h-[calc(100vh-4rem)] bg-neutral-800 pt-8 pb-8 drop-shadow-xl drop-down">
                         <div className='flex flex-row h-full'>
                             <div className="flex flex-col justify-center">
-                                <div className="flex pl-5">
-                                    <h1 className="text-center text-6xl font-bold leading-tight bg-gradient-to-r ml-9 to-sky-100 from-sky-500 bg-clip-text text-transparent drop-down">
+                                <div className="flex items-center pl-15">
+                                    <Image
+                                        className="ml-4"
+                                        src={logo}
+                                        alt="PolarLearn Logo"
+                                        height={64}
+                                        width={64}
+                                        style={{ width: '4rem', height: 'auto' }}
+                                    />
+                                    <h1 className="text-6xl font-bold leading-tight bg-gradient-to-r from-sky-500 to-sky-100 bg-clip-text text-transparent ml-6">
                                         PolarLearn
                                     </h1>
                                 </div>
@@ -194,7 +205,7 @@ export default function Home() {
             </div>
             <hr className="flex-grow border-neutral-600 m-3" />
 
-            <div className='h-20'/>
+            <div className='h-20' />
 
             {/* ✨ Scoll magie ✨ */}
             <div className="my-12">
@@ -257,7 +268,7 @@ export default function Home() {
                                         initial={{ y: -30, opacity: 0 }}
                                         whileInView={{ y: 0, opacity: 1 }}
                                         transition={{ duration: 0.7, delay: 1 }}
-                                        >
+                                    >
                                         PolarLearn gebruikt de nieuwste technologieën, zoals Next.js, Prisma (ORM) en NextAuth.js om jouw leerervaring zo snel mogelijk te maken. Zo kan je snel en efficiënt leren.
                                     </motion.p>
                                 </div>
@@ -270,7 +281,7 @@ export default function Home() {
                     </ScrollPage>
                     <ScrollPage>
                         <Animator animation={batch(MoveIn(-1000, 0))}>
-                        <div className="h-screen flex flex-row items-center justify-center">
+                            <div className="h-screen flex flex-row items-center justify-center">
                                 <div className="w-1/2 h-full flex flex-col items-center justify-center pl-5">
                                     <motion.p
                                         initial={{ y: -30, opacity: 0 }}
@@ -284,7 +295,7 @@ export default function Home() {
                                         initial={{ y: -30, opacity: 0 }}
                                         whileInView={{ y: 0, opacity: 1 }}
                                         transition={{ duration: 0.7, delay: 1 }}
-                                        >
+                                    >
                                         PolarLearn gebruikt de nieuwste beveiligingstechnologieën, zoals Argon2id <a target='_blank' className='text-sky-400' href='https://www.sentinelone.com/cybersecurity-101/cybersecurity/hashing/'>hashing</a> en salting, om jouw gegevens zo veilig mogelijk te houden. Zo kan je met een gerust hart leren.
                                     </motion.p>
                                 </div>
@@ -310,7 +321,7 @@ export default function Home() {
                     <Button1 text='Start met leren!' redirectTo='/home/start' />
                 </div>
             </div>
-            <div className='h-8'/>
+            <div className='h-8' />
         </div>
     );
 }
