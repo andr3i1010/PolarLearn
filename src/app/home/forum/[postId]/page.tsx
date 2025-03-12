@@ -14,7 +14,7 @@ interface VoteData {
 export default async function Page({
     params,
 }: {
-    params: { postId: string }
+    params: Promise<{ postId: string }>
 }) {
     const { postId } = await params
     const session = await auth()
