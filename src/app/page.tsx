@@ -46,6 +46,7 @@ export default function Home() {
                         <div className='flex flex-row h-full'>
                             <div className="flex flex-col justify-center">
                                 <div className="flex items-center pl-10">
+
                                     <Image
                                         className="ml-4"
                                         src={logo}
@@ -67,7 +68,7 @@ export default function Home() {
                                     </h1>
                                     <br />
                                     <div className='justify-center flex'>
-                                        <Button1 text="Meer weten" onClick={() => { window.scrollTo({behavior: "smooth", top: 400}) }} />
+                                        <Button1 text="Meer weten" onClick={() => { window.scrollTo({ behavior: "smooth", top: 400 }) }} />
                                     </div>
                                 </div>
                             </div>
@@ -193,9 +194,9 @@ export default function Home() {
                         <ReviewCard stars={5} author='MrApfelstrudel' comment='Door PolarLearn heb ik eindelijk goede cijfers voor frans!' />
                         <ReviewCard stars={0} author='StudyGo Admin' comment='waarom bestaat dit' />
                         <ReviewCard stars={5} author='anoniem' comment='Ik merk dat PolarLearn veeel sneller is dan StudyGo, ook heel fijn dat het gratis is' />
-                        <ReviewCard stars={5} author='kabab33' comment='Ik had een StudyGo abonnement, maar nu niet meer! Bedankt voor mijn € 143,88 per jaar besparen PolarLearn!' />
+                        <ReviewCard stars={5} author='kabab33' comment='Ik had een StudyGo abonnement, maar nu niet meer! Bedankt voor mijn € 95,88 per jaar besparen PolarLearn!' />
                         <ReviewCard stars={5} author='luna' comment="Mijn cijfers waren eerst heel slecht, maar sinds ik PolarLearn gebruik zijn ze super hoog!" />
-                        <ReviewCard stars={4.5} author='waterliefhebber' comment="Te weinig water" />
+                        <ReviewCard stars={2.5} author='waterliefhebber' comment="Te weinig water" />
                     </div>
                 </Marquee>
             </div>
