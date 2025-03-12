@@ -6,6 +6,11 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   const { username, email, password } = await req.json();
   const fixedEmail = email as string;
+  
+  // Check if username contains spaces
+  if ((username as string).includes(' ')) {
+    return NextResponse.json({ error: 'Gebruikersnaam mag geen spaties bevatten' }, { status: 400 });
+  }
 
   // Check if a user with the same email or username already exists
   const existingUser = await prisma.user.findFirst({

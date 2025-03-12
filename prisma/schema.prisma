@@ -97,13 +97,15 @@ model practice {
 
 model forum {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  post_id   String  @db.String
+  post_id   String  @db.String @unique
+  type      String
   title     String
   subject   String
   content   String
   creator   String   @db.String
   locked    Boolean  @default(false)
   votes     Int      @db.Int @default(0)
+  votes_data Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

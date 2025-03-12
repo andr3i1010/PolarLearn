@@ -39,6 +39,7 @@ export async function createPostServer(formData: z.infer<typeof formSchema>): Pr
         const post = await prisma.forum.create({
             data: {
                 post_id: crypto.randomUUID(),
+                type: "thread",
                 title: validatedData.title as string,
                 content: validatedData.content as string,
                 subject: validatedData.subject as string,

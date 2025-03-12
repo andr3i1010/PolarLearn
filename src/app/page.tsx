@@ -16,11 +16,9 @@ import {
     Move,
     MoveIn,
     Sticky,
-}
-    from "react-scroll-motion";
+} from "react-scroll-motion";
 
-// Subject images //
-
+// Images //
 import nsk_img from '@/app/img/nask.svg';
 import math_img from '@/app/img/math.svg';
 import eng_img from '@/app/img/english.svg';
@@ -31,12 +29,10 @@ import ak_img from '@/app/img/geography.svg';
 import ckv_img from '@/app/img/ckv.svg';
 import logo from '@/app/img/pl-500.png';
 
-
-// Other images //
 import down from '@/app/img/down.svg';
 import shield from '@/app/img/secure-icon-marketing.svg';
 
-
+// Butiful //
 import FirstMarketingComponent from '@/components/marketing/1';
 import SecondMarketingComponent from '@/components/marketing/2';
 
@@ -49,7 +45,7 @@ export default function Home() {
                         className="w-screen h-[calc(100vh-4rem)] bg-neutral-800 pt-8 pb-8 drop-shadow-xl drop-down">
                         <div className='flex flex-row h-full'>
                             <div className="flex flex-col justify-center">
-                                <div className="flex items-center pl-15">
+                                <div className="flex items-center pl-10">
                                     <Image
                                         className="ml-4"
                                         src={logo}
@@ -71,7 +67,7 @@ export default function Home() {
                                     </h1>
                                     <br />
                                     <div className='justify-center flex'>
-                                        <Button1 text="Meer weten" onClick={() => { alert("o nee dit bestaat nog niet )=") }} />
+                                        <Button1 text="Meer weten" onClick={() => { window.scrollTo({behavior: "smooth", top: 400}) }} />
                                     </div>
                                 </div>
                             </div>

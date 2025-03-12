@@ -2,6 +2,7 @@ import Tabs, { TabItem } from '@/components/Tabs';
 import { prisma } from '@/utils/prisma';
 import ForumDialog from './ForumDialog';
 import Image from 'next/image';
+import Link from 'next/link';
 import Jdenticon from '@/components/Jdenticon';
 import { formatRelativeTime } from '@/utils/formatRelativeTime';
 
@@ -46,6 +47,9 @@ const subjectLabelMap: Record<string, string> = {
 
 export default async function ForumHome() {
   const forumPosts = await prisma.forum.findMany({
+    where: {
+      type: "thread"
+    },
     orderBy: { createdAt: 'desc' },
     take: 20
   });
@@ -84,44 +88,49 @@ export default async function ForumHome() {
             const relativeTime = formatRelativeTime(post.createdAt);
             
             return (
-              <div 
-                key={post.id} 
-                className={`border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-center`}
+              <Link 
+                key={post.post_id}
+                href={`/home/forum/${post.post_id}`}
+                className="block"
               >
-                <div className="mr-4 flex-shrink-0">
-                  {user?.image ? (
-                    <Image 
-                      src={user.image} 
-                      alt={`de profielfoto van ${user.name || 'iemand'}`}
-                      width={40} 
-                      height={40}
-                      className="rounded-full"
-                    />
-                  ) : (
-                    <Jdenticon 
-                      value={user?.name || post.creator} 
-                      size={40} 
-                    />
-                  )}
-                </div>
-                <div className="flex flex-col flex-1">
-                  <div className="text-xs text-gray-400 mb-1 flex items-center">
-                    {subjectIcon && (
+                <div 
+                  className={`border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-center cursor-pointer`}
+                >
+                  <div className="mr-4 flex-shrink-0">
+                    {user?.image ? (
                       <Image 
-                        src={subjectIcon} 
-                        alt={subjectLabel}
-                        width={16} 
-                        height={16}
-                        className="mr-1"
+                        src={user.image} 
+                        alt={`de profielfoto van ${user.name || 'iemand'}`}
+                        width={40} 
+                        height={40}
+                        className="rounded-full"
+                      />
+                    ) : (
+                      <Jdenticon 
+                        value={user?.name || post.creator} 
+                        size={40} 
                       />
                     )}
-                    <span>{subjectLabel}</span>
-                    <span className="mx-1.5">•</span>
-                    <span className="text-gray-500">{relativeTime}</span>
                   </div>
-                  <h3 className="font-medium text-lg">{post.title}</h3>
+                  <div className="flex flex-col flex-1">
+                    <div className="text-xs text-gray-400 mb-1 flex items-center">
+                      {subjectIcon && (
+                        <Image 
+                          src={subjectIcon} 
+                          alt={subjectLabel}
+                          width={16} 
+                          height={16}
+                          className="mr-1"
+                        />
+                      )}
+                      <span>{subjectLabel}</span>
+                      <span className="mx-1.5">•</span>
+                      <span className="text-gray-500">{relativeTime}</span>
+                    </div>
+                    <h3 className="font-medium text-lg">{post.title}</h3>
+                  </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
