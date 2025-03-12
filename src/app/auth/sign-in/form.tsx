@@ -75,7 +75,7 @@ export default function SignInForm() {
 					</div>
 
 					<Button1 type="submit" text="Log In" className="w-full" />
-					<p className="text-sm font-light text-gray-500 dark:text-gray-400">
+					<p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
 						Heb je nog geen account?{" "}
 						<Link
 							href="/auth/sign-up"
