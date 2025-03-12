@@ -45,7 +45,7 @@ export default async function RootLayout({
 
         PolarLearn is FOSS, dus je kunt de code bekijken op GitHub: https://github.com/polarnl/polarlearn
 
-        Groetjes, andrei1010
+        Groetjes, andrei1010 en de rest van het PolarLearn team
 
     -->
     `;
