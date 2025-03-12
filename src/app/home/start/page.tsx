@@ -28,12 +28,12 @@ async function getRecentLists() {
   const account = await prisma.user.findUnique({
     where: { id: user?.id }
   });
-  
+
   // Get list IDs from user's recent_lists and created_lists
   const recentListIds = (account?.list_data as any)?.recent_lists || [];
   const createdListIds = (account?.list_data as any)?.created_lists || [];
   const combinedListIds = [...recentListIds, ...createdListIds];
-  
+
   // Fetch complete list data from the database if we have IDs
   if (combinedListIds.length > 0) {
     const lists = await prisma.practice.findMany({
@@ -43,82 +43,82 @@ async function getRecentLists() {
         }
       }
     });
-    
+
     // Sort lists based on the combined order of recent and created lists
     const orderedLists = combinedListIds
       .map((id: string) => lists.find(list => list.list_id === id))
       .filter(Boolean);
-      
+
     return orderedLists;
   }
-  
+
   return [];
 }
 
 export default async function Start() {
   const recentSubjects = await getRecentSubjects();
-  const recentLists    = await getRecentLists();
-  
+  const recentLists = await getRecentLists();
+
   // Extract the subject emoji map for reuse
   const subjectEmojiMap: Record<string, React.ReactNode> = {
     "NL": (
       <span className="flex items-center">
-        <Image src={nl_img} alt={"nederlands plaatje"} width={20} height={20}/>
-        <div className="w-2"/>
+        <Image src={nl_img} alt={"nederlands plaatje"} width={20} height={20} />
+        <div className="w-2" />
         Nederlands
       </span>
     ),
     "DE": (
       <span className="flex items-center">
-        <Image src={de_img} alt={"duits plaatje"} width={20} height={20}/>
-        <div className="w-2"/>
+        <Image src={de_img} alt={"duits plaatje"} width={20} height={20} />
+        <div className="w-2" />
         Duits
       </span>
     ),
     "FR": (
       <span className="flex items-center">
-        <Image src={fr_img} alt={"frans plaatje"} width={20} height={20}/>
-        <div className="w-2"/>
+        <Image src={fr_img} alt={"frans plaatje"} width={20} height={20} />
+        <div className="w-2" />
         Frans
       </span>
     ),
     "EN": (
       <span className="flex items-center">
-        <Image src={eng_img} alt={"engels plaatje"} width={20} height={20}/>
-        <div className="w-2"/>
+        <Image src={eng_img} alt={"engels plaatje"} width={20} height={20} />
+        <div className="w-2" />
         Engels
       </span>
     ),
     "WI": (
       <span className="flex items-center">
-        <Image src={math_img} alt={"wiskunde plaatje"} width={20} height={20}/>
-        <div className="w-2"/>
+        <Image src={math_img} alt={"wiskunde plaatje"} width={20} height={20} />
+        <div className="w-2" />
         Wiskunde
       </span>
     ),
     "NSK": (
       <span className="flex items-center">
-        <Image src={nsk_img} alt={"nask plaatje"} width={20} height={20}/>
-        <div className="w-2"/>
+        <Image src={nsk_img} alt={"nask plaatje"} width={20} height={20} />
+        <div className="w-2" />
         NaSk
       </span>
     ),
     "GS": (
       <span className="flex items-center">
-        <Image src={gs_img} alt={"geschiedenis plaatje"} width={20} height={20}/>
-        <div className="w-2"/>
+        <Image src={gs_img} alt={"geschiedenis plaatje"} width={20} height={20} />
+        <div className="w-2" />
         Geschiedenis
       </span>
     ),
     "BI": (
       <span className="flex items-center">
-        <Image src={bi_img} alt={"biologie plaatje"} width={20} height={20}/>
-        <div className="w-2"/>
+        <Image src={bi_img} alt={"biologie plaatje"} width={20} height={20} />
+        <div className="w-2" />
         Biologie
       </span>
     ),
   };
-  
+
   return (
     <>
       <div className="flex">
@@ -132,6 +132,7 @@ export default async function Start() {
                     Je hebt nog geen vakken geoefend. Leer een lijst van een bepaalde vak, en de geoefende vak van de lijst komt hier.
                   </p>
                   <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
+
                   <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
                   <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
                   <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
@@ -146,81 +147,81 @@ export default async function Start() {
                 >
                   {
                     (() => {
-                        return subjectEmojiMap[subject] ? subjectEmojiMap[subject] : "";
+                      return subjectEmojiMap[subject] ? subjectEmojiMap[subject] : "";
                     })()
                   }
                 </div>
               ))}
             </div>
-            <div className="h-3"/>
+            <div className="h-3" />
             <div className="flex items-center text-center">
-                <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">Recente Lijsten:</h1>
-                <div className="ml-auto mr-5">
-                  <PlusBtn redir="/learn/createlist" />
-                </div>
+              <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">Recente Lijsten:</h1>
+              <div className="ml-auto mr-5">
+                <PlusBtn redir="/learn/createlist" />
+              </div>
             </div>
-            <div className="h-4"/>
+            <div className="h-4" />
             <div className="space-y-4">
               {recentLists.length == 0 && (
                 <>
                   <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
-                  Je hebt nog geen lijsten geoefend. Leer een lijst, en de geoefende lijst komt hier.
+                    Je hebt nog geen lijsten geoefend. Leer een lijst, en de geoefende lijst komt hier.
                   </div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid "></div>
                 </>
               )}
               {recentLists.length > 0 && (
                 <>
                   {recentLists.map((list: any, index: number) => (
-                    <Link href={`/learn/viewlist/${list.list_id}`} key={index}>
-                      <div className="tile bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg h-20 flex items-center justify-between cursor-pointer">
-                        <div className="flex flex-col text-left">
-                          <div className="flex items-center">
-                            {list.subject && (
-                              <Image 
-                                src={
-                                  list.subject === "NL" ? nl_img :
-                                  list.subject === "DE" ? de_img :
-                                  list.subject === "FR" ? fr_img :
-                                  list.subject === "EN" ? eng_img :
-                                  list.subject === "WI" ? math_img :
-                                  list.subject === "NSK" ? nsk_img :
-                                  list.subject === "GS" ? gs_img :
-                                  list.subject === "BI" ? bi_img : ''
-                                } 
-                                alt={`${list.subject} icon`} 
-                                width={24} 
-                                height={24}
-                                className="mr-2"
-                              />
-                            )}
-                            <span className="text-lg">{list.name}</span>
+                    <div >
+                      <Link href={`/learn/viewlist/${list.list_id}`} key={index} >
+                        <div className="tile bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg h-20 flex items-center justify-between cursor-pointer">
+                          <div className="flex flex-col text-left">
+                            <div className="flex items-center">
+                              {list.subject && (
+                                <Image
+                                  src={
+                                    list.subject === "NL" ? nl_img :
+                                      list.subject === "DE" ? de_img :
+                                        list.subject === "FR" ? fr_img :
+                                          list.subject === "EN" ? eng_img :
+                                            list.subject === "WI" ? math_img :
+                                              list.subject === "NSK" ? nsk_img :
+                                                list.subject === "GS" ? gs_img :
+                                                  list.subject === "BI" ? bi_img : ''
+                                  }
+                                  alt={`${list.subject} icon`}
+                                  width={24}
+                                  height={24}
+                                  className="mr-2"
+                                />
+                              )}
+                              <span className="text-lg">{list.name}</span>
+                            </div>
+                          </div>
+
+                          {list.creator && (
+                            <div className="flex items-center text-sm text-neutral-400">
+                              <CreatorLink creator={list.creator} />
+                            </div>
+                          )}
+
+                          <div className="text-neutral-400 text-sm">
+                            {Array.isArray(list.data) && list.data.length === 1
+                              ? "1 woord"
+                              : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
                           </div>
                         </div>
-                        
-                        {list.creator && (
-                          <div className="flex items-center text-sm text-neutral-400">
-                            <CreatorLink creator={list.creator} />
-                          </div>
-                        )}
-                        
-                        <div className="text-neutral-400 text-sm">
-                          {Array.isArray(list.data) && list.data.length === 1 
-                            ? "1 woord" 
-                            : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
-                        </div>
-                      </div>
-                    </Link>
+                      </Link>
+                    </div>
                   ))}
                 </>
               )}
             </div>
           </div>
         </div>
-      </div>
-      <div className="h-4"/>
+      </div >
+      <div className="h-4" />
     </>
   );
 }
