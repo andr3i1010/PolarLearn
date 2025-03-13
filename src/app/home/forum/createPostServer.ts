@@ -38,7 +38,7 @@ export async function createPostServer(formData: z.infer<typeof formSchema>): Pr
         if (!user.loginAllowed) {
             return {
                 success: false,
-                error: "Je moet ingelogd zijn om een post te maken."
+                error: "helaas ben je verbannen van PolarLearn"
             };
         }
         // Create the post in the database
