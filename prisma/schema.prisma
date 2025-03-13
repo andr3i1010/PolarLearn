@@ -20,6 +20,7 @@ model User {
   list_data Json?
   role String?
   loginAllowed Boolean?
+  forumAllowed Boolean?
 }
  
 model Account {
