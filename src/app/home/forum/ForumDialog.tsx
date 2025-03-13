@@ -14,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { formSchema } from "./formSchema";
 import { createPostServer } from "./createPostServer";
 import { toast } from "react-toastify";
+import ReactMarkdown from 'react-markdown';
+import Tabs, { TabItem } from "@/components/Tabs";
 
 import nsk_img from '@/app/img/nask.svg';
 import math_img from '@/app/img/math.svg';
@@ -124,7 +126,7 @@ const subjectItems: ComboboxItem[] = [
 export default function ForumDialog() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   // Initialize form with react-hook-form and zod validation
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -155,6 +157,46 @@ export default function ForumDialog() {
       setIsSubmitting(false);
     }
   }
+  
+  // Create tab content based on the current form state
+  const createTabItems = (): TabItem[] => {
+    const content = form.watch("content");
+    
+    return [
+      {
+        id: "write",
+        label: "Schrijven",
+        content: (
+          <div>
+            <FormControl>
+              <Textarea
+                placeholder="Inhoud van de post. Markdown wordt ondersteund."
+                className="bg-neutral-800 border-neutral-700 h-40 text-xl p-3 resize-none"
+                {...form.register("content")}
+              />
+            </FormControl>
+            <div className="text-sm mt-2 text-gray-400">
+              <p>Markdown tips:</p>
+              <p>**vetgedrukt**, *schuingedrukt*, # kop, [link](https://url.com)</p>
+            </div>
+          </div>
+        ),
+      },
+      {
+        id: "preview",
+        label: "Voorbeeld",
+        content: (
+          <div className="bg-neutral-800 border border-neutral-700 h-40 overflow-y-auto p-3 rounded-md prose prose-invert max-w-none">
+            {content ? (
+              <ReactMarkdown>{content}</ReactMarkdown>
+            ) : (
+              <p className="text-gray-400">Voorbeeldweergave verschijnt hier...</p>
+            )}
+          </div>
+        ),
+      },
+    ];
+  };
 
   return (
     <>
@@ -163,11 +205,11 @@ export default function ForumDialog() {
         setOpen(isOpen);
         if (!isOpen) form.reset();
       }}>
-        <DialogContent className="z-[110]">
+        <DialogContent className="z-[110] max-w-3xl">
           <DialogHeader>
             <DialogTitle>Nieuwe forumpost</DialogTitle>
             <DialogDescription>
-              Vul de details in om een nieuwe forumpost te maken.
+              Vul de details in om een nieuwe forumpost te maken. Markdown wordt ondersteund.
             </DialogDescription>
           </DialogHeader>
 
@@ -194,16 +236,10 @@ export default function ForumDialog() {
               <FormField
                 control={form.control}
                 name="content"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel className="text-xl">Postinhoud:</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Inhoud van de post"
-                        className="bg-neutral-800 border-neutral-700 h-40 text-xl p-3 resize-none font-bold"
-                        {...field}
-                      />
-                    </FormControl>
+                    <Tabs tabs={createTabItems()} defaultActiveTab="write" />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -237,10 +273,6 @@ export default function ForumDialog() {
                   </FormItem>
                 )}
               />
-
-              <DialogFooter>
-                {/* Button moved next to combobox */}
-              </DialogFooter>
             </form>
           </Form>
         </DialogContent>

@@ -6,6 +6,7 @@ import VoteButtons from "@/components/VoteButtons"
 import { auth } from "@/utils/auth"
 import ForumReply from "@/components/ForumReply"
 import DeletePostButton from "@/components/DeletePostButton"
+import ReactMarkdown from 'react-markdown'
 
 // Define the structure for vote data
 interface VoteData {
@@ -152,8 +153,8 @@ export default async function Page({
             </div>
 
             <h1 className="text-2xl font-bold mb-4">{post.title}</h1>
-            <div className="prose prose-invert max-w-none">
-                {post.content}
+            <div className="prose prose-invert max-w-none whitespace-pre-line">
+                <ReactMarkdown>{post.content}</ReactMarkdown>
             </div>
             <div className="mt-6">
                 <ForumReply postId={post.post_id} />
@@ -244,8 +245,8 @@ export default async function Page({
                                             <VoteButtons postId={reply.post_id} initialVotes={reply.votes} initialUserVote={replyUserVote} />
                                         </div>
                                     </div>
-                                    <div className="prose prose-invert max-w-none">
-                                        {reply.content}
+                                    <div className="prose prose-invert max-w-none whitespace-pre-line">
+                                        <ReactMarkdown>{reply.content}</ReactMarkdown>
                                     </div>
                                 </div>
                             );
