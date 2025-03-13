@@ -10,7 +10,7 @@
 : "${AUTH_SECRET:?Missing AUTH_SECRET}"
 : "${NEXT_PUBLIC_URL:?Missing NEXT_PUBLIC_URL}"
 
-export NEXT_PUBLIC_URL="${NEXT_PUBLIC_URL}"
+export AUTH_URL="${NEXT_PUBLIC_URL}"
 
 echo "Starting app..."
 # Run prisma db push first then start the app
