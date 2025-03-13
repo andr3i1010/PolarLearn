@@ -13,7 +13,7 @@ const formSchema = z.object({
 });
 
 // Define the return type for better TypeScript support
-type CreatePostResult = 
+type CreatePostResult =
     | { success: true; postId: string }
     | { success: false; error: string };
 
@@ -26,10 +26,16 @@ export async function createPostServer(formData: z.infer<typeof formSchema>): Pr
     try {
         // Validate the form data
         const validatedData = formSchema.parse(formData);
-        
+
         // Get the current user
         const user = await userInfo();
         if (!user || !user.id) {
+            return {
+                success: false,
+                error: "Je moet ingelogd zijn om een post te maken."
+            };
+        }
+        if (!user.loginAllowed) {
             return {
                 success: false,
                 error: "Je moet ingelogd zijn om een post te maken."
@@ -48,17 +54,17 @@ export async function createPostServer(formData: z.infer<typeof formSchema>): Pr
                 updatedAt: new Date()
             }
         });
-        
+
         // Revalidate the forum page to show the new post
         revalidatePath("/home/forum");
-        
+
         return {
             success: true,
             postId: post.id
         };
     } catch (error) {
         console.error("Error creating forum post:", error);
-        
+
         // Return appropriate error message based on error type
         if (error instanceof z.ZodError) {
             const errorMessage = error.errors.map(e => e.message).join(", ");
@@ -67,7 +73,7 @@ export async function createPostServer(formData: z.infer<typeof formSchema>): Pr
                 error: errorMessage
             };
         }
-        
+
         return {
             success: false,
             error: "Er is een fout opgetreden bij het maken van je post."
