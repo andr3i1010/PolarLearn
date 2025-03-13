@@ -22,9 +22,6 @@ export default async function Page({
     const session = await auth()
     const currentUsername = session?.user?.name || null
 
-    // Debug current user
-    console.log("Post detail - Current user:", currentUsername);
-
     const post = await prisma.forum.findUnique({
         where: {
             post_id: postId
@@ -88,12 +85,6 @@ export default async function Page({
     const isPostCreator = currentUsername === post.creator ||
         (postcreator?.name && currentUsername === postcreator.name);
 
-    console.log("Is creator check:", {
-        currentUsername,
-        postCreator: post.creator,
-        postcreatorName: postcreator?.name,
-        isPostCreator
-    });
 
     // Get user's current vote if logged in
     let userVote: "up" | "down" | null = null;
