@@ -4,7 +4,7 @@ import { useEffect, useState, createContext, useContext } from "react";
 const WSContext = createContext<WebSocket | null>(null);
 
 export function WSProvider({ children }: { children: React.ReactNode }) {
-  const baseUrl = process.env.NEXT_PUBLIC_AUTH_URL as string;
+  const baseUrl = process.env.NEXT_PUBLIC_URL as string;
   const [ws, setWs] = useState<WebSocket | null>(null);
 
   useEffect(() => {
