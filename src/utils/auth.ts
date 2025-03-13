@@ -175,8 +175,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
             return false;
         },
-        async redirect({ url, baseUrl }) {
-            return `${process.env.NEXT_PUBLIC_URL}/auth/sign-in` || baseUrl;
-        }
     }
 })
