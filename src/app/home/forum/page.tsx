@@ -51,9 +51,6 @@ export default async function ForumHome() {
   const session = await auth();
   const currentUsername = session?.user?.name || null;
   
-  // Add console log to debug the current username
-  console.log("Current username:", currentUsername);
-
   const forumPosts = await prisma.forum.findMany({
     where: {
       type: "thread"
@@ -103,11 +100,6 @@ export default async function ForumHome() {
             const subjectLabel = subjectLabelMap[post.subject] || post.subject;
             const relativeTime = formatRelativeTime(post.createdAt);
             
-            // Debug creator values
-            console.log(`Post ${index}:`, { 
-              postCreator: post.creator, 
-              currentUser: currentUsername 
-            });
             
             // Check if current user is the creator - with more flexibility
             const isPostCreator = currentUsername === post.creator || 

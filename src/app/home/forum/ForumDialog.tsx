@@ -177,7 +177,8 @@ export default function ForumDialog() {
             </FormControl>
             <div className="text-sm mt-2 text-gray-400">
               <p>Markdown tips:</p>
-              <p>**vetgedrukt**, *schuingedrukt*, # kop, [link](https://url.com)</p>
+              <p>**vetgedrukt**, *schuingedrukt*, [link](https://url.com)</p>
+              <p># Grote kop, ## Kleinere kop, ### Nog kleinere kop</p>
             </div>
           </div>
         ),
@@ -186,9 +187,15 @@ export default function ForumDialog() {
         id: "preview",
         label: "Voorbeeld",
         content: (
-          <div className="bg-neutral-800 border border-neutral-700 h-40 overflow-y-auto p-3 rounded-md prose prose-invert max-w-none">
+          <div className="bg-neutral-800 border border-neutral-700 h-40 overflow-y-auto p-3 rounded-md prose prose-invert max-w-none whitespace-pre-line">
             {content ? (
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <ReactMarkdown components={{ 
+                h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-3xl font-bold mb-3" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-xl font-bold mb-2" {...props} />
+              }}>
+                {content}
+              </ReactMarkdown>
             ) : (
               <p className="text-gray-400">Voorbeeldweergave verschijnt hier...</p>
             )}

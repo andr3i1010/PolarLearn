@@ -152,9 +152,16 @@ export default async function Page({
                 </div>
             </div>
 
-            <h1 className="text-2xl font-bold mb-4">{post.title}</h1>
+            <h1 className="text-3xl mb-4 font-bold">{post.title}</h1>
+            <hr className="flex-grow border-neutral-600 pb-4" />
             <div className="prose prose-invert max-w-none whitespace-pre-line">
-                <ReactMarkdown>{post.content}</ReactMarkdown>
+                <ReactMarkdown components={{ 
+                    h1: ({node, ...props}) => <h1 className="text-3xl font-normal mb-4" {...props} />,
+                    h2: ({node, ...props}) => <h2 className="text-2xl font-normal mb-3" {...props} />,
+                    h3: ({node, ...props}) => <h3 className="text-xl font-normal mb-2" {...props} />
+                }}>
+                    {post.content}
+                </ReactMarkdown>
             </div>
             <div className="mt-6">
                 <ForumReply postId={post.post_id} />
@@ -246,9 +253,15 @@ export default async function Page({
                                         </div>
                                     </div>
                                     <div className="prose prose-invert max-w-none whitespace-pre-line">
-                                        <ReactMarkdown>{reply.content}</ReactMarkdown>
+                                        <ReactMarkdown components={{ 
+                                            h1: ({node, ...props}) => <h1 className="text-3xl font-normal mb-4" {...props} />,
+                                            h2: ({node, ...props}) => <h2 className="text-2xl font-normal mb-3" {...props} />,
+                                            h3: ({node, ...props}) => <h3 className="text-xl font-normal mb-2" {...props} />
+                                        }}>
+                                            {reply.content}
+                                        </ReactMarkdown>
                                     </div>
-                                </div>
+                                </div>  
                             );
                         })}
                     </div>

@@ -59,14 +59,6 @@ export async function deletePost(postId: string) {
     throw new Error("Post not found")
   }
 
-  // Debug log to see what's happening
-  console.log("Delete request:", {
-    postCreator: post.creator,
-    currentUser: session.user.name,
-    currentUserId: session.user.id,
-    postId
-  });
-
   // More flexible creator check
   const isCreator = post.creator === session.user.name || post.creator === session.user.id;
   
