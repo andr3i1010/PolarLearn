@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Jdenticon from '@/components/Jdenticon';
 import { formatRelativeTime } from '@/utils/formatRelativeTime';
+import { auth } from "@/utils/auth";
+import DeletePostButton from "@/components/DeletePostButton";
 
 // Import the subject icons
 import nsk_img from '@/app/img/nask.svg';
@@ -46,6 +48,12 @@ const subjectLabelMap: Record<string, string> = {
 };
 
 export default async function ForumHome() {
+  const session = await auth();
+  const currentUsername = session?.user?.name || null;
+  
+  // Add console log to debug the current username
+  console.log("Current username:", currentUsername);
+
   const forumPosts = await prisma.forum.findMany({
     where: {
       type: "thread"
@@ -57,10 +65,13 @@ export default async function ForumHome() {
   // Get unique creator IDs from forum posts
   const creatorIds = [...new Set(forumPosts.map(post => post.creator))];
   
-  // Fetch all users in one query
+  // Also try to fetch users by name in case creator contains usernames
   const users = await prisma.user.findMany({
     where: {
-      id: { in: creatorIds }
+      OR: [
+        { id: { in: creatorIds } },
+        { name: { in: creatorIds } }
+      ]
     },
     select: {
       id: true,
@@ -69,11 +80,16 @@ export default async function ForumHome() {
     }
   });
 
-  // Create a map for quick lookup
-  const userMap = users.reduce((acc, user) => {
+  // Create maps for both ID and name lookups
+  const userMapById = users.reduce((acc, user) => {
     acc[user.id] = user;
     return acc;
-  }, {} as Record<string, { id: string, name: string | null, image: string | null }>);
+  }, {} as Record<string, any>);
+  
+  const userMapByName = users.reduce((acc, user) => {
+    if (user.name) acc[user.name] = user;
+    return acc;
+  }, {} as Record<string, any>);
 
   const tabs: TabItem[] = [
     {
@@ -82,55 +98,79 @@ export default async function ForumHome() {
       content: forumPosts.length > 0 ? (
         <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
           {forumPosts.map((post, index) => {
-            const user = userMap[post.creator];
+            const user = userMapById[post.creator] || userMapByName[post.creator];
             const subjectIcon = subjectIconMap[post.subject];
             const subjectLabel = subjectLabelMap[post.subject] || post.subject;
             const relativeTime = formatRelativeTime(post.createdAt);
             
+            // Debug creator values
+            console.log(`Post ${index}:`, { 
+              postCreator: post.creator, 
+              currentUser: currentUsername 
+            });
+            
+            // Check if current user is the creator - with more flexibility
+            const isPostCreator = currentUsername === post.creator || 
+                                 (user?.name && currentUsername === user.name);
+
             return (
-              <Link 
-                key={post.post_id}
-                href={`/home/forum/${post.post_id}`}
-                className="block"
-              >
-                <div 
-                  className={`border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-center cursor-pointer`}
+              <div key={post.post_id} className="relative">
+                <Link 
+                  href={`/home/forum/${post.post_id}`}
+                  className="block"
                 >
-                  <div className="mr-4 flex-shrink-0">
-                    {user?.image ? (
-                      <Image 
-                        src={user.image} 
-                        alt={`de profielfoto van ${user.name || 'iemand'}`}
-                        width={40} 
-                        height={40}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <Jdenticon 
-                        value={user?.name || post.creator} 
-                        size={40} 
-                      />
-                    )}
-                  </div>
-                  <div className="flex flex-col flex-1">
-                    <div className="text-xs text-gray-400 mb-1 flex items-center">
-                      {subjectIcon && (
+                  <div 
+                    className={`border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-center cursor-pointer`}
+                  >
+                    <div className="mr-4 flex-shrink-0">
+                      {user?.image ? (
                         <Image 
-                          src={subjectIcon} 
-                          alt={subjectLabel}
-                          width={16} 
-                          height={16}
-                          className="mr-1"
+                          src={user.image} 
+                          alt={`de profielfoto van ${user.name || 'iemand'}`}
+                          width={40} 
+                          height={40}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <Jdenticon 
+                          value={user?.name || post.creator} 
+                          size={40} 
                         />
                       )}
-                      <span>{subjectLabel}</span>
-                      <span className="mx-1.5">•</span>
-                      <span className="text-gray-500">{relativeTime}</span>
                     </div>
-                    <h3 className="font-medium text-lg">{post.title}</h3>
+                    <div className="flex flex-col flex-1">
+                      <div className="text-xs text-gray-400 mb-1 flex items-center">
+                        {subjectIcon && (
+                          <Image 
+                            src={subjectIcon} 
+                            alt={subjectLabel}
+                            width={16} 
+                            height={16}
+                            className="mr-1"
+                          />
+                        )}
+                        <span>{subjectLabel}</span>
+                        <span className="mx-1.5">•</span>
+                        <span className="text-gray-500">{relativeTime}</span>
+                        <span className="mx-1.5">•</span>
+                        <span className="text-gray-500">Door: {user?.name || post.creator}</span>
+                      </div>
+                      <h3 className="font-medium text-lg">{post.title}</h3>
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+                
+                {/* Position the delete button absolutely to not interfere with the link */}
+                {isPostCreator && (
+                  <div className="absolute top-4 right-4 z-10">
+                    <DeletePostButton 
+                      postId={post.post_id} 
+                      isCreator={true} 
+                      isMainPost={true}
+                    />
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>

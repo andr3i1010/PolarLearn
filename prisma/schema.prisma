@@ -99,6 +99,7 @@ model forum {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   post_id   String  @db.String @unique
   type      String
+  replyTo   String?
   title     String
   subject   String
   content   String
