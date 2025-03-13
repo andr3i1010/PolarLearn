@@ -35,11 +35,18 @@ export async function createPostServer(formData: z.infer<typeof formSchema>): Pr
                 error: "Je moet ingelogd zijn om een post te maken."
             };
         }
-        if (!user.loginAllowed) {
-            return {
-                success: false,
-                error: "helaas ben je verbannen van PolarLearn"
-            };
+        if (!user.forumAllowed) {
+            user.forumAllowed = true;
+            // edit the db
+            await prisma.user.update({
+                where: { email: user.email as string },
+                data: { forumAllowed: true }
+            })
+
+            // return {
+            //    success: false,
+            //    error: "helaas ben je verbannen van PolarLearn forums."
+            // };
         }
         // Create the post in the database
         const post = await prisma.forum.create({
