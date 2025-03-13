@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   const { username, email, password } = await req.json();
   const fixedEmail = email as string;
-  
+
   // Check if username contains spaces
   if ((username as string).includes(' ')) {
     return NextResponse.json({ error: 'Gebruikersnaam mag geen spaties bevatten' }, { status: 400 });
@@ -37,6 +37,7 @@ export async function POST(req: Request) {
         emailVerified: new Date(),
         list_data: { recent_lists: [], liked_lists: [], created_lists: [], recent_subjects: [] },
         loginAllowed: true,
+        forumAllowed: true,
       }
     });
 

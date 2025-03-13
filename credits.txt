@@ -7,6 +7,9 @@ https://www.flaticon.com/free-icons/book
 GitHub Copilot:
 https://copilot.github.com/
 
+Codeium:
+https://codeium.com/
+
 TailWindCSS gradient generator:
 https://www.creative-tim.com/twcomponents/gradient-generator
 
