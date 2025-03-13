@@ -6,7 +6,7 @@ import VoteButtons from "@/components/VoteButtons"
 import { auth } from "@/utils/auth"
 import ForumReply from "@/components/ForumReply"
 import DeletePostButton from "@/components/DeletePostButton"
-import ReactMarkdown from 'react-markdown'
+import MarkdownRenderer from "@/components/md"
 
 // Define the structure for vote data
 interface VoteData {
@@ -33,7 +33,6 @@ export default async function Page({
     }
 
     // Debug post creator
-    console.log("Post creator:", post.creator);
 
     // Fetch replies to this post
     const replies = await prisma.forum.findMany({
@@ -146,13 +145,7 @@ export default async function Page({
             <h1 className="text-3xl mb-4 font-bold">{post.title}</h1>
             <hr className="flex-grow border-neutral-600 pb-4" />
             <div className="prose prose-invert max-w-none whitespace-pre-line">
-                <ReactMarkdown components={{ 
-                    h1: ({node, ...props}) => <h1 className="text-3xl font-normal mb-4" {...props} />,
-                    h2: ({node, ...props}) => <h2 className="text-2xl font-normal mb-3" {...props} />,
-                    h3: ({node, ...props}) => <h3 className="text-xl font-normal mb-2" {...props} />
-                }}>
-                    {post.content}
-                </ReactMarkdown>
+                <MarkdownRenderer content={post.content} />
             </div>
             <div className="mt-6">
                 <ForumReply postId={post.post_id} />
@@ -244,13 +237,7 @@ export default async function Page({
                                         </div>
                                     </div>
                                     <div className="prose prose-invert max-w-none whitespace-pre-line">
-                                        <ReactMarkdown components={{ 
-                                            h1: ({node, ...props}) => <h1 className="text-3xl font-normal mb-4" {...props} />,
-                                            h2: ({node, ...props}) => <h2 className="text-2xl font-normal mb-3" {...props} />,
-                                            h3: ({node, ...props}) => <h3 className="text-xl font-normal mb-2" {...props} />
-                                        }}>
-                                            {reply.content}
-                                        </ReactMarkdown>
+                                        <MarkdownRenderer content={reply.content} />
                                     </div>
                                 </div>  
                             );
