@@ -52,7 +52,7 @@
     "react-jdenticon": "^1.4.0",
     "react-markdown": "^10.1.0",
     "react-scroll-motion": "^0.3.5",
-    "react-syntax-highlighter": "^15.6.1",
+    "react-syntax-highlighter": "^5.8.0",
     "react-toastify": "^11.0.5",
     "react-transition-group": "^4.4.5",
     "rehype-raw": "^7.0.0",
