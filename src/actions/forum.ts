@@ -12,8 +12,8 @@ export async function createReply(postId: string, content: string) {
     throw new Error("You must be logged in to reply")
   }
 
-  let gebruiker = prisma.user.findUnique({ where: { name: session.user.name } })
-  if (!gebruiker.loginAllowed || !gebruiker.forumAllowed) {
+  let gebruiker = await prisma.user.findFirst({ where: { name: session.user.name as string } })
+  if (!gebruiker || !gebruiker.loginAllowed || !gebruiker.forumAllowed) {
     throw new Error("je bent verbannen van de PolarLearn forums")
   }
 

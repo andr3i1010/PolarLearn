@@ -217,8 +217,8 @@ export default function CreateListTool() {
       const data = await createListAction(listData);
       console.log("List saved", data);
       toast.success("Lijst succesvol opgeslagen.");
-      if (data && data.id) {
-        router.push(`/learn/viewlist/${data.id}`);
+      if (data && typeof data === 'object' && 'list_id' in data) {
+        router.push(`/learn/viewlist/${data.list_id}`);
       }
     } catch (error) {
       console.error("Error saving list", error);
@@ -253,7 +253,7 @@ export default function CreateListTool() {
       const data = await createListAction(listData);
       console.log("List published", data);
       toast.success("Lijst succesvol geüpload.");
-      if (data && data.id) {
+      if (data && typeof data === 'object' && 'list_id' in data) {
         router.push(`/learn/viewlist/${data.list_id}`);
       }
     } catch (error) {

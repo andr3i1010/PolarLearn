@@ -35,7 +35,7 @@ export async function createListAction(listData: {
 				email: session.user.email
 			}
 		});
-		if (!user.loginAllowed) {
+		if (user && !user.loginAllowed) {
 			return new Response("Je bent verbannen van PolarLearn", { status: 500 });
 		}
 
