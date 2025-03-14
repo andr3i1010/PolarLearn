@@ -57,9 +57,11 @@ const subjectLabelMap: Record<string, string> = {
   "WI": "Wiskunde"
 };
 
-export default async function ForumHome({ searchParams }: { searchParams: { page?: string } }) {
-  const params = await searchParams; // await searchParams before accessing its properties
-  const page = parseInt(params?.page as string) || 1;
+export default async function ForumHome({ 
+  searchParams 
+}: { searchParams: Promise<{ page?: string }> }) {
+  const params = await searchParams;
+  const page = parseInt(params.page as string) || 1;
   const take = 20;
   const skip = (page - 1) * take;
 
