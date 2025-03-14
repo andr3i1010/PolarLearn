@@ -45,3 +45,4 @@ pnpm-lock.yaml
 .env.local
 .vscode/
 .pnpm*
+spam.bash

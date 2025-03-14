@@ -197,6 +197,8 @@ export default function Home() {
                         <ReviewCard stars={5} author='kabab33' comment='Ik had een StudyGo abonnement, maar nu niet meer! Bedankt voor mijn € 95,88 per jaar besparen PolarLearn!' />
                         <ReviewCard stars={5} author='luna' comment="Mijn cijfers waren eerst heel slecht, maar sinds ik PolarLearn gebruik zijn ze super hoog!" />
                         <ReviewCard stars={2.5} author='waterliefhebber' comment="Te weinig water" />
+                        <ReviewCard stars={5} author='-Mohammed-' comment="Het forum is echt veel beter en fijner! Ik hoop dat iedereen naar PolarLearn gaat! Bij StudyGo haalde ik vijfen en vieren, maar nu ik PolarLearn gebruik, haal ik achten en negenen!" />
+
                     </div>
                 </Marquee>
             </div>
