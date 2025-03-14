@@ -14,7 +14,6 @@ export async function createListAction(listData: {
 	if (!session?.user.name) {
 		throw new Error("User not authenticated");
 	}
-	
 	const newList = await prisma.practice.create({
 		data: {
 			list_id: crypto.randomUUID(),
@@ -28,15 +27,19 @@ export async function createListAction(listData: {
 			published: true,
 		},
 	});
-	
+
 	try {
 		// Find the user by email (more reliable than name)
 		const user = await prisma.user.findFirst({
-			where: { 
-				email: session.user.email 
+			where: {
+				email: session.user.email
 			}
 		});
-		
+		if (!user.loginAllowed) {
+			return new Response("Je bent verbannen van PolarLearn", { status: 500 });
+		}
+
+
 		if (!user) {
 			console.error("User not found for email:", session.user.email);
 			return newList; // Still return the list even if we can't update the user
@@ -51,19 +54,19 @@ export async function createListAction(listData: {
 				newList.list_id
 			]
 		};
-		
+
 		console.log("Updated list data:", updatedListData);
 
 		// Update the user record
 		await prisma.user.update({
-			where: { 
-				id: user.id 
+			where: {
+				id: user.id
 			},
-			data: { 
-				list_data: updatedListData 
+			data: {
+				list_data: updatedListData
 			}
 		});
-		
+
 		console.log("Successfully updated user with new list");
 	} catch (error) {
 		console.error("Error updating user list_data:", error);

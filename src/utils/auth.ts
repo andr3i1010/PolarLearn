@@ -18,6 +18,7 @@ interface PrismaUser {
     email?: string;
     listData?: any;
     loginAllowed?: boolean;
+    forumAllowed?: boolean;
 }
 
 class CustomSignInError extends CredentialsSignin {
