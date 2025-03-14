@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 
         if (!user) {
             console.error("User not found for email:", session.user.email);
-            return newList;
+            return NextResponse.json(newList);
         }
 
         const currentListData = (user.list_data as any) || {};
