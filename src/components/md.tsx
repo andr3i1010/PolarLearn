@@ -63,6 +63,14 @@ const components: Components = {
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a {...props} target="_blank" className="text-blue-500 hover:underline" />
   ),
+  img: ({ src, alt, ...props }) => (
+    <img
+      src={src}
+      alt={alt || ""}
+      style={{ maxWidth: "100%", maxHeight: "400px", height: "auto" }}
+      {...props}
+    />
+  ),
 };
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
