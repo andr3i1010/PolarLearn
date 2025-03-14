@@ -7,9 +7,14 @@ import { v4 as uuidv4 } from 'uuid'
 
 export async function createReply(postId: string, content: string) {
   const session = await auth()
-  
+
   if (!session || !session.user || !session.user.name) {
     throw new Error("You must be logged in to reply")
+  }
+
+  let gebruiker = prisma.user.findUnique({ where: { name: session.user.name } })
+  if (!gebruiker.loginAllowed || !gebruiker.forumAllowed) {
+    throw new Error("je bent verbannen van de PolarLearn forums")
   }
 
   // Get the original post to copy the subject
@@ -43,7 +48,7 @@ export async function createReply(postId: string, content: string) {
 
 export async function deletePost(postId: string) {
   const session = await auth()
-  
+
   if (!session || !session.user || !session.user.name) {
     throw new Error("You must be logged in to delete a post")
   }
@@ -61,14 +66,14 @@ export async function deletePost(postId: string) {
 
   // More flexible creator check
   const isCreator = post.creator === session.user.name || post.creator === session.user.id;
-  
+
   if (!isCreator) {
     // Try to find the user by ID to see if they match
     const user = await prisma.user.findUnique({
       where: { id: post.creator },
       select: { name: true }
     });
-    
+
     if (user?.name !== session.user.name) {
       throw new Error("You can only delete your own posts");
     }
@@ -95,6 +100,6 @@ export async function deletePost(postId: string) {
   if (post.type !== "reply") {
     return { redirect: "/home/forum" }
   }
-  
+
   return { success: true }
 }
