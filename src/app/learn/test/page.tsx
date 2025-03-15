@@ -1,15 +1,10 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { getWordPairs, saveTestResults } from "@/app/api/actions";
 
-type WordPair = {
-  question: string;
-  answer: string;
-};
-
 export default function TestMode({ listId, onExit }: { listId: string; onExit: () => void }) {
-  const [wordPairs, setWordPairs] = useState<WordPair[]>([]); // Type toevoegen
+  const [wordPairs, setWordPairs] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState("");
   const [correctCount, setCorrectCount] = useState(0);
@@ -19,14 +14,19 @@ export default function TestMode({ listId, onExit }: { listId: string; onExit: (
 
   useEffect(() => {
     async function loadWords() {
-      const words = await getWordPairs(listId);
-      setWordPairs(shuffleArray(words));
-      setLoading(false);
+      try {
+        const words = await getWordPairs(listId);
+        setWordPairs(shuffleArray(words));
+      } catch (error) {
+        console.error("Error loading words:", error);
+      } finally {
+        setLoading(false);
+      }
     }
     loadWords();
   }, [listId]);
 
-  const shuffleArray = (array: WordPair[]) => [...array].sort(() => Math.random() - 0.5); // Type toevoegen
+  const shuffleArray = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
 
   const handleSubmit = async () => {
     if (index >= wordPairs.length) return;
@@ -90,3 +90,4 @@ export default function TestMode({ listId, onExit }: { listId: string; onExit: (
     </div>
   );
 }
+
