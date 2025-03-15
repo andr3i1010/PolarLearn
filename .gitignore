@@ -46,3 +46,6 @@ pnpm-lock.yaml
 .vscode/
 .pnpm*
 spam.bash
+install/docker-compose.yml
+.gitignore
+install/init-replica.sh
