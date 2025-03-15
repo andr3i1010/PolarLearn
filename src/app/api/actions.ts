@@ -1,4 +1,4 @@
-import { prisma } from './utils/prisma';
+import { prisma } from '@/utils/prisma';
 
 export const getWordPairs = async (listId: string) => {
   try {
