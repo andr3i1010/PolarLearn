@@ -293,17 +293,57 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                 </div>
             )
         },
+       
         {
-            id: 'resultaten',
-            label: 'Resultaten',
-            content: (
-                <div>
-                    {/* Resultaten content will go here */}
-                    <Image src={construction} alt="under construction!" width={500} height={100} />
+           {
+    id: 'resultaten',
+    label: 'Resultaten',
+    content: (
+        <div>
+            <h2 className="text-2xl font-bold mb-4">Resultaten</h2>
+            {wordPairs.length > 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-700 rounded-lg overflow-hidden">
+                        <thead className="bg-gray-800">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 text-center text-xl font-medium text-gray-300 w-1/2">
+                                    Origineel
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-center text-xl font-medium text-gray-300 w-1/2">
+                                    Vertaling
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-center text-xl font-medium text-gray-300 w-1/2">
+                                    Score
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-gray-800 divide-y divide-gray-800">
+                            {wordPairs.map((pair, index) => {
+                                const terms = Array.isArray(pair["1"]) ? pair["1"] : pair["1"].split(',').map(t => t.trim());
+                                const definitions = Array.isArray(pair["2"]) ? pair["2"] : pair["2"].split(',').map(d => d.trim());
+                                return (
+                                    <React.Fragment key={pair.id}>
+                                        {terms.map((term, idx) => (
+                                            <tr key={`${pair.id}-${idx}`} className={(index + idx) % 2 === 0 ? 'bg-neutral-800' : 'bg-neutral-900'}>
+                                                <td className="px-6 py-4 text-center font-bold text-xl text-white">{term}</td>
+                                                <td className="px-6 py-4 text-center font-bold text-xl text-white">{definitions[idx]}</td>
+                                                <td className="px-6 py-4 text-center font-bold text-xl text-white">-</td>
+                                            </tr>
+                                        ))}
+                                    </React.Fragment>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
-            )
-        }
-    ];
+            ) : (
+                <p className="text-gray-500 text-center">
+                    Nog geen resultaten beschikbaar.
+                </p>
+            )}
+        </div>
+    )
+}
 
     return (
         <div className="px-4">
