@@ -114,3 +114,13 @@ model forum {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model TestResult {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  listId           String
+  correctAnswers   Int
+  incorrectAnswers Int
+  duration         Int      // Tijd in seconden
+  answers          Json     // [{ question: "woord1", answer: "woord2", correct: true }, ...]
+  createdAt        DateTime @default(now())
+}
