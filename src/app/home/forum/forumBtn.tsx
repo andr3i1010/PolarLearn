@@ -7,7 +7,7 @@ export default function ForumBtn({ onClick }: { onClick?: () => void }) {
       text="Nieuwe post" 
       onClick={() => { 
         onClick?.(); 
-      }} 
+      }}
     />
   );
 }

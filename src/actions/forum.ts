@@ -2,7 +2,6 @@
 
 import { prisma } from "@/utils/prisma"
 import { auth } from "@/utils/auth"
-import { redirect } from "next/navigation"
 import { v4 as uuidv4 } from 'uuid'
 
 export async function createReply(postId: string, content: string) {
@@ -14,7 +13,7 @@ export async function createReply(postId: string, content: string) {
 
   let gebruiker = await prisma.user.findFirst({ where: { name: session.user.name as string } })
   if (!gebruiker || !gebruiker.loginAllowed || !gebruiker.forumAllowed) {
-    throw new Error("je bent verbannen van de PolarLearn forums")
+    throw new Error("je bent verbannen van PolarLearn")
   }
 
   // Get the original post to copy the subject

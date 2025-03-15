@@ -19,6 +19,7 @@ interface PrismaUser {
     listData?: any;
     loginAllowed?: boolean;
     forumAllowed?: boolean;
+    banReason?: string; // added banReason from the database
 }
 
 class CustomSignInError extends CredentialsSignin {
@@ -158,19 +159,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     throw new CustomSignInError("User not found");
                 }
             }
-            const prismaUser = user as PrismaUser;
-            if (prismaUser.listData === null) {
+            // ...existing code for listData...
+            if (user && (user as any).listData === null) {
                 await prisma.user.update({
                     where: {
-                        email: prismaUser.email || "",
+                        email: (user as any).email || "",
                     },
                     data: {
                         list_data: { recent_lists: [], liked_lists: [], created_lists: [], recent_subjects: [] },
                     },
                 });
             }
-            if (user && (prismaUser.loginAllowed === false)) {
-                throw new CustomSignInError("AccessDenied");
+            // Fetch complete user record from DB and cast as any to access custom fields
+            const prismaUser = await prisma.user.findFirst({
+                where: { id: user.id },
+            })
+            if (user && (prismaUser?.loginAllowed === false)) {
+                // Use optional chaining to safely access the property
+                console.log(prismaUser?.banReason || "No ban reason provided")
+                throw new CustomSignInError("AccessDenied: " + (prismaUser?.banReason || "Geen reden opgegeven."));
             } else if (user) {
                 return true;
             }
