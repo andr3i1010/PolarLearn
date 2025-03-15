@@ -277,6 +277,28 @@ export default function CreateListTool() {
   return (
     <>
       <div className="mx-2">
+        {/* Added Back Button */}
+        <a
+          href="https://polarlearn.tech/home/start"
+          className="fixed top-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-colors hover:bg-neutral-600"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M18 6L6 18M6 6l12 12"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </a>
+
         <div className="h-3" />
         <form className="relative z-50">
           <div className="flex flex-row gap-4">
@@ -286,77 +308,59 @@ export default function CreateListTool() {
               width={200}
               dropdownMatrix={[
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={nl_img} alt="nederlands plaatje" width={20} height={20} />
-                      <p>Nederlands</p>
-                    </div>
-                  ),
+                  <div className="flex items-center gap-2">
+                    <Image src={nl_img} alt="nederlands plaatje" width={20} height={20} />
+                    <p>Nederlands</p>
+                  </div>,
                   "NL"
                 ],
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={math_img} alt="wiskunde plaatje" width={20} height={20} />
-                      <p>Wiskunde</p>
-                    </div>
-                  ), "WI"
+                  <div className="flex items-center gap-2">
+                    <Image src={math_img} alt="wiskunde plaatje" width={20} height={20} />
+                    <p>Wiskunde</p>
+                  </div>, "WI"
                 ],
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={nsk_img} alt="nask plaatje" width={20} height={20} />
-                      <p>NaSk</p>
-                    </div>
-                  ), "NSK"
+                  <div className="flex items-center gap-2">
+                    <Image src={nsk_img} alt="nask plaatje" width={20} height={20} />
+                    <p>NaSk</p>
+                  </div>, "NSK"
                 ],
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={ak_img} alt="aardrijkskunde plaatje" width={20} height={20} />
-                      <p>Aardrijkskunde</p>
-                    </div>
-                  ), "AK"
+                  <div className="flex items-center gap-2">
+                    <Image src={ak_img} alt="aardrijkskunde plaatje" width={20} height={20} />
+                    <p>Aardrijkskunde</p>
+                  </div>, "AK"
                 ],
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={fr_img} alt="frans plaatje" width={20} height={20} />
-                      <p>Frans</p>
-                    </div>
-                  ), "FR"
+                  <div className="flex items-center gap-2">
+                    <Image src={fr_img} alt="frans plaatje" width={20} height={20} />
+                    <p>Frans</p>
+                  </div>, "FR"
                 ],
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={eng_img} alt="engels plaatje" width={20} height={20} />
-                      <p>Engels</p>
-                    </div>
-                  ), "EN"
+                  <div className="flex items-center gap-2">
+                    <Image src={eng_img} alt="engels plaatje" width={20} height={20} />
+                    <p>Engels</p>
+                  </div>, "EN"
                 ],
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={de_img} alt="duits plaatje" width={20} height={20} />
-                      <p>Duits</p>
-                    </div>
-                  ), "DE"
+                  <div className="flex items-center gap-2">
+                    <Image src={de_img} alt="duits plaatje" width={20} height={20} />
+                    <p>Duits</p>
+                  </div>, "DE"
                 ],
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={gs_img} alt="geschiedenis plaatje" width={20} height={20} />
-                      <p>Geschiedenis</p>
-                    </div>
-                  ), "GS"
+                  <div className="flex items-center gap-2">
+                    <Image src={gs_img} alt="geschiedenis plaatje" width={20} height={20} />
+                    <p>Geschiedenis</p>
+                  </div>, "GS"
                 ],
                 [
-                  (
-                    <div className="flex items-center gap-2">
-                      <Image src={bi_img} alt="biologie plaatje" width={20} height={20} />
-                      <p>Biologie</p>
-                    </div>
-                  ), "BI"
+                  <div className="flex items-center gap-2">
+                    <Image src={bi_img} alt="biologie plaatje" width={20} height={20} />
+                    <p>Biologie</p>
+                  </div>, "BI"
                 ]
               ]}
               selectorMode={true}
@@ -374,47 +378,38 @@ export default function CreateListTool() {
             placeholder="Lijstnaam komt hier"
           />
           <div className="mt-4 flex justify-center gap-4">
-            {/* Update the "Van.." dropdown to disable when subject is Dutch */}
             <div className="w-1/2 z-0 ml-52">
               <Dropdown
-                ref={vanDropdownRef} // attach new ref here
+                ref={vanDropdownRef}
                 text="Van.."
                 width={200}
                 dropdownMatrix={[
                   [
-                    (
-                      <div className="flex items-center gap-2">
-                        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
-                        <p>Nederlands</p>
-                      </div>
-                    ),
+                    <div className="flex items-center gap-2">
+                      <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+                      <p>Nederlands</p>
+                    </div>,
                     "NL"
                   ],
                   [
-                    (
-                      <div className="flex items-center gap-2">
-                        <Image src={fr_img} alt="Frans" width={20} height={20} />
-                        <p>Frans</p>
-                      </div>
-                    ),
+                    <div className="flex items-center gap-2">
+                      <Image src={fr_img} alt="Frans" width={20} height={20} />
+                      <p>Frans</p>
+                    </div>,
                     "FR"
                   ],
                   [
-                    (
-                      <div className="flex items-center gap-2">
-                        <Image src={eng_img} alt="Engels" width={20} height={20} />
-                        <p>Engels</p>
-                      </div>
-                    ),
+                    <div className="flex items-center gap-2">
+                      <Image src={eng_img} alt="Engels" width={20} height={20} />
+                      <p>Engels</p>
+                    </div>,
                     "EN"
                   ],
                   [
-                    (
-                      <div className="flex items-center gap-2">
-                        <Image src={de_img} alt="Duits" width={20} height={20} />
-                        <p>Duits</p>
-                      </div>
-                    ),
+                    <div className="flex items-center gap-2">
+                      <Image src={de_img} alt="Duits" width={20} height={20} />
+                      <p>Duits</p>
+                    </div>,
                     "DE"
                   ]
                 ]}
@@ -429,39 +424,31 @@ export default function CreateListTool() {
                 width={200}
                 dropdownMatrix={[
                   [
-                    (
-                      <div className="flex items-center gap-2">
-                        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
-                        <p>Nederlands</p>
-                      </div>
-                    ),
+                    <div className="flex items-center gap-2">
+                      <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+                      <p>Nederlands</p>
+                    </div>,
                     "NL"
                   ],
                   [
-                    (
-                      <div className="flex items-center gap-2">
-                        <Image src={fr_img} alt="Frans" width={20} height={20} />
-                        <p>Frans</p>
-                      </div>
-                    ),
+                    <div className="flex items-center gap-2">
+                      <Image src={fr_img} alt="Frans" width={20} height={20} />
+                      <p>Frans</p>
+                    </div>,
                     "FR"
                   ],
                   [
-                    (
-                      <div className="flex items-center gap-2">
-                        <Image src={eng_img} alt="Engels" width={20} height={20} />
-                        <p>Engels</p>
-                      </div>
-                    ),
+                    <div className="flex items-center gap-2">
+                      <Image src={eng_img} alt="Engels" width={20} height={20} />
+                      <p>Engels</p>
+                    </div>,
                     "EN"
                   ],
                   [
-                    (
-                      <div className="flex items-center gap-2">
-                        <Image src={de_img} alt="Duits" width={20} height={20} />
-                        <p>Duits</p>
-                      </div>
-                    ),
+                    <div className="flex items-center gap-2">
+                      <Image src={de_img} alt="Duits" width={20} height={20} />
+                      <p>Duits</p>
+                    </div>,
                     "DE"
                   ]
                 ]}

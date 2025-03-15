@@ -126,7 +126,7 @@ const subjectItems: ComboboxItem[] = [
 export default function ForumDialog() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Initialize form with react-hook-form and zod validation
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -157,11 +157,11 @@ export default function ForumDialog() {
       setIsSubmitting(false);
     }
   }
-  
+
   // Create tab content based on the current form state
   const createTabItems = (): TabItem[] => {
     const content = form.watch("content");
-    
+
     return [
       {
         id: "write",
@@ -189,13 +189,22 @@ export default function ForumDialog() {
         content: (
           <div className="bg-neutral-800 border border-neutral-700 h-40 overflow-y-auto p-3 rounded-md prose prose-invert max-w-none whitespace-pre-line">
             {content ? (
-              <ReactMarkdown components={{ 
-                h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4" {...props} />,
-                h2: ({node, ...props}) => <h2 className="text-3xl font-bold mb-3" {...props} />,
-                h3: ({node, ...props}) => <h3 className="text-xl font-bold mb-2" {...props} />
+              <ReactMarkdown components={{
+                h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4" {...props} />,
+                h2: ({ node, ...props }) => <h2 className="text-3xl font-bold mb-3" {...props} />,
+                h3: ({ node, ...props }) => <h3 className="text-xl font-bold mb-2" {...props} />,
+                img: ({ src, alt, ...props }) => (
+                  <img
+                    src={src}
+                    alt={alt || ""}
+                    style={{ maxWidth: "100%", maxHeight: "400px", height: "auto" }}
+                    {...props}
+                  />
+                ),
               }}>
                 {content}
               </ReactMarkdown>
+
             ) : (
               <p className="text-gray-400">Voorbeeldweergave verschijnt hier...</p>
             )}
