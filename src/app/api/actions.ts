@@ -1,38 +1,36 @@
-"use server";
+import { prisma } from './utils/prisma';
 
-import { prisma } from "@/utils/prisma";
-
-export async function getWordPairs(list_id: string) {
+export const getWordPairs = async (listId: string) => {
   try {
-    if (!list_id) {
-      throw new Error("Invalid list_id");
-    }
-
-    const wordPairs = await prisma.practice.findMany({
-      where: { list_id },
+    const practice = await prisma.practice.findFirst({
+      where: {
+        list_id: listId
+      }
     });
 
-    return wordPairs;
+    return practice?.words || [];  
   } catch (error) {
-    console.error("Fout bij ophalen woordenlijst:", error);
+    console.error('Error fetching word pairs:', error);
     return [];
   }
-}
+};
 
-export async function saveTestResults(correct: number, incorrect: number, list_id: string) {
+export const saveTestResults = async (
+  correctAnswers: number,
+  incorrectAnswers: number,
+  listId: string
+) => {
   try {
-    if (!list_id) {
-      throw new Error("Invalid list_id");
-    }
-
-    await prisma.testResults.create({
+    const result = await prisma.testResult.create({
       data: {
-        list_id,
-        correct,
-        incorrect,
-      },
+        listId,
+        correctAnswers,
+        incorrectAnswers
+      }
     });
+    return result;
   } catch (error) {
-    console.error("Fout bij opslaan resultaten:", error);
+    console.error('Error saving test result:', error);
+    return null;
   }
-}
+};
