@@ -123,7 +123,7 @@ const subjectItems: ComboboxItem[] = [
   },
 ];
 
-export default function ForumDialog() {
+export default function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason: string | null | undefined; banEnd: Date | null | undefined }) { // updated prop types with banEnd
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -139,6 +139,11 @@ export default function ForumDialog() {
 
   // Form submission handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (banned) {
+      const banEndMsg = banEnd ? `Je bent verbannen tot ${new Date(banEnd).toLocaleDateString()}` : "Je bent permanent verbannen";
+      toast.error(`${banEndMsg}. Met de reden: ${banreason ?? "Geen reden opgegeven"}. Als je denkt dat dit een fout is, join de discord. Die kan je vinden in de forum.`); // updated message
+      return;
+    }
     try {
       setIsSubmitting(true);
       const result = await createPostServer(values);
@@ -216,7 +221,18 @@ export default function ForumDialog() {
 
   return (
     <>
-      <ForumBtn onClick={() => setOpen(true)} />
+      <ForumBtn onClick={() => {
+        if (banned) {
+          const banEndMsg = banEnd ? `Je bent verbannen van de forum tot ${new Date(banEnd).toLocaleDateString()}` : "Je bent permanent verbannen van de forum";
+          toast.error(`${banEndMsg}, met de reden: ${banreason ?? "Geen reden opgegeven"}. Als je denkt dat dit een fout is, join de discord. Die kan je vinden in de forum.`,
+            {
+              autoClose: 7000
+            }
+          ); // updated message
+          return;
+        }
+        setOpen(true);
+      }} />
       <Dialog open={open} onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) form.reset();
@@ -280,7 +296,7 @@ export default function ForumDialog() {
                         </div>
                         <Button1
                           text={isSubmitting ? 'Bezig met plaatsen...' : 'Post aanmaken'}
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || banned} // updated to disable if banned
                           onClick={form.handleSubmit(onSubmit)}
                         />
                       </div>

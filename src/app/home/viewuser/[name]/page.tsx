@@ -15,6 +15,7 @@ import fr_img from '@/app/img/baguette.svg';
 import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
 import ak_img from '@/app/img/geography.svg';
+import { Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal } from "react";
 
 // Add an interface for list data structure
 interface ListData {
@@ -115,7 +116,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                 <div className="mt-4">
                     {createdLists.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {createdLists.map((list) => {
+                            {createdLists.map((list: { subject: string; list_id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; createdAt: string | number | Date; }) => {
                                 const subjectIcon = getSubjectIcon(list.subject);
                                 return (
                                     <Link

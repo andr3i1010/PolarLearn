@@ -14,12 +14,12 @@ export default function ClientToastNotifier() {
 			if (errorParam === "CredentialsSignin") {
 				const codeParam = searchParams.get("code");
 				console.log(codeParam)
-				if (codeParam === "User not found") {
+				if (codeParam && codeParam.startsWith("AccessDenied")) {
+					const banReason = codeParam.split("AccessDenied:")[1]?.trim() || "Geen reden beschikbaar.";
+					message = `Je bent verbannen van PolarLearn, met de reden: ${banReason}`;
+				} else if (codeParam === "User not found") {
 					message = "Email of wachtwoord is onjuist. Controleer uw gegevens en probeer het opnieuw.";
-				} else if (codeParam === "AccessDenied") {
-					message = "Je bent verbannen van PolarLearn. Check je E-mail voor meer informatie."
-				}
-				else {
+				} else {
 					message = codeParam || "Onbekende fout?";
 				}
 			} else {
