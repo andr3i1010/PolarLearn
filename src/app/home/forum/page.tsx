@@ -242,8 +242,33 @@ export default async function ForumHome({
     },
     {
       id: 'hoe',
-      label: 'Hoe werkt de forum?',
-      content: <div>Content for Hoe werkt de forum?</div>
+      label: 'Hoe werkt het forum?',
+      content: <div>Hoe werkt het forum?
+Welkom op ons leerforum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt.
+
+🔍 Zoeken naar antwoorden
+Voordat je een nieuwe vraag stelt, gebruik de zoekbalk om te kijken of jouw vraag al eerder is beantwoord. Dit bespaart tijd en helpt om dubbele vragen te voorkomen.
+
+❓ Vragen stellen
+Heb je een vraag? Plaats deze in de juiste categorie en wees zo duidelijk mogelijk. Hoe specifieker je vraag, hoe sneller en beter de antwoorden zullen zijn!
+
+Bij het stellen van een vraag kun je labels toevoegen om aan te geven of je vraag over school gaat of niet. Zo kunnen anderen makkelijker de juiste vragen vinden.
+
+💬 Antwoorden geven
+Help anderen door antwoorden te geven op vragen. Zorg ervoor dat je uitleg helder en behulpzaam is.
+
+⭐ Punten verdienen
+Je verdient punten door actief bij te dragen:
+✅ Een goedgekeurd antwoord geven: +X punten
+👍 Een upvote ontvangen op jouw antwoord: +X punten
+❓ Een vraag stellen: +X punten
+
+        Met punten verdien je prestaties die je als titel in kan stellen onder je naam! En het ziet er gewoon cool uit.
+
+🚨 Moderatie
+Alleen vragen die choquerend, spam of beledigend zijn, worden verwijderd. In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan!
+
+Veel leerplezier! 🚀</div>
     }
   ];
 
