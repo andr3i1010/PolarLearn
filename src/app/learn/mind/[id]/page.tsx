@@ -1,13 +1,13 @@
-import construction from '@/app/img/construction.gif';
-import Button1 from '@/components/button/Button1';
-import Image from 'next/image';
+import { useRouter } from "next/navigation";
+import LearnTool from "@/components/learning/learnTool";
 
-export default function Page() {
-    return (
-        <div className='flex justify-center items-center h-screen flex-col'>
-            <Image src={construction} alt="Under construction" />
-            <br/>
-            <Button1 text='Terug naar home' redirectTo='/home/start' />
-        </div>
-    )
+export default function LearnPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const listId = params.id;
+
+  const handleExit = () => {
+    router.back();
+  };
+
+  return <LearnTool listId={listId} onExit={handleExit} />;
 }
