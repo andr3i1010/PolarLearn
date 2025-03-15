@@ -46,7 +46,7 @@ async function getRecentLists() {
 
     // Sort lists based on the combined order of recent and created lists
     const orderedLists = combinedListIds
-      .map((id: string) => lists.find(list => list.list_id === id))
+      .map((id: string) => lists.find((list: { list_id: string; }) => list.list_id === id))
       .filter(Boolean);
 
     return orderedLists;

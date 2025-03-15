@@ -1,13 +1,16 @@
-import construction from '@/app/img/construction.gif';
-import Button1 from '@/components/button/Button1';
-import Image from 'next/image';
+import { prisma } from "@/utils/prisma"
 
-export default function Page() {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+    const listId = await params
+    const listData = await prisma.practice.findFirst({
+        where: {
+            list_id: listId.id
+        }
+    })
     return (
-        <div className='flex justify-center items-center h-screen flex-col'>
-            <Image src={construction} alt="Under construction" />
-            <br/>
-            <Button1 text='Terug naar home' redirectTo='/home/start' />
+        <div>
+            <p>Name: {listData?.name}</p>
+            <p>Subject: {listData?.subject}</p>
         </div>
     )
 }
