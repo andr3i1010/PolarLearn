@@ -8,7 +8,8 @@ export const getWordPairs = async (listId: string) => {
       }
     });
 
-    return practice?.data?.words || [];  
+    const words = practice?.data?.words || [];  
+    return words;  
   } catch (error) {
     console.error('Error fetching word pairs:', error);
     return [];
