@@ -30,7 +30,7 @@ export async function createListAction(listData: {
 	});
 	
 	try {
-		// Find the user by email (more reliable than name)
+		
 		const user = await prisma.user.findFirst({
 			where: { 
 				email: session.user.email 
@@ -39,10 +39,9 @@ export async function createListAction(listData: {
 		
 		if (!user) {
 			console.error("User not found for email:", session.user.email);
-			return newList; // Still return the list even if we can't update the user
+			return newList;
 		}
 
-		// Prepare the list_data to include the new list ID
 		const currentListData = (user.list_data as any) || {};
 		const updatedListData = {
 			...currentListData,
@@ -54,7 +53,6 @@ export async function createListAction(listData: {
 		
 		console.log("Updated list data:", updatedListData);
 
-		// Update the user record
 		await prisma.user.update({
 			where: { 
 				id: user.id 
@@ -67,7 +65,7 @@ export async function createListAction(listData: {
 		console.log("Successfully updated user with new list");
 	} catch (error) {
 		console.error("Error updating user list_data:", error);
-		// Still return the list even if updating the user fails
+		
 	}
 
 	return newList;
