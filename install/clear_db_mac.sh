@@ -17,10 +17,10 @@ DB_NAME="polarlearn"
 random_string=$(openssl rand -base64 32)
 
 # Stop MongoDB als het al draait
-pgrep mongod &> /dev/null && { echo "🛑 Stoppen van draaiende MongoDB-processen..."; pkill mongod; sleep 5; }
+pgrep mongod &> /dev/null && { echo "🛑 Stoppen van draaiende MongoDB-processen...";sudo pkill mongod; sleep 10; }
 
 # Database directories opnieuw aanmaken
-rm -rf "$SCRIPT_DIR/mongo"
+sudo rm -rf "$SCRIPT_DIR/mongo"
 mkdir -p "$SCRIPT_DIR/mongo/rs1" "$SCRIPT_DIR/mongo/rs2" "$SCRIPT_DIR/mongo/rs3"
 
 # Functie om MongoDB te starten met detectie van errors
@@ -82,7 +82,9 @@ db.test_collection.insertOne({ created: new Date() });
 echo "✅ MongoDB Replica Set gestart en database '$DB_NAME' aangemaakt!"
 
 # Installeer npm dependencies
-npm i --legacy-peer-deps
+echo "📦 NPM dependencies installeren..."
+npm i --legacy-peer-deps > /dev/null 2>&1
+
 
 # Schrijf .env bestand
 echo "
@@ -99,6 +101,7 @@ AUTH_URL=\"localhost:3000\"
 " >> .env
 
 # Prisma push
+echo "🔄 Pushing database..."
 pnpx prisma db push
 
 clear
