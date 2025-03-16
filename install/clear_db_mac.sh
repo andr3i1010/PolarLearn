@@ -9,8 +9,8 @@ echo "
   |__|  |___|_|__,|_| |_____|___|__,|_| |_|_|__|
 
 "
-
 echo " als er een error is geen paniek, probeer de installatie opnieuw te runnen"
+
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 DB_NAME="polarlearn"
@@ -28,6 +28,7 @@ echo "✅ MongoDB geïnstalleerd."
 pgrep mongod &> /dev/null && { echo "🛑 Stoppen van draaiende MongoDB-processen..."; pkill mongod; sleep 10; }
 
 # Database directories opnieuw aanmaken
+rm -rf "$SCRIPT_DIR/mongo"
 mkdir -p "$SCRIPT_DIR/mongo/rs1" "$SCRIPT_DIR/mongo/rs2" "$SCRIPT_DIR/mongo/rs3"
 
 # Start MongoDB instances
