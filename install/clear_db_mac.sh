@@ -9,7 +9,9 @@ echo "
   |__|  |___|_|__,|_| |_____|___|__,|_| |_|_|__|
 
 "
-echo " als er een error is geen paniek, probeer de installatie opnieuw te runnen"
+echo " 
+als er een error is geen paniek, probeer de installatie opnieuw te runnen
+"
 
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
@@ -102,6 +104,6 @@ echo "🛠️ test de build met:"
 echo "  pnpm build"
 echo
 echo "🛑 stop de db met:"
-echo "  pkill mongod"
+echo "  sudo pkill mongod"
 echo
 echo "Veel succes! 🚀"

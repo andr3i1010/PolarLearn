@@ -101,6 +101,6 @@ echo "🛠️ test de build met:"
 echo "  pnpm build"
 echo
 echo "🛑 stop de db met:"
-echo "  pkill mongod"
+echo "  sudo pkill mongod"
 echo
 echo "Veel succes! 🚀"
