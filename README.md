@@ -59,11 +59,11 @@ Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) (P.S
 Je kan bijdragen aan PolarLearn door de code te downloaden en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een feature request hebt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie CONTRIBUTING.md voor meer informatie.
 
 ## instalatie
-voor windows/penguin:
+voor windows:
 vraag op discord
 
-voor mac:
+voor mac/penguin:
 ```
-sudo bash install/macos.sh
+bash install/unix.sh
 ```
 in de polarlearn dir
