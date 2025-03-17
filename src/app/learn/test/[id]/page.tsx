@@ -50,14 +50,7 @@ export default function Page() {
         }
     };
     const antwoordFoutVolgende = () => {
-        if (!lijstData.length) return;
-
-        const [huidigeVraag, ...rest] = lijstData;
-
-        if (userInput.trim().toLowerCase() === huidigeVraag.antwoord.toLowerCase()) {
-            setLijstData(shuffleArray(rest));
-        }
-
+        setLijstData(shuffleArray(shuffleArray(lijstData)));
         setUserInput("");
         setToonAntwoord(false);
     };
