@@ -78,7 +78,8 @@ install_mongodb
 pgrep mongod &> /dev/null && { echo "🛑 Stoppen van draaiende MongoDB-processen..."; pkill mongod; sleep 10; }
 
 # Database directories opnieuw aanmaken
-rm -rf "$SCRIPT_DIR/mongo"
+echo "📦 oude bestenden wissen..."
+sudo rm -rf "$SCRIPT_DIR/mongo"
 mkdir -p "$SCRIPT_DIR/mongo/rs1" "$SCRIPT_DIR/mongo/rs2" "$SCRIPT_DIR/mongo/rs3"
 
 # Probeer MongoDB 3 keer te starten als het faalt
@@ -120,7 +121,7 @@ rs.initiate({
     { _id: 2, host: '127.0.0.1:27019' }
   ]
 });
-"
+"  > /dev/null 2>&1
 
 sleep 5
 
@@ -128,7 +129,8 @@ sleep 5
 mongosh --port 27017 --quiet --eval "
 use $DB_NAME;
 db.test_collection.insertOne({ created: new Date() });
-"
+"  > /dev/null 2>&1
+echo "✅ db aangemaakt"
 
 # Verberg npm logs
 npm i --legacy-peer-deps > /dev/null 2>&1
@@ -136,8 +138,8 @@ npm i --legacy-peer-deps > /dev/null 2>&1
 # .env bestand aanmaken (alleen als het nog niet bestaat)
 if [ ! -f .env ]; then
     echo "
-DATABASE_URL=mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019/$DB_NAME?replicaSet=rs0
-POLARLEARN_URL=\"localhost:3000\"
+DATABASE_URL=\"mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019/$DB_NAME?replicaSet=rs0\"
+POLARLEARN_URL=\"http://localhost:3000\"
 
 AUTH_GOOGLE_ID=\"Stop hier de Google OAuth2 Client ID die je hebt gekregen van de google cloud console\"
 AUTH_GOOGLE_SECRET=\"Stop hier de Google OAuth2 Client Secret die je hebt gekregen van de google cloud console\"
@@ -145,7 +147,7 @@ AUTH_GITHUB_ID=\"Stop hier de GitHub OAuth2 Client ID die je hebt gekregen van d
 AUTH_GITHUB_SECRET=\"Stop hier de GitHub OAuth2 Client Secret die je hebt gekregen van de GitHub Developer Settings\"
 
 AUTH_SECRET=\"$random_string\"
-AUTH_URL=\"localhost:3000\"
+AUTH_URL=\"http://localhost:3000\"
 " >> .env
     chmod 644 .env
     echo "✅ .env bestand aangemaakt!"
