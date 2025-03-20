@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     authors: [{ name: "andrei1010", url: "https://andrei1010.me" }, { name: "supersiem" }],
     icons: [
         {
-            url: "/icon.png",
+            url: `${process.env.NEXT_PUBLIC_URL}/icon.png`,
             type: "image/png",
             rel: "icon"
         }
@@ -36,14 +36,18 @@ export const metadata: Metadata = {
         siteName: "PolarLearn",
         images: [
             {
-                url: "/banner.png",
+                url: `${process.env.NEXT_PUBLIC_URL}/banner.png`,
                 width: 1200,
                 height: 630,
                 alt: "PolarLearn banner dingo",
             },
         ],
-    }
+    },
 };
+
+export const viewport = {
+    themeColor: "#38bdf8",
+}
 
 export default async function RootLayout({
     children,

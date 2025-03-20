@@ -1,6 +1,7 @@
 {
   "name": "polarlearn",
-  "version": "0-ALPHA",
+  "version": "v1-PRERELEASE",
+  "description": "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
   "private": false,
   "scripts": {
     "dev": " next dev --turbopack",

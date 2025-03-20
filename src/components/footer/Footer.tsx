@@ -2,6 +2,7 @@ import { faCodeCommit } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitInfo, userInfo } from '@/utils/datatool';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import pkg from '@/../package.json';
 
 export default async function Footer() {
     const git = await gitInfo();
@@ -23,15 +24,18 @@ export default async function Footer() {
         <footer>
             <div>
                 <section className="w-full bg-neutral-800 pt-8 pb-8 drop-shadow-xl font-[family-name:var(--font-geist-sans)]">
-                    <div className="flex items-center space-x-2">
-                        <FontAwesomeIcon icon={faCodeCommit as IconProp} className='size-5' />
-                        <p>
-                            {loadingGit
-                                ? 'Git informatie laden...'
-                                : gitInfoData
-                                    ? `${gitInfoData.gitCommit}@${gitInfoData.gitBranch}`
-                                    : 'Kon Git informatie niet ophalen'}
-                        </p>
+                    <div className="flex flex-col space-x-2">
+                        <div className='flex items-center space-x-2'>
+                            <FontAwesomeIcon icon={faCodeCommit as IconProp} className='size-5' />
+                            <p>
+                                {loadingGit
+                                    ? 'Git informatie laden...'
+                                    : gitInfoData
+                                        ? `${gitInfoData.gitCommit}@${gitInfoData.gitBranch}`
+                                        : 'Kon Git informatie niet ophalen'}
+                            </p>
+                        </div>
+                        <p>PolarLearn versie: {pkg.version}</p>
                     </div>
                     {process.env.NODE_ENV === "development" && (
                         <>
