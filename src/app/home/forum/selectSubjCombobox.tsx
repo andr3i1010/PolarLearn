@@ -27,7 +27,7 @@ const defaultItems: ComboboxItem[] = [
     searchText: "Biologie",
   },
   {
-    value: "DU",
+    value: "DE",
     label: "Duits",
     searchText: "Duits",
   },

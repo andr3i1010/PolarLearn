@@ -99,13 +99,13 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
 
     // Use the top-level subject field from the practice model
     const subject = listData?.subject || 'general';
-    
+
     // Check if the subject is a language
     const isLanguageSubject = ['NL', 'EN', 'FR', 'DE'].includes(subject.toUpperCase());
-    
+
     // Get language names for display
     const getLanguageName = (code: string) => {
-        switch(code?.toUpperCase()) {
+        switch (code?.toUpperCase()) {
             case 'NL': return 'Nederlands';
             case 'EN': return 'Engels';
             case 'FR': return 'Frans';
@@ -113,10 +113,10 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             default: return code;
         }
     };
-    
+
     // Get language icon based on language code
     const getLanguageIcon = (code: string) => {
-        switch(code?.toUpperCase()) {
+        switch (code?.toUpperCase()) {
             case 'NL': return nl_img;
             case 'EN': return eng_img;
             case 'FR': return fr_img;
@@ -124,28 +124,28 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             default: return null;
         }
     };
-    
+
     // From and To language info
     const fromLanguage = listData?.lang_from ? getLanguageName(listData.lang_from) : '';
     const toLanguage = listData?.lang_to ? getLanguageName(listData.lang_to) : '';
-    
+
     // Get language icons
     const fromLanguageIcon = listData?.lang_from ? getLanguageIcon(listData.lang_from) : null;
     const toLanguageIcon = listData?.lang_to ? getLanguageIcon(listData.lang_to) : null;
-    
+
     // Handle the word pairs data - could be already an object or a JSON string
     let wordPairs: WordPair[] = [];
     if (listData?.data) {
         try {
             let parsedData: any;
-            
+
             // Check if data is already an object or needs parsing
             if (typeof listData.data === 'string') {
                 parsedData = JSON.parse(listData.data);
             } else {
                 parsedData = listData.data;
             }
-            
+
             // Verify the data is an array
             if (Array.isArray(parsedData)) {
                 // Type check the array elements
@@ -168,37 +168,37 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
     const practiceOptions: [React.ReactNode, string][] = [
         [
             <div key="leren" className="flex items-center">
-                <Image src={learn} alt="leren plaatje" width={20} height={20} className="mr-2"/>
+                <Image src={learn} alt="leren plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">Leren</span>
-            </div>, 
+            </div>,
             `/learn/learnlist/${(await params).id}`
         ],
         [
             <div key="toets" className="flex items-center">
-                <Image src={test} alt="toets plaatje" width={20} height={20} className="mr-2"/>
+                <Image src={test} alt="toets plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">Toets</span>
-            </div>, 
+            </div>,
             `/learn/test/${(await params).id}`
         ],
         [
             <div key="hints" className="flex items-center">
-                <Image src={hints} alt="hints plaatje" width={20} height={20} className="mr-2"/>
+                <Image src={hints} alt="hints plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">Hints</span>
-            </div>, 
+            </div>,
             `/learn/hints/${(await params).id}`
         ],
         [
             <div key="mind" className="flex items-center">
-                <Image src={mind} alt="mind plaatje" width={20} height={20} className="mr-2"/>
+                <Image src={mind} alt="mind plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">In gedachten</span>
-            </div>, 
+            </div>,
             `/learn/mind/${(await params).id}`
         ],
         [
             <div key="livequiz" className="flex items-center">
-                <Image src={livequiz} alt="livequiz plaatje" width={20} height={20} className="mr-2"/>
+                <Image src={livequiz} alt="livequiz plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">LiveQuiz</span>
-            </div>, 
+            </div>,
             `/learn/livequiz/${(await params).id}`
         ]
     ];
@@ -220,11 +220,11 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                                             <th className="px-6 py-3 w-1/2">
                                                 <div className="flex items-center justify-center">
                                                     {fromLanguageIcon && (
-                                                        <Image 
-                                                            src={fromLanguageIcon} 
-                                                            alt={`${fromLanguage} icoon`} 
-                                                            width={24} 
-                                                            height={24} 
+                                                        <Image
+                                                            src={fromLanguageIcon}
+                                                            alt={`${fromLanguage} icoon`}
+                                                            width={24}
+                                                            height={24}
                                                             className="mr-2"
                                                         />
                                                     )}
@@ -234,11 +234,11 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                                             <th className="px-6 py-3 w-1/2">
                                                 <div className="flex items-center justify-center">
                                                     {toLanguageIcon && (
-                                                        <Image 
-                                                            src={toLanguageIcon} 
-                                                            alt={`${toLanguage} icon`} 
-                                                            width={24} 
-                                                            height={24} 
+                                                        <Image
+                                                            src={toLanguageIcon}
+                                                            alt={`${toLanguage} icon`}
+                                                            width={24}
+                                                            height={24}
                                                             className="mr-2"
                                                         />
                                                     )}
@@ -311,7 +311,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             <div className="px-4 py-4">
                 <h1 className="text-4xl font-bold">
                     <SubjectIconWithSVG subject={subject} />
-                    {listData?.name}
+                    <span className="whitespace-normal break-words max-w-[40ch]">{listData?.name}</span>
                 </h1>
                 <div className="h-4" />
                 <div className="flex flex-col gap-4">
@@ -320,7 +320,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                         <div className="w-2" />
                         <Link className="text-sky-400" href={`/home/viewuser/${listData?.creator}`}>{listData?.creator}</Link>
                     </div>
-                    
+
                     <div className="relative h-12">
                         <Dropdown
                             text="Oefenen"
@@ -334,7 +334,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             <div className="pl-4">
                 <Tabs tabs={tabs} defaultActiveTab="woorden" />
             </div>
-            <div className="h-4"/>
+            <div className="h-4" />
         </div>
     )
 }

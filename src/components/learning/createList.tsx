@@ -23,6 +23,7 @@ import { ReactNode } from "react";
 import { createListAction } from "@/serverActions/createList";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation"; // Add router import
+import Link from "next/link";
 
 // Subject images //
 import nsk_img from '@/app/img/nask.svg';
@@ -278,8 +279,8 @@ export default function CreateListTool() {
     <>
       <div className="mx-2">
         {/* Added Back Button */}
-        <a
-          href="https://polarlearn.tech/home/start"
+        <Link
+          href="/home/start"
           className="fixed top-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-colors hover:bg-neutral-600"
         >
           <svg
@@ -297,7 +298,7 @@ export default function CreateListTool() {
               strokeLinejoin="round"
             />
           </svg>
-        </a>
+        </Link>
 
         <div className="h-3" />
         <form className="relative z-50">

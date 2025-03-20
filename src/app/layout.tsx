@@ -18,11 +18,31 @@ export const metadata: Metadata = {
     title: "PolarLearn",
     description: "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
     authors: [{ name: "andrei1010", url: "https://andrei1010.me" }, { name: "supersiem" }],
-    keywords: ["PolarLearn", "Leerprogramma", "StudyGo", "leren"],
-    creator: "andrei1010",
     icons: [
-        { rel: "icon", url: "/favicon.png" },
+        {
+            url: "/icon.png",
+            type: "image/png",
+            rel: "icon"
+        }
     ],
+    keywords: ["PolarLearn", "Leerprogramma", "StudyGo", "leren", "studeren", "studie", "school", "studenten", "gratis", "open-source"],
+    creator: "andrei1010",
+    openGraph: {
+        type: "website",
+        locale: "nl_NL",
+        url: "https://polarlearn.tech",
+        title: "PolarLearn",
+        description: "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
+        siteName: "PolarLearn",
+        images: [
+            {
+                url: "/banner.png",
+                width: 1200,
+                height: 630,
+                alt: "PolarLearn banner dingo",
+            },
+        ],
+    }
 };
 
 export default async function RootLayout({
@@ -55,6 +75,9 @@ export default async function RootLayout({
     `;
     return (
         <html lang="en" className={`${geistSans.className} antialiased`}>
+            <Head>
+                <link rel="icon" href="/favicon.png" />
+            </Head>
             <body
                 className={`antialiased flex flex-col min-h-screen `}
             >

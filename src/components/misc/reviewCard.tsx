@@ -1,4 +1,4 @@
-export default function ReviewCard({ stars, author, comment }: { stars: number; author: string; comment: string; }) {
+export default function ReviewCard({ stars, author, comment, smalltext = false }: { stars: number; author: string; comment: string; smalltext?: boolean }) {
     return (
         <>
             <div className="flex flex-col bg-neutral-800 h-64 w-72 m-auto rounded-lg p-5">
@@ -25,10 +25,16 @@ export default function ReviewCard({ stars, author, comment }: { stars: number; 
                         }
                     })}
                 </div>
-                <div className="h-4"/>
-                <p className="text-lg">
-                    {comment}
-                </p>
+                <div className="h-4" />
+                {smalltext ? (
+                    <p className="text-md">
+                        {comment}
+                    </p>
+                ) : (
+                    <p className="text-lg">
+                        {comment}
+                    </p>
+                )}
             </div>
         </>
     );

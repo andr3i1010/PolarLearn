@@ -14,6 +14,7 @@ import de_img from '@/app/img/pretzel.svg'
 import nl_img from '@/app/img/nl.svg'
 import gs_img from '@/app/img/history.svg'
 import bi_img from '@/app/img/bio.svg'
+import ak_img from '@/app/img/geography.svg'
 
 async function getRecentSubjects() {
   const user = await userInfo();
@@ -117,6 +118,13 @@ export default async function Start() {
         Biologie
       </span>
     ),
+    "AK": (
+      <span className="flex items-center">
+        <Image src={ak_img} alt={"aardrijkskunde plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Aardrijkskunde
+      </span>
+    ),
   };
 
   return (
@@ -174,43 +182,44 @@ export default async function Start() {
                 <>
                   {recentLists.map((list: any, index: number) => (
                     <div >
-                      <Link href={`/learn/viewlist/${list.list_id}`} key={index} >
-                        <div className="tile bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg h-20 flex items-center justify-between cursor-pointer">
-                          <div className="flex flex-col text-left">
-                            <div className="flex items-center">
-                              {list.subject && (
-                                <Image
-                                  src={
-                                    list.subject === "NL" ? nl_img :
-                                      list.subject === "DE" ? de_img :
-                                        list.subject === "FR" ? fr_img :
-                                          list.subject === "EN" ? eng_img :
-                                            list.subject === "WI" ? math_img :
-                                              list.subject === "NSK" ? nsk_img :
+                      <Link href={`/learn/viewlist/${list.list_id}`} key={index}>
+                        <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                          {/* Left: subject icon & listname */}
+                          <div className="flex items-center">
+                            {list.subject && (
+                              <Image
+                                src={
+                                  list.subject === "NL" ? nl_img :
+                                    list.subject === "DE" ? de_img :
+                                      list.subject === "FR" ? fr_img :
+                                        list.subject === "EN" ? eng_img :
+                                          list.subject === "WI" ? math_img :
+                                            list.subject === "NSK" ? nsk_img :
+                                              list.subject === "AK" ? ak_img :  // added geography subject case
                                                 list.subject === "GS" ? gs_img :
                                                   list.subject === "BI" ? bi_img : ''
-                                  }
-                                  alt={`${list.subject} icon`}
-                                  width={24}
-                                  height={24}
-                                  className="mr-2"
-                                />
-                              )}
-                              <span className="text-lg">{list.name}</span>
-                            </div>
+                                }
+                                alt={`${list.subject} icon`}
+                                width={24}
+                                height={24}
+                                className="mr-2"
+                              />
+                            )}
+                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">{list.name}</span>
                           </div>
 
-                          {list.creator && (
-                            <div className="flex items-center text-sm text-neutral-400">
-                              <CreatorLink creator={list.creator} />
-                            </div>
-                          )}
-
-                          <div className="text-neutral-400 text-sm">
+                          <div className="flex items-center">
                             {Array.isArray(list.data) && list.data.length === 1
                               ? "1 woord"
                               : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
                           </div>
+
+                          {/* Center: creator link absolutely centered */}
+                          {list.creator && (
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
+                              <CreatorLink creator={list.creator} />
+                            </div>
+                          )}
                         </div>
                       </Link>
                     </div>

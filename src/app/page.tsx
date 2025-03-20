@@ -31,6 +31,7 @@ import logo from '@/app/img/pl-500.png';
 
 import down from '@/app/img/down.svg';
 import shield from '@/app/img/secure-icon-marketing.svg';
+import banner from '@/../public/banner.png';
 
 // Butiful //
 import FirstMarketingComponent from '@/components/marketing/1';
@@ -62,7 +63,7 @@ export default function Home() {
                                 <br />
                                 <br />
                                 <div className='w-1/2 items-center justify-center'>
-                                    <h1 className="text-center  mt-6 flex-col sm:flex-row  text-4xl font-bold leading-tight bg-clip-text drop-down">
+                                    <h1 className="text-center mt-6 flex-col sm:flex-row  text-4xl font-bold leading-tight bg-clip-text drop-down">
                                         De gratis en Open-Source leerprogramma voor al je schoolvakken
                                         <br />
                                     </h1>
@@ -72,8 +73,13 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="ml-auto pr-5 flex items-center">
-                                <h1>Hier komt een plaatje te staan...</h1>
+                            <div className="pr-5 flex items-center absolute right-0 top-0 bottom-0">
+                                <Image
+                                    src={banner}
+                                    alt={"PolarLearn banner ding"}
+                                    width={700}
+                                    style={{ maxWidth: '100%', height: 'auto' }}
+                                />
                             </div>
                         </div>
                     </section>
@@ -197,7 +203,7 @@ export default function Home() {
                         <ReviewCard stars={5} author='kabab33' comment='Ik had een StudyGo abonnement, maar nu niet meer! Bedankt voor mijn € 95,88 per jaar besparen PolarLearn!' />
                         <ReviewCard stars={5} author='luna' comment="Mijn cijfers waren eerst heel slecht, maar sinds ik PolarLearn gebruik zijn ze super hoog!" />
                         <ReviewCard stars={2.5} author='waterliefhebber' comment="Te weinig water" />
-                        <ReviewCard stars={5} author='-Mohammed-' comment="Het forum is echt veel beter en fijner! Ik hoop dat iedereen naar PolarLearn gaat! Bij StudyGo haalde ik vijfen en vieren, maar nu ik PolarLearn gebruik, haal ik achten en negenen!" />
+                        <ReviewCard stars={5} author='-Mohammed-' comment="Het forum is echt veel beter en fijner! Ik hoop dat iedereen naar PolarLearn gaat! Bij StudyGo haalde ik vijfen en vieren, maar nu ik PolarLearn gebruik, haal ik achten en negenen!" smalltext={true} />
 
                     </div>
                 </Marquee>

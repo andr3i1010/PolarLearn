@@ -1,6 +1,7 @@
+import Link from "next/link"
 export default async function PlusBtn({ redir }: { redir: string }) {
     return (
-        <a href={redir}>
+        <Link href={redir}>
             <div className="bg-neutral-700 w-min h-min rounded-full flex justify-center hover:bg-neutral-600 transition-all">
                 <svg
                     width="40px"
@@ -27,6 +28,6 @@ export default async function PlusBtn({ redir }: { redir: string }) {
                     </g>
                 </svg>
             </div>
-        </a>
+        </Link>
     )
 }
