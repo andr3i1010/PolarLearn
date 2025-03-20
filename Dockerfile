@@ -4,6 +4,7 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install
 COPY . .
+COPY public /app/public
 RUN pnpx prisma generate
 RUN pnpm build
 
