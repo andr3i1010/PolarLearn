@@ -17,6 +17,7 @@ RUN pnpm install --prod
 COPY .git .git
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/.next .next
+COPY --from=builder /app/public /app/public
 COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
