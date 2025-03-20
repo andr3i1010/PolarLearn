@@ -1,17 +1,11 @@
 NextJS:
 https://nextjs.org/
 
-The book in the logo (Freepik):
-https://www.flaticon.com/free-icons/book
+The book in the logo:
+https://www.shareicon.net/book-text-learn-education-student-study-881771
 
 GitHub Copilot:
 https://copilot.github.com/
 
-Codeium:
-https://codeium.com/
-
 TailWindCSS gradient generator:
 https://www.creative-tim.com/twcomponents/gradient-generator
-
-Login page:
-https://flowbite.com/blocks/marketing/login/

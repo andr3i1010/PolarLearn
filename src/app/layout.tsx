@@ -5,9 +5,9 @@ import Footer from "@/components/footer/Footer";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/utils/auth";
 import { Geist } from "next/font/google";
-import { headers } from "next/headers";
 import ToastProvider from '@/components/toast/toast';
 import { WSProvider } from "../components/ws-provider";
+import Head from "next/head";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -17,6 +17,12 @@ const geistSans = Geist({
 export const metadata: Metadata = {
     title: "PolarLearn",
     description: "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
+    authors: [{ name: "andrei1010", url: "https://andrei1010.me" }, { name: "supersiem" }],
+    keywords: ["PolarLearn", "Leerprogramma", "StudyGo", "leren"],
+    creator: "andrei1010",
+    icons: [
+        { rel: "icon", url: "/favicon.png" },
+    ],
 };
 
 export default async function RootLayout({
@@ -24,8 +30,6 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const headerslist = await headers();
-    const currentPath = headerslist.get('x-current-path') || '/';
     const session = await auth();
     const art = `                                          
                                                __ 
@@ -69,7 +73,7 @@ export default async function RootLayout({
                                     <p className="text-xl">PolarLearn kan niet gebruikt worden op mobiele apparaten of op kleine schermen. Er wordt gewerkt aan deze functionaliteit.</p>
                                 </div>
                             </div>
-                            <TopNavBar pathname={currentPath} />
+                            <TopNavBar />
                             {children}
                             <footer className="mt-auto hidden md:block">
                                 {await Footer()}
