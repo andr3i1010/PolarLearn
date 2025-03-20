@@ -7,6 +7,8 @@ import Jdenticon from '@/components/Jdenticon';
 import { formatRelativeTime } from '@/utils/formatRelativeTime';
 import { auth } from "@/utils/auth";
 import DeletePostButton from "@/components/DeletePostButton";
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw'; // Import rehype-raw for processing raw HTML
 
 import {
   Pagination,
@@ -36,7 +38,7 @@ const subjectIconMap: Record<string, any> = {
   "NE": nl_img,
   "EN": eng_img,
   "FR": fr_img,
-  "DU": de_img, // Note: ForumDialog uses "DE" but we're using "DU" here
+  "DU": de_img, // Note: ForumDialog uses "DE" but we're using "DU" here  // waarom?
   "AK": ak_img,
   "GS": gs_img,
   "BI": bi_img,
@@ -248,32 +250,67 @@ export default async function ForumHome({
     {
       id: 'hoe',
       label: 'Hoe werkt het forum?',
-      content: <div>Hoe werkt het forum?
+      content: (
+        <ReactMarkdown
+          components={{
+            h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4" {...props} />,
+            h2: ({ node, ...props }) => <h2 className="text-3xl font-bold mb-3" {...props} />,
+            h3: ({ node, ...props }) => <h3 className="text-xl font-bold mb-2" {...props} />,
+            img: ({ src, alt, ...props }) => (
+              <img
+                src={src}
+                alt={alt || ""}
+                style={{ maxWidth: "100%", maxHeight: "400px", height: "auto" }}
+                {...props}
+              />
+            ),
+          }}
+          rehypePlugins={[rehypeRaw]} // Enable raw HTML processing
+        >
+          {`
+## Hoe werkt het forum?
+
 Welkom op ons leerforum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt.
 
-🔍 Zoeken naar antwoorden
-Voordat je een nieuwe vraag stelt, gebruik de zoekbalk om te kijken of jouw vraag al eerder is beantwoord. Dit bespaart tijd en helpt om dubbele vragen te voorkomen.
+### 🔍 Zoeken naar antwoorden
 
-❓ Vragen stellen
-Heb je een vraag? Plaats deze in de juiste categorie en wees zo duidelijk mogelijk. Hoe specifieker je vraag, hoe sneller en beter de antwoorden zullen zijn!
+Voordat je een nieuwe vraag stelt, gebruik de zoekbalk om te kijken of jouw vraag al eerder is beantwoord.<br />
+Dit bespaart tijd en helpt om dubbele vragen te voorkomen.
 
-Bij het stellen van een vraag kun je labels toevoegen om aan te geven of je vraag over school gaat of niet. Zo kunnen anderen makkelijker de juiste vragen vinden.
+### ❓ Vragen stellen
 
-💬 Antwoorden geven
-Help anderen door antwoorden te geven op vragen. Zorg ervoor dat je uitleg helder en behulpzaam is.
+Heb je een vraag? Plaats deze in de juiste categorie en wees zo duidelijk mogelijk.<br />
+Hoe specifieker je vraag, hoe sneller en beter de antwoorden zullen zijn!
 
-⭐ Punten verdienen
-Je verdient punten door actief bij te dragen:
-✅ Een goedgekeurd antwoord geven: +X punten
-👍 Een upvote ontvangen op jouw antwoord: +X punten
-❓ Een vraag stellen: +X punten
+Bij het stellen van een vraag kun je labels toevoegen om aan te geven of je vraag over school gaat of niet.<br />
+Zo kunnen anderen makkelijker de juiste vragen vinden.
 
-        Met punten verdien je prestaties die je als titel in kan stellen onder je naam! En het ziet er gewoon cool uit.
+### 💬 Antwoorden geven
 
-🚨 Moderatie
-Alleen vragen die choquerend, spam of beledigend zijn, worden verwijderd. In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan!
+Help anderen door antwoorden te geven op vragen.<br />
+Zorg ervoor dat je uitleg helder en behulpzaam is.
 
-Veel leerplezier! 🚀</div>
+### ⭐ Punten verdienen
+
+Je verdient punten door actief bij te dragen:<br />
+✅ Een goedgekeurd antwoord geven: +X punten<br />
+👍 Een upvote ontvangen op jouw antwoord: +X punten<br />
+❓ Een vraag stellen: +X punten<br />
+
+Met punten verdien je prestaties die je als titel in kan stellen onder je naam!<br />
+En het ziet er gewoon cool uit.
+
+### 🚨 Moderatie
+
+Alleen vragen die choquerend, spam of beledigend zijn, worden verwijderd.<br />
+In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan!
+
+---
+
+Veel leerplezier! 🚀
+    `}
+        </ReactMarkdown>
+      ),
     }
   ];
   let banned = false
@@ -292,8 +329,8 @@ Veel leerplezier! 🚀</div>
             Forum
           </h1>
           <div className="flex-grow"></div>
-          <ForumDialog 
-            banned={banned} 
+          <ForumDialog
+            banned={banned}
             banreason={user?.forumBanReason}
             banEnd={user?.forumBanEnd}  // pass new banEnd prop
           />
