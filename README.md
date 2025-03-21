@@ -50,7 +50,7 @@ Je kan voor PolarLearn kiezen, omdat:
 
 # Hoe kan je PolarLearn gebruiken?
 
-Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) (P.S: PolarLearn is nog niet officieel uit! Het domein bestaat nog niet 😉) te gaan. Hier kan je je aanmelden en beginnen met leren. Je kan ook PolarLearn zelf hosten door de code te downloaden en te volgen wat er in de wiki staat.
+Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) te gaan. Hier kan je je aanmelden en beginnen met leren. Je kan ook PolarLearn zelf hosten door de code te downloaden en te volgen wat er in de wiki staat.
 
 ---
 
