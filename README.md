@@ -1,6 +1,6 @@
 <div align="center">
   
-<img src="https://github.com/andr3i1010/PolarLearn/blob/stable/public/pl-500.png?raw=true" width=100/> <h1>PolarLearn</h1>
+<img src="https://github.com/andr3i1010/PolarLearn/blob/stable/public/icon.png?raw=true" width=100/> <h1>PolarLearn</h1>
 </div>
 
 <div align="center">
