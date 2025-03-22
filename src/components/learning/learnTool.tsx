@@ -96,7 +96,7 @@ export default function LearnTool({
     </motion.div>
   );
 
-  if (!["toets", "gedachten"].includes(mode)) {
+  if (!["toets", "gedachten", "hints"].includes(mode)) {
     return <p>Ongeldige modus geselecteerd.</p>;
   }
 
@@ -108,6 +108,22 @@ export default function LearnTool({
             <QuestionDisplay />
             {mode === "toets" ? (
               <>
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  className="border rounded p-2 w-60 border-neutral-700"
+                  placeholder='Antwoord komt hier'
+                />
+                <button
+                  onClick={handleAntwoordControleren}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
+                  aria-label="Controleer antwoord"
+                >
+                  Controleer antwoord
+                </button>
+              </>
+            ) : mode === "hints" ? (
+              <> <p>{lijstData[0].antwoord.length < 3 ? lijstData[0].antwoord : lijstData[0].antwoord.charAt(0) + '_'.repeat(lijstData[0].antwoord.length - 1) + lijstData[0].antwoord.charAt(lijstData[0].antwoord.length)}</p>
                 <Input
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
@@ -142,7 +158,6 @@ export default function LearnTool({
                     <div className="flex items-center flex-row">
                       <p>
                         het antwoord was <span className="pl-1 font-extrabold">{lijstData[0].antwoord}</span>, had je het goed?
-
                       </p>
                       <br />
                       <button
@@ -156,7 +171,6 @@ export default function LearnTool({
                         Ja!
                       </button>
                       <br />
-
                       <button
                         onClick={() => {
                           handleAntwoordControlerenGedachten(false);
@@ -167,7 +181,6 @@ export default function LearnTool({
                       >
                         Nee
                       </button>
-
                     </div>
                   </motion.div>
                 )}
@@ -178,7 +191,7 @@ export default function LearnTool({
           <p>Gefeliciteerd! Alle vragen beantwoord.</p>
         )}
         {showCorrect && <AnswerOverlay correct={true} />}
-        {toonAntwoord && mode === "toets" && <AnswerOverlay correct={false} />}
+        {toonAntwoord && (mode === "toets" || mode === "hints") && <AnswerOverlay correct={false} />}
       </div>
     </div>
   );
