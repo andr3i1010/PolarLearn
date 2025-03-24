@@ -149,7 +149,7 @@ use $DB_NAME;
 db.test_collection.insertOne({ created: new Date() });
 "  > /dev/null 2>&1
 echo "✅ db aangemaakt"
-
+echo "🚀 Starten met install van node packages (Dit kan heel lang duren)"
 # Verberg npm logs
 npm i --legacy-peer-deps > /dev/null 2>&1
 
