@@ -25,9 +25,6 @@ install_mongodb() {
                 sudo apt update && sudo apt install -y mongodb
             elif command dnf --version &> /dev/null; then
                 sudo dnf install -y mongodb
-            elif command brew -v &> /dev/null; then
-                brew tap mongodb/brew
-                brew install mongodb-community@8.0
             else
                 echo "❌ Geen compatibele package manager gevonden!"
                 exit 1
