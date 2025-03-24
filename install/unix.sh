@@ -19,19 +19,32 @@ install_mongodb() {
     fi
 
     echo "🚀 MongoDB installeren..."
-    if [ "$OS_TYPE" == "macOS" ]; then
-        brew tap mongodb/brew
-        brew install mongodb-community@8.0
-    elif [ "$OS_TYPE" == "Linux" ]; then
-        if command -v apt &> /dev/null; then
-            sudo apt update && sudo apt install -y mongodb
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y mongodb
-        else
-            echo "❌ Geen compatibele package manager gevonden!"
-            exit 1
-        fi
-    fi
+    case "$OSTYPE" in
+    "linux"* )
+        if command apt -v &> /dev/null; then
+                sudo apt update && sudo apt install -y mongodb
+            elif command dnf --version &> /dev/null; then
+                sudo dnf install -y mongodb
+            elif command brew -v &> /dev/null; then
+                brew tap mongodb/brew
+                brew install mongodb-community@8.0
+            else
+                echo "❌ Geen compatibele package manager gevonden!"
+                exit 1
+        fi ;;
+
+    "darwin"* )
+        #macos. niet zeker of ook moderne versies darwin zijn maar ik heb geen manier om te checken
+        if command brew -v &> /dev/null; then
+                brew tap mongodb/brew
+                brew install mongodb-community@8.0
+            else
+                echo "❌ Geen compatibele package manager gevonden!"
+                exit 1
+        fi ;;
+    * )
+        echo '❌ Geen compatibele os gevonden!'
+esac
 
     if ! command -v mongod &> /dev/null; then
         echo "❌ MongoDB installatie is mislukt!"
@@ -47,19 +60,29 @@ install_node() {
     fi
 
     echo "🚀 Node.js installeren..."
-    if [ "$OS_TYPE" == "macOS" ]; then
-        brew install node
-    elif [ "$OS_TYPE" == "Linux" ]; then
-        if command -v apt &> /dev/null; then
-            sudo apt update && sudo apt install -y nodejs
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y nodejs
-        else
+    case "$OSTYPE" in
+    "linux"* )
+            if command -v apt &> /dev/null; then
+                sudo apt update && sudo apt install -y nodejs
+            elif command -v dnf &> /dev/null; then
+                sudo dnf install -y nodejs
+                elif command brew -v &> /dev/null; then
+                    brew install node
+            else
+                echo "❌ Geen compatibele package manager gevonden!"            
+                exit 1
+        fi ;;
+    "darwin"* )
+        #macos. niet zeker of ook moderne versies darwin zijn maar ik heb geen manier om te checken
+        if command brew -v &> /dev/null; then
+                brew install node
+            else 
             echo "❌ Geen compatibele package manager gevonden!"            
-            exit 1
-        fi
-    fi
-
+                exit 1
+        fi ;;
+    * )
+        echo '❌ OS type niet gevonden.'
+esac
     if ! command -v node &> /dev/null; then
         echo "❌ Node.js installatie is mislukt!"
         exit 1
