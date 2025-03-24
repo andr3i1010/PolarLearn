@@ -25,6 +25,9 @@ install_mongodb() {
                 sudo apt update && sudo apt install -y mongodb
             elif command dnf --version &> /dev/null; then
                 sudo dnf install -y mongodb
+            elif command yay --version &> /dev/null; then
+            #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
+                yay -S aur/mongodb-bin
             else
                 echo "❌ Geen compatibele package manager gevonden!"
                 exit 1
@@ -65,6 +68,9 @@ install_node() {
                 sudo dnf install -y nodejs
                 elif command brew -v &> /dev/null; then
                     brew install node
+                elif command yay --version &> /dev/null; then
+                #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
+                    yay -S extra/nodejs
             else
                 echo "❌ Geen compatibele package manager gevonden!"            
                 exit 1
