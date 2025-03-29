@@ -79,9 +79,11 @@ function isWordPairArray(arr: any[]): arr is WordPair[] {
 }
 
 const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) => {
+    // Capture id once to use on multiple locations.
+    const { id } = params;
     const listData = await prisma.practice.findFirst({
         where: {
-            list_id: (await params).id
+            list_id: id
         },
         select: {
             list_id: true,
@@ -171,35 +173,35 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                 <Image src={learn} alt="leren plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">Leren</span>
             </div>,
-            `/learn/learnlist/${(await params).id}`
+            `/learn/learnlist/${id}`
         ],
         [
             <div key="toets" className="flex items-center">
                 <Image src={test} alt="toets plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">Toets</span>
             </div>,
-            `/learn/test/${(await params).id}`
+            `/learn/test/${id}`
         ],
         [
             <div key="hints" className="flex items-center">
                 <Image src={hints} alt="hints plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">Hints</span>
             </div>,
-            `/learn/hints/${(await params).id}`
+            `/learn/hints/${id}`
         ],
         [
             <div key="mind" className="flex items-center">
                 <Image src={mind} alt="mind plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">In gedachten</span>
             </div>,
-            `/learn/mind/${(await params).id}`
+            `/learn/mind/${id}`
         ],
         [
             <div key="livequiz" className="flex items-center">
                 <Image src={livequiz} alt="livequiz plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">LiveQuiz</span>
             </div>,
-            `/learn/livequiz/${(await params).id}`
+            `/learn/livequiz/${id}`
         ]
     ];
 

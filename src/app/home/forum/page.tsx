@@ -1,14 +1,14 @@
-import Tabs, { TabItem } from '@/components/Tabs';
-import { prisma } from '@/utils/prisma';
-import ForumDialog from './ForumDialog';
-import Image from 'next/image';
-import Link from 'next/link';
-import Jdenticon from '@/components/Jdenticon';
-import { formatRelativeTime } from '@/utils/formatRelativeTime';
-import { auth } from "@/utils/auth";
+import Tabs, { TabItem } from "@/components/Tabs";
+import { prisma } from "@/utils/prisma";
+import ForumDialog from "./ForumDialog";
+import Image from "next/image";
+import Link from "next/link";
+import Jdenticon from "@/components/Jdenticon";
+import { formatRelativeTime } from "@/utils/formatRelativeTime";
+import { getUserFromSession } from "@/utils/auth/auth";
 import DeletePostButton from "@/components/DeletePostButton";
-import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw'; // Import rehype-raw for processing raw HTML
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw"; // Import rehype-raw for processing raw HTML
 
 import {
   Pagination,
@@ -18,56 +18,62 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
 
 // Import the subject icons
-import nsk_img from '@/app/img/nask.svg';
-import math_img from '@/app/img/math.svg';
-import eng_img from '@/app/img/english.svg';
-import fr_img from '@/app/img/baguette.svg';
-import de_img from '@/app/img/pretzel.svg';
-import nl_img from '@/app/img/nl.svg';
-import ak_img from '@/app/img/geography.svg';
-import gs_img from '@/app/img/history.svg';
-import bi_img from '@/app/img/bio.svg';
+import nsk_img from "@/app/img/nask.svg";
+import math_img from "@/app/img/math.svg";
+import eng_img from "@/app/img/english.svg";
+import fr_img from "@/app/img/baguette.svg";
+import de_img from "@/app/img/pretzel.svg";
+import nl_img from "@/app/img/nl.svg";
+import ak_img from "@/app/img/geography.svg";
+import gs_img from "@/app/img/history.svg";
+import bi_img from "@/app/img/bio.svg";
+import { cookies } from "next/headers";
+import MarkdownRenderer from "@/components/md";
 
 // Create a map for subject icons
 const subjectIconMap: Record<string, any> = {
-  "WI": math_img,
-  "NSK": nsk_img,
-  "NE": nl_img,
-  "EN": eng_img,
-  "FR": fr_img,
-  "DU": de_img, // Note: ForumDialog uses "DE" but we're using "DU" here  // waarom?
-  "AK": ak_img,
-  "GS": gs_img,
-  "BI": bi_img,
+  WI: math_img,
+  NSK: nsk_img,
+  NE: nl_img,
+  EN: eng_img,
+  FR: fr_img,
+  DU: de_img, // Note: ForumDialog uses "DE" but we're using "DU" here  // waarom?
+  AK: ak_img,
+  GS: gs_img,
+  BI: bi_img,
 };
 
 // Subject labels
 const subjectLabelMap: Record<string, string> = {
-  "AK": "Aardrijkskunde",
-  "BI": "Biologie",
-  "DU": "Duits",
-  "EN": "Engels",
-  "FR": "Frans",
-  "GS": "Geschiedenis",
-  "NA": "Natuurkunde",
-  "NSK": "NaSk",
-  "NE": "Nederlands",
-  "SK": "Scheikunde",
-  "WI": "Wiskunde"
+  AK: "Aardrijkskunde",
+  BI: "Biologie",
+  DU: "Duits",
+  EN: "Engels",
+  FR: "Frans",
+  GS: "Geschiedenis",
+  NA: "Natuurkunde",
+  NSK: "NaSk",
+  NE: "Nederlands",
+  SK: "Scheikunde",
+  WI: "Wiskunde",
 };
 
 export default async function ForumHome({
-  searchParams
-}: { searchParams: Promise<{ page?: string }> }) {
-  const session = await auth()
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const session = await getUserFromSession(
+    (await cookies()).get("polarlearn.session-id")!.value
+  );
   const user = await prisma.user.findFirst({
     where: {
-      name: session!.user.name as string
-    }
-  })
+      name: session!.name,
+    },
+  });
   const params = await searchParams;
   const page = parseInt(params.page as string) || 1;
   const take = 20;
@@ -77,35 +83,32 @@ export default async function ForumHome({
   const [forumPosts, totalPosts] = await Promise.all([
     prisma.forum.findMany({
       where: { type: "thread" },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       skip,
-      take
+      take,
     }),
     prisma.forum.count({
-      where: { type: "thread" }
-    })
+      where: { type: "thread" },
+    }),
   ]);
 
   const totalPages = Math.ceil(totalPosts / take);
 
-  const currentUsername = session?.user?.name || null;
+  const currentUsername = session?.name;
 
   // Get unique creator IDs from forum posts
-  const creatorIds = [...new Set(forumPosts.map(post => post.creator))];
+  const creatorIds = [...new Set(forumPosts.map((post) => post.creator))];
 
   // Also try to fetch users by name in case creator contains usernames
   const users = await prisma.user.findMany({
     where: {
-      OR: [
-        { id: { in: creatorIds } },
-        { name: { in: creatorIds } }
-      ]
+      OR: [{ id: { in: creatorIds } }, { name: { in: creatorIds } }],
     },
     select: {
       id: true,
       name: true,
-      image: true
-    }
+      image: true,
+    },
   });
 
   // Create maps for both ID and name lookups
@@ -121,28 +124,27 @@ export default async function ForumHome({
 
   const tabs: TabItem[] = [
     {
-      id: 'alle',
-      label: 'Alle vragen',
+      id: "alle",
+      label: "Alle vragen",
       content: (
         <>
           <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
             {forumPosts.map((post) => {
-              const user = userMapById[post.creator] || userMapByName[post.creator];
+              const user =
+                userMapById[post.creator] || userMapByName[post.creator];
               const subjectIcon = subjectIconMap[post.subject];
-              const subjectLabel = subjectLabelMap[post.subject] || post.subject;
+              const subjectLabel =
+                subjectLabelMap[post.subject] || post.subject;
               const relativeTime = formatRelativeTime(post.createdAt);
 
-
               // Check if current user is the creator - with more flexibility
-              const isPostCreator = currentUsername === post.creator ||
+              const isPostCreator =
+                currentUsername === post.creator ||
                 (user?.name && currentUsername === user.name);
 
               return (
                 <div key={post.post_id} className="relative">
-                  <Link
-                    href={`/home/forum/${post.post_id}`}
-                    className="block"
-                  >
+                  <Link href={`/home/forum/${post.post_id}`} className="block">
                     <div
                       className={`border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-center cursor-pointer`}
                     >
@@ -150,7 +152,7 @@ export default async function ForumHome({
                         {user?.image ? (
                           <Image
                             src={user.image}
-                            alt={`de profielfoto van ${user.name || 'iemand'}`}
+                            alt={`de profielfoto van ${user.name || "iemand"}`}
                             width={40}
                             height={40}
                             className="rounded-full"
@@ -177,7 +179,9 @@ export default async function ForumHome({
                           <span className="mx-1.5">•</span>
                           <span className="text-gray-500">{relativeTime}</span>
                           <span className="mx-1.5">•</span>
-                          <span className="text-gray-500">Door: {user?.name || post.creator}</span>
+                          <span className="text-gray-500">
+                            Door: {user?.name || post.creator}
+                          </span>
                         </div>
                         <h3 className="font-medium text-lg">{post.title}</h3>
                       </div>
@@ -211,18 +215,19 @@ export default async function ForumHome({
                 </PaginationPrevious>
                 {/* Render page numbers */}
                 <PaginationContent>
-                  {
-                    Array.from({ length: totalPages }, (_, i) => {
-                      const pageNum = i + 1;
-                      return (
-                        <PaginationItem key={pageNum}>
-                          <PaginationLink href={`?page=${pageNum}`} isActive={pageNum === page}>
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })
-                  }
+                  {Array.from({ length: totalPages }, (_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink
+                          href={`?page=${pageNum}`}
+                          isActive={pageNum === page}
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
                 </PaginationContent>
                 <PaginationNext>
                   {page === totalPages ? (
@@ -235,40 +240,27 @@ export default async function ForumHome({
             </div>
           )}
         </>
-      )
+      ),
     },
     {
-      id: 'mijn',
-      label: 'Mijn vragen',
-      content: <div>Content for Mijn vragen</div>
+      id: "mijn",
+      label: "Mijn vragen",
+      content: <div>Content for Mijn vragen</div>,
     },
     {
-      id: 'antwoorden',
-      label: 'Mijn antwoorden',
-      content: <div>Content for Mijn antwoorden</div>
+      id: "antwoorden",
+      label: "Mijn antwoorden",
+      content: <div>Content for Mijn antwoorden</div>,
     },
     {
-      id: 'hoe',
-      label: 'Hoe werkt het forum?',
+      id: "hoe",
+      label: "Hoe werkt het forum?",
       content: (
-        <ReactMarkdown
-          components={{
-            h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4" {...props} />,
-            h2: ({ node, ...props }) => <h2 className="text-3xl font-bold mb-3" {...props} />,
-            h3: ({ node, ...props }) => <h3 className="text-xl font-bold mb-2" {...props} />,
-            img: ({ src, alt, ...props }) => (
-              <img
-                src={src}
-                alt={alt || ""}
-                style={{ maxWidth: "100%", maxHeight: "400px", height: "auto" }}
-                {...props}
-              />
-            ),
-          }}
-          rehypePlugins={[rehypeRaw]} // Enable raw HTML processing
-        >
-          {`
+        <MarkdownRenderer
+          content={`
 ## Hoe werkt het forum?
+
+---
 
 Welkom op ons leerforum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt.
 
@@ -292,10 +284,11 @@ Zorg ervoor dat je uitleg helder en behulpzaam is.
 
 ### ⭐ Punten verdienen
 
-Je verdient punten door actief bij te dragen:<br />
-✅ Een goedgekeurd antwoord geven: +X punten<br />
-👍 Een upvote ontvangen op jouw antwoord: +X punten<br />
-❓ Een vraag stellen: +X punten<br />
+Je verdient punten door actief bij te dragen:
+
+* ✅ Een goedgekeurd antwoord geven: **+50** punten!
+* 👍 Een upvote ontvangen op jouw antwoord: +1 punt
+* ❓ Een vraag stellen: +10 punten
 
 Met punten verdien je prestaties die je als titel in kan stellen onder je naam!<br />
 En het ziet er gewoon cool uit.
@@ -309,32 +302,31 @@ In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over sc
 
 Veel leerplezier! 🚀
     `}
-        </ReactMarkdown>
+        >
+        </MarkdownRenderer>
       ),
-    }
+    },
   ];
-  let banned = false
+  let banned = false;
   if (!user!.forumAllowed || !user!.loginAllowed) {
     // return {
     //   success: false,
     //   error: `Je bent ${user!.forumBanEnd ? `tot ${user!.forumBanEnd}` : 'permanent'} verbannen van PolarLearn's forums. Reden:`
     // };
-    banned = true
+    banned = true;
   }
   return (
     <>
       <div className="py-6 pl-6">
-        <div className='flex items-center'>
-          <h1 className="text-4xl font-extrabold mb-4">
-            Forum
-          </h1>
+        <div className="flex items-center">
+          <h1 className="text-4xl font-extrabold mb-4">Forum</h1>
           <div className="flex-grow"></div>
           <ForumDialog
             banned={banned}
             banreason={user?.forumBanReason}
-            banEnd={user?.forumBanEnd}  // pass new banEnd prop
+            banEnd={user?.forumBanEnd} // pass new banEnd prop
           />
-          <div className='w-4' />
+          <div className="w-4" />
         </div>
         <Tabs tabs={tabs} defaultActiveTab="alle" />
       </div>

@@ -1,19 +1,35 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-export function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
-    const isMaintenance = process.env.MAINTENANCE_MODE === "true";
+import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-    const currentPath = pathname;
-    const response = NextResponse.next();
-    response.headers.set('x-current-path', currentPath);
-    if (response.status >= 400 && response.status < 600) {
-        const errorUrl = new URL('/error', request.url);
-        return NextResponse.redirect(errorUrl);
+export async function middleware(request: NextRequest) {
+    const resp = (await middlewareAuth(request)) ?? NextResponse.next();
+    return resp;
+}
+
+async function middlewareAuth(request: NextRequest) {
+    if (
+        request.nextUrl.pathname.startsWith("/home") ||
+        request.nextUrl.pathname.startsWith("/learn") ||
+        request.nextUrl.pathname.startsWith("/admin")
+    ) {
+        // Capture cookie header
+        const cookieHeader = request.headers.get("cookie") || "";
+        const result = await fetch(new URL('/api/auth/middleware', request.url), {
+            method: 'PATCH',
+            headers: {
+                'x-internal-secret': process.env.PEPPER as string,
+                cookie: cookieHeader,
+            }
+        });
+        // console.log(await result)
+        if (result.ok) return NextResponse.next();
+        else return NextResponse.redirect(new URL('/auth/sign-in', request.url));
     }
-    return response;
 }
 
 export const config = {
-    matcher: '/:path*',
+    matcher: [
+        // Skip Next.js internals and all static files, unless found in search params
+        "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    ],
 };

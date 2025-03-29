@@ -7,7 +7,6 @@ export default async function Page({
 }: {
     params: Promise<{ id: string }>;
 }) {
-    // Remove await—params is provided synchronously
     const { id } = await params;
     const listdata = await prisma.practice.findFirst({
         where: { list_id: id },

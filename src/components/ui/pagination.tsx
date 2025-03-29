@@ -42,7 +42,7 @@ type PaginationLinkProps = {
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
   React.ComponentProps<"a">
 
-function PaginationLink({
+const MemoizedPaginationLink = React.memo(function PaginationLink({
   className,
   isActive,
   size = "icon",
@@ -63,14 +63,14 @@ function PaginationLink({
       {...props}
     />
   )
-}
+});
 
 function PaginationPrevious({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: React.ComponentProps<typeof MemoizedPaginationLink>) {
   return (
-    <PaginationLink
+    <MemoizedPaginationLink
       aria-label="Go to previous page"
       size="default"
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
@@ -78,16 +78,16 @@ function PaginationPrevious({
     >
       <ChevronLeftIcon />
       <span className="hidden sm:block">Vorige</span>
-    </PaginationLink>
+    </MemoizedPaginationLink>
   )
 }
 
 function PaginationNext({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: React.ComponentProps<typeof MemoizedPaginationLink>) {
   return (
-    <PaginationLink
+    <MemoizedPaginationLink
       aria-label="Go to next page"
       size="default"
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
@@ -95,7 +95,7 @@ function PaginationNext({
     >
       <span className="hidden sm:block">Volgende</span>
       <ChevronRightIcon />
-    </PaginationLink>
+    </MemoizedPaginationLink>
   )
 }
 
@@ -119,7 +119,7 @@ function PaginationEllipsis({
 export {
   Pagination,
   PaginationContent,
-  PaginationLink,
+  MemoizedPaginationLink as PaginationLink,
   PaginationItem,
   PaginationPrevious,
   PaginationNext,

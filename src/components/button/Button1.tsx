@@ -12,6 +12,11 @@ interface ButtonProps {
   disabled?: boolean; // Add disabled prop
 }
 
+// Add missing cn utility if not available in your project
+function cn(...classes: (string | boolean | undefined)[]): string {
+  return classes.filter(Boolean).join(' ');
+}
+
 const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, useClNav, onClick, disabled = false }) => {
   const handleClick = () => {
     if (redirectTo && !useClNav && !disabled) {
@@ -61,10 +66,5 @@ const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, use
     </div>
   );
 };
-
-// Add missing cn utility if not available in your project
-function cn(...classes: (string | boolean | undefined)[]): string {
-  return classes.filter(Boolean).join(' ');
-}
 
 export default Button1;

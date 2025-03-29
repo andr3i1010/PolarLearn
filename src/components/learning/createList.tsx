@@ -127,7 +127,6 @@ export default function CreateListTool() {
   const addPair = () => {
     setPairs([...pairs, { id: nextId, "1": '', "2": '' }]);
     setNextId(nextId + 1);
-    console.log(pairs)
   };
 
   const removePair = (id: number) => {
@@ -252,7 +251,6 @@ export default function CreateListTool() {
     };
     try {
       const data = await createListAction(listData);
-      console.log("List published", data);
       toast.success("Lijst succesvol geüpload.");
       if (data && typeof data === 'object' && 'list_id' in data) {
         router.push(`/learn/viewlist/${data.list_id}`);

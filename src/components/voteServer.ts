@@ -1,19 +1,20 @@
 "use server"
 
 import { prisma } from "@/utils/prisma"
-import { auth } from "@/utils/auth"
+import { getUserFromSession } from "@/utils/auth/auth"
 import { revalidatePath } from "next/cache"
+import { cookies } from "next/headers"
 
 type VoteDirection = "up" | "down" | null
 
 export default async function VoteServer(postId: string, direction: VoteDirection) {
   try {
-    const session = await auth()
+    const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value)
 
-    if (!session?.user) {
+    if (!session) {
       throw new Error("Unauthorized")
     }
-    const user = session.user.name
+    const user = session.name
 
     if (!user) {
       throw new Error("User ID not found in session")

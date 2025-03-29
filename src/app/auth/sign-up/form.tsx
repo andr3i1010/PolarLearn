@@ -1,9 +1,11 @@
 "use client"
 import Button1 from "@/components/button/Button1";
-import { redirect } from "next/navigation";
 import { toast } from "react-toastify";
 import type { Metadata } from 'next'
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createUserCredentials } from "@/utils/auth/user";
+import { createSession } from "@/utils/auth/session";
 
 export const metadata: Metadata = {
   title: 'PolarLearn - Account aanmaken',
@@ -12,11 +14,11 @@ export const metadata: Metadata = {
 
 export default function SignUpForm() {
   const [usernameError, setUsernameError] = useState("");
-  
+
   const delay = (ms: number) => new Promise(
     resolve => setTimeout(resolve, ms)
   );
-  
+
   const validateUsername = (username: string) => {
     if (username.includes(" ")) {
       setUsernameError("Gebruikersnaam mag geen spaties bevatten");
@@ -25,36 +27,35 @@ export default function SignUpForm() {
     setUsernameError("");
     return true;
   };
-  
+
+  const router = useRouter();
+
   return (
     <form className="space-y-4 md:space-y-6"
       action={async (formData) => {
         const username = formData.get("username") as string;
-        
+
         if (!validateUsername(username)) {
-          return; // Stop form submission
+          return;
         }
-        
-        const email = formData.get("email");
-        const password = formData.get("password");
-        const response = await fetch("/api/auth/create", {
-          method: "POST",
-          body: JSON.stringify({
-            username,
-            email,
-            password
-          })
-        });
-        if (response.ok) {
-          toast.success("Account aangemaakt!");
-          await delay(5000);
-          redirect("/auth/sign-in");
-        } else {
-          if (response.status === 400) {
-            toast.error("Gebruiker bestaat al");
-          } else if (response.status === 500) {
-            toast.error("🚨 Interne serverfout!");
+
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+
+        try {
+          interface User {
+            userdata: {
+              id: string;
+            };
           }
+          const user = await createUserCredentials(username, email, password) as User;
+          toast.success("Account succesvol aangemaakt!");
+          await createSession(user.userdata.id)
+          await delay(1500);
+          router.push("/auth/sign-in");
+        } catch (error) {
+          console.error("Error creating user:", error);
+          toast.error("Er is een fout opgetreden bij het aanmaken van het account.");
         }
       }}
     >

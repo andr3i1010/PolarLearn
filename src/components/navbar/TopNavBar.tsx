@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.png";
@@ -16,14 +16,15 @@ export function TopNavBar() {
     const [isMdOrSmaller, setIsMdOrSmaller] = useState<boolean>(false);
     const pathname = usePathname()
 
+    const handleResize = useCallback(() => {
+        setIsMdOrSmaller(window.innerWidth < 1024);
+    }, [])
+
     useEffect(() => {
-        function handleResize() {
-            setIsMdOrSmaller(window.innerWidth < 1024);
-        }
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    }, [handleResize]);
 
     // Render minimal empty bottom navbar for md screens and smaller
     if (isMdOrSmaller) {
