@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useTransition } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import GoogleLogin from "@/components/button/logInGoogle";
 import GithubLogin from "@/components/button/loginGithub";
