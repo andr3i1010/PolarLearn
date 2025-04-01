@@ -52,11 +52,11 @@ function SortableItem({
   children: (props: { dragListeners: any }) => React.ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  const style: React.CSSProperties = { // NEW: updated z-index values 
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     position: "relative",
-    zIndex: isDragging ? 10001 : 300, // when dragging, use 10001 to go above inputs and dropdowns
+    zIndex: isDragging ? 1000 : 300, // lowered z-index when dragging
   };
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
@@ -308,7 +308,7 @@ export default function CreateListTool() {
         </Link>
 
         <div className="h-3" />
-        <form className="relative z-[10000]">
+        <form className="relative z-[1000]">
           <div className="flex flex-row gap-4">
             <Dropdown
               ref={dropdownRef}
@@ -486,6 +486,7 @@ export default function CreateListTool() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                  style={{ zIndex: 1000 }} // lowered z-index
                 >
                   <SortableItem id={pair.id}>
                     {({ dragListeners }) => (

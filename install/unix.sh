@@ -29,7 +29,7 @@ install_mongodb() {
             #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
                 yay -S aur/mongodb-bin
             else
-                echo "❌ Geen compatibele package manager gevonden!"
+                echo "❌ Geen compatibele package manager/distro gevonden!"
                 exit 1
         fi ;;
 
@@ -43,7 +43,7 @@ install_mongodb() {
                 exit 1
         fi ;;
     * )
-        echo '❌ Geen compatibele os gevonden!'
+        echo '❌ Geen compatibele OS gevonden! (hoe voer je dit script dan uit!?)'
 esac
 
     if ! command -v mongod &> /dev/null; then
@@ -80,11 +80,11 @@ install_node() {
         if command brew -v &> /dev/null; then
                 brew install node
             else 
-            echo "❌ Geen compatibele package manager gevonden!"            
+            echo "❌ Geen compatibele package manager gevonden! Installeer brew via https://brew.sh/"            
                 exit 1
         fi ;;
     * )
-        echo '❌ OS type niet gevonden.'
+        echo '❌ Oeps! Dit script is niet geconfigureerd voor jouw OS. Probeer het handmatig te installeren.'
 esac
     if ! command -v node &> /dev/null; then
         echo "❌ Node.js installatie is mislukt!"
