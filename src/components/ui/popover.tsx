@@ -38,6 +38,7 @@ function PopoverContent({
     </PopoverPrimitive.Portal>
   )
 }
+const MemoizedPopoverContent = React.memo(PopoverContent)
 
 function PopoverAnchor({
   ...props
@@ -45,4 +46,4 @@ function PopoverAnchor({
   return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />
 }
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor }
+export { Popover, PopoverTrigger, MemoizedPopoverContent as PopoverContent, PopoverAnchor }

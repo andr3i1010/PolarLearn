@@ -1,17 +1,18 @@
 "use server"
 
 import { prisma } from "@/utils/prisma"
-import { auth } from "@/utils/auth"
+import { getUserFromSession } from "@/utils/auth/auth"
 import { v4 as uuidv4 } from 'uuid'
+import { cookies } from "next/headers"
 
 export async function createReply(postId: string, content: string) {
-  const session = await auth()
+  const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value)
 
-  if (!session || !session.user || !session.user.name) {
+  if (!session || !session.name) {
     throw new Error("You must be logged in to reply")
   }
 
-  let gebruiker = await prisma.user.findFirst({ where: { name: session.user.name as string } })
+  let gebruiker = await prisma.user.findFirst({ where: { name: session.name as string } })
   if (!gebruiker || !gebruiker.loginAllowed || !gebruiker.forumAllowed) {
     throw new Error("je bent verbannen van PolarLearn")
   }
@@ -36,7 +37,7 @@ export async function createReply(postId: string, content: string) {
       title: `Re: ${originalPost.title}`,
       subject: originalPost.subject,
       content: content,
-      creator: session.user.name,
+      creator: session.name,
       votes: 0,
       votes_data: { users: {} }
     }
@@ -46,9 +47,9 @@ export async function createReply(postId: string, content: string) {
 }
 
 export async function deletePost(postId: string) {
-  const session = await auth()
+  const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value)
 
-  if (!session || !session.user || !session.user.name) {
+  if (!session || !session.name) {
     throw new Error("You must be logged in to delete a post")
   }
 
@@ -64,7 +65,7 @@ export async function deletePost(postId: string) {
   }
 
   // More flexible creator check
-  const isCreator = post.creator === session.user.name || post.creator === session.user.id;
+  const isCreator = post.creator === session.name || post.creator === session.id;
 
   if (!isCreator) {
     // Try to find the user by ID to see if they match
@@ -73,7 +74,7 @@ export async function deletePost(postId: string) {
       select: { name: true }
     });
 
-    if (user?.name !== session.user.name) {
+    if (user?.name !== session.name) {
       throw new Error("You can only delete your own posts");
     }
   }

@@ -1,9 +1,11 @@
+
 import { prisma } from "@/utils/prisma";
-import { userInfo } from '@/utils/datatool';
 import Image from 'next/image';
 import PlusBtn from "@/components/button/plus";
 import Link from 'next/link';
 import CreatorLink from "@/components/links/CreatorLink";
+import { getUserFromSession } from "@/utils/auth/auth";
+import { cookies } from "next/headers";
 
 // Subject images //
 import nsk_img from '@/app/img/nask.svg'
@@ -17,7 +19,7 @@ import bi_img from '@/app/img/bio.svg'
 import ak_img from '@/app/img/geography.svg'
 
 async function getRecentSubjects() {
-  const user = await userInfo();
+  const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
   const account = await prisma.user.findUnique({
     where: { id: user?.id },
   });
@@ -25,7 +27,7 @@ async function getRecentSubjects() {
 }
 
 async function getRecentLists() {
-  const user = await userInfo();
+  const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
   const account = await prisma.user.findUnique({
     where: { id: user?.id }
   });
@@ -181,10 +183,9 @@ export default async function Start() {
               {recentLists.length > 0 && (
                 <>
                   {recentLists.map((list: any, index: number) => (
-                    <div >
+                    <div key={list.list_id}>
                       <Link href={`/learn/viewlist/${list.list_id}`} key={index}>
                         <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                          {/* Left: subject icon & listname */}
                           <div className="flex items-center">
                             {list.subject && (
                               <Image

@@ -1,9 +1,10 @@
 import Image from 'next/image';
 import pl500 from '@/app/img/pl-500.png';
 import SignInForm from '@/app/auth/sign-in/form';
-import { auth } from '@/utils/auth';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next'
+import { getUserFromSession } from '@/utils/auth/auth';
+import { cookies } from 'next/headers';
 
 export const metadata: Metadata = {
     title: 'PolarLearn - Log in',
@@ -34,7 +35,8 @@ export default async function SignInPage() {
         </>
     );
 
-    if (await auth()) {
+    const sessionCookie = (await cookies()).get('polarlearn.session-id');
+    if (sessionCookie && await getUserFromSession(sessionCookie.value)) {
         return redirect('/home/start')
     } else {
         return loginPage;

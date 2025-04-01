@@ -7,8 +7,8 @@ import { useState } from "react";
 // Update the nodes array:
 const nodes = [
   { id: "Client (jij)", x: 100, y: 200 },
-  { id: "PolarLearn", x: 300, y: 200 }, // changed from "Server"
-  { id: "Auth.js", x: 350, y: 150 },
+  { id: "PolarLearn", x: 300, y: 200 },
+  { id: "PolarAuth", x: 350, y: 150 }, // replaced Auth.js with PolarAuth
   { id: "Prisma", x: 400, y: 200 },
   { id: "Database", x: 500, y: 200 }
 ];
@@ -22,15 +22,15 @@ interface Link {
 }
 
 const links: Link[] = [
-  { source: "Client (jij)", target: "PolarLearn" }, // updated
-  { source: "PolarLearn", target: "Auth.js", custom: true }, // updated
-  { source: "Auth.js", target: "Prisma", custom: true },  // independent authjs->prisma link
-  { source: "PolarLearn", target: "Prisma" },                   // direct server->prisma remains
+  { source: "Client (jij)", target: "PolarLearn" },
+  { source: "PolarLearn", target: "PolarAuth", custom: true }, // updated: Auth.js -> PolarAuth
+  { source: "PolarAuth", target: "Prisma", custom: true },       // updated: Auth.js -> PolarAuth
+  { source: "PolarLearn", target: "Prisma" },
   { source: "Prisma", target: "Database" },
-  { source: "Database", target: "Prisma" },               // reverse for round trip
-  { source: "Prisma", target: "Auth.js", custom: true },    // reverse authjs link
-  { source: "Auth.js", target: "PolarLearn", custom: true },    // updated
-  { source: "PolarLearn", target: "Client (jij)" }                   // updated
+  { source: "Database", target: "Prisma" },
+  { source: "Prisma", target: "PolarAuth", custom: true },       // updated: Auth.js -> PolarAuth
+  { source: "PolarAuth", target: "PolarLearn", custom: true },     // updated: Auth.js -> PolarAuth
+  { source: "PolarLearn", target: "Client (jij)" }
 ];
 
 const SecondMarketingComponent = () => {
@@ -46,15 +46,15 @@ const SecondMarketingComponent = () => {
 
     // Append header text inside the SVG (above Client→Server line)
     svg.append("text")
-       .attr("class", "header-text")
-       .attr("x", 200)
-       .attr("y", 160)
-       .attr("dy", "0em")
-       .attr("text-anchor", "middle")
-       .style("font-size", "18px")
-       .style("fill", "white")
-       .style("font-weight", "bold")
-       .text(text);
+      .attr("class", "header-text")
+      .attr("x", 200)
+      .attr("y", 160)
+      .attr("dy", "0em")
+      .attr("text-anchor", "middle")
+      .style("font-size", "18px")
+      .style("fill", "white")
+      .style("font-weight", "bold")
+      .text(text);
 
     // Draw straight base links in gray:
     linksGroup.selectAll(".base-link")
@@ -76,31 +76,26 @@ const SecondMarketingComponent = () => {
       .append("polyline")
       .attr("points", d => {
         if (d.via) {
-          // L-shaped continuous path for a via link:
-          // For Server (source) → Auth.js (via) → Prisma (target),
-          // use: [source.x, source.y] → [source.x, via.y] → [via.x, via.y] → [via.x, target.y] → [target.x, target.y]
           const source = nodes.find(n => n.id === d.source)!;
           const via = nodes.find(n => n.id === d.via)!;
           const target = nodes.find(n => n.id === d.target)!;
           return `${source.x},${source.y} ${source.x},${via.y} ${via.x},${via.y} ${via.x},${target.y} ${target.x},${target.y}`;
         } else if (d.source === "PolarLearn" && d.target === "Prisma") {
           const server = nodes.find(n => n.id === "PolarLearn")!;
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           const prisma = nodes.find(n => n.id === "Prisma")!;
           return `${server.x},${server.y} ${server.x},${auth.y} ${auth.x},${auth.y} ${prisma.x},${auth.y} ${prisma.x},${prisma.y}`;
-        } else if (d.source === "PolarLearn" && d.target === "Auth.js") {
+        } else if (d.source === "PolarLearn" && d.target === "PolarAuth") {
           const server = nodes.find(n => n.id === "PolarLearn")!;
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           return `${server.x},${server.y} ${server.x},${auth.y} ${auth.x},${auth.y}`;
-        } else if (d.source === "Auth.js" && d.target === "Prisma") {
-          // New branch: a horizontal line from right of Auth.js then vertical down to Prisma
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+        } else if (d.source === "PolarAuth" && d.target === "Prisma") {
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           const prisma = nodes.find(n => n.id === "Prisma")!;
-          const offset = prisma.x - auth.x; // full horizontal gap
+          const offset = prisma.x - auth.x;
           return `${auth.x},${auth.y} ${auth.x + offset},${auth.y} ${auth.x + offset},${prisma.y}`;
-        } else if (d.source === "Auth.js" && d.target === "PolarLearn") {
-          // Updated: from Auth.js, horizontally to Server.x then vertically to Server.y
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+        } else if (d.source === "PolarAuth" && d.target === "PolarLearn") {
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           const server = nodes.find(n => n.id === "PolarLearn")!;
           return `${auth.x},${auth.y} ${server.x},${auth.y} ${server.x},${server.y}`;
         }
@@ -160,14 +155,14 @@ const SecondMarketingComponent = () => {
       header.html("").attr("dy", "0em");
       header.text(text);
       header.style("font-size", "18px")
-            .style("opacity", 0)
-            .transition()
-            .duration(500)
-            .style("opacity", 1)
-            .transition()
-            .delay(1200)
-            .duration(500)
-            .style("opacity", 0);
+        .style("opacity", 0)
+        .transition()
+        .duration(500)
+        .style("opacity", 1)
+        .transition()
+        .delay(1200)
+        .duration(500)
+        .style("opacity", 0);
     }
   }, [text]);
 
@@ -190,38 +185,38 @@ const SecondMarketingComponent = () => {
       } else {
         durationTime = 100;
       }
-      
-      if(link.custom) {
+
+      if (link.custom) {
         let pathData = "";
-        if(link.via) {
+        if (link.via) {
           const source = nodes.find(n => n.id === link.source)!;
           const via = nodes.find(n => n.id === link.via)!;
           const target = nodes.find(n => n.id === link.target)!;
           pathData = `M${source.x},${source.y} L${source.x},${via.y} L${via.x},${via.y} L${via.x},${target.y} L${target.x},${target.y}`;
-        } else if(from === "PolarLearn" && to === "Prisma") {
+        } else if (from === "PolarLearn" && to === "Prisma") {
           const server = nodes.find(n => n.id === "PolarLearn")!;
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           const prisma = nodes.find(n => n.id === "Prisma")!;
           pathData = `M${server.x},${server.y} L${server.x},${auth.y} L${auth.x},${auth.y} L${prisma.x},${auth.y} L${prisma.x},${prisma.y}`;
-        } else if(from === "PolarLearn" && to === "Auth.js") {
+        } else if (from === "PolarLearn" && to === "PolarAuth") {
           const server = nodes.find(n => n.id === "PolarLearn")!;
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           pathData = `M${server.x},${server.y} L${server.x},${auth.y} L${auth.x},${auth.y}`;
-        } else if(from === "Auth.js" && to === "Prisma") {
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+        } else if (from === "PolarAuth" && to === "Prisma") {
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           const prisma = nodes.find(n => n.id === "Prisma")!;
           const offset = prisma.x - auth.x;
           pathData = `M${auth.x},${auth.y} L${auth.x + offset},${auth.y} L${auth.x + offset},${prisma.y}`;
-        } else if(from === "Prisma" && to === "Auth.js") {
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+        } else if (from === "Prisma" && to === "PolarAuth") {
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           const prisma = nodes.find(n => n.id === "Prisma")!;
           pathData = `M${prisma.x},${prisma.y} L${prisma.x},${auth.y} L${auth.x},${auth.y}`;
-        } else if(from === "Auth.js" && to === "PolarLearn") {
-          const auth = nodes.find(n => n.id === "Auth.js")!;
+        } else if (from === "PolarAuth" && to === "PolarLearn") {
+          const auth = nodes.find(n => n.id === "PolarAuth")!;
           const server = nodes.find(n => n.id === "PolarLearn")!;
           pathData = `M${auth.x},${auth.y} L${server.x},${auth.y} L${server.x},${server.y}`;
         }
-        if(pathData !== "") {
+        if (pathData !== "") {
           const pulsePath = linksGroup.append("path")
             .attr("d", pathData)
             .attr("stroke", "#38bdf8")
@@ -233,13 +228,13 @@ const SecondMarketingComponent = () => {
             .attr("stroke-dasharray", `10 ${totalLength - 10}`)
             .attr("stroke-dashoffset", totalLength)
             .transition()
-              .duration(durationTime)
-              .ease(d3.easeLinear)
-              .attr("stroke-dashoffset", 0)
-              .on("end", () => {
-                pulsePath.remove();
-                resolve();
-              });
+            .duration(durationTime)
+            .ease(d3.easeLinear)
+            .attr("stroke-dashoffset", 0)
+            .on("end", () => {
+              pulsePath.remove();
+              resolve();
+            });
         } else {
           resolve();
         }
@@ -260,7 +255,7 @@ const SecondMarketingComponent = () => {
           .attr("stroke-linecap", "round")
           .attr("stroke-dasharray", `10 ${lineLength - 10}`)
           .attr("stroke-dashoffset", lineLength);
-    
+
         pulseLine.transition()
           .duration(durationTime)
           .ease(d3.easeLinear)
@@ -276,12 +271,12 @@ const SecondMarketingComponent = () => {
   const loginAnim = async () => {
     const sequence: [string, string][] = [
       ["Client (jij)", "PolarLearn"],
-      ["PolarLearn", "Auth.js"],
-      ["Auth.js", "Prisma"],
+      ["PolarLearn", "PolarAuth"],
+      ["PolarAuth", "Prisma"],
       ["Prisma", "Database"],
       ["Database", "Prisma"],
-      ["Prisma", "Auth.js"],
-      ["Auth.js", "PolarLearn"],
+      ["Prisma", "PolarAuth"],
+      ["PolarAuth", "PolarLearn"],
       ["PolarLearn", "Client (jij)"]
     ];
     for (const [from, to] of sequence) {
@@ -293,12 +288,12 @@ const SecondMarketingComponent = () => {
   const registerAnim = async () => {
     const sequence: [string, string][] = [
       ["Client (jij)", "PolarLearn"],
-      ["PolarLearn", "Auth.js"],
-      ["Auth.js", "Prisma"],
+      ["PolarLearn", "PolarAuth"],
+      ["PolarAuth", "Prisma"],
       ["Prisma", "Database"],
       ["Database", "Prisma"],
-      ["Prisma", "Auth.js"],
-      ["Auth.js", "PolarLearn"],
+      ["Prisma", "PolarAuth"],
+      ["PolarAuth", "PolarLearn"],
       ["PolarLearn", "Client (jij)"]
     ];
     for (const [from, to] of sequence) {
@@ -327,8 +322,8 @@ const SecondMarketingComponent = () => {
     <div className="flex flex-col items-center justify-center space-y-4 px-5">
       <svg ref={svgRef} width="600" height="300"></svg>
       <p>Kijk hoe PolarLearn werkt met deze knoppen!</p>
-      <p className="text-sm">(P.S: Deze knoppen zijn alleen gemaakt voor het voorbeeld hietboven, het doet niks behalve animaties laten zien. De berichten zie worden laten zien, zijn alleen voorbeeldberichten)</p>
-      <div className="h-3"/>
+      <p className="text-sm">(P.S: Deze knoppen zijn alleen gemaakt voor het voorbeeld hierboven, het doet niks behalve animaties laten zien. De berichten zie worden laten zien, zijn alleen voorbeeldberichten)</p>
+      <div className="h-3" />
       <div className="flex flex-wrap items-center justify-center gap-4">
         <Button1 text="Log in" onClick={loginAnim} />
         <Button1 text="Account Aanmaken" onClick={registerAnim} />

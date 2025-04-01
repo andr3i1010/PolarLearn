@@ -274,12 +274,18 @@ export default function Home() {
                                         whileInView={{ y: 0, opacity: 1 }}
                                         transition={{ duration: 0.7, delay: 1 }}
                                     >
-                                        PolarLearn gebruikt de nieuwste technologieën, zoals Next.js, Prisma (ORM) en NextAuth.js om jouw leerervaring zo snel mogelijk te maken.
+                                        PolarLearn gebruikt de nieuwste technologieën, zoals Next.js, Prisma (ORM) en onze eigen PolarAuth om jouw leerervaring zo snel mogelijk te maken.
                                     </motion.p>
                                 </div>
                                 <div className="border-r border-neutral-600 h-full"></div>
                                 <div className="w-1/2 h-full flex items-center justify-center">
-                                    <SecondMarketingComponent />
+                                    <motion.div
+                                    initial={{ x: 80, opacity: 0 }}
+                                    whileInView={{ x: 0, opacity: 1 }}
+                                    transition={{ duration: 0.7, delay: 0.8 }}
+                                    >
+                                        <SecondMarketingComponent />
+                                    </motion.div>
                                 </div>
                             </div>
                         </Animator>
@@ -301,7 +307,7 @@ export default function Home() {
                                         whileInView={{ y: 0, opacity: 1 }}
                                         transition={{ duration: 0.7, delay: 1 }}
                                     >
-                                        PolarLearn gebruikt de nieuwste beveiligingstechnologieën, zoals Argon2id <a target='_blank' className='text-sky-400' href='https://www.sentinelone.com/cybersecurity-101/cybersecurity/hashing/'>hashing</a> en salting, om jouw gegevens zo veilig mogelijk te houden. Zo kan je met een gerust hart leren. PolarLearn verzamelt en verkoopt je data juist niet, in tegenstelling tot StudyGo.
+                                        PolarLearn gebruikt de nieuwste beveiligingstechnologieën, zoals Argon2id <a target='_blank' className='text-sky-400' href='https://www.sentinelone.com/cybersecurity-101/cybersecurity/hashing/'>hashing</a>, salting, en password peppers om jouw gegevens zo veilig mogelijk te houden. Zo kan je met een gerust hart leren. PolarLearn verzamelt en verkoopt je persoonlijke data juist niet, in tegenstelling tot StudyGo.
                                     </motion.p>
                                 </div>
                                 <div className="border-r border-neutral-600 h-full"></div>

@@ -9,7 +9,7 @@ echo "
 
 "
 echo " 
-als er een error is geen paniek, probeer de installatie opnieuw te runnen
+als er een error is, geen paniek! Probeer de installatie opnieuw uit te voeren.
 "
 # 📦 Installeren van MongoDB
 install_mongodb() {
@@ -29,7 +29,7 @@ install_mongodb() {
             #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
                 yay -S aur/mongodb-bin
             else
-                echo "❌ Geen compatibele package manager gevonden!"
+                echo "❌ Geen compatibele package manager/distro gevonden!"
                 exit 1
         fi ;;
 
