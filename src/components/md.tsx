@@ -71,6 +71,9 @@ const components: Components = {
       {...props}
     />
   ),
+  hr: () => {
+    return <hr className="flex-grow border-neutral-600 my-2 mr-4" />;
+  }
 };
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {

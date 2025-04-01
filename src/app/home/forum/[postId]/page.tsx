@@ -3,10 +3,11 @@ import Image from "next/image"
 import Jdenticon from "@/components/Jdenticon"
 import { formatRelativeTime } from "@/utils/formatRelativeTime"
 import VoteButtons from "@/components/VoteButtons"
-import { auth } from "@/utils/auth"
+import { getUserFromSession } from "@/utils/auth/auth"
 import ForumReply from "@/components/ForumReply"
 import DeletePostButton from "@/components/DeletePostButton"
 import MarkdownRenderer from "@/components/md"
+import { cookies } from "next/headers"
 
 // Define the structure for vote data
 interface VoteData {
@@ -19,8 +20,8 @@ export default async function Page({
     params: Promise<{ postId: string }>
 }) {
     const { postId } = await params
-    const session = await auth()
-    const currentUsername = session?.user?.name || null
+    const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
+    const currentUsername = session?.name || null
 
     const post = await prisma.forum.findUnique({
         where: {
@@ -88,7 +89,7 @@ export default async function Page({
     // Get user's current vote if logged in
     let userVote: "up" | "down" | null = null;
 
-    if (session?.user?.name && post.votes_data) {
+    if (session?.name && post.votes_data) {
         // Safely access vote data
         const votesData = post.votes_data as unknown;
 
@@ -101,7 +102,7 @@ export default async function Page({
             typeof votesData.users === 'object'
         ) {
             const typedVotesData = votesData as VoteData;
-            userVote = typedVotesData.users[session.user.name] || null;
+            userVote = typedVotesData.users[session.name] || null;
         }
     }
 
@@ -138,7 +139,7 @@ export default async function Page({
                             isMainPost={true}
                         />
                     )}
-                    <VoteButtons postId={post.post_id} initialVotes={post.votes} initialUserVote={userVote} />
+                    <VoteButtons postId={post.post_id} initialVotes={post.votes} initialUserVote={userVote} user={session} />
                 </div>
             </div>
 
@@ -167,7 +168,7 @@ export default async function Page({
                             // Get user's vote on this reply
                             let replyUserVote: "up" | "down" | null = null;
 
-                            if (session?.user?.name && reply.votes_data) {
+                            if (session?.name && reply.votes_data) {
                                 const replyVotesData = reply.votes_data as unknown;
 
                                 if (
@@ -178,7 +179,7 @@ export default async function Page({
                                     typeof replyVotesData.users === 'object'
                                 ) {
                                     const typedReplyVotesData = replyVotesData as VoteData;
-                                    replyUserVote = typedReplyVotesData.users[session.user.name] || null;
+                                    replyUserVote = typedReplyVotesData.users[session.name] || null;
                                 }
                             }
 
@@ -239,7 +240,7 @@ export default async function Page({
                                     <div className="prose prose-invert max-w-none whitespace-pre-line">
                                         <MarkdownRenderer content={reply.content} />
                                     </div>
-                                </div>  
+                                </div>
                             );
                         })}
                     </div>

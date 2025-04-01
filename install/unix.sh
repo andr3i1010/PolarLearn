@@ -9,7 +9,7 @@ echo "
 
 "
 echo " 
-als er een error is geen paniek, probeer de installatie opnieuw te runnen
+als er een error is, geen paniek! Probeer de installatie opnieuw uit te voeren.
 "
 # 📦 Installeren van MongoDB
 install_mongodb() {
@@ -19,19 +19,32 @@ install_mongodb() {
     fi
 
     echo "🚀 MongoDB installeren..."
-    if [ "$OS_TYPE" == "macOS" ]; then
-        brew tap mongodb/brew
-        brew install mongodb-community@8.0
-    elif [ "$OS_TYPE" == "Linux" ]; then
-        if command -v apt &> /dev/null; then
-            sudo apt update && sudo apt install -y mongodb
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y mongodb
-        else
-            echo "❌ Geen compatibele package manager gevonden!"
-            exit 1
-        fi
-    fi
+    case "$OSTYPE" in
+    "linux"* )
+        if command apt -v &> /dev/null; then
+                sudo apt update && sudo apt install -y mongodb
+            elif command dnf --version &> /dev/null; then
+                sudo dnf install -y mongodb
+            elif command yay --version &> /dev/null; then
+            #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
+                yay -S aur/mongodb-bin
+            else
+                echo "❌ Geen compatibele package manager/distro gevonden!"
+                exit 1
+        fi ;;
+
+    "darwin"* )
+        #macos. niet zeker of ook moderne versies darwin zijn maar ik heb geen manier om te checken
+        if command brew -v &> /dev/null; then
+                brew tap mongodb/brew
+                brew install mongodb-community@8.0
+            else
+                echo "❌ Geen compatibele package manager gevonden!"
+                exit 1
+        fi ;;
+    * )
+        echo '❌ Geen compatibele OS gevonden! (hoe voer je dit script dan uit!?)'
+esac
 
     if ! command -v mongod &> /dev/null; then
         echo "❌ MongoDB installatie is mislukt!"
@@ -47,19 +60,32 @@ install_node() {
     fi
 
     echo "🚀 Node.js installeren..."
-    if [ "$OS_TYPE" == "macOS" ]; then
-        brew install node
-    elif [ "$OS_TYPE" == "Linux" ]; then
-        if command -v apt &> /dev/null; then
-            sudo apt update && sudo apt install -y nodejs
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y nodejs
-        else
-            echo "❌ Geen compatibele package manager gevonden!"            
-            exit 1
-        fi
-    fi
-
+    case "$OSTYPE" in
+    "linux"* )
+            if command -v apt &> /dev/null; then
+                sudo apt update && sudo apt install -y nodejs
+            elif command -v dnf &> /dev/null; then
+                sudo dnf install -y nodejs
+                elif command brew -v &> /dev/null; then
+                    brew install node
+                elif command yay --version &> /dev/null; then
+                #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
+                    yay -S extra/nodejs
+            else
+                echo "❌ Geen compatibele package manager gevonden!"            
+                exit 1
+        fi ;;
+    "darwin"* )
+        #macos. niet zeker of ook moderne versies darwin zijn maar ik heb geen manier om te checken
+        if command brew -v &> /dev/null; then
+                brew install node
+            else 
+            echo "❌ Geen compatibele package manager gevonden! Installeer brew via https://brew.sh/"            
+                exit 1
+        fi ;;
+    * )
+        echo '❌ Oeps! Dit script is niet geconfigureerd voor jouw OS. Probeer het handmatig te installeren.'
+esac
     if ! command -v node &> /dev/null; then
         echo "❌ Node.js installatie is mislukt!"
         exit 1
@@ -129,7 +155,7 @@ use $DB_NAME;
 db.test_collection.insertOne({ created: new Date() });
 "  > /dev/null 2>&1
 echo "✅ db aangemaakt"
-
+echo "🚀 Starten met install van node packages (Dit kan heel lang duren)"
 # Verberg npm logs
 npm i --legacy-peer-deps > /dev/null 2>&1
 

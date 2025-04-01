@@ -12,7 +12,6 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
     const socket = new WebSocket(wsUrl);
 
     socket.addEventListener("open", () => {
-      console.log("WS Connected to", wsUrl);
       socket.send("connect");
     });
     socket.addEventListener("error", (err) => {

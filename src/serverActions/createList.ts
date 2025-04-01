@@ -1,6 +1,9 @@
 "use server";
 import { prisma } from '@/utils/prisma';
-import { auth } from '@/utils/auth';
+import { cookies } from 'next/headers';
+import { getUserFromSession } from '@/utils/auth/auth';
+import { redirect } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function createListAction(listData: {
 	name: string;
@@ -10,39 +13,41 @@ export async function createListAction(listData: {
 	lang_to: any;
 	subject: string;
 }) {
-	const session = await auth();
-	if (!session?.user.name) {
+	const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value);
+	if (!session?.name) {
 		throw new Error("User not authenticated");
 	}
 	const newList = await prisma.practice.create({
 		data: {
-			list_id: crypto.randomUUID(),
+			list_id: uuidv4(),
 			name: listData.name,
 			mode: listData.mode,
 			data: listData.data,
 			lang_from: listData.lang_from,
 			lang_to: listData.lang_to,
 			subject: listData.subject,
-			creator: session.user.name,
+			creator: session.name,
 			published: true,
 		},
 	});
+
+	// Convert Prisma result to a plain object
+	const plainNewList = JSON.parse(JSON.stringify(newList));
 
 	try {
 		// Find the user by email (more reliable than name)
 		const user = await prisma.user.findFirst({
 			where: {
-				email: session.user.email
+				email: session.email
 			}
 		});
 		if (user && !user.loginAllowed) {
-			return new Response("Je bent verbannen van PolarLearn", { status: 500 });
+			redirect('/auth/sign-in');
 		}
 
 
 		if (!user) {
-			console.error("User not found for email:", session.user.email);
-			return newList; // Still return the list even if we can't update the user
+			return plainNewList; // Return the plain object
 		}
 
 		// Prepare the list_data to include the new list ID
@@ -73,5 +78,5 @@ export async function createListAction(listData: {
 		// Still return the list even if updating the user fails
 	}
 
-	return newList;
+	return plainNewList;
 }

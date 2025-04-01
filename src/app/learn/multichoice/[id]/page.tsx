@@ -39,7 +39,7 @@ export default async function Page({
                     />
                 </svg>
             </Link>
-            <LearnTool mode="hints" rawlistdata={rawListData} />
+            <LearnTool mode="multikeuze" rawlistdata={rawListData} />
         </div>
     );
 }

@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   publicRuntimeConfig: {
     appVersion: version,
   },
+  experimental: {
+    ppr: 'incremental'
+  }
 };
 
 export default nextConfig;
