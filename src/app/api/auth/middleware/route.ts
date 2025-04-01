@@ -1,8 +1,4 @@
 import { NextResponse } from 'next/server';
-import { notFound } from 'next/navigation';
-import { decodeCookie } from '@/utils/auth/session';
-import { prisma } from '@/utils/prisma';
-import { cookies } from 'next/headers';
 import { isLoggedIn } from '@/utils/auth/session';
 
 export async function PATCH(req: Request) {
@@ -12,7 +8,7 @@ export async function PATCH(req: Request) {
         return NextResponse.redirect(new URL('/home/start', req.url))
     }
     const loggedIn = await isLoggedIn();
-    return NextResponse.json({ logged_in: loggedIn }, { status: loggedIn ? 200 : 401 });
+    return NextResponse.json({ logged_in: loggedIn ? true : false}, { status: loggedIn ? 200 : 401 });
 }
 export async function GET(req: Request) {
     return NextResponse.redirect(new URL('/home/start', req.url))

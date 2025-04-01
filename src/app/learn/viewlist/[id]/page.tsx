@@ -80,7 +80,7 @@ function isWordPairArray(arr: any[]): arr is WordPair[] {
 
 const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) => {
     // Capture id once to use on multiple locations.
-    const { id } = params;
+    const { id } = await params;
     const listData = await prisma.practice.findFirst({
         where: {
             list_id: id
