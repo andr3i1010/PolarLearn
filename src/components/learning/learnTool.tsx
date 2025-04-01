@@ -42,14 +42,6 @@ export default function LearnTool({
     setToonAntwoord(false);
   };
 
-  const antwoordFoutVolgende = () => {
-    if (lijstData.length > 0) {
-      const [huidigeVraag, ...rest] = lijstData;
-      setLijstData([...rest, huidigeVraag]);
-    }
-    setToonAntwoord(false);
-  };
-
   const handleAntwoordControleren = () => {
     if (!lijstData.length || userInput.trim() === "") return;
     const [huidigeVraag, ...rest] = lijstData;
