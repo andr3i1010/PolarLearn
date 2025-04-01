@@ -14,7 +14,7 @@ async function middlewareAuth(request: NextRequest) {
     ) {
         // Capture cookie header
         const cookieHeader = request.headers.get("cookie") || "";
-        const result = await fetch(new URL('/api/auth/middleware', request.url), {
+        const result = await fetch(`${request.nextUrl.origin}/api/auth/middleware`, {
             method: 'PATCH',
             headers: {
                 'x-internal-secret': process.env.PEPPER as string,
