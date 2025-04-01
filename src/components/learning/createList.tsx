@@ -51,10 +51,12 @@ function SortableItem({
   id: number;
   children: (props: { dragListeners: any }) => React.ReactNode;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-  const style = {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = { // NEW: updated z-index values 
     transform: CSS.Transform.toString(transform),
     transition,
+    position: "relative",
+    zIndex: isDragging ? 10001 : 300, // when dragging, use 10001 to go above inputs and dropdowns
   };
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
@@ -78,9 +80,9 @@ export default function CreateListTool() {
   const [translations, setTranslations] = useState<{ [id: number]: string }>({});
   const [selectedTaal, setSelectedTaal] = useState<string | undefined>(undefined);
   const [selectedSubject, setSelectedSubject] = useState<{ id: string; display: ReactNode } | undefined>(undefined);
+  const [isDragging, setIsDragging] = useState(false); // NEW state for dragging
 
   const languageIds = ["NL", "FR", "EN", "DE"];
-  const subjectIsLanguage = selectedSubject ? languageIds.includes(selectedSubject.id) : false;
 
   useEffect(() => {
     const defaultDutchDisplay = (
@@ -93,7 +95,7 @@ export default function CreateListTool() {
       vanDropdownRef.current.setValue("NL", defaultDutchDisplay);
     }
     if (naarDropdownRef.current) {
-      if (selectedSubject && ["FR","EN","DE","NL"].includes(selectedSubject.id)) {
+      if (selectedSubject && ["FR", "EN", "DE", "NL"].includes(selectedSubject.id)) {
         // Lock "naar" dropdown to the chosen subject language.
         naarDropdownRef.current.setValue(selectedSubject.id, selectedSubject.display);
       } else {
@@ -123,6 +125,12 @@ export default function CreateListTool() {
       naarDropdownRef.current.setValue("NL", defaultDutchDisplay);
     }
   }, []);
+
+  // NEW: Update global cursor based on dragging state.
+  useEffect(() => {
+    document.body.style.cursor = isDragging ? "grabbing" : "default";
+    return () => { document.body.style.cursor = "default"; };
+  }, [isDragging]);
 
   const addPair = () => {
     setPairs([...pairs, { id: nextId, "1": '', "2": '' }]);
@@ -175,6 +183,7 @@ export default function CreateListTool() {
 
   // Handle drag end using arrayMove from dndkit.
   const handleDragEnd = (event: DragEndEvent) => {
+    setIsDragging(false); // NEW: Reset dragging state
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const oldIndex = pairs.findIndex((pair) => pair.id === active.id);
@@ -274,12 +283,12 @@ export default function CreateListTool() {
   }
 
   return (
-    <>
+    <div className="mx-2 overflow-clip">
       <div className="mx-2">
         {/* Added Back Button */}
         <Link
           href="/home/start"
-          className="fixed top-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-colors hover:bg-neutral-600"
+          className="fixed top-4 right-4 z-[150] flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-colors hover:bg-neutral-600 drop-shadow-2xl"
         >
           <svg
             width="24"
@@ -299,7 +308,7 @@ export default function CreateListTool() {
         </Link>
 
         <div className="h-3" />
-        <form className="relative z-50">
+        <form className="relative z-[10000]">
           <div className="flex flex-row gap-4">
             <Dropdown
               ref={dropdownRef}
@@ -452,7 +461,7 @@ export default function CreateListTool() {
                   ]
                 ]}
                 selectorMode={true}
-                disabled={selectedSubject && ["FR","EN","DE","NL"].includes(selectedSubject.id)}
+                disabled={selectedSubject && ["FR", "EN", "DE", "NL"].includes(selectedSubject.id)}
               />
             </div>
           </div>
@@ -462,6 +471,7 @@ export default function CreateListTool() {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={() => setIsDragging(true)} // NEW: Set dragging state on drag start
         onDragEnd={handleDragEnd}
       >
         <SortableContext
@@ -480,7 +490,7 @@ export default function CreateListTool() {
                   <SortableItem id={pair.id}>
                     {({ dragListeners }) => (
                       <div
-                        className="relative flex flex-col bg-neutral-800 shadow-lg rounded-lg transition-all p-4"
+                        className="relative flex flex-col bg-neutral-800 shadow-lg rounded-lg transition-all p-4 cursor-default"
                       >
                         <div className="flex flex-row items-center gap-2">
                           <span className="text-white mr-2 text-xl">{index + 1}</span>
@@ -584,7 +594,7 @@ export default function CreateListTool() {
                 </motion.div>
               ))}
             </AnimatePresence>
-            <div className="relative flex items-center rounded-lg bg-neutral-800 shadow-lg p-4 h-20 transition-all hover:bg-neutral-700">
+            <div className="relative flex items-center rounded-lg bg-neutral-800 shadow-lg p-4 h-20 transition-all hover:bg-neutral-700" style={{ cursor: isDragging ? "grabbing" : "default" }}>
               <button
                 onClick={addPair}
                 className="absolute inset-0 flex items-center justify-center gap-2 text-xl"
@@ -635,5 +645,5 @@ export default function CreateListTool() {
         />
       </div>
       <div className="h-8" />
-    </>);
+    </div>);
 }

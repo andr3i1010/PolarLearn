@@ -9,7 +9,7 @@ echo "
 
 "
 echo " 
-als er een error is geen paniek, probeer de installatie opnieuw te runnen
+als er een error is, geen paniek! Probeer de installatie opnieuw uit te voeren.
 "
 # 📦 Installeren van MongoDB
 install_mongodb() {

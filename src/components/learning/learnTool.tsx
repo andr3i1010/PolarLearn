@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import Image from 'next/image';
 
 import check from '@/app/img/check.svg';
@@ -243,43 +243,49 @@ export default function LearnTool({
                 >
                   Controleer antwoord
                 </button>
-                {toonAntwoord && (
-                  <motion.div
-                    className="absolute z-50 bottom-0 left-0 right-0 flex flex-col items-center justify-center bg-green-700 text-white h-24 rounded-lg text-2xl"
-                    initial={{ y: "100%" }}
-                    animate={{ y: ["100%", "0%", "0%", "100%"] }}
-                    transition={{ duration: 1.8, times: [0, 0.17, 0.83, 1] }}
-                    onAnimationComplete={() => setToonAntwoord(false)} // Reset toonAntwoord after animation
-                  >
-                    <div className="flex items-center flex-row">
-                      <p>
-                        het antwoord was <span className="pl-1 font-extrabold">{lijstData[0].antwoord}</span>, had je het goed?
-                      </p>
-                      <br />
-                      <button
-                        onClick={() => {
-                          handleAntwoordControlerenGedachten(true);
-                          setToonAntwoord(false); // Reset toonAntwoord
-                        }}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
-                        aria-label="Ja, antwoord is correct"
-                      >
-                        Ja!
-                      </button>
-                      <br />
-                      <button
-                        onClick={() => {
-                          handleAntwoordControlerenGedachten(false);
-                          setToonAntwoord(false); // Reset toonAntwoord
-                        }}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
-                        aria-label="Nee, antwoord is fout"
-                      >
-                        Nee
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
+                <AnimatePresence>
+                  {toonAntwoord && (
+                    <motion.div
+                      className="absolute z-50 bottom-0 left-0 right-0 flex flex-col items-center justify-center bg-green-700 text-white h-24 rounded-lg text-2xl"
+                      initial={{ y: "100%" }}
+                      animate={{ y: ["100%", "0%", "0%", "0%"] }}
+                      exit={{ y: "100%", transition: { duration: 0.5 } }}
+                      transition={{ duration: 1.8, times: [0, 0.17, 0.83, 1] }}
+                    >
+                      <div className="flex items-center flex-row">
+                        <p>
+                          het antwoord was <span className="pl-1 font-extrabold">{lijstData[0].antwoord}</span>, had je het goed?
+                        </p>
+                        <br />
+                        <button
+                          onClick={() => {
+                            setToonAntwoord(false);
+                            setTimeout(() => {
+                              handleAntwoordControlerenGedachten(true);
+                            }, 1800);
+                          }}
+                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
+                          aria-label="Ja, antwoord is correct"
+                        >
+                          Ja!
+                        </button>
+                        <br />
+                        <button
+                          onClick={() => {
+                            setToonAntwoord(false);
+                            setTimeout(() => {
+                              handleAntwoordControlerenGedachten(false);
+                            }, 1800);
+                          }}
+                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
+                          aria-label="Nee, antwoord is fout"
+                        >
+                          Nee
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </>
             )}
           </>
