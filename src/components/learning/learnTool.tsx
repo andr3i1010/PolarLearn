@@ -7,6 +7,7 @@ import Image from 'next/image';
 
 import check from '@/app/img/check.svg';
 import wrong from '@/app/img/wrong.svg';
+import Button1 from "@/components/button/Button1";
 
 export default function LearnTool({
   mode,
@@ -136,16 +137,15 @@ export default function LearnTool({
                 <Input
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
-                  className="border rounded p-2 w-60 border-neutral-700"
+                  className="border rounded p-4 w-60 border-neutral-700"
                   placeholder='Antwoord komt hier'
                 />
-                <button
+                <Button1
                   onClick={handleAntwoordControleren}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
                   aria-label="Controleer antwoord"
+                  text='Controleer antwoord'
                 >
-                  Controleer antwoord
-                </button>
+                </Button1>
               </>
             ) : mode === "hints" ? (
               <> <p>{lijstData[0].antwoord.length < 3 ? lijstData[0].antwoord : lijstData[0].antwoord.charAt(0) + '_'.repeat(lijstData[0].antwoord.length - 1) + lijstData[0].antwoord.charAt(lijstData[0].antwoord.length)}</p>
@@ -155,93 +155,98 @@ export default function LearnTool({
                   className="border rounded p-2 w-60 border-neutral-700"
                   placeholder='Antwoord komt hier'
                 />
-                <button
+                <Button1
                   onClick={handleAntwoordControleren}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
+
                   aria-label="Controleer antwoord"
+                  text='Controleer antwoord'
                 >
-                  Controleer antwoord
-                </button>
+                </Button1>
               </>
             ) : mode === "multikeuze" ? (
               <div className='flex flex-col gap-4'>
                 <div className='flex flex-row items-center gap-4'>
-                  <button
+                  <Button1
                     onClick={() => handleAntwoordmultikeuze(randomNumber === 1)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 w-40"
+                    className="w-40"
                     disabled={isAnswering}
                     aria-label="Multiple choice option 1"
-                  >
-                    {randomNumber === 1 ? lijstData[0].antwoord : (() => {
+                    text={randomNumber === 1 ? lijstData[0].antwoord : (() => {
                       let randomAnswer;
                       do {
                         randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
                       } while (randomAnswer === lijstData[0].antwoord);
                       return randomAnswer;
                     })()}
-                  </button>
-                  <button
+                  >
+                  </Button1>
+                  <Button1
+                    className="w-40"
+
                     onClick={() => handleAntwoordmultikeuze(randomNumber === 2)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 w-40"
                     disabled={isAnswering}
                     aria-label="Multiple choice option 2"
-                  >
-                    {randomNumber === 2 ? lijstData[0].antwoord : (() => {
+                    text={randomNumber === 2 ? lijstData[0].antwoord : (() => {
                       let randomAnswer;
                       do {
                         randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
                       } while (randomAnswer === lijstData[0].antwoord);
                       return randomAnswer;
                     })()}
-                  </button>
+                  >
+
+                  </Button1>
                 </div>
                 <div className='flex flex-row items-center gap-4'>
-                  <button
+                  <Button1
+                    className="w-40"
+
                     onClick={() => handleAntwoordmultikeuze(randomNumber === 3)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 w-40"
                     disabled={isAnswering}
                     aria-label="Multiple choice option 3"
-                  >
-                    {randomNumber === 3 ? lijstData[0].antwoord : (() => {
+                    text={randomNumber === 3 ? lijstData[0].antwoord : (() => {
                       let randomAnswer;
                       do {
                         randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
                       } while (randomAnswer === lijstData[0].antwoord);
                       return randomAnswer;
                     })()}
-                  </button>
-                  <button
+                  >
+
+                  </Button1>
+                  <Button1
+                    className="w-40"
+
                     onClick={() => handleAntwoordmultikeuze(randomNumber === 4)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 w-40"
                     disabled={isAnswering}
                     aria-label="Multiple choice option 4"
-                  >
-                    {randomNumber === 4 ? lijstData[0].antwoord : (() => {
+                    text={randomNumber === 4 ? lijstData[0].antwoord : (() => {
                       let randomAnswer;
                       do {
                         randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
                       } while (randomAnswer === lijstData[0].antwoord);
                       return randomAnswer;
                     })()}
-                  </button>
+                  >
+
+                  </Button1>
                 </div>
               </div>
             ) : (
               <>
-                <button
+                <Button1
                   onClick={() => setToonAntwoord(true)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
                   aria-label="Controleer antwoord"
+                  text='Controleer antwoord'
                 >
-                  Controleer antwoord
-                </button>
+                </Button1>
                 <AnimatePresence>
                   {toonAntwoord && (
                     <motion.div
                       className="absolute z-50 bottom-0 left-0 right-0 flex flex-col items-center justify-center bg-green-700 text-white h-24 rounded-lg text-2xl"
                       initial={{ y: "100%" }}
                       animate={{ y: ["100%", "0%", "0%", "0%"] }}
-                      exit={{ y: "100%", transition: { duration: 0.5 } }}
+                      exit={{ y: "100%", transition: { duration: 0.4 } }}
                       transition={{ duration: 1.8, times: [0, 0.17, 0.83, 1] }}
                     >
                       <div className="flex items-center flex-row">
@@ -249,31 +254,25 @@ export default function LearnTool({
                           het antwoord was <span className="pl-1 font-extrabold">{lijstData[0].antwoord}</span>, had je het goed?
                         </p>
                         <br />
-                        <button
+                        <Button1
                           onClick={() => {
                             setToonAntwoord(false);
-                            setTimeout(() => {
-                              handleAntwoordControlerenGedachten(true);
-                            }, 1800);
+                            handleAntwoordControlerenGedachten(true);
                           }}
-                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
                           aria-label="Ja, antwoord is correct"
+                          text='Ja'
                         >
-                          Ja!
-                        </button>
+                        </Button1>
                         <br />
-                        <button
+                        <Button1
                           onClick={() => {
                             setToonAntwoord(false);
-                            setTimeout(() => {
-                              handleAntwoordControlerenGedachten(false);
-                            }, 1800);
+                            handleAntwoordControlerenGedachten(false);
                           }}
-                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-6"
+                          text='Nee'
                           aria-label="Nee, antwoord is fout"
                         >
-                          Nee
-                        </button>
+                        </Button1>
                       </div>
                     </motion.div>
                   )}
