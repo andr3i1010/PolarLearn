@@ -12,7 +12,7 @@ export default function LearnTool({
   mode,
   rawlistdata
 }: {
-  mode: "toets" | "gedachten" | "hints" | "learn";
+  mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze";
   rawlistdata: any[];
 }) {
   const shuffleArray = useCallback(<T,>(array: T[]): T[] => array.sort(() => Math.random() - 0.5), []);
@@ -27,9 +27,12 @@ export default function LearnTool({
     : [];
 
   const [lijstData, setLijstData] = useState(() => shuffleArray(initialMappedData));
+  const [lijstDataOud, setLijstDataOud] = useState(() => shuffleArray(initialMappedData));
   const [userInput, setUserInput] = useState("");
   const [toonAntwoord, setToonAntwoord] = useState(false);
   const [showCorrect, setShowCorrect] = useState(false);
+  const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() * 4) + 1);
+  const [isAnswering, setIsAnswering] = useState(false);
 
   const antwoordFoutVolgende = () => {
     if (lijstData.length > 0) {
@@ -67,6 +70,28 @@ export default function LearnTool({
     }
   };
 
+  const handleAntwoordmultikeuze = (isAntwoordCorrect: boolean) => {
+    if (!lijstData.length || isAnswering) return;
+    setIsAnswering(true);
+    const [huidigeVraag, ...rest] = lijstData;
+    if (isAntwoordCorrect) {
+      setShowCorrect(true);
+      setTimeout(() => {
+        setShowCorrect(false);
+        setLijstData(shuffleArray(rest));
+        setRandomNumber(Math.floor(Math.random() * 4) + 1);
+        setIsAnswering(false);
+      }, 2000);
+    } else {
+      setToonAntwoord(true);
+      setTimeout(() => {
+        antwoordFoutVolgende();
+        setRandomNumber(Math.floor(Math.random() * 4) + 1);
+        setIsAnswering(false);
+      }, 2000);
+    }
+  };
+
   const QuestionDisplay = () => (
     <div className="relative flex flex-col items-center w-full">
       <p className='text-2xl font-extrabold text-center'>{lijstData[0].vraag}</p>
@@ -96,7 +121,7 @@ export default function LearnTool({
     </motion.div>
   );
 
-  if (!["toets", "gedachten", "hints"].includes(mode)) {
+  if (!["toets", "gedachten", "hints", "multikeuze"].includes(mode)) {
     return <p>Ongeldige modus geselecteerd.</p>;
   }
 
@@ -138,6 +163,69 @@ export default function LearnTool({
                   Controleer antwoord
                 </button>
               </>
+            ) : mode === "multikeuze" ? (
+              <div className='flex flex-col gap-4'>
+                <div className='flex flex-row items-center gap-4'>
+                  <button
+                    onClick={() => handleAntwoordmultikeuze(randomNumber === 1)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 w-40"
+                    disabled={isAnswering}
+                    aria-label="Multiple choice option 1"
+                  >
+                    {randomNumber === 1 ? lijstData[0].antwoord : (() => {
+                      let randomAnswer;
+                      do {
+                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
+                      } while (randomAnswer === lijstData[0].antwoord);
+                      return randomAnswer;
+                    })()}
+                  </button>
+                  <button
+                    onClick={() => handleAntwoordmultikeuze(randomNumber === 2)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 w-40"
+                    disabled={isAnswering}
+                    aria-label="Multiple choice option 2"
+                  >
+                    {randomNumber === 2 ? lijstData[0].antwoord : (() => {
+                      let randomAnswer;
+                      do {
+                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
+                      } while (randomAnswer === lijstData[0].antwoord);
+                      return randomAnswer;
+                    })()}
+                  </button>
+                </div>
+                <div className='flex flex-row items-center gap-4'>
+                  <button
+                    onClick={() => handleAntwoordmultikeuze(randomNumber === 3)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 w-40"
+                    disabled={isAnswering}
+                    aria-label="Multiple choice option 3"
+                  >
+                    {randomNumber === 3 ? lijstData[0].antwoord : (() => {
+                      let randomAnswer;
+                      do {
+                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
+                      } while (randomAnswer === lijstData[0].antwoord);
+                      return randomAnswer;
+                    })()}
+                  </button>
+                  <button
+                    onClick={() => handleAntwoordmultikeuze(randomNumber === 4)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 w-40"
+                    disabled={isAnswering}
+                    aria-label="Multiple choice option 4"
+                  >
+                    {randomNumber === 4 ? lijstData[0].antwoord : (() => {
+                      let randomAnswer;
+                      do {
+                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
+                      } while (randomAnswer === lijstData[0].antwoord);
+                      return randomAnswer;
+                    })()}
+                  </button>
+                </div>
+              </div>
             ) : (
               <>
                 <button
@@ -191,7 +279,7 @@ export default function LearnTool({
           <p>Gefeliciteerd! Alle vragen beantwoord.</p>
         )}
         {showCorrect && <AnswerOverlay correct={true} />}
-        {toonAntwoord && (mode === "toets" || mode === "hints") && <AnswerOverlay correct={false} />}
+        {toonAntwoord && (mode === "toets" || mode === "hints" || mode === "multikeuze") && <AnswerOverlay correct={false} />}
       </div>
     </div>
   );

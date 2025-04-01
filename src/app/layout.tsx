@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
   authors: [
     { name: "andrei1010", url: "https://andrei1010.me" },
-    { name: "supersiem" },
+    { name: "supersiem", url: "https://siemvk.nl/" },
   ],
   icons: [
     {
