@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     appVersion: version,
   },
   experimental: {
+    nodeMiddleware: true,
     ppr: 'incremental'
   }
 };
