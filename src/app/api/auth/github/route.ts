@@ -62,5 +62,8 @@ export async function GET(request: Request) {
     });
   }
   await createSession(user.id);
-  return Response.redirect(new URL("/home/start", request.url), 302);
+  return Response.redirect(
+    new URL("/home/start", process.env.NEXT_PUBLIC_URL || "http://localhost:3000"),
+    302
+  );
 }
