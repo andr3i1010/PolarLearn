@@ -8,6 +8,7 @@ import ForumReply from "@/components/ForumReply"
 import DeletePostButton from "@/components/DeletePostButton"
 import MarkdownRenderer from "@/components/md"
 import { cookies } from "next/headers"
+import CreatorLink from "@/components/links/CreatorLink"
 
 // Define the structure for vote data
 interface VoteData {
@@ -128,7 +129,8 @@ export default async function Page({
                     )}
                 </div>
                 <div className="flex-grow">
-                    <h3 className="font-medium">{postcreator?.name || post.creator}</h3>
+                    {/* <h3 className="font-medium">{postcreator?.name || post.creator}</h3> */}
+                    <CreatorLink creator={postcreator?.name || post.creator} color="white" />
                     <p className="text-sm text-gray-400">{relativeTime}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -223,7 +225,8 @@ export default async function Page({
                                             )}
                                         </div>
                                         <div className="flex-grow">
-                                            <h3 className="font-medium">{replyCreator?.name || reply.creator}</h3>
+                                            {/* <h3 className="font-medium">{replyCreator?.name || reply.creator}</h3> */}
+                                            <CreatorLink creator={postcreator?.name || post.creator} color="white"/>
                                             <p className="text-sm text-gray-400">{replyTime}</p>
                                         </div>
                                         <div className="flex items-center gap-2">

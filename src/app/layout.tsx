@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     url: "https://polarlearn.tech",
     title: "PolarLearn",
     description:
-      "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
+      "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door studenten.",
     siteName: "PolarLearn",
     images: [
       {

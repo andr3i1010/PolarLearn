@@ -1,13 +1,13 @@
 "use client";
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface CreatorLinkProps {
   creator: string;
+  color?: string;
 }
 
-export default function CreatorLink({ creator }: CreatorLinkProps) {
+export default function CreatorLink({ creator, color }: CreatorLinkProps) {
   const router = useRouter();
   
   const handleCreatorClick = (e: React.MouseEvent) => {
@@ -18,7 +18,7 @@ export default function CreatorLink({ creator }: CreatorLinkProps) {
 
   return (
     <span 
-      className="text-blue-400 hover:underline ml-1 cursor-pointer"
+      className={`${color === 'white' ? 'text-white hover:text-blue-400 transition' : 'text-blue-400'} hover:underline  cursor-pointer`}
       onClick={handleCreatorClick}
     >
       {creator}
