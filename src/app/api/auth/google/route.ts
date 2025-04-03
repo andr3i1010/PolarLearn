@@ -60,9 +60,14 @@ export async function GET(request: Request) {
       data: { googleOAuthID: googleId },
     });
   }
+
+  const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
+    ? process.env.NEXT_PUBLIC_URL
+    : "http://localhost:3000";
+
   await createSession(user.id);
   return Response.redirect(
-    new URL("/home/start", process.env.NEXT_PUBLIC_URL || "http://localhost:3000"),
+    new URL("/home/start", baseUrl),
     302
   );
 }
