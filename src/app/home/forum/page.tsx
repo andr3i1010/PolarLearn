@@ -101,12 +101,15 @@ export default async function ForumHome({
     }),
   ]);
 
-  // Fetch user's questions - look for posts with the user's ID as creator
+  // Fetch user's questions with flexible matching - check both ID and name
   const [myQuestions, myQuestionsTotal] = await Promise.all([
     prisma.forum.findMany({
       where: {
         type: "thread",
-        creator: userId, // Change to use ID instead of name
+        OR: [
+          { creator: userId },
+          { creator: userName as string }
+        ]
       },
       orderBy: { createdAt: "desc" },
       skip,
@@ -115,17 +118,23 @@ export default async function ForumHome({
     prisma.forum.count({
       where: {
         type: "thread",
-        creator: userId, // Change to use ID here too
+        OR: [
+          { creator: userId },
+          { creator: userName as string }
+        ]
       },
     }),
   ]);
 
-  // Fetch user's answers - also use ID
+  // Fetch user's answers - also check both ID and name
   const [myReplies, myRepliesTotal] = await Promise.all([
     prisma.forum.findMany({
       where: {
         type: "reply",
-        creator: userId, // Change to use ID
+        OR: [
+          { creator: userId },
+          { creator: userName as string }
+        ]
       },
       orderBy: { createdAt: "desc" },
       select: {
@@ -142,7 +151,10 @@ export default async function ForumHome({
     prisma.forum.count({
       where: {
         type: "reply",
-        creator: userId, // Change to use ID
+        OR: [
+          { creator: userId },
+          { creator: userName as string }
+        ]
       },
     }),
   ]);
