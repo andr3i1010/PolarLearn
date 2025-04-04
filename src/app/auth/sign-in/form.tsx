@@ -7,40 +7,48 @@ import GithubLogin from "@/components/button/loginGithub";
 import Button1 from "@/components/button/Button1";
 import { signInCredentials } from "@/utils/auth/auth";
 import { toast } from "react-toastify";
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams } from "next/navigation";
+import { EyeOff } from "lucide-react";
+import { Eye } from "lucide-react";
+import { useState } from "react";
 
 export default function SignInForm() {
   const router = useRouter();
-  const params = useSearchParams()
+  const params = useSearchParams();
 
   useEffect(() => {
-    const error = params.get('error')
-    const provider = params.get('provider')
+    const error = params.get("error");
+    const provider = params.get("provider");
     if (error && provider) {
       switch (error) {
-        case 'usernotfound':
-          toast.error(`Geen account gevonden met het ${provider} account. Er moet een bestaande account (met email en wachtwoord) bestaan om in te loggen met ${provider}.`, {
-            autoClose: 7000
-          });
+        case "usernotfound":
+          toast.error(
+            `Geen account gevonden met het ${provider} account. Er moet een bestaande account (met email en wachtwoord) bestaan om in te loggen met ${provider}.`,
+            {
+              autoClose: 7000,
+            }
+          );
           break;
-        case 'oautherror':
+        case "oautherror":
           toast.error(`Er is een fout opgetreden tijdens de ${provider} inlog`);
           break;
         default:
           toast.error("Er is een onbekende fout opgetreden");
           break;
       }
-      router.replace('/auth/sign-in')
+      router.replace("/auth/sign-in");
     }
-  }, [])
+  }, []);
+
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="relative">
       <div className="flex flex-col">
         <div className="flex flex-row items-center justify-center space-x-4">
-					<GoogleLogin />
-					<GithubLogin />
-				</div>
+          <GoogleLogin />
+          <GithubLogin />
+        </div>
 
         <div className="flex items-center my-4">
           <hr className="flex-grow border-neutral-600" />
@@ -84,7 +92,7 @@ export default function SignInForm() {
               type="email"
               name="email"
               className="bg-neutral-800 border text-white rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 dark:text-white focus:border-blue-500"
-              placeholder="name@company.com"
+              placeholder="naam@gmail.com"
               required
             />
           </div>
@@ -96,13 +104,22 @@ export default function SignInForm() {
             >
               Wachtwoord
             </label>
-            <input
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="••••••••"
+                className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 pr-10 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+              >
+                {showPassword ? <Eye /> : <EyeOff />}
+              </button>
+            </div>
             <br />
           </div>
 
