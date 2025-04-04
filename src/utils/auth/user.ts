@@ -44,8 +44,8 @@ export async function createUserCredentials(
           loginAllowed: true,
           forumAllowed: true,
           // Use unique placeholder values for OAuth fields
-          githubOAuthID: "",
-          googleOAuthID: "",
+          githubOAuthID: id,
+          googleOAuthID: id,
           list_data: {
             recent_lists: [],
             created_lists: [],
