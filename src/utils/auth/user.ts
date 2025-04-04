@@ -12,12 +12,12 @@ export async function hashPassword(
       .hash((password + process.env.PEPPER) as string, {
         salt: Buffer.from(salt),
       })
-        .then((hash) => {
-          resolve(hash);
-        })
-        .catch((err) => {
-          reject(err);
-        });
+      .then((hash) => {
+        resolve(hash);
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 }
 
@@ -27,11 +27,13 @@ export async function createUserCredentials(
   password: string
 ) {
   const salt = crypto.randomBytes(16).toString("hex")
+  const id = crypto.randomUUID()
+
   return new Promise(async (resolve, reject) => {
     await prisma.user
       .create({
         data: {
-          id: crypto.randomUUID(),
+          id: id,
           name: username,
           email: email,
           password: await hashPassword(
@@ -41,6 +43,9 @@ export async function createUserCredentials(
           salt: salt,
           loginAllowed: true,
           forumAllowed: true,
+          // Use unique placeholder values for OAuth fields
+          githubOAuthID: "",
+          googleOAuthID: "",
           list_data: {
             recent_lists: [],
             created_lists: [],
@@ -53,8 +58,10 @@ export async function createUserCredentials(
       })
       .catch((err) => {
         if (err.code === "P2002") {
+          console.log("Unique constraint failed:", err.meta);
           reject({ success: false, error: "userexists" });
         }
+        console.log(err)
         reject(err);
       });
   });
