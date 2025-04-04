@@ -1,4 +1,11 @@
 "use client";
+// Beste developer,
+// Ik heb mijn tijd enorm verspilt aan alle animaties maken.
+// Het zou fijn zijn als jij de animatie zou maken voor als de gebruiker een paar loslaat,
+// dus dat het mooi beweegt naar zijn plek.
+// ik heb dit al gebrobeerd te doen, maar dat is verschrikkelijk mislukt.
+// const wastedHours = 4
+// Met vriendelijke groeten, andrei1010
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -36,7 +43,6 @@ import ak_img from '@/app/img/geography.svg';
 import gs_img from '@/app/img/history.svg';
 import bi_img from '@/app/img/bio.svg';
 
-// Define the pair type.
 type Pair = {
   id: number;
   "1": string;

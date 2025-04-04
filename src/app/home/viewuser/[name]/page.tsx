@@ -23,6 +23,21 @@ interface ListData {
     // Add other properties as needed
 }
 
+// Add interface for type checking the list returned from prisma
+interface PracticeList {
+    list_id: string;
+    name: string;
+    subject: string;
+    createdAt: Date;
+}
+
+interface PageProps {
+    params: Promise<{
+        name: string;
+        selectedTab?: string;
+    }>;
+}
+
 // Function to get the appropriate icon for each subject
 const getSubjectIcon = (subjectCode: string) => {
     switch (subjectCode) {
@@ -67,10 +82,13 @@ const getSubjectName = (subjectCode: string) => {
     }
 };
 
-export default async function Page({ params }: { params: Promise<{ name: string }> }) {
+export default async function Page({ params }: PageProps) {
+    // Await the Promise to get the actual params
+    const { name, selectedTab } = await params;
+
     const user = await prisma.user.findFirst({
         where: {
-            name: (await params).name
+            name: name
         },
     });
 
@@ -88,7 +106,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
     const listdata = user?.list_data as ListData | undefined;
 
     // Fetch the actual list details if there are created lists
-    const createdLists = listdata?.created_lists && listdata.created_lists.length > 0
+    const createdLists: PracticeList[] = listdata?.created_lists && listdata.created_lists.length > 0
         ? await prisma.practice.findMany({
             where: {
                 list_id: {
@@ -99,7 +117,7 @@ export default async function Page({ params }: { params: Promise<{ name: string 
                 list_id: true,
                 name: true,
                 subject: true,
-                createdAt: true  // Changed from createdAt to created_at
+                createdAt: true
             }
         })
         : [];
@@ -202,7 +220,12 @@ export default async function Page({ params }: { params: Promise<{ name: string 
             </div>
             <div className="h-4" />
             <div className="pl-4">
-                <Tabs tabs={tabs} defaultActiveTab="lists" />
+                <Tabs
+                    tabs={tabs}
+                    defaultActiveTab={selectedTab || "lists"}
+                    withRoutes={true}
+                    baseRoute={`/home/viewuser/${name}`} // Use params.name directly since we know it exists
+                />
             </div>
         </div>
     );

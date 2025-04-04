@@ -9,6 +9,7 @@ import DeletePostButton from "@/components/DeletePostButton"
 import MarkdownRenderer from "@/components/md"
 import { cookies } from "next/headers"
 import CreatorLink from "@/components/links/CreatorLink"
+import ForumHome from "../page"; // added import
 
 // Define the structure for vote data
 interface VoteData {
@@ -20,7 +21,14 @@ export default async function Page({
 }: {
     params: Promise<{ postId: string }>
 }) {
-    const { postId } = await params
+    const { postId } = await params;
+    // If postId is actually a tab identifier, delegate to ForumHome
+    if (
+        ["questions", "my-questions", "my-answers", "how-the-forum-works"].includes(postId)
+    ) {
+        return <ForumHome searchParams={Promise.resolve({})} params={{ tab: [postId] }} />;
+    }
+
     const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
     const currentUsername = session?.name || null
 
@@ -226,7 +234,7 @@ export default async function Page({
                                         </div>
                                         <div className="flex-grow">
                                             {/* <h3 className="font-medium">{replyCreator?.name || reply.creator}</h3> */}
-                                            <CreatorLink creator={postcreator?.name || post.creator} color="white"/>
+                                            <CreatorLink creator={postcreator?.name || post.creator} color="white" />
                                             <p className="text-sm text-gray-400">{replyTime}</p>
                                         </div>
                                         <div className="flex items-center gap-2">

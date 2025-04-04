@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Tabs, { TabItem } from "@/components/Tabs";
 import { prisma } from "@/utils/prisma";
 import ForumDialog from "./ForumDialog";
@@ -7,13 +9,10 @@ import Jdenticon from "@/components/Jdenticon";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { getUserFromSession } from "@/utils/auth/auth";
 import DeletePostButton from "@/components/DeletePostButton";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw"; // Import rehype-raw for processing raw HTML
 
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -40,7 +39,7 @@ const subjectIconMap: Record<string, any> = {
   NE: nl_img,
   EN: eng_img,
   FR: fr_img,
-  DU: de_img, // Note: ForumDialog uses "DE" but we're using "DU" here  // waarom?
+  DE: de_img, // Note: ForumDialog uses "DE" but we're using "DU" here  // waarom? // door kut copilot
   AK: ak_img,
   GS: gs_img,
   BI: bi_img,
@@ -50,7 +49,7 @@ const subjectIconMap: Record<string, any> = {
 const subjectLabelMap: Record<string, string> = {
   AK: "Aardrijkskunde",
   BI: "Biologie",
-  DU: "Duits",
+  DE: "Duits",
   EN: "Engels",
   FR: "Frans",
   GS: "Geschiedenis",
@@ -63,9 +62,14 @@ const subjectLabelMap: Record<string, string> = {
 
 export default async function ForumHome({
   searchParams,
+  params,
 }: {
   searchParams: Promise<{ page?: string }>;
+  params?: { tab?: string[] };
 }) {
+  const defaultActiveTab =
+    params && params.tab && params.tab.length > 0 ? params.tab[0] : "questions";
+
   const session = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")!.value
   );
@@ -74,8 +78,13 @@ export default async function ForumHome({
       name: session!.name,
     },
   });
-  const params = await searchParams;
-  const page = parseInt(params.page as string) || 1;
+
+  // Get the user's ID for queries
+  const userId = session?.id;
+  const userName = session?.name;
+
+  const paramsSearch = await searchParams;
+  const page = parseInt(paramsSearch.page as string) || 1;
   const take = 20;
   const skip = (page - 1) * take;
 
@@ -92,12 +101,90 @@ export default async function ForumHome({
     }),
   ]);
 
+  // Fetch user's questions - look for posts with the user's ID as creator
+  const [myQuestions, myQuestionsTotal] = await Promise.all([
+    prisma.forum.findMany({
+      where: {
+        type: "thread",
+        creator: userId, // Change to use ID instead of name
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take,
+    }),
+    prisma.forum.count({
+      where: {
+        type: "thread",
+        creator: userId, // Change to use ID here too
+      },
+    }),
+  ]);
+
+  // Fetch user's answers - also use ID
+  const [myReplies, myRepliesTotal] = await Promise.all([
+    prisma.forum.findMany({
+      where: {
+        type: "reply",
+        creator: userId, // Change to use ID
+      },
+      orderBy: { createdAt: "desc" },
+      select: {
+        post_id: true,
+        replyTo: true,
+        content: true,
+        creator: true,
+        createdAt: true,
+        subject: true,
+      },
+      skip,
+      take,
+    }),
+    prisma.forum.count({
+      where: {
+        type: "reply",
+        creator: userId, // Change to use ID
+      },
+    }),
+  ]);
+
+  // Get the parent thread information for context
+  const parentIds = myReplies.map((reply) => reply.replyTo).filter(Boolean) as string[];
+  const parentThreads = await prisma.forum.findMany({
+    where: {
+      post_id: {
+        in: parentIds,
+      },
+    },
+    select: {
+      post_id: true,
+      title: true,
+    },
+  });
+
+  // Create a map of parent thread titles for quick lookup
+  const parentThreadMap = parentThreads.reduce((acc, thread) => {
+    acc[thread.post_id] = thread.title;
+    return acc;
+  }, {} as Record<string, string>);
+
+  // Enhance the reply objects with parent thread titles
+  const enhancedReplies = myReplies.map((reply) => ({
+    ...reply,
+    title: parentThreadMap[reply.replyTo || ""] || "Onbekende thread", // Fallback title if parent not found
+    isReply: true, // Flag to identify this as a reply for UI handling
+  }));
+
   const totalPages = Math.ceil(totalPosts / take);
+  const myQuestionsPages = Math.ceil(myQuestionsTotal / take);
+  const myAnswersPages = Math.ceil(myRepliesTotal / take);
 
+  // Also update the currentUsername variable to include both user ID and name for comparison
   const currentUsername = session?.name;
+  const currentUserId = session?.id;
 
-  // Get unique creator IDs from forum posts
-  const creatorIds = [...new Set(forumPosts.map((post) => post.creator))];
+  // Get unique creator IDs from all forum posts
+  const allPosts = [...forumPosts, ...myQuestions, ...enhancedReplies];
+  const creatorIds = [...new Set(allPosts.map((post) => post.creator))];
 
   // Also try to fetch users by name in case creator contains usernames
   const users = await prisma.user.findMany({
@@ -122,138 +209,167 @@ export default async function ForumHome({
     return acc;
   }, {} as Record<string, any>);
 
-  const tabs: TabItem[] = [
-    {
-      id: "alle",
-      label: "Alle vragen",
-      content: (
-        <>
-          <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
-            {forumPosts.map((post) => {
-              const user =
-                userMapById[post.creator] || userMapByName[post.creator];
-              const subjectIcon = subjectIconMap[post.subject];
-              const subjectLabel =
-                subjectLabelMap[post.subject] || post.subject;
-              const relativeTime = formatRelativeTime(post.createdAt);
+  // Function to render post list
+  const renderPostList = (posts: any[], totalPages: number, currentPage: number, tabId: string) => (
+    <>
+      <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
+        {posts.length > 0 ? (
+          posts.map((post) => {
+            const user =
+              userMapById[post.creator] || userMapByName[post.creator];
+            const subjectIcon = subjectIconMap[post.subject];
+            const subjectLabel =
+              subjectLabelMap[post.subject] || post.subject;
+            const relativeTime = formatRelativeTime(post.createdAt);
+            const isReply = post.isReply === true;
 
-              // Check if current user is the creator - with more flexibility
-              const isPostCreator =
-                currentUsername === post.creator ||
-                (user?.name && currentUsername === user.name);
+            // Check if current user is the creator
+            const isPostCreator =
+              currentUserId === post.creator ||
+              currentUsername === post.creator ||
+              (user?.name && currentUsername === user.name);
 
-              return (
-                <div key={post.post_id} className="relative">
-                  <Link href={`/home/forum/${post.post_id}`} className="block">
-                    <div
-                      className={`border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-center cursor-pointer`}
-                    >
-                      <div className="mr-4 flex-shrink-0">
-                        {user?.image ? (
+            return (
+              <div key={post.post_id} className="relative">
+                <Link href={`/home/forum/${isReply ? post.replyTo : post.post_id}`} className="block">
+                  <div
+                    className={`border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-center cursor-pointer`}
+                  >
+                    <div className="mr-4 flex-shrink-0">
+                      {user?.image ? (
+                        <Image
+                          src={user.image}
+                          alt={`de profielfoto van ${user.name || "iemand"}`}
+                          width={40}
+                          height={40}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <Jdenticon
+                          value={user?.name || post.creator}
+                          size={40}
+                        />
+                      )}
+                    </div>
+                    <div className="flex flex-col flex-1">
+                      <div className="text-xs text-gray-400 mb-1 flex items-center">
+                        {subjectIcon && (
                           <Image
-                            src={user.image}
-                            alt={`de profielfoto van ${user.name || "iemand"}`}
-                            width={40}
-                            height={40}
-                            className="rounded-full"
-                          />
-                        ) : (
-                          <Jdenticon
-                            value={user?.name || post.creator}
-                            size={40}
+                            src={subjectIcon}
+                            alt={subjectLabel}
+                            width={16}
+                            height={16}
+                            className="mr-1"
                           />
                         )}
+                        <span>{subjectLabel}</span>
+                        <span className="mx-1.5">•</span>
+                        <span className="text-gray-500">{relativeTime}</span>
+                        <span className="mx-1.5">•</span>
+                        <span className="text-gray-500">
+                          Door: {user?.name || post.creator}
+                        </span>
                       </div>
-                      <div className="flex flex-col flex-1">
-                        <div className="text-xs text-gray-400 mb-1 flex items-center">
-                          {subjectIcon && (
-                            <Image
-                              src={subjectIcon}
-                              alt={subjectLabel}
-                              width={16}
-                              height={16}
-                              className="mr-1"
-                            />
-                          )}
-                          <span>{subjectLabel}</span>
-                          <span className="mx-1.5">•</span>
-                          <span className="text-gray-500">{relativeTime}</span>
-                          <span className="mx-1.5">•</span>
-                          <span className="text-gray-500">
-                            Door: {user?.name || post.creator}
-                          </span>
-                        </div>
-                        <h3 className="font-medium text-lg">{post.title}</h3>
-                      </div>
+                      <h3 className="font-medium text-lg">
+                        {isReply ? (
+                          <>
+                            <span className="text-gray-400 font-normal text-sm">Antwoord op: </span>
+                            {post.title}
+                          </>
+                        ) : (
+                          post.title
+                        )}
+                      </h3>
+                      {isReply && (
+                        <p className="text-sm text-gray-300 mt-1 line-clamp-2">
+                          {post.content.length > 100
+                            ? `${post.content.substring(0, 100)}...`
+                            : post.content}
+                        </p>
+                      )}
                     </div>
-                  </Link>
+                  </div>
+                </Link>
 
-                  {/* Position the delete button absolutely to not interfere with the link */}
-                  {isPostCreator && (
-                    <div className="absolute top-4 right-4 z-10">
-                      <DeletePostButton
-                        postId={post.post_id}
-                        isCreator={true}
-                        isMainPost={true}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                {/* Position the delete button absolutely to not interfere with the link */}
+                {isPostCreator && (
+                  <div className="absolute top-4 right-4 z-10">
+                    <DeletePostButton
+                      postId={post.post_id}
+                      isCreator={true}
+                      isMainPost={!isReply}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <div className="p-8 text-center text-gray-400">
+            {tabId === "my-questions"
+              ? "Je hebt nog geen vragen gesteld."
+              : "Je hebt nog geen antwoorden gegeven."}
           </div>
+        )}
+      </div>
 
-          {totalPages > 1 && (
-            <div className="mt-4 flex justify-center">
-              <Pagination>
-                <PaginationPrevious>
-                  {page > 1 ? (
-                    <Link href={`?page=${page - 1}`}>Vorige</Link>
-                  ) : (
-                    <span className="text-gray-400">Vorige</span>
-                  )}
-                </PaginationPrevious>
-                {/* Render page numbers */}
-                <PaginationContent>
-                  {Array.from({ length: totalPages }, (_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <PaginationItem key={pageNum}>
-                        <PaginationLink
-                          href={`?page=${pageNum}`}
-                          isActive={pageNum === page}
-                        >
-                          {pageNum}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  })}
-                </PaginationContent>
-                <PaginationNext>
-                  {page === totalPages ? (
-                    <span className="text-gray-400">Volgende</span>
-                  ) : (
-                    <Link href={`?page=${page + 1}`}>Volgende</Link>
-                  )}
-                </PaginationNext>
-              </Pagination>
-            </div>
-          )}
-        </>
-      ),
+      {totalPages > 1 && (
+        <div className="mt-4 flex justify-center">
+          <Pagination>
+            <PaginationPrevious>
+              {currentPage > 1 ? (
+                <Link href={`/home/forum/${tabId}?page=${currentPage - 1}`}>Vorige</Link>
+              ) : (
+                <span className="text-gray-400">Vorige</span>
+              )}
+            </PaginationPrevious>
+            {/* Render page numbers */}
+            <PaginationContent>
+              {Array.from({ length: totalPages }, (_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      href={`/home/forum/${tabId}?page=${pageNum}`}
+                      isActive={pageNum === currentPage}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+            </PaginationContent>
+            <PaginationNext>
+              {currentPage === totalPages ? (
+                <span className="text-gray-400">Volgende</span>
+              ) : (
+                <Link href={`/home/forum/${tabId}?page=${currentPage + 1}`}>Volgende</Link>
+              )}
+            </PaginationNext>
+          </Pagination>
+        </div>
+      )}
+    </>
+  );
+
+  const tabs: TabItem[] = [
+    {
+      id: "questions",
+      label: "Alle vragen",
+      content: renderPostList(forumPosts, totalPages, page, "questions"),
     },
     {
-      id: "mijn",
+      id: "my-questions",
       label: "Mijn vragen",
-      content: <div>Content for Mijn vragen</div>,
+      content: renderPostList(myQuestions, myQuestionsPages, page, "my-questions"),
     },
     {
-      id: "antwoorden",
+      id: "my-answers",
       label: "Mijn antwoorden",
-      content: <div>Content for Mijn antwoorden</div>,
+      content: renderPostList(enhancedReplies, myAnswersPages, page, "my-answers"),
     },
     {
-      id: "hoe",
+      id: "how-the-forum-works",
       label: "Hoe werkt het forum?",
       content: (
         <MarkdownRenderer
@@ -262,7 +378,7 @@ export default async function ForumHome({
 
 ---
 
-Welkom op ons leerforum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt.
+Welkom op ons forum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt, of gewoon chatten.
 
 ### 🔍 Zoeken naar antwoorden
 
@@ -290,12 +406,12 @@ Je verdient punten door actief bij te dragen:
 * 👍 Een upvote ontvangen op jouw antwoord: +1 punt
 * ❓ Een vraag stellen: +10 punten
 
-Met punten verdien je prestaties die je als titel in kan stellen onder je naam!<br />
-En het ziet er gewoon cool uit.
+Met punten verdien je prestaties die je als titel in kan stellen onder je naam! En het ziet er gewoon cool uit.
 
 ### 🚨 Moderatie
 
-Alleen vragen die choquerend, spam of beledigend zijn, worden verwijderd.<br />
+Alleen vragen die ongepast, spam of beledigend zijn, worden verwijderd.
+
 In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan!
 
 ---
@@ -309,10 +425,6 @@ Veel leerplezier! 🚀
   ];
   let banned = false;
   if (!user!.forumAllowed || !user!.loginAllowed) {
-    // return {
-    //   success: false,
-    //   error: `Je bent ${user!.forumBanEnd ? `tot ${user!.forumBanEnd}` : 'permanent'} verbannen van PolarLearn's forums. Reden:`
-    // };
     banned = true;
   }
   return (
@@ -328,7 +440,12 @@ Veel leerplezier! 🚀
           />
           <div className="w-4" />
         </div>
-        <Tabs tabs={tabs} defaultActiveTab="alle" />
+        <Tabs
+          tabs={tabs}
+          defaultActiveTab={defaultActiveTab}
+          withRoutes={true}
+          baseRoute="/home/forum" // enforce fixed base route
+        />
       </div>
     </>
   );
