@@ -234,7 +234,7 @@ export default async function Page({
                                         </div>
                                         <div className="flex-grow">
                                             {/* <h3 className="font-medium">{replyCreator?.name || reply.creator}</h3> */}
-                                            <CreatorLink creator={postcreator?.name || post.creator} color="white" />
+                                            <CreatorLink creator={replyCreator?.name || reply.creator} color="white" />
                                             <p className="text-sm text-gray-400">{replyTime}</p>
                                         </div>
                                         <div className="flex items-center gap-2">

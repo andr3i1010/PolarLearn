@@ -95,7 +95,7 @@ export default function Tabs({ tabs, defaultActiveTab, withRoutes, baseRoute }: 
                         className="text-2xl font-bold cursor-pointer pb-1 text-white"
                         onClick={() => {
                             setActiveTab(tab.id);
-                            if (withRoutes) {
+                            if (withRoutes && pathname) {
                                 const route = baseRoute
                                     ? `${baseRoute.replace(/\/$/, "")}/${tab.id}`
                                     : `${pathname.replace(/\/$/, "")}/${tab.id}`;

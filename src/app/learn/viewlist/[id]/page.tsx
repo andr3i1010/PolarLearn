@@ -4,6 +4,10 @@ import Link from "next/link";
 import Tabs, { TabItem } from "@/components/Tabs";
 import Dropdown from "@/components/button/DropdownBtn";
 import React from 'react';
+import { PencilIcon } from "lucide-react";
+import { cookies } from "next/headers";
+import { getUserFromSession } from "@/utils/auth/auth";
+import { Badge } from "@/components/ui/badge";
 
 import Image from "next/image";
 import nsk_img from '@/app/img/nask.svg';
@@ -97,7 +101,12 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             published: true,
             updatedAt: true
         }
-    })
+    });
+
+    // Check if current user is the creator to show edit button
+    const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+    const isCreator = listData?.creator === currentUser?.name;
+    const isUnpublished = listData?.published === false;
 
     // Use the top-level subject field from the practice model
     const subject = listData?.subject || 'general';
@@ -318,10 +327,31 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
         <div className="px-4">
             <div className="h-4" />
             <div className="px-4 py-4">
-                <h1 className="text-4xl font-bold">
-                    <SubjectIconWithSVG subject={subject} />
-                    <span className="whitespace-normal break-words max-w-[40ch]">{listData?.name}</span>
-                </h1>
+                <div className="flex items-center justify-between">
+                    <h1 className="text-4xl font-bold flex items-center gap-2">
+                        <SubjectIconWithSVG subject={subject} />
+                        <span className="whitespace-normal break-words max-w-[40ch]">{listData?.name}</span>
+                        {isUnpublished && (
+                            <Badge
+                                variant="secondary"
+                                className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50"
+                            >
+                                Concept
+                            </Badge>
+                        )}
+                    </h1>
+
+                    {/* Add edit button for creator */}
+                    {isCreator && (
+                        <Link
+                            href={`/learn/editlist/${id}`}
+                            className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                            title="Lijst bewerken"
+                        >
+                            <PencilIcon className="h-6 w-6 text-white" />
+                        </Link>
+                    )}
+                </div>
                 <div className="h-4" />
                 <div className="flex flex-col gap-4">
                     <div className="flex-row flex items-center">

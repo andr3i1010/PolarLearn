@@ -1,4 +1,3 @@
-
 import { prisma } from "@/utils/prisma";
 import Image from 'next/image';
 import PlusBtn from "@/components/button/plus";
@@ -6,6 +5,8 @@ import Link from 'next/link';
 import CreatorLink from "@/components/links/CreatorLink";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
+import { PencilIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 // Subject images //
 import nsk_img from '@/app/img/nask.svg'
@@ -26,6 +27,22 @@ async function getRecentSubjects() {
   return (account?.list_data as any)?.recent_subjects || [];
 }
 
+// Define a more complete interface for practice list items
+interface PracticeListItem {
+  id: string;
+  list_id: string;
+  name: string;
+  mode: string;
+  subject: string;
+  lang_from: string;
+  lang_to: string;
+  data: any;
+  creator: string;
+  createdAt: Date;
+  updatedAt: Date;
+  published: boolean;
+}
+
 async function getRecentLists() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
   const account = await prisma.user.findUnique({
@@ -37,9 +54,10 @@ async function getRecentLists() {
   const createdListIds = (account?.list_data as any)?.created_lists || [];
   const combinedListIds = [...recentListIds, ...createdListIds];
 
-  // Fetch complete list data from the database if we have IDs
+  // First, fetch lists by their IDs from combined list
+  let combinedLists: PracticeListItem[] = [];
   if (combinedListIds.length > 0) {
-    const lists = await prisma.practice.findMany({
+    const listsById = await prisma.practice.findMany({
       where: {
         list_id: {
           in: combinedListIds
@@ -48,19 +66,44 @@ async function getRecentLists() {
     });
 
     // Sort lists based on the combined order of recent and created lists
-    const orderedLists = combinedListIds
-      .map((id: string) => lists.find((list: { list_id: string; }) => list.list_id === id))
-      .filter(Boolean);
-
-    return orderedLists;
+    combinedLists = combinedListIds
+      .map((id: string) => listsById.find((list: { list_id: string; }) => list.list_id === id))
+      .filter(Boolean) as PracticeListItem[];
   }
 
-  return [];
+  // Also directly fetch all lists created by this user (including autosaved drafts)
+  if (user?.name) {
+    const userCreatedLists = await prisma.practice.findMany({
+      where: {
+        creator: user.name
+      }
+    });
+
+    // Add any user-created lists that weren't already in our combined list
+    for (const list of userCreatedLists) {
+      if (!combinedLists.some(existingList => existingList.list_id === list.list_id)) {
+        combinedLists.push(list as PracticeListItem);
+      }
+    }
+  }
+
+  // Sort the final combined list: newest at the top, oldest at the bottom
+  combinedLists.sort((a, b) => {
+    const dateA = new Date(a.updatedAt || a.createdAt).getTime();
+    const dateB = new Date(b.updatedAt || b.createdAt).getTime();
+    return dateB - dateA; // Descending order: newest (large timestamp) to oldest (small timestamp)
+  });
+
+  return combinedLists;
 }
 
 export default async function Start() {
   const recentSubjects = await getRecentSubjects();
   const recentLists = await getRecentLists();
+
+  // Get current user name once to use in comparisons
+  const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+  const currentUserName = currentUser?.name;
 
   // Extract the subject emoji map for reuse
   const subjectEmojiMap: Record<string, React.ReactNode> = {
@@ -184,8 +227,8 @@ export default async function Start() {
                 <>
                   {recentLists.map((list: any, index: number) => (
                     <div key={list.list_id}>
-                      <Link href={`/learn/viewlist/${list.list_id}`} key={index}>
-                        <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                      <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                        <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center" key={index}>
                           <div className="flex items-center">
                             {list.subject && (
                               <Image
@@ -196,7 +239,7 @@ export default async function Start() {
                                         list.subject === "EN" ? eng_img :
                                           list.subject === "WI" ? math_img :
                                             list.subject === "NSK" ? nsk_img :
-                                              list.subject === "AK" ? ak_img :  // added geography subject case
+                                              list.subject === "AK" ? ak_img :
                                                 list.subject === "GS" ? gs_img :
                                                   list.subject === "BI" ? bi_img : ''
                                 }
@@ -206,23 +249,44 @@ export default async function Start() {
                                 className="mr-2"
                               />
                             )}
-                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">{list.name}</span>
+                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                              {list.name}
+                              {list.published === false && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
+                                >
+                                  Concept
+                                </Badge>
+                              )}
+                            </span>
                           </div>
-
+                          <div className="flex-grow"></div>
                           <div className="flex items-center">
                             {Array.isArray(list.data) && list.data.length === 1
                               ? "1 woord"
                               : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
                           </div>
+                        </Link>
 
-                          {/* Center: creator link absolutely centered */}
-                          {list.creator && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                              <CreatorLink creator={list.creator} />
-                            </div>
-                          )}
-                        </div>
-                      </Link>
+                        {/* Center: creator link absolutely centered */}
+                        {list.creator && (
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
+                            <CreatorLink creator={list.creator} />
+                          </div>
+                        )}
+
+                        {/* Replace text button with pencil icon */}
+                        {list.creator === currentUserName && (
+                          <Link
+                            href={`/learn/editlist/${list.list_id}`}
+                            className="ml-4 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                            title="Lijst bewerken"
+                          >
+                            <PencilIcon className="h-5 w-5 text-white" />
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </>

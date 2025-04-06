@@ -111,7 +111,8 @@ export default async function Page({ params }: PageProps) {
             where: {
                 list_id: {
                     in: listdata.created_lists
-                }
+                },
+                published: true // Only show published lists
             },
             select: {
                 list_id: true,
