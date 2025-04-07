@@ -206,7 +206,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             `/learn/mind/${id}`
         ],
         [
-            <div key="livequiz" className="flex items-center">
+            <div key="multichoice" className="flex items-center">
                 <Image src={livequiz} alt="Multikeuze plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">Multikeuze</span>
             </div>,

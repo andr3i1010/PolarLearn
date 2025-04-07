@@ -7,11 +7,12 @@ export default async function Page({
 }: {
     params: Promise<{ id: string }>;
 }) {
-    // Remove await—params is provided synchronously
     const { id } = await params;
     const listdata = await prisma.practice.findFirst({
         where: { list_id: id },
     });
+    
+    // Use the same direct casting approach as in test/[id]/page.tsx
     const rawListData =
         listdata && listdata.data
             ? (listdata.data as { vraag: string; antwoord: string }[])

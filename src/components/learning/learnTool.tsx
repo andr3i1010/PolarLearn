@@ -93,6 +93,32 @@ export default function LearnTool({
     }
   };
 
+  const getOptionText = (buttonNumber: number, correctAnswer: string): string => {
+    if (randomNumber === buttonNumber) {
+      return correctAnswer;
+    }
+
+    if (lijstDataOud.length < 2) {
+      return "Optie";
+    }
+
+    let attempts = 0;
+    let randomAnswer = "";
+
+    do {
+      if (attempts > 10) {
+        const randomIndex = Math.floor(Math.random() * lijstDataOud.length);
+        return lijstDataOud[randomIndex]?.antwoord || "Optie";
+      }
+
+      attempts++;
+      const randomIndex = Math.floor(Math.random() * lijstDataOud.length);
+      randomAnswer = lijstDataOud[randomIndex]?.antwoord || "";
+    } while (randomAnswer === correctAnswer && attempts < 10);
+
+    return randomAnswer || "Optie";
+  };
+
   const QuestionDisplay = () => (
     <div className="relative flex flex-col items-center w-full">
       <p className='text-2xl font-extrabold text-center'>{lijstData[0].vraag}</p>
@@ -164,74 +190,50 @@ export default function LearnTool({
                 </Button1>
               </>
             ) : mode === "multikeuze" ? (
-              <div className='flex flex-col gap-4'>
-                <div className='flex flex-row items-center gap-4'>
-                  <Button1
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === 1)}
-                    className="w-40"
-                    disabled={isAnswering}
-                    aria-label="Multiple choice option 1"
-                    text={randomNumber === 1 ? lijstData[0].antwoord : (() => {
-                      let randomAnswer;
-                      do {
-                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
-                      } while (randomAnswer === lijstData[0].antwoord);
-                      return randomAnswer;
-                    })()}
-                  >
-                  </Button1>
-                  <Button1
-                    className="w-40"
-
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === 2)}
-                    disabled={isAnswering}
-                    aria-label="Multiple choice option 2"
-                    text={randomNumber === 2 ? lijstData[0].antwoord : (() => {
-                      let randomAnswer;
-                      do {
-                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
-                      } while (randomAnswer === lijstData[0].antwoord);
-                      return randomAnswer;
-                    })()}
-                  >
-
-                  </Button1>
-                </div>
-                <div className='flex flex-row items-center gap-4'>
-                  <Button1
-                    className="w-40"
-
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === 3)}
-                    disabled={isAnswering}
-                    aria-label="Multiple choice option 3"
-                    text={randomNumber === 3 ? lijstData[0].antwoord : (() => {
-                      let randomAnswer;
-                      do {
-                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
-                      } while (randomAnswer === lijstData[0].antwoord);
-                      return randomAnswer;
-                    })()}
-                  >
-
-                  </Button1>
-                  <Button1
-                    className="w-40"
-
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === 4)}
-                    disabled={isAnswering}
-                    aria-label="Multiple choice option 4"
-                    text={randomNumber === 4 ? lijstData[0].antwoord : (() => {
-                      let randomAnswer;
-                      do {
-                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
-                      } while (randomAnswer === lijstData[0].antwoord);
-                      return randomAnswer;
-                    })()}
-                  >
-
-                  </Button1>
-                </div>
-              </div>
+              <>
+                {lijstData.length && lijstDataOud.length ? (
+                  <div className='flex flex-col gap-4'>
+                    <div className='flex flex-row items-center gap-4'>
+                      <Button1
+                        onClick={() => handleAntwoordmultikeuze(randomNumber === 1)}
+                        className="w-40"
+                        disabled={isAnswering}
+                        aria-label="Multiple choice option 1"
+                        text={getOptionText(1, lijstData[0].antwoord)}
+                      >
+                      </Button1>
+                      <Button1
+                        className="w-40"
+                        onClick={() => handleAntwoordmultikeuze(randomNumber === 2)}
+                        disabled={isAnswering}
+                        aria-label="Multiple choice option 2"
+                        text={getOptionText(2, lijstData[0].antwoord)}
+                      >
+                      </Button1>
+                    </div>
+                    <div className='flex flex-row items-center gap-4'>
+                      <Button1
+                        className="w-40"
+                        onClick={() => handleAntwoordmultikeuze(randomNumber === 3)}
+                        disabled={isAnswering}
+                        aria-label="Multiple choice option 3"
+                        text={getOptionText(3, lijstData[0].antwoord)}
+                      >
+                      </Button1>
+                      <Button1
+                        className="w-40"
+                        onClick={() => handleAntwoordmultikeuze(randomNumber === 4)}
+                        disabled={isAnswering}
+                        aria-label="Multiple choice option 4"
+                        text={getOptionText(4, lijstData[0].antwoord)}
+                      >
+                      </Button1>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-center p-4">Niet genoeg woorden om meerkeuze te starten.</p>
+                )}
+              </>
             ) : (
               <>
                 <Button1
