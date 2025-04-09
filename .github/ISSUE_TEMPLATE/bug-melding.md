@@ -2,7 +2,7 @@
 name: Bug-melding
 about: Maak een bug-melding aan zodat wij het z.s.m kunnen oplossen.
 title: "[BUG]"
-labels: ''
+labels: bug
 assignees: ''
 
 ---

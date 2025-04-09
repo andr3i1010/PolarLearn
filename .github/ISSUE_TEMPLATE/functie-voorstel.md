@@ -2,7 +2,7 @@
 name: Functie-voorstel
 about: Stel een functie voor aan de makers van PolarLearn
 title: "[FR]"
-labels: ''
+labels: enhancement
 assignees: ''
 
 ---
