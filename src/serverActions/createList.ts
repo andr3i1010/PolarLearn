@@ -95,7 +95,6 @@ export async function createListAction(listData: {
 
 					if (!user) {
 						const plainResult = JSON.parse(JSON.stringify(result));
-						console.log("createListAction completed successfully");
 						return plainResult; // Return the plain object
 					}
 
@@ -127,7 +126,6 @@ export async function createListAction(listData: {
 
 		// Return the result as a plain object to avoid Prisma serialization issues
 		const plainResult = JSON.parse(JSON.stringify(result));
-		console.log("createListAction completed successfully");
 		return plainResult;
 	} catch (error) {
 		console.error("Error in createListAction:", error);
