@@ -342,11 +342,9 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   const autosaveList = async () => {
     // Only check for subject, always save if we have one
     if (!selectedSubject) {
-      console.log("No subject selected, skipping autosave");
       return;
     }
 
-    console.log("Starting autosave...");
     setIsSaving(true);
 
     try {
@@ -369,7 +367,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
         setAutosavedListId(data.list_id);
         setLastSaved(new Date());
         setHasChanges(false);
-        console.log("Autosave successful, list ID:", data.list_id);
       }
     } catch (error) {
       console.error("Autosave failed:", error);
@@ -389,7 +386,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
       // Set new timeout to save after just 800ms
       debouncedSaveTimeoutRef.current = setTimeout(() => {
-        console.log("Auto-triggering save due to change");
         autosaveList();
       }, 800);
     }
@@ -449,7 +445,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
     try {
       const data = await createListAction(listData);
       const message = isEditMode ? "Lijst succesvol bijgewerkt." : "Lijst succesvol opgeslagen.";
-      console.log(isEditMode ? "List updated" : "List saved", data);
       toast.success(message);
       setHasChanges(false);
       setLastSaved(new Date());

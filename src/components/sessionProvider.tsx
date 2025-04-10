@@ -33,7 +33,6 @@ export default function SessionProvider({
             const response = await fetch("/api/auth/check-session");
 
             if (!response.ok) {
-                console.log("Session invalid, redirecting to login");
                 setIsAuthenticated(false);
                 router.push("/auth/sign-in");
                 return false;

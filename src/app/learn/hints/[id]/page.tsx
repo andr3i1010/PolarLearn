@@ -22,9 +22,14 @@ export default async function Page({
         await addToRecentSubjects(listdata.subject);
     }
 
+    // Transform the data correctly - the database has format { "1": string, "2": string }
+    // but LearnTool expects { vraag: string, antwoord: string }
     const rawListData =
-        listdata && listdata.data
-            ? (listdata.data as { vraag: string; antwoord: string }[])
+        listdata && listdata.data && Array.isArray(listdata.data)
+            ? listdata.data.map((item: any) => ({
+                vraag: item["1"] || "",
+                antwoord: item["2"] || ""
+            }))
             : [];
 
     return (

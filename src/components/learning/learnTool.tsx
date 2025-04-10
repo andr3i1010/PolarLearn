@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, memo } from 'react';
+import { useState, useCallback, useMemo, memo, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { AnimatePresence, motion } from "motion/react";
 import Image from 'next/image';
@@ -109,7 +109,9 @@ const LearnTool = ({
 
   // Use useMemo for initial data processing
   const initialMappedData = useMemo(() => {
-    if (!rawlistdata) return [];
+    if (!rawlistdata || !Array.isArray(rawlistdata) || rawlistdata.length === 0) {
+      return [];
+    }
 
     return rawlistdata
       .map(item => ({
@@ -127,11 +129,26 @@ const LearnTool = ({
   const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() * 4) + 1);
   const [isAnswering, setIsAnswering] = useState(false);
 
+  // Use an effect to clear the input field when the current question changes
+  const [currentQuestion, setCurrentQuestion] = useState<string>("");
+
+  // Watch for changes in the current question and clear input when it changes
+  useEffect(() => {
+    if (lijstData.length > 0 && lijstData[0]?.vraag !== currentQuestion) {
+      setCurrentQuestion(lijstData[0]?.vraag || "");
+      setUserInput("");
+    }
+  }, [lijstData]);
+
   // Use useCallback for event handlers that are passed to child components
   const antwoordFoutVolgende = useCallback(() => {
     if (lijstData.length > 0) {
       const [huidigeVraag, ...rest] = lijstData;
       setLijstData([...rest, huidigeVraag]);
+      // Force clear the input field when moving to next question
+      setTimeout(() => {
+        setUserInput("");
+      }, 100);
     }
     setToonAntwoord(false);
   }, [lijstData]);
@@ -150,6 +167,7 @@ const LearnTool = ({
       setToonAntwoord(true);
       setTimeout(() => {
         antwoordFoutVolgende();
+        setUserInput(""); // Clear input after wrong answer too
       }, 2000);
     }
   }, [lijstData, userInput, shuffleArray, antwoordFoutVolgende]);
@@ -219,7 +237,116 @@ const LearnTool = ({
 
   return (
     <div className='bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-auto min-h-[240px] max-h-[350px] rounded-lg flex flex-col justify-center'>
-      {/* Component content */}
+      {initialMappedData.length === 0 ? (
+        <div className="text-center text-white p-4">
+          <div className="font-bold text-xl mb-2">No list data available</div>
+          <div className="text-gray-400">Please check that you have valid data in this list</div>
+          <div className="text-gray-500 mt-4">Debug info: </div>
+          <div className="text-gray-500 text-xs mt-1">Raw data length: {rawlistdata?.length || 0}</div>
+          <div className="text-gray-500 text-xs">Mode: {mode}</div>
+        </div>
+      ) : lijstData.length === 0 ? (
+        <div className="text-center text-white p-4">
+          <div className="font-bold text-xl mb-2">Congratulations!</div>
+          <div>You've completed all questions in this list.</div>
+          <Button1 onClick={() => setLijstData(shuffleArray(initialMappedData))} text="Start Again" className="mt-4" />
+        </div>
+      ) : (
+        <div className='flex flex-col items-center justify-center p-4 h-full'>
+          <QuestionDisplay question={lijstData[0]?.vraag || ""} />
+
+          {mode === "toets" && (
+            <div className="w-full max-w-md">
+              <Input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder="Type je antwoord hier..."
+                className="w-full"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAntwoordControleren();
+                  }
+                }}
+              />
+              <div className="flex gap-2 mt-4">
+                <Button1 onClick={handleAntwoordControleren} text="Controleren" className="flex-1" />
+              </div>
+            </div>
+          )}
+
+          {mode === "multikeuze" && (
+            <div className="grid grid-cols-2 gap-2 w-full max-w-md mt-2">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <MultiChoiceButton
+                  key={index}
+                  onClick={() => handleAntwoordmultikeuze(randomNumber === index + 1)}
+                  isCorrect={randomNumber === index + 1}
+                  optionNumber={index + 1}
+                  text={getOptionText(index + 1, lijstData[0]?.antwoord || "")}
+                  disabled={isAnswering}
+                />
+              ))}
+            </div>
+          )}
+
+          {mode === "gedachten" && (
+            <div className="flex gap-2 mt-4 w-full max-w-md">
+              <Button1
+                onClick={() => handleAntwoordControlerenGedachten(true)}
+                text="Correct"
+                className="flex-1"
+              />
+              <Button1
+                onClick={() => handleAntwoordControlerenGedachten(false)}
+                text="Incorrect"
+                className="flex-1 bg-red-600 hover:bg-red-700"
+              />
+            </div>
+          )}
+
+          {mode === "hints" && (
+            <div className="w-full max-w-md">
+              <div className="flex flex-col gap-2 mt-4">
+                <Button1
+                  onClick={() => setToonAntwoord(true)}
+                  text="Toon Antwoord"
+                  className="w-full"
+                />
+                {toonAntwoord && (
+                  <div className="p-4 bg-neutral-700 rounded-lg text-center">
+                    <ScrollableAnswer text={lijstData[0]?.antwoord || ""} />
+                  </div>
+                )}
+                {toonAntwoord && (
+                  <div className="flex gap-2 mt-2">
+                    <Button1
+                      onClick={() => {
+                        const [_, ...rest] = lijstData;
+                        setLijstData(shuffleArray(rest));
+                        setToonAntwoord(false);
+                      }}
+                      text="Correct"
+                      className="flex-1"
+                    />
+                    <Button1
+                      onClick={antwoordFoutVolgende}
+                      text="Incorrect"
+                      className="flex-1 bg-red-600 hover:bg-red-700"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      <AnimatePresence>
+        {toonAntwoord && (
+          <AnswerOverlay correct={false} answer={lijstData[0]?.antwoord} />
+        )}
+        {showCorrect && <AnswerOverlay correct={true} />}
+      </AnimatePresence>
     </div>
   );
 };

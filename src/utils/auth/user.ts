@@ -58,10 +58,8 @@ export async function createUserCredentials(
       })
       .catch((err) => {
         if (err.code === "P2002") {
-          console.log("Unique constraint failed:", err.meta);
           reject({ success: false, error: "userexists" });
         }
-        console.log(err)
         reject(err);
       });
   });

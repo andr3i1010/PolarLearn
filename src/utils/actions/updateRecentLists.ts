@@ -29,7 +29,6 @@ export async function addToRecentLists(listId: string) {
         recentLists[0] !== listId;
 
     if (!needsUpdate) {
-        console.log(`No update needed for recent lists.`);
         return;
     }
 
@@ -38,8 +37,6 @@ export async function addToRecentLists(listId: string) {
 
     // Keep only a limited number of recent lists (e.g., 10)
     const limitedRecentLists = updatedRecentLists.slice(0, 10);
-
-    console.log(`Updating recent lists: ${limitedRecentLists.slice(0, 3).join(', ')}...`);
 
     // Update the user record
     await prisma.user.update({

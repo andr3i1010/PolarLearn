@@ -17,8 +17,11 @@ export default async function Page({
     await addToRecentLists(id);
 
     const rawListData =
-        listdata && listdata.data
-            ? (listdata.data as { vraag: string; antwoord: string }[])
+        listdata && listdata.data && Array.isArray(listdata.data)
+            ? listdata.data.map((item: any) => ({
+                vraag: item["1"] || "",
+                antwoord: item["2"] || ""
+            }))
             : [];
 
     return (
