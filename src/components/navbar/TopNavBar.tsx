@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.png";
@@ -9,39 +9,62 @@ import { usePathname } from 'next/navigation'
 const dropdownMatrixStart: [React.ReactNode, string][] = [
     ["Groepen", "/home/start"],
     ["Gemaakte lijsten", "/home/forum"],
-    ["Vakken", "/sign-in"],
+    ["Vakken", "/learn/subjects"],
 ];
 
-export function TopNavBar() {
-    const [isMdOrSmaller, setIsMdOrSmaller] = useState<boolean>(false);
-    const pathname = usePathname()
+// Memoized navigation links component
+const NavigationLinks = memo(({ pathname }: { pathname: string }) => (
+    <>
+        <NavBtn text="Start" redirectTo="/home/start" useClNav={true} />
+        <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
+        <div className="relative block mb-12" style={{ textAlign: "left" }}>
+            <DropdownBtn selectorMode={false} text={"Leren"} dropdownMatrix={dropdownMatrixStart} />
+        </div>
+        <div className="ml-auto relative block dropdown-right">
+            <DropdownBtn
+                selectorMode={false}
+                text={"Account"}
+                dropdownMatrix={[
+                    ["Accountinstellingen", "/home/settings"],
+                    ["Uitloggen", "/auth/sign-out"]
+                ]}
+            />
+        </div>
+    </>
+));
 
-    const handleResize = useCallback(() => {
-        setIsMdOrSmaller(window.innerWidth < 1024);
-    }, [])
+// Memoized login button component
+const LoginButton = memo(() => (
+    <div className="ml-auto flex items-center pr-4">
+        <NavBtn text="Log in" redirectTo="/auth/sign-in" useClNav={false} />
+    </div>
+));
 
-    useEffect(() => {
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, [handleResize]);
+export const TopNavBar = memo(function TopNavBar() {
+    const pathname = usePathname();
 
-    // Render minimal empty bottom navbar for md screens and smaller
-    if (isMdOrSmaller) {
-        return (
-            <>
-                <nav className="fixed bottom-0 min-w-full h-8 bg-neutral-900/70 backdrop-blur-sm" />
-                <div className="h-8" />
-            </>
-        );
-    }
-    const showOnViewList = pathname.startsWith('/learn/viewlist');
-    const hideOnCreateList = pathname === "/home/createlist";
-    const showOnHomeRoutes = pathname === "/" || pathname.startsWith("/home");
+    // Use useMemo for display conditions to prevent recalculations on every render
+    const displayConditions = useMemo(() => {
+        const showOnViewList = pathname.startsWith('/learn/viewlist');
+        const showOnSubjects = pathname.startsWith('/learn/subjects');
+        const hideOnCreateList = pathname === "/home/createlist";
+        const showOnHomeRoutes = pathname === "/" || pathname.startsWith("/home");
 
-    if (!showOnViewList && (hideOnCreateList || !showOnHomeRoutes)) {
+        return {
+            showOnViewList,
+            showOnSubjects,
+            hideOnCreateList,
+            showOnHomeRoutes,
+            shouldRender: showOnViewList || showOnSubjects || !(hideOnCreateList || !showOnHomeRoutes),
+            showNavLinks: pathname.startsWith("/home") || showOnViewList || showOnSubjects,
+            showLoginButton: pathname === "/"
+        };
+    }, [pathname]);
+
+    if (!displayConditions.shouldRender) {
         return null;
     }
+
     return (
         <>
             <nav className="fixed top-0 min-w-full shadow-md start-0 max-w-screen-xl z-[100] flex flex-wrap justify-between h-16 bg-neutral-900/70 backdrop-blur-sm items-center fade-in font-[family-name:var(--font-geist-sans)] font-bold">
@@ -54,29 +77,8 @@ export function TopNavBar() {
                             <p>BETA</p>
                         </div>
                     )}
-                    {pathname && (pathname.startsWith("/home") || showOnViewList) ? (  // updated condition
-                        <>
-                            <NavBtn text="Start" redirectTo="/home/start" useClNav={true} />
-                            <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
-                            <div className="relative block mb-12" style={{ textAlign: "left" }}>
-                                <DropdownBtn selectorMode={false} text={"Leren"} dropdownMatrix={dropdownMatrixStart} />
-                            </div>
-                            <div className="ml-auto relative block dropdown-right">
-                                <DropdownBtn
-                                    selectorMode={false}
-                                    text={"Account"}
-                                    dropdownMatrix={[
-                                        ["Accountinstellingen", "/home/settings"],
-                                        ["Uitloggen", "/auth/sign-out"]
-                                    ]}
-                                />
-                            </div>
-                        </>
-                    ) : pathname === "/" ? (
-                        <div className="ml-auto flex items-center pr-4">
-                            <NavBtn text="Log in" redirectTo="/auth/sign-in" useClNav={false} />
-                        </div>
-                    ) : null}
+                    {displayConditions.showNavLinks && <NavigationLinks pathname={pathname} />}
+                    {displayConditions.showLoginButton && <LoginButton />}
                 </div>
             </nav>
             <div className="h-16" />
@@ -88,4 +90,4 @@ export function TopNavBar() {
             `}</style>
         </>
     );
-}
+});

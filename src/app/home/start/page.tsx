@@ -7,6 +7,8 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
 import { PencilIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Trash2 } from "lucide-react";
+import DeleteListButton from "@/components/learning/DeleteListButton";
 
 // Subject images //
 import nsk_img from '@/app/img/nask.svg'
@@ -45,56 +47,73 @@ interface PracticeListItem {
 
 async function getRecentLists() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
+  if (!user) return [];
+
   const account = await prisma.user.findUnique({
-    where: { id: user?.id }
+    where: { id: user.id }
   });
 
-  // Get list IDs from user's recent_lists and created_lists
-  const recentListIds = (account?.list_data as any)?.recent_lists || [];
-  const createdListIds = (account?.list_data as any)?.created_lists || [];
-  const combinedListIds = [...recentListIds, ...createdListIds];
+  const listData = account?.list_data as any || {};
 
-  // First, fetch lists by their IDs from combined list
-  let combinedLists: PracticeListItem[] = [];
-  if (combinedListIds.length > 0) {
-    const listsById = await prisma.practice.findMany({
-      where: {
-        list_id: {
-          in: combinedListIds
-        }
-      }
-    });
+  // Get recently practiced lists - this array contains the IDs in order of recency
+  const recentListIds = Array.isArray(listData.recent_lists)
+    ? listData.recent_lists.filter(Boolean)
+    : [];
 
-    // Sort lists based on the combined order of recent and created lists
-    combinedLists = combinedListIds
-      .map((id: string) => listsById.find((list: { list_id: string; }) => list.list_id === id))
-      .filter(Boolean) as PracticeListItem[];
-  }
+  // Get user-created lists
+  const createdListIds = Array.isArray(listData.created_lists)
+    ? listData.created_lists.filter(Boolean)
+    : [];
 
-  // Also directly fetch all lists created by this user (including autosaved drafts)
-  if (user?.name) {
-    const userCreatedLists = await prisma.practice.findMany({
-      where: {
-        creator: user.name
-      }
-    });
+  // Create combined list of IDs to fetch
+  const combinedListIds = [...recentListIds, ...createdListIds].filter(Boolean);
 
-    // Add any user-created lists that weren't already in our combined list
-    for (const list of userCreatedLists) {
-      if (!combinedLists.some(existingList => existingList.list_id === list.list_id)) {
-        combinedLists.push(list as PracticeListItem);
-      }
+  // If we have no valid list IDs and no user, return empty array
+  if (combinedListIds.length === 0 && !user?.name) return [];
+
+  // Fetch all relevant lists
+  const lists = await prisma.practice.findMany({
+    where: {
+      OR: [
+        // Only include the list ID condition if we have IDs
+        ...(combinedListIds.length > 0 ? [{
+          list_id: { in: combinedListIds }
+        }] : []),
+        // Also include lists created by this user
+        { creator: user.name as string }
+      ]
     }
-  }
-
-  // Sort the final combined list: newest at the top, oldest at the bottom
-  combinedLists.sort((a, b) => {
-    const dateA = new Date(a.updatedAt || a.createdAt).getTime();
-    const dateB = new Date(b.updatedAt || b.createdAt).getTime();
-    return dateB - dateA; // Descending order: newest (large timestamp) to oldest (small timestamp)
   });
 
-  return combinedLists;
+  // Create a map for quick lookup of the list's position in recentListIds
+  interface RecentListPositions {
+    [listId: string]: number;
+  }
+
+  const recentListIdPositions: RecentListPositions = Object.fromEntries(
+    recentListIds.map((id: string, index: number) => [id, index])
+  );
+
+  // More sophisticated sorting that prioritizes recently practiced lists
+  return lists.sort((a, b) => {
+    // First, check if both lists are in recentListIds
+    const aInRecent = a.list_id in recentListIdPositions;
+    const bInRecent = b.list_id in recentListIdPositions;
+
+    if (aInRecent && bInRecent) {
+      // Both lists are recently practiced, compare their positions in recentListIds
+      return recentListIdPositions[a.list_id] - recentListIdPositions[b.list_id];
+    } else if (aInRecent) {
+      // Only a is recently practiced, so a comes first
+      return -1;
+    } else if (bInRecent) {
+      // Only b is recently practiced, so b comes first
+      return 1;
+    } else {
+      // Neither is recently practiced, fallback to updatedAt timestamp
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    }
+  });
 }
 
 export default async function Start() {
@@ -184,26 +203,27 @@ export default async function Start() {
                   <p className="absolute top-[35px] w-full pl-9 text-neutral-400 font-bold">
                     Je hebt nog geen vakken geoefend. Leer een lijst van een bepaalde vak, en de geoefende vak van de lijst komt hier.
                   </p>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
 
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
                 </>
               )}
               {recentSubjects.map((subject: string, index: number) => (
-                <div
+                <Link
                   key={index}
-                  className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"
+                  href={`/learn/subjects/${subject}`}
+                  className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid transition-colors"
                 >
                   {
                     (() => {
                       return subjectEmojiMap[subject] ? subjectEmojiMap[subject] : "";
                     })()
                   }
-                </div>
+                </Link>
               ))}
             </div>
             <div className="h-3" />
@@ -262,30 +282,39 @@ export default async function Start() {
                             </span>
                           </div>
                           <div className="flex-grow"></div>
-                          <div className="flex items-center">
+                          <div className="flex items-center pr-2">
                             {Array.isArray(list.data) && list.data.length === 1
                               ? "1 woord"
                               : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
                           </div>
                         </Link>
 
-                        {/* Center: creator link absolutely centered */}
                         {list.creator && (
                           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
                             <CreatorLink creator={list.creator} />
                           </div>
                         )}
 
-                        {/* Replace text button with pencil icon */}
-                        {list.creator === currentUserName && (
-                          <Link
-                            href={`/learn/editlist/${list.list_id}`}
-                            className="ml-4 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                            title="Lijst bewerken"
-                          >
-                            <PencilIcon className="h-5 w-5 text-white" />
-                          </Link>
-                        )}
+                        {/* Action buttons for list owner */}
+                        <div className="flex items-center gap-2">
+                          {list.creator === currentUserName && (
+                            <Link
+                              href={`/learn/editlist/${list.list_id}`}
+                              className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                              title="Lijst bewerken"
+                            >
+                              <PencilIcon className="h-5 w-5 text-white" />
+                            </Link>
+                          )}
+                          {list.creator === currentUserName && (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                              <DeleteListButton
+                                listId={list.list_id}
+                                isCreator={list.creator === currentUserName}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

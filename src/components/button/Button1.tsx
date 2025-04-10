@@ -1,5 +1,5 @@
 "use client"
-import React from "react";
+import React, { useCallback } from "react";
 import Link from "next/link";
 
 interface ButtonProps {
@@ -8,23 +8,36 @@ interface ButtonProps {
   type?: "button" | "submit" | "reset";
   className?: string;
   useClNav?: boolean;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  disabled?: boolean; // Add disabled prop
+  onClick?: () => void;
+  disabled?: boolean;
 }
 
 // Add missing cn utility if not available in your project
 function cn(...classes: (string | boolean | undefined)[]): string {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 
-const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, useClNav, onClick, disabled = false }) => {
-  const handleClick = () => {
+// Use React.memo to prevent unnecessary re-renders
+const Button1: React.FC<ButtonProps> = React.memo(function Button1({
+  text,
+  redirectTo,
+  type,
+  className,
+  useClNav,
+  onClick,
+  disabled = false
+}) {
+  // Use useCallback to memoize the click handler
+  const handleClick = useCallback(() => {
     if (redirectTo && !useClNav && !disabled) {
       window.location.href = redirectTo;
     }
-  };
+    if (onClick && !disabled) {
+      onClick();
+    }
+  }, [redirectTo, useClNav, disabled, onClick]);
 
-  // Create conditional classes for disabled state
+  // Create conditional classes for disabled state - memoizing these calculations
   const containerClasses = cn(
     "relative inline-block transition-transform rounded-lg",
     !disabled && "hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-110",
@@ -42,10 +55,11 @@ const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, use
     disabled && "cursor-not-allowed"
   );
 
-  return (
-    <div className={containerClasses}>
-      <div className={borderClasses}>
-        {useClNav === true && redirectTo && !disabled ? (
+  // Optimize rendering based on link type
+  if (useClNav === true && redirectTo && !disabled) {
+    return (
+      <div className={containerClasses}>
+        <div className={borderClasses}>
           <Link
             href={redirectTo}
             prefetch={true}
@@ -53,18 +67,24 @@ const Button1: React.FC<ButtonProps> = ({ text, redirectTo, type, className, use
           >
             {text}
           </Link>
-        ) : (
-          <button
-            type={type || "button"}
-            onClick={type ? undefined : (onClick || handleClick)}
-            disabled={disabled}
-            className={buttonClasses}>
-            {text}
-          </button>
-        )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={containerClasses}>
+      <div className={borderClasses}>
+        <button
+          type={type || "button"}
+          onClick={type ? undefined : handleClick}
+          disabled={disabled}
+          className={buttonClasses}>
+          {text}
+        </button>
       </div>
     </div>
   );
-};
+});
 
 export default Button1;

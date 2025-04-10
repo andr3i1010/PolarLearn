@@ -19,10 +19,10 @@
 
 ## Wat kan PolarLearn tot nu toe?
 
-- [ ] Lijsten
+- [x] Lijsten
+- [ ] Quizzen
 - [x] Forum
 - [ ] LiveQuiz
-- [ ] Challenges
 
 ---
 

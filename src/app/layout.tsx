@@ -6,6 +6,8 @@ import { Geist } from "next/font/google";
 import ToastProvider from "@/components/toast/toast";
 import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
+import SessionProvider from "@/components/sessionProvider";
+import React from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -90,33 +92,44 @@ export default async function RootLayout({
 
     -->
     `;
+
+  // Pre-render Footer outside React tree to prevent re-renders
+  const footerContent = await Footer();
+
   return (
     <html lang="en" className={`${geistSans.className} antialiased`}>
       <Head>
         <link rel="icon" href="/favicon.png" />
       </Head>
+      {/* <head>
+        <script
+          crossOrigin="anonymous"
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+        />
+      </head> */}
       <body className={`antialiased flex flex-col min-h-screen `}>
         <div
           style={{ display: "none" }}
           dangerouslySetInnerHTML={{ __html: art }}
         />
-        <ToastProvider>
-          <WSProvider>
-            <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
-              <div className="flex flex-col items-center">
-                <p className="text-6xl">⚠️</p>
-                <br />
-                <p className="text-xl">
-                  PolarLearn kan niet gebruikt worden op mobiele apparaten of op
-                  kleine schermen. Er wordt gewerkt aan deze functionaliteit.
-                </p>
+        <SessionProvider checkInterval={5 * 60 * 1000}>
+          <ToastProvider>
+            <WSProvider>
+              <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
+                <div className="flex flex-col items-center">
+                  <p className="text-6xl">⚠️</p>
+                  <br />
+                  <p className="text-xl">
+                    PolarLearn werkt slecht op kleine schermen. Als je geen groter scherm hebt, probeer de tekstgroote te verminderen en je telefoon in liggende modus te zetten.
+                  </p>
+                </div>
               </div>
-            </div>
-            <TopNavBar />
-            {children}
-            {await Footer()}
-          </WSProvider>
-        </ToastProvider>
+              <TopNavBar />
+              {children}
+              {footerContent}
+            </WSProvider>
+          </ToastProvider>
+        </SessionProvider>
       </body>
     </html>
   );

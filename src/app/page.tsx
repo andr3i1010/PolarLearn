@@ -88,7 +88,7 @@ export default function Home() {
             <hr className="flex-grow border-neutral-600 m-3" />
             <Marquee direction='right'>
                 <div
-                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"
+                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"
                 >
                     <span className="flex items-center">
                         <Image src={nl_img} alt={"nederlands plaatje"} width={20} height={20} />
@@ -98,7 +98,7 @@ export default function Home() {
                 </div>
                 <div className='w-4' />
                 <div
-                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"
+                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"
                 >
                     <span className="flex items-center">
                         <Image src={de_img} alt={"duits plaatje"} width={20} height={20} />
@@ -108,7 +108,7 @@ export default function Home() {
                 </div>
                 <div className='w-4' />
                 <div
-                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"
+                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"
                 >
                     <span className="flex items-center">
                         <Image src={fr_img} alt={"frans plaatje"} width={20} height={20} />
@@ -118,7 +118,7 @@ export default function Home() {
                 </div>
                 <div className='w-4' />
                 <div
-                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"
+                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"
                 >
                     <span className="flex items-center">
                         <Image src={eng_img} alt={"engels plaatje"} width={20} height={20} />
@@ -128,7 +128,7 @@ export default function Home() {
                 </div>
                 <div className='w-4' />
                 <div
-                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"
+                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"
                 >
                     <span className="flex items-center">
                         <Image src={math_img} alt={"wiskunde plaatje"} width={20} height={20} />
@@ -138,7 +138,7 @@ export default function Home() {
                 </div>
                 <div className='w-4' />
                 <div
-                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"
+                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"
                 >
                     <span className="flex items-center">
                         <Image src={nsk_img} alt={"nask plaatje"} width={20} height={20} />
@@ -148,7 +148,7 @@ export default function Home() {
                 </div>
                 <div className='w-4' />
                 <div
-                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-40 h-14 text-center place-items-center grid"
+                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"
                 >
                     <span className="flex items-center">
                         <Image src={ak_img} alt={"aardrijkskunde plaatje"} width={20} height={20} />
@@ -158,7 +158,7 @@ export default function Home() {
                 </div>
                 <div className='w-4' />
                 <div
-                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-40 h-14 text-center place-items-center grid"
+                    className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"
                 >
                     <span className="flex items-center">
                         <Image src={ckv_img} alt={"ckv plaatje"} width={20} height={20} />
@@ -280,9 +280,9 @@ export default function Home() {
                                 <div className="border-r border-neutral-600 h-full"></div>
                                 <div className="w-1/2 h-full flex items-center justify-center">
                                     <motion.div
-                                    initial={{ x: 80, opacity: 0 }}
-                                    whileInView={{ x: 0, opacity: 1 }}
-                                    transition={{ duration: 0.7, delay: 0.8 }}
+                                        initial={{ x: 80, opacity: 0 }}
+                                        whileInView={{ x: 0, opacity: 1 }}
+                                        transition={{ duration: 0.7, delay: 0.8 }}
                                     >
                                         <SecondMarketingComponent />
                                     </motion.div>

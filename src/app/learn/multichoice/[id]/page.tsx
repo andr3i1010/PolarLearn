@@ -1,6 +1,8 @@
 import LearnTool from "@/components/learning/learnTool";
 import { prisma } from "@/utils/prisma";
 import Link from "next/link";
+import { addToRecentLists } from "@/utils/actions/updateRecentLists";
+import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
 
 export default async function Page({
     params,
@@ -11,7 +13,15 @@ export default async function Page({
     const listdata = await prisma.practice.findFirst({
         where: { list_id: id },
     });
-    
+
+    // Add this list to user's recent lists
+    await addToRecentLists(id);
+
+    // Also add the subject to recent subjects
+    if (listdata?.subject) {
+        await addToRecentSubjects(listdata.subject);
+    }
+
     // Use the same direct casting approach as in test/[id]/page.tsx
     const rawListData =
         listdata && listdata.data

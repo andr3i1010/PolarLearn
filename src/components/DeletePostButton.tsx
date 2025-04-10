@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, memo } from "react"
 import { deletePost } from "@/actions/forum"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -13,7 +13,7 @@ interface DeletePostButtonProps {
   isMainPost?: boolean
 }
 
-export default function DeletePostButton({
+function DeletePostButton({
   postId,
   isCreator,
   isMainPost = false
@@ -42,22 +42,28 @@ export default function DeletePostButton({
     }
   }, [postId, router])
 
+  const handleButtonClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setOpen(true);
+  }, []);
+
+  const handleOpenChange = useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+  }, []);
+
   // Use event.stopPropagation to prevent triggering the link click when clicking the delete button
   return (
     <>
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          setOpen(true);
-        }}
+        onClick={handleButtonClick}
         className="text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-900/20 z-10"
         title="Verwijderen"
       >
         <Trash2 size={18} />
       </button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[425px] z-110">
           <DialogHeader>
             <DialogTitle>Bevestig verwijdering</DialogTitle>
@@ -85,3 +91,5 @@ export default function DeletePostButton({
     </>
   )
 }
+
+export default memo(DeletePostButton);

@@ -4,10 +4,11 @@ import Link from "next/link";
 import Tabs, { TabItem } from "@/components/Tabs";
 import Dropdown from "@/components/button/DropdownBtn";
 import React from 'react';
-import { PencilIcon } from "lucide-react";
+import { PencilIcon, Trash2 } from "lucide-react";
 import { cookies } from "next/headers";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
+import DeleteListButton from "@/components/learning/DeleteListButton";
 
 import Image from "next/image";
 import nsk_img from '@/app/img/nask.svg';
@@ -17,6 +18,8 @@ import fr_img from '@/app/img/baguette.svg';
 import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
 import ak_img from '@/app/img/geography.svg';
+import gs_img from '@/app/img/history.svg';
+import bi_img from '@/app/img/bio.svg';
 
 import learn from '@/app/img/learn.svg';
 import test from '@/app/img/test.svg';
@@ -49,6 +52,11 @@ const SubjectIconWithSVG = ({ subject }: { subject: string }) => {
             return <Image src={de_img} alt="Duits" width={30} height={30} className={iconClass} />;
         case 'NL':  // Nederlands
             return <Image src={nl_img} alt="Nederlands" width={30} height={30} className={iconClass} />;
+        case 'GS':  // Geschiedenis
+            return <Image src={gs_img} alt="Geschiedenis" width={30} height={30} className={iconClass} />;
+        case 'BI':  // Biologie
+            return <Image src={bi_img} alt="Biologie" width={30} height={30} className={iconClass} />;
+        default: return null;
     }
 };
 
@@ -341,15 +349,23 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                         )}
                     </h1>
 
-                    {/* Add edit button for creator */}
+                    {/* Creator actions */}
                     {isCreator && (
-                        <Link
-                            href={`/learn/editlist/${id}`}
-                            className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                            title="Lijst bewerken"
-                        >
-                            <PencilIcon className="h-6 w-6 text-white" />
-                        </Link>
+                        <div className="flex items-center gap-3">
+                            {/* Edit button */}
+                            <Link
+                                href={`/learn/editlist/${id}`}
+                                className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                                title="Lijst bewerken"
+                            >
+                                <PencilIcon className="h-6 w-6 text-white" />
+                            </Link>
+
+                            {/* Delete button */}
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                                <DeleteListButton listId={id} isCreator={isCreator} />
+                            </div>
+                        </div>
                     )}
                 </div>
                 <div className="h-4" />

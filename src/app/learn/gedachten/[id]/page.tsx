@@ -2,7 +2,6 @@ import LearnTool from "@/components/learning/learnTool";
 import { prisma } from "@/utils/prisma";
 import Link from "next/link";
 import { addToRecentLists } from "@/utils/actions/updateRecentLists";
-import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
 
 export default async function Page({
     params,
@@ -16,11 +15,6 @@ export default async function Page({
 
     // Add this list to user's recent lists
     await addToRecentLists(id);
-
-    // Also add the subject to recent subjects
-    if (listdata?.subject) {
-        await addToRecentSubjects(listdata.subject);
-    }
 
     const rawListData =
         listdata && listdata.data
@@ -49,7 +43,7 @@ export default async function Page({
                     />
                 </svg>
             </Link>
-            <LearnTool mode="hints" rawlistdata={rawListData} />
+            <LearnTool mode="gedachten" rawlistdata={rawListData} />
         </div>
     );
 }

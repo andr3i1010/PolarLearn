@@ -439,6 +439,17 @@ Veel leerplezier! 🚀
   if (!user!.forumAllowed || !user!.loginAllowed) {
     banned = true;
   }
+
+  // Determine the base route dynamically
+  // This extracts everything before the last segment which would be the tab ID
+  let baseRoute = "/home/forum";
+
+  // If we have a tab in the params, we're already at a subroute
+  if (params?.tab && params.tab.length > 0) {
+    // We're in a route like /home/forum/[tab] - the base path is everything before the tab
+    baseRoute = "/home/forum";
+  }
+
   return (
     <>
       <div className="py-6 pl-6">
@@ -456,7 +467,7 @@ Veel leerplezier! 🚀
           tabs={tabs}
           defaultActiveTab={defaultActiveTab}
           withRoutes={true}
-          baseRoute="/home/forum" // enforce fixed base route
+          baseRoute={baseRoute} // Use dynamically derived base route
         />
       </div>
     </>

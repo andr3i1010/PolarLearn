@@ -1,13 +1,14 @@
 "use client";
+import { memo } from 'react';
 import Button1 from "@/components/button/Button1";
 
-export default function ForumBtn({ onClick }: { onClick?: () => void }) {
+function ForumBtn({ onClick }: { onClick?: () => void }) {
   return (
-    <Button1 
-      text="Nieuwe post" 
-      onClick={() => { 
-        onClick?.(); 
-      }}
+    <Button1
+      text="Nieuwe post"
+      onClick={onClick}
     />
   );
 }
+
+export default memo(ForumBtn);
