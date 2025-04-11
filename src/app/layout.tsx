@@ -17,7 +17,7 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "PolarLearn",
   description:
-    "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
+    "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door studenten.",
   authors: [
     { name: "andrei1010", url: "https://andrei1010.me" },
     { name: "supersiem", url: "https://siemvk.nl/" },
