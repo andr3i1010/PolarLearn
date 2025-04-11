@@ -134,6 +134,17 @@ const ScrollableAnswer = memo(({ text }: { text: string }) => (
   <span className="font-extrabold">{text}</span>
 ));
 
+// Update the hint generator function to handle multiple words
+const getHint = (answer: string): string => {
+  if (!answer || answer.length === 0) return '';
+
+  // Split by spaces and process each word
+  return answer.split(' ').map(word => {
+    if (word.length === 0) return '';
+    return word.charAt(0) + '_'.repeat(word.length - 1);
+  }).join(' ');
+};
+
 const LearnTool = ({
   mode,
   rawlistdata,
@@ -358,20 +369,16 @@ const LearnTool = ({
     <div className='bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-auto min-h-[240px] max-h-[350px] rounded-lg flex flex-col justify-center overflow-hidden'>
       {initialMappedData.length === 0 ? (
         <div className="text-center text-white p-4">
-          <div className="font-bold text-xl mb-2">No list data available</div>
-          <div className="text-gray-400">Please check that you have valid data in this list</div>
-          <div className="text-gray-500 mt-4">Debug info: </div>
-          <div className="text-gray-500 text-xs mt-1">Raw data length: {rawlistdata?.length || 0}</div>
-          <div className="text-gray-500 text-xs">Mode: {mode}</div>
+          Lijst niet gevonden
         </div>
       ) : lijstData.length === 0 ? (
         <div className="text-center text-white p-4">
           <div className="font-bold text-xl mb-2">Gefeliciteerd!</div>
-            <div>Je hebt de lijst helemaal af!</div>
-            <div className='space-x-2'>
-              <Button1 onClick={() => setLijstData(shuffleArray(initialMappedData))} text="Opnieuw beginnen" className="mt-4" />
-              <Button1 text={"Terug naar home "} redirectTo='/home/start' useClNav={true} />
-            </div>
+          <div>Je hebt de lijst helemaal af!</div>
+          <div className='space-x-2'>
+            <Button1 onClick={() => setLijstData(shuffleArray(initialMappedData))} text="Opnieuw beginnen" className="mt-4" />
+            <Button1 text={"Terug naar home "} redirectTo='/home/start' useClNav={true} />
+          </div>
         </div>
       ) : (
         <div className='flex flex-col items-center justify-center p-4 h-full'>
@@ -424,35 +431,23 @@ const LearnTool = ({
 
           {mode === "hints" && (
             <div className="w-full max-w-md">
-              <div className="flex flex-col gap-2 mt-4">
-                <Button1
-                  onClick={() => setToonAntwoord(true)}
-                  text="Toon Antwoord"
-                  className="w-full"
-                />
-                {toonAntwoord && (
-                  <div className="p-4 bg-neutral-700 rounded-lg text-center">
-                    <ScrollableAnswer text={lijstData[0]?.antwoord || ""} />
-                  </div>
-                )}
-                {toonAntwoord && (
-                  <div className="flex gap-2 mt-2">
-                    <Button1
-                      onClick={() => {
-                        const [_, ...rest] = lijstData;
-                        setLijstData(shuffleArray(rest));
-                        setToonAntwoord(false);
-                      }}
-                      text="Correct"
-                      className="flex-1"
-                    />
-                    <Button1
-                      onClick={antwoordFoutVolgende}
-                      text="Incorrect"
-                      className="flex-1 bg-red-600 hover:bg-red-700"
-                    />
-                  </div>
-                )}
+              <div className="p-4 bg-neutral-700 rounded-lg text-center mb-4">
+                <span className="font-extrabold">Hint: {getHint(lijstData[0]?.antwoord || "")}</span>
+              </div>
+              <Input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder="Type je antwoord hier..."
+                className="w-full"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAntwoordControleren();
+                  }
+                }}
+              />
+              <div className="flex gap-2 mt-4">
+                <Button1 onClick={handleAntwoordControleren} text="Controleren" className="flex-1" />
               </div>
             </div>
           )}
