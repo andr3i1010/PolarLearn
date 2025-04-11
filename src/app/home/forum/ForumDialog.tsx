@@ -135,35 +135,6 @@ const TitleField = memo(({ control }: { control: any }) => {
 
 // Memoized content field component
 const ContentField = memo(({ control, content }: { control: any; content: string }) => {
-  // Memoize tab items to prevent unnecessary re-renders
-  const tabItems = useMemo<TabItem[]>(() => [
-    {
-      id: "write",
-      label: "Schrijven",
-      content: (
-        <div>
-          <FormControl>
-            <Textarea
-              placeholder="Inhoud van de post. Markdown wordt ondersteund."
-              className="bg-neutral-800 border-neutral-700 h-40 text-xl p-3 resize-none"
-              name="content"
-            />
-          </FormControl>
-          <div className="text-sm mt-2 text-gray-400">
-            <p>Markdown tips:</p>
-            <p>**vetgedrukt**, *schuingedrukt*, [link](https://url.com)</p>
-            <p># Grote kop, ## Kleinere kop, ### Nog kleinere kop</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "preview",
-      label: "Voorbeeld",
-      content: <MarkdownPreview content={content} />,
-    },
-  ], [content]);
-
   return (
     <FormField
       control={control}
@@ -171,7 +142,33 @@ const ContentField = memo(({ control, content }: { control: any; content: string
       render={({ field }) => (
         <FormItem>
           <FormLabel className="text-xl">Postinhoud:</FormLabel>
-          <Tabs tabs={tabItems} defaultActiveTab="write" />
+          <Tabs tabs={[
+            {
+              id: "write",
+              label: "Schrijven",
+              content: (
+                <div>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Inhoud van de post. Markdown wordt ondersteund."
+                      className="bg-neutral-800 border-neutral-700 h-40 text-xl p-3 resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <div className="text-sm mt-2 text-gray-400">
+                    <p>Markdown tips:</p>
+                    <p>**vetgedrukt**, *schuingedrukt*, [link](https://url.com)</p>
+                    <p># Grote kop, ## Kleinere kop, ### Nog kleinere kop</p>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              id: "preview",
+              label: "Voorbeeld",
+              content: <MarkdownPreview content={content} />,
+            },
+          ]} defaultActiveTab="write" />
           <FormMessage />
         </FormItem>
       )}
