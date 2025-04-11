@@ -6,7 +6,7 @@ import { Geist } from "next/font/google";
 import ToastProvider from "@/components/toast/toast";
 import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
-import SessionProvider from "@/components/sessionProvider";
+import SessionWrapper from "@/components/SessionWrapper";
 import React from "react";
 
 const geistSans = Geist({
@@ -112,7 +112,7 @@ export default async function RootLayout({
           style={{ display: "none" }}
           dangerouslySetInnerHTML={{ __html: art }}
         />
-        <SessionProvider checkInterval={5 * 60 * 1000}>
+        <SessionWrapper>
           <ToastProvider>
             <WSProvider>
               <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
@@ -129,7 +129,7 @@ export default async function RootLayout({
               {footerContent}
             </WSProvider>
           </ToastProvider>
-        </SessionProvider>
+        </SessionWrapper>
       </body>
     </html>
   );
