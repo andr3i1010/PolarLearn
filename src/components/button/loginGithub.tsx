@@ -1,8 +1,18 @@
-import { GithubOAuth } from '@/utils/auth/oauth';
+"use client";
+import { useState, useEffect } from 'react';
+import { getGithubAuthUrl } from '@/utils/auth/oauth';
 
 export default function GithubLogin() {
-    const githubOAuth = new GithubOAuth();
-    const authUrl = githubOAuth.getAuthUrl();
+    const [authUrl, setAuthUrl] = useState('#');
+
+    useEffect(() => {
+        const fetchAuthUrl = async () => {
+            const url = await getGithubAuthUrl();
+            setAuthUrl(url);
+        };
+        fetchAuthUrl();
+    }, []);
+
     return (
         <a href={authUrl}>
             <button

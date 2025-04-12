@@ -245,7 +245,7 @@ export default async function Page({
                                                     isMainPost={false}
                                                 />
                                             )}
-                                            <VoteButtons postId={reply.post_id} initialVotes={reply.votes} initialUserVote={replyUserVote} />
+                                            <VoteButtons postId={reply.post_id} initialVotes={reply.votes} initialUserVote={replyUserVote} user={session} />
                                         </div>
                                     </div>
                                     <div className="prose prose-invert max-w-none whitespace-pre-line">
