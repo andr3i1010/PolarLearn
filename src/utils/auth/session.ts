@@ -24,7 +24,7 @@ export async function createSession(userid: string) {
         // console.debug("createSession: Cookie created for session", sessionID);
         resolve(sessionID);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error("createSession: Error creating session", error);
         reject(error);
       });
@@ -133,7 +133,7 @@ export async function logOut() {
     },
   }).then(() => {
     // console.debug("logOut: Session record deleted for", sessionId);
-  }).catch(error => {
+  }).catch((error: any) => {
     console.error("logOut: Error deleting session record", error);
   });
 }

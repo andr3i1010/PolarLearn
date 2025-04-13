@@ -155,7 +155,7 @@ export default async function Page({ params }: PageProps) {
     },
   });
 
-  const createdLists: PracticeList[] = rawLists.map(list => ({
+  const createdLists: PracticeList[] = rawLists.map((list) => ({
     ...list,
     data: Array.isArray(list.data) ? list.data : []
   }));

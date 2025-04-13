@@ -160,7 +160,7 @@ export default async function ForumHome({
   ]);
 
   // Get the parent thread information for context
-  const parentIds = myReplies.map((reply) => reply.replyTo).filter(Boolean) as string[];
+  const parentIds = myReplies.map((reply: { replyTo: any; }) => reply.replyTo).filter(Boolean) as string[];
   const parentThreads = await prisma.forum.findMany({
     where: {
       post_id: {
@@ -174,13 +174,13 @@ export default async function ForumHome({
   });
 
   // Create a map of parent thread titles for quick lookup
-  const parentThreadMap = parentThreads.reduce((acc, thread) => {
+  const parentThreadMap = parentThreads.reduce((acc: { [x: string]: any; }, thread: { post_id: string | number; title: any; }) => {
     acc[thread.post_id] = thread.title;
     return acc;
   }, {} as Record<string, string>);
 
   // Enhance the reply objects with parent thread titles
-  const enhancedReplies = myReplies.map((reply) => ({
+  const enhancedReplies = myReplies.map((reply: { replyTo: any; }) => ({
     ...reply,
     title: parentThreadMap[reply.replyTo || ""] || "Onbekende thread", // Fallback title if parent not found
     isReply: true, // Flag to identify this as a reply for UI handling
@@ -196,7 +196,10 @@ export default async function ForumHome({
 
   // Get unique creator IDs from all forum posts
   const allPosts = [...forumPosts, ...myQuestions, ...enhancedReplies];
-  const creatorIds = [...new Set(allPosts.map((post) => post.creator))];
+  const creatorIds = [...new Set(allPosts
+    .filter(post => 'creator' in post) // Only include posts with a creator property
+    .map(post => post.creator)
+  )];
 
   // Also try to fetch users by name in case creator contains usernames
   const users = await prisma.user.findMany({
@@ -210,16 +213,23 @@ export default async function ForumHome({
     },
   });
 
+  // Define a type for user objects
+  type UserInfo = {
+    id: string;
+    name: string | null;
+    image: string | null;
+  };
+
   // Create maps for both ID and name lookups
-  const userMapById = users.reduce((acc, user) => {
+  const userMapById = users.reduce((acc: Record<string, UserInfo>, user: UserInfo) => {
     acc[user.id] = user;
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, UserInfo>);
 
-  const userMapByName = users.reduce((acc, user) => {
+  const userMapByName = users.reduce((acc: Record<string, UserInfo>, user: UserInfo) => {
     if (user.name) acc[user.name] = user;
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, UserInfo>);
 
   // Function to render post list
   const renderPostList = (posts: any[], totalPages: number, currentPage: number, tabId: string) => (
@@ -227,8 +237,9 @@ export default async function ForumHome({
       <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
         {posts.length > 0 ? (
           posts.map((post) => {
+            const creatorId = typeof post.creator === 'string' ? post.creator : String(post.creator);
             const user =
-              userMapById[post.creator] || userMapByName[post.creator];
+              userMapById[creatorId] || userMapByName[creatorId];
             const subjectIcon = subjectIconMap[post.subject];
             const subjectLabel =
               subjectLabelMap[post.subject] || post.subject;

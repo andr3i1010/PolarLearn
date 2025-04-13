@@ -5,6 +5,15 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+// Define JsonValue type to handle JSON data
+type JsonValue = 
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JsonValue }
+  | JsonValue[];
+
 // Helper type for the list data conversion
 type Pair = {
     id: number;
@@ -12,8 +21,8 @@ type Pair = {
     "2": string;
 };
 
-// Helper function to check if something is a plain object
-const isObject = (value: any): value is Record<string, any> => {
+// Helper function to check if something is a plain object with string keys
+const isObject = (value: any): value is { [key: string]: JsonValue } => {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
@@ -45,17 +54,20 @@ export default async function EditListPage({
 
     // Convert the list data to the expected format
     const formattedData = Array.isArray(listFromDb.data)
-        ? listFromDb.data.map((item, index) => {
+        ? listFromDb.data.map((item: any, index: number) => {
             // Initialize with default empty values
             const pair: Pair = { id: index, "1": '', "2": '' };
 
             // Only extract values if item is an object with the expected properties
             if (isObject(item)) {
-                if ("1" in item && typeof (item as Record<string, any>)["1"] === 'string') {
-                    pair["1"] = (item as Record<string, any>)["1"];
+                // After isObject check, item is known to be {[key: string]: JsonValue}
+                const value1 = item["1"];
+                if (typeof value1 === 'string') {
+                    pair["1"] = value1;
                 }
-                if ("2" in item && typeof (item as Record<string, any>)["2"] === 'string') {
-                    pair["2"] = (item as Record<string, any>)["2"];
+                const value2 = item["2"];
+                if (typeof value2 === 'string') {
+                    pair["2"] = value2;
                 }
             }
 

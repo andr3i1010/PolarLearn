@@ -20,11 +20,11 @@ export default async function Page({
     // but LearnTool expects { vraag: string, antwoord: string }
     const rawListData =
         listdata && listdata.data && Array.isArray(listdata.data)
-            ? listdata.data.map(item => {
-                if (item && typeof item === 'object') {
+            ? listdata.data.map((item: any) => {
+                if (item && typeof item === 'object' && !Array.isArray(item)) {
                     return {
-                        vraag: (item as Record<string, string>)["1"] || "",
-                        antwoord: (item as Record<string, string>)["2"] || ""
+                        vraag: item["1"] || "",
+                        antwoord: item["2"] || ""
                     };
                 }
                 return { vraag: "", antwoord: "" };

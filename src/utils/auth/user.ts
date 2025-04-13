@@ -53,10 +53,10 @@ export async function createUserCredentials(
           }
         },
       })
-      .then((user) => {
+      .then((user: any) => {
         resolve({ success: true, userdata: user });
       })
-      .catch((err) => {
+      .catch((err: { code: string; }) => {
         if (err.code === "P2002") {
           reject({ success: false, error: "userexists" });
         }

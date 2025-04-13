@@ -8,6 +8,7 @@ import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
 import SessionWrapper from "@/components/SessionWrapper";
 import React from "react";
+import PwaDebugger from "@/components/PwaDebugger";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,10 +60,24 @@ export const metadata: Metadata = {
       },
     ],
   },
+  manifest: "/manifest.json",
+  applicationName: "PolarLearn",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "PolarLearn",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport = {
   themeColor: "#38bdf8",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
@@ -100,13 +115,8 @@ export default async function RootLayout({
     <html lang="en" className={`${geistSans.className} antialiased`}>
       <Head>
         <link rel="icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </Head>
-      {/* <head>
-        <script
-          crossOrigin="anonymous"
-          src="//unpkg.com/react-scan/dist/auto.global.js"
-        />
-      </head> */}
       <body className={`antialiased flex flex-col min-h-screen `}>
         <div
           style={{ display: "none" }}
@@ -127,6 +137,7 @@ export default async function RootLayout({
               <TopNavBar />
               {children}
               {footerContent}
+              <PwaDebugger />
             </WSProvider>
           </ToastProvider>
         </SessionWrapper>

@@ -95,7 +95,7 @@ async function getRecentLists() {
   );
 
   // More sophisticated sorting that prioritizes recently practiced lists
-  return lists.sort((a, b) => {
+  return lists.sort((a: { list_id: string; updatedAt: string | number | Date; }, b: { list_id: string; updatedAt: string | number | Date; }) => {
     // First, check if both lists are in recentListIds
     const aInRecent = a.list_id in recentListIdPositions;
     const bInRecent = b.list_id in recentListIdPositions;
