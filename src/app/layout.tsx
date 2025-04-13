@@ -8,7 +8,6 @@ import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
 import SessionWrapper from "@/components/SessionWrapper";
 import React from "react";
-import PwaDebugger from "@/components/PwaDebugger";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -137,7 +136,6 @@ export default async function RootLayout({
               <TopNavBar />
               {children}
               {footerContent}
-              <PwaDebugger />
             </WSProvider>
           </ToastProvider>
         </SessionWrapper>
