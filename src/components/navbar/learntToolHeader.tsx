@@ -151,13 +151,13 @@ const LearnToolHeader = ({
                         />
                     </div>
 
-                    <button
-                        onClick={() => router.back()}
+                    <Link
+                        href={`/learn/viewlist/${listId}`}
                         className="flex items-center bg-neutral-700 hover:bg-neutral-600 transition-colors px-3 py-1 rounded-md"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         <span>Terug</span>
-                    </button>
+                    </Link>
 
                     <div className="text-white font-mono bg-neutral-700 px-3 py-1 rounded-md">
                         {formatTime(seconds)}
