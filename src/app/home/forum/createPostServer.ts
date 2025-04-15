@@ -54,7 +54,7 @@ export async function createPostServer(
         title: validatedData.title as string,
         content: validatedData.content as string,
         subject: validatedData.subject as string,
-        creator: user.id as string,
+        creator: user.id, // Use user ID
         createdAt: new Date(),
         updatedAt: new Date(),
       },
