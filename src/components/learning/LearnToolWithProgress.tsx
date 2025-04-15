@@ -44,7 +44,8 @@ export default function LearnToolWithProgress({
                 currentMethod={currentMethod}
             />
 
-            <div className="flex-grow flex items-center justify-center">
+            {/* Ensure this container allows LearnTool to grow */}
+            <div className="flex-grow flex items-center justify-center py-8"> {/* Added padding */}
                 <LearnTool
                     mode={mode}
                     rawlistdata={rawlistdata}
@@ -53,45 +54,6 @@ export default function LearnToolWithProgress({
                     onProgressUpdate={handleProgressUpdate}
                 />
             </div>
-
-            {/* Fix overlay positioning by targeting the motion.div elements */}
-            <style jsx global>{`
-        /* Ensure the parent container of the overlay has proper positioning */
-        .bg-neutral-800.relative.min-w-\\[240px\\] {
-          position: relative !important;
-          overflow: visible !important;
-        }
-        
-        /* Target the specific motion divs that contain overlays */
-        .motion-div-overlay {
-          position: absolute !important;
-          bottom: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: auto !important;
-          transform-origin: bottom center !important;
-        }
-        
-        /* Target specific overlay classes - more aggressive approach */
-        div[class*="absolute"][class*="z-50"][class*="bottom-0"],
-        div.absolute.z-50.bottom-0,
-        .absolute.z-50.bottom-0 {
-          position: absolute !important;
-          bottom: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: auto !important;
-        }
-        
-        /* Target the motion.div that should be at the bottom */
-        .AnimatePresence > motion.div {
-          position: absolute !important;
-          bottom: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: auto !important;
-        }
-      `}</style>
         </div>
     );
 }

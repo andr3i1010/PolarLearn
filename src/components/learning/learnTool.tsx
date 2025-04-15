@@ -246,23 +246,35 @@ const LearnTool = ({
     }
   }, [lijstData, userInput, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress]);
 
-  const handleAntwoordControlerenGedachten = useCallback((isAntwoordCorrect: boolean) => {
+  // Renamed from handleAntwoordControlerenGedachten
+  const handleSelfAssessment = useCallback((isAntwoordCorrect: boolean) => {
     if (!lijstData.length) return;
+
+    // Dismiss the overlay first
+    setShowGedachtenOverlay(false);
+
     const [huidigeVraag, ...rest] = lijstData;
     if (isAntwoordCorrect) {
-      setShowCorrect(true);
+      // Call the onCorrectAnswer callback
       if (onCorrectAnswer) onCorrectAnswer();
       updateProgress();
+
+      // Use setTimeout to ensure state changes don't interfere
       setTimeout(() => {
-        setShowCorrect(false);
         setLijstData(shuffleArray(rest));
-      }, 2000);
+      }, 50); // Short delay
     } else {
+      // Call the onWrongAnswer callback
       if (onWrongAnswer) onWrongAnswer();
       updateProgress();
-      antwoordFoutVolgende();
+
+      // Use setTimeout to ensure state changes don't interfere
+      setTimeout(() => {
+        // Move the question to the end
+        setLijstData([...rest, huidigeVraag]);
+      }, 50); // Short delay
     }
-  }, [lijstData, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress]);
+  }, [lijstData, shuffleArray, onCorrectAnswer, onWrongAnswer, updateProgress]);
 
   const handleAntwoordmultikeuze = useCallback((isAntwoordCorrect: boolean) => {
     if (!lijstData.length || isAnswering) return;
@@ -361,7 +373,7 @@ const LearnTool = ({
   }, [randomNumber, lijstDataOud]);
 
   return (
-    <div className='bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-auto min-h-[240px] max-h-[350px] rounded-lg flex flex-col justify-center overflow-hidden'>
+    <div className='bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] rounded-lg flex flex-col justify-center overflow-hidden p-4'>
       {initialMappedData.length === 0 ? (
         <div className="text-center text-white p-4">
           Lijst niet gevonden
@@ -376,7 +388,7 @@ const LearnTool = ({
           </div>
         </div>
       ) : (
-        <div className='flex flex-col items-center justify-center p-4 h-full'>
+        <div className='flex flex-col items-center justify-center h-full'>
           <QuestionDisplay question={lijstData[0]?.vraag || ""} />
 
           {mode === "toets" && (
@@ -424,6 +436,17 @@ const LearnTool = ({
             </div>
           )}
 
+          {/* Add rendering for learn mode */}
+          {mode === "learn" && (
+            <div className="flex gap-2 mt-4 w-full max-w-md">
+              <Button1
+                onClick={handleShowGedachtenAnswer} // Re-use the same handler as gedachten
+                text="Toon Antwoord"
+                className="flex-1"
+              />
+            </div>
+          )}
+
           {mode === "hints" && (
             <div className="w-full max-w-md">
               <div className="p-4 bg-neutral-700 rounded-lg text-center mb-4">
@@ -456,8 +479,8 @@ const LearnTool = ({
         {showGedachtenOverlay && lijstData.length > 0 && (
           <GedachtenOverlay
             answer={lijstData[0]?.antwoord || ""}
-            onCorrect={handleGedachtenCorrect}
-            onIncorrect={handleGedachtenIncorrect}
+            onCorrect={() => handleSelfAssessment(true)} // Use renamed handler
+            onIncorrect={() => handleSelfAssessment(false)} // Use renamed handler
           />
         )}
       </AnimatePresence>

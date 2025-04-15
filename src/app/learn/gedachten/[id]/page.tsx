@@ -1,7 +1,9 @@
-import LearnTool from "@/components/learning/learnTool";
-import LearnToolHeader from "@/components/navbar/learntToolHeader";
+import LearnTool from "@/components/learning/learnTool"; // Keep LearnTool import if needed elsewhere, or remove if not
+import LearnToolHeader from "@/components/navbar/learntToolHeader"; // Keep LearnToolHeader import if needed elsewhere, or remove if not
 import { prisma } from "@/utils/prisma";
 import { addToRecentLists } from "@/utils/actions/updateRecentLists";
+import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects"; // Import action
+import LearnToolWithProgress from "@/components/learning/LearnToolWithProgress"; // Import the component
 
 export default async function Page({
     params,
@@ -13,8 +15,13 @@ export default async function Page({
         where: { list_id: id },
     });
 
-    // Add this list to user's recent lists
-    await addToRecentLists(id);
+    // Add this list to user's recent lists and subject
+    if (listdata) {
+        await addToRecentLists(id);
+        if (listdata.subject) {
+            await addToRecentSubjects(listdata.subject);
+        }
+    }
 
     // Transform the data correctly - the database has format { "1": string, "2": string }
     // but LearnTool expects { vraag: string, antwoord: string }
@@ -31,13 +38,13 @@ export default async function Page({
             })
             : [];
 
+    // Replace the existing return statement with LearnToolWithProgress
     return (
-        <div className="min-h-screen flex flex-col">
-            <LearnToolHeader listId={id} currentMethod="gedachten" />
-
-            <div className="flex-grow flex items-center justify-center">
-                <LearnTool mode="gedachten" rawlistdata={rawListData} />
-            </div>
-        </div>
+        <LearnToolWithProgress
+            mode="gedachten"
+            rawlistdata={rawListData}
+            listId={id}
+            currentMethod="gedachten"
+        />
     );
 }

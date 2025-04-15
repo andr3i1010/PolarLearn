@@ -140,7 +140,7 @@ const LearnToolHeader = ({
 
     return (
         <>
-            <div className="w-full bg-neutral-800 p-3 flex items-center justify-between sticky top-0 z-10 border-b border-neutral-700">
+            <div className="w-full bg-neutral-800 p-3 flex items-center justify-between sticky top-0 z-100 border-b border-neutral-700">
                 {/* Left side: Method dropdown and back button */}
                 <div className="flex items-center gap-3">
                     <div className="relative learn-dropdown">
