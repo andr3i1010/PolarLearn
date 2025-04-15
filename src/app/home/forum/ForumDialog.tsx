@@ -90,9 +90,9 @@ const MarkdownPreview = memo(({ content }: { content: string }) => (
   <div className="bg-neutral-800 border border-neutral-700 h-40 overflow-y-auto p-3 rounded-md prose prose-invert max-w-none whitespace-pre-line">
     {content ? (
       <ReactMarkdown components={{
-        h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4" {...props} />,
-        h2: ({ node, ...props }) => <h2 className="text-3xl font-bold mb-3" {...props} />,
-        h3: ({ node, ...props }) => <h3 className="text-xl font-bold mb-2" {...props} />,
+        h1: ({ node, ...props }) => <h1 className="text-4xl font-bold my-4" {...props} />,
+        h2: ({ node, ...props }) => <h2 className="text-3xl font-bold my-3" {...props} />,
+        h3: ({ node, ...props }) => <h3 className="text-2xl font-semibold my-2" {...props} />,
         img: ({ src, alt, ...props }) => (
           <img
             src={src}

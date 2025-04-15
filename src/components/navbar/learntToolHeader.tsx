@@ -191,7 +191,7 @@ const LearnToolHeader = ({
                 </div>
             </div>
 
-            <style jsx global>{`
+            <style>{`
         .learn-dropdown > div.absolute {
           left: 200px !important;
           top: -24px !important;

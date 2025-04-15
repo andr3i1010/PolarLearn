@@ -129,11 +129,6 @@ const MultiChoiceButton = memo(({
   );
 });
 
-// Memoize the scrollable answer component
-const ScrollableAnswer = memo(({ text }: { text: string }) => (
-  <span className="font-extrabold">{text}</span>
-));
-
 // Update the hint generator function to handle multiple words
 const getHint = (answer: string): string => {
   if (!answer || answer.length === 0) return '';

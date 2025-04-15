@@ -39,7 +39,7 @@ const subjectIconMap: Record<string, any> = {
   NE: nl_img,
   EN: eng_img,
   FR: fr_img,
-  DE: de_img, // Note: ForumDialog uses "DE" but we're using "DU" here  // waarom? // door kut copilot
+  DE: de_img, // Use DE for Duits consistently
   AK: ak_img,
   GS: gs_img,
   BI: bi_img,
@@ -341,7 +341,7 @@ export default async function ForumHome({
           <Pagination>
             <PaginationPrevious>
               {currentPage > 1 ? (
-                <Link href={`/home/forum/${tabId}?page=${currentPage - 1}`}>Vorige</Link>
+                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage - 1}`}>Vorige</Link>
               ) : (
                 <span className="text-gray-400">Vorige</span>
               )}
@@ -353,7 +353,7 @@ export default async function ForumHome({
                 return (
                   <PaginationItem key={pageNum}>
                     <PaginationLink
-                      href={`/home/forum/${tabId}?page=${pageNum}`}
+                      href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${pageNum}`}
                       isActive={pageNum === currentPage}
                     >
                       {pageNum}
@@ -366,7 +366,7 @@ export default async function ForumHome({
               {currentPage === totalPages ? (
                 <span className="text-gray-400">Volgende</span>
               ) : (
-                <Link href={`/home/forum/${tabId}?page=${currentPage + 1}`}>Volgende</Link>
+                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage + 1}`}>Volgende</Link>
               )}
             </PaginationNext>
           </Pagination>
