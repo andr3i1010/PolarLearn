@@ -158,7 +158,7 @@ db.test_collection.insertOne({ created: new Date() });
 echo "✅ db aangemaakt"
 echo "🚀 Starten met install van node packages (Dit kan heel lang duren)"
 # Verberg npm logs
-npm i --legacy-peer-deps > /dev/null 2>&1
+npm i --legacy-peer-deps 
 
 # .env bestand aanmaken (alleen als het nog niet bestaat)
 if [ ! -f .env ]; then
