@@ -285,29 +285,18 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                                     </tr>
                                 </thead>
                                 <tbody className="bg-gray-800 divide-y divide-gray-800">
-                                    {wordPairs.map((pair) => {
-                                        // Use the term/definition directly if they are arrays
-                                        const terms = Array.isArray(pair["1"]) ? pair["1"] : pair["1"].split(',').map(t => t.trim());
-                                        const definitions = Array.isArray(pair["2"]) ? pair["2"] : pair["2"].split(',').map(d => d.trim());
-                                        if (terms.length !== definitions.length) {
+                                    {wordPairs
+                                        .filter(pair => 
+                                            pair["1"] !== "" || pair["2"] !== "" // Only filter out completely empty pairs
+                                        )
+                                        .map((pair) => {
                                             return (
                                                 <tr key={pair.id} className={pair.id % 2 === 0 ? 'bg-neutral-800' : 'bg-neutral-800'}>
                                                     <td className="px-6 py-4 text-center font-bold text-xl text-white">{pair["1"]}</td>
                                                     <td className="px-6 py-4 text-center font-bold text-xl text-white">{pair["2"]}</td>
                                                 </tr>
                                             );
-                                        }
-                                        return (
-                                            <React.Fragment key={pair.id}>
-                                                {terms.map((term, idx) => (
-                                                    <tr key={`${pair.id}-${idx}`} className={(pair.id + idx) % 2 === 0 ? 'bg-neutral-800' : 'bg-neutral-800'}>
-                                                        <td className="px-6 py-4 text-center font-bold text-xl text-white">{term}</td>
-                                                        <td className="px-6 py-4 text-center font-bold text-xl text-white">{definitions[idx]}</td>
-                                                    </tr>
-                                                ))}
-                                            </React.Fragment>
-                                        );
-                                    })}
+                                        })}
                                 </tbody>
                             </table>
                         </div>

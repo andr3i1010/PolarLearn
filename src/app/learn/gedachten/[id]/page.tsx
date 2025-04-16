@@ -1,9 +1,9 @@
-import LearnTool from "@/components/learning/learnTool"; // Keep LearnTool import if needed elsewhere, or remove if not
-import LearnToolHeader from "@/components/navbar/learntToolHeader"; // Keep LearnToolHeader import if needed elsewhere, or remove if not
+import LearnTool from "@/components/learning/learnTool";
+import LearnToolHeader from "@/components/navbar/learntToolHeader";
 import { prisma } from "@/utils/prisma";
 import { addToRecentLists } from "@/utils/actions/updateRecentLists";
-import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects"; // Import action
-import LearnToolWithProgress from "@/components/learning/LearnToolWithProgress"; // Import the component
+import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
+import LearnToolWithProgress from "@/components/learning/LearnToolWithProgress";
 
 export default async function Page({
     params,
@@ -23,22 +23,16 @@ export default async function Page({
         }
     }
 
-    // Transform the data correctly - the database has format { "1": string, "2": string }
-    // but LearnTool expects { vraag: string, antwoord: string }
+    // Transform the data correctly without splitting commas
+    // Simply map from the database format to the format expected by LearnToolWithProgress
     const rawListData =
         listdata && listdata.data && Array.isArray(listdata.data)
-            ? listdata.data.map((item: any) => {
-                if (item && typeof item === 'object' && !Array.isArray(item)) {
-                    return {
-                        vraag: item["1"] || "",
-                        antwoord: item["2"] || ""
-                    };
-                }
-                return { vraag: "", antwoord: "" };
-            })
+            ? listdata.data.map((item: any) => ({
+                vraag: item["1"] || "",
+                antwoord: item["2"] || ""
+            }))
             : [];
 
-    // Replace the existing return statement with LearnToolWithProgress
     return (
         <LearnToolWithProgress
             mode="gedachten"
