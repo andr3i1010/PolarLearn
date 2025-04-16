@@ -93,7 +93,7 @@ export default async function Page({
 
     // Check if current user is the post creator, using multiple checks
     const isPostCreator = currentUsername === post.creator ||
-        (postcreator?.name && currentUsername === postcreator.name);
+        (postcreator?.name && currentUsername === postcreator.name) || session?.role === "admin";
 
 
     // Get user's current vote if logged in
@@ -175,7 +175,7 @@ export default async function Page({
 
                             // Check if current user is the reply creator - more flexible check
                             const isReplyCreator = currentUsername === reply.creator ||
-                                (replyCreator?.name && currentUsername === replyCreator.name);
+                                (replyCreator?.name && currentUsername === replyCreator.name) || session?.role === "admin";
                             // Get user's vote on this reply
                             let replyUserVote: "up" | "down" | null = null;
 
