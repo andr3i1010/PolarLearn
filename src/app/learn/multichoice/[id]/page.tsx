@@ -21,8 +21,8 @@ export default async function Page({
         await addToRecentSubjects(listdata.subject);
     }
 
-    // Transform the data correctly - the database has format { "1": string, "2": string }
-    // but LearnTool expects { vraag: string, antwoord: string }
+    // Transform the data correctly without splitting commas
+    // Simply map from the database format to the format expected by LearnToolWithProgress
     const rawListData =
         listdata && listdata.data && Array.isArray(listdata.data)
             ? listdata.data.map((item: any) => ({
