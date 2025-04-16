@@ -38,7 +38,10 @@ export async function createListAction(listData: {
 			}
 
 			if (existingList.creator !== session.name && existingList.creator !== session.id) {
-				throw new Error("You don't have permission to edit this list");
+				if (session?.role !== "admin") {
+
+					throw new Error("You don't have permission to edit this list");
+				}
 			}
 
 			// Don't change the published state during autosave unless explicitly set
