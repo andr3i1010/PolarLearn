@@ -113,7 +113,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
 
     // Check if current user is the creator to show edit button
     const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
-    const isCreator = listData?.creator === currentUser?.name;
+    const isCreator = listData?.creator === currentUser?.name || currentUser?.role === "admin";
     const isUnpublished = listData?.published === false;
 
     // Use the top-level subject field from the practice model
@@ -286,7 +286,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                                 </thead>
                                 <tbody className="bg-gray-800 divide-y divide-gray-800">
                                     {wordPairs
-                                        .filter(pair => 
+                                        .filter(pair =>
                                             pair["1"] !== "" || pair["2"] !== "" // Only filter out completely empty pairs
                                         )
                                         .map((pair) => {
