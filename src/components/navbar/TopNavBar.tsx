@@ -21,12 +21,16 @@ const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
     };
 
     return (
-        <div
-            className="flex items-center px-4 h-12 rounded-4xl bg-neutral-800 hover:bg-neutral-700 transition-colors cursor-pointer w-full"
+        <div className="relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95 w-full"
             onClick={handleSearchClick}
         >
-            <Search size={18} className="mr-2 text-neutral-400" />
-            <span className="text-neutral-400">Zoeken...</span>
+            <div className="rounded-4xl  border-4 border-neutral-700 duration-300 hover:border-transparent">
+                <div className="bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-4xl  duration-300 flex row">
+
+                    <Search size={18} className="mr-2 text-neutral-400" />
+                    <span className="text-neutral-400">Zoeken...</span>
+                </div>
+            </div>
         </div>
     );
 });
@@ -74,16 +78,23 @@ const ExpandedSearchBar = memo(() => {
             >
                 <MoveLeft />
             </Link>
-            <input
-                ref={handleInputRef}
-                name="search"
-                type="text"
-                placeholder="Zoek lijsten en forum vragen..."
-                className="w-full h-12 px-4 rounded-4xl bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all duration-300 ease-in-out"
-                autoComplete="off"
-                value={searchTerm}
-                onChange={handleInputChange}
-            />
+            <div className="relative inline-block transition-transform hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95 w-full rounded-4xl "
+            >
+                <div className="rounded-4xl  border-4 border-neutral-700 duration-300 hover:border-transparent">
+                    <div className="bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-4xl  duration-300">
+                        <input
+                            ref={handleInputRef}
+                            name="search"
+                            type="text"
+                            placeholder="Zoek lijsten en forum vragen..."
+                            className="bg-neutral-800 text-white font-bold transition-all duration-300 w-full focus:outline-none"
+                            autoComplete="off"
+                            value={searchTerm}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                </div>
+            </div>
         </form>
     );
 });
