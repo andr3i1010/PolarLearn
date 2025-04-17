@@ -1,31 +1,176 @@
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, memo, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { AnimatePresence, motion } from "motion/react";
 import Image from 'next/image';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 import check from '@/app/img/check.svg';
 import wrong from '@/app/img/wrong.svg';
 import Button1 from "@/components/button/Button1";
+import { useRouter } from 'next/router';
 
-export default function LearnTool({
+// Memoize the question display component
+const QuestionDisplay = memo(({ question }: { question: string }) => (
+  <div className="px-4 py-2 bg-neutral-700 rounded-lg mb-4 min-w-[240px] max-w-[400px] text-center">
+    <span className="font-extrabold">{question}</span>
+  </div>
+));
+
+// Memoize the answer overlay component
+const AnswerOverlay = memo(({ correct, answer }: { correct: boolean; answer?: string }) => (
+  <motion.div
+    className={`absolute z-50 bottom-0 left-0 right-0 flex items-center justify-center ${correct ? "bg-green-700" : "bg-red-700"
+      } text-white h-20 rounded-lg text-2xl font-extrabold`}
+    initial={{ y: "100%" }}
+    animate={{ y: "0%" }}
+    exit={{ y: "100%" }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+  >
+    {correct ? (
+      <>
+        <Image src={check} width={40} height={40} alt="check icon" className="mr-4" />
+        Correct!
+      </>
+    ) : (
+      <div className="flex items-center px-4 max-w-full">
+        <Image src={wrong} width={40} height={40} alt="wrong icon" className="mr-4 flex-shrink-0" />
+        <div className="overflow-hidden">
+          <span>Verkeerd! het antwoord was </span>
+          <span className="pl-1 font-extrabold truncate block max-w-[calc(100vw-180px)]">{answer}</span>
+        </div>
+      </div>
+    )}
+  </motion.div>
+));
+
+// Add a new GedachtenOverlay component
+const GedachtenOverlay = memo(({ answer, onCorrect, onIncorrect }: {
+  answer: string;
+  onCorrect: () => void;
+  onIncorrect: () => void;
+}) => (
+  <motion.div
+    className="absolute z-50 bottom-0 left-0 right-0 flex flex-col items-center justify-center 
+    bg-blue-500 text-white rounded-lg p-4 text-xl"
+    initial={{ y: "100%" }}
+    animate={{ y: "0%" }}
+    exit={{ y: "100%" }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+  >
+    <div className="flex items-center px-4 max-w-full mb-3">
+      <div className="overflow-hidden text-center">
+        <span>Het antwoord was </span>
+        <span className="pl-1 font-extrabold block">{answer}</span>
+        <span className="mt-2 block">Had je het goed?</span>
+      </div>
+    </div>
+    <div className="flex gap-3 mt-2">
+      <Button1
+        onClick={onCorrect}
+        text="Ja"
+      />
+      <Button1
+        onClick={onIncorrect}
+        text="Nee"
+      />
+    </div>
+  </motion.div>
+));
+
+// Memoize the multi-choice button component
+const MultiChoiceButton = memo(({
+  onClick,
+  isCorrect,
+  optionNumber,
+  text,
+  disabled
+}: {
+  onClick: () => void,
+  isCorrect: boolean,
+  optionNumber: number,
+  text: string,
+  disabled: boolean
+}) => {
+  const isTruncated = text.length > 60;
+  const displayText = isTruncated ? text.substring(0, 60) + "..." : text;
+  const shouldShowTooltip = isTruncated && !disabled;
+
+  return (
+    <div className="relative p-1.5 transform-gpu">
+      {shouldShowTooltip ? (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="w-full">
+                <Button1
+                  onClick={onClick}
+                  disabled={disabled}
+                  text={displayText}
+                  className="w-full h-auto text-sm"
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="bg-neutral-900 border border-neutral-700 text-white max-w-xs text-xs">
+              {text}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        <Button1
+          onClick={onClick}
+          disabled={disabled}
+          text={displayText}
+          className="w-full h-auto text-sm"
+        />
+      )}
+    </div>
+  );
+});
+
+// Update the hint generator function to handle multiple words
+const getHint = (answer: string): string => {
+  if (!answer || answer.length === 0) return '';
+
+  // Split by spaces and process each word
+  return answer.split(' ').map(word => {
+    if (word.length === 0) return '';
+    return word.charAt(0) + '_'.repeat(word.length - 1);
+  }).join(' ');
+};
+
+const LearnTool = ({
   mode,
-  rawlistdata
+  rawlistdata,
+  onCorrectAnswer,
+  onWrongAnswer,
+  onProgressUpdate
 }: {
   mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze";
   rawlistdata: any[];
-}) {
-  const shuffleArray = useCallback(<T,>(array: T[]): T[] => array.sort(() => Math.random() - 0.5), []);
+  onCorrectAnswer?: () => void;
+  onWrongAnswer?: () => void;
+  onProgressUpdate?: (completed: number, total: number) => void;
+}) => {
+  // Use useCallback for this function since it's used in initialization
+  const shuffleArray = useCallback(<T,>(array: T[]): T[] =>
+    [...array].sort(() => Math.random() - 0.5),
+    []);
 
-  const initialMappedData = rawlistdata
-    ? rawlistdata
+  // Use useMemo for initial data processing
+  const initialMappedData = useMemo(() => {
+    if (!rawlistdata || !Array.isArray(rawlistdata) || rawlistdata.length === 0) {
+      return [];
+    }
+
+    return rawlistdata
       .map(item => ({
         vraag: item.vraag || item["1"] || "",
         antwoord: item.antwoord || item["2"] || ""
       }))
-      .filter(item => item.vraag && item.antwoord)
-    : [];
+      .filter(item => item.vraag && item.antwoord);
+  }, [rawlistdata]);
 
   const [lijstData, setLijstData] = useState(() => shuffleArray(initialMappedData));
   const [lijstDataOud, setLijstDataOud] = useState(() => shuffleArray(initialMappedData));
@@ -34,20 +179,57 @@ export default function LearnTool({
   const [showCorrect, setShowCorrect] = useState(false);
   const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() * 4) + 1);
   const [isAnswering, setIsAnswering] = useState(false);
+  const [showGedachtenOverlay, setShowGedachtenOverlay] = useState(false);
 
-  const antwoordFoutVolgende = () => {
+  // Use an effect to clear the input field when the current question changes
+  const [currentQuestion, setCurrentQuestion] = useState<string>("");
+
+  // Watch for changes in the current question and clear input when it changes
+  useEffect(() => {
+    if (lijstData.length > 0 && lijstData[0]?.vraag !== currentQuestion) {
+      setCurrentQuestion(lijstData[0]?.vraag || "");
+      setUserInput("");
+    }
+  }, [lijstData]);
+
+  // Call this when a question is processed (either right or wrong)
+  const updateProgress = useCallback(() => {
+    if (onProgressUpdate && initialMappedData.length > 0) {
+      const total = initialMappedData.length;
+      const completed = total - lijstData.length;
+      onProgressUpdate(completed, total);
+    }
+  }, [initialMappedData.length, lijstData.length, onProgressUpdate]);
+
+  // Track progress whenever questions are answered
+  useEffect(() => {
+    if (onProgressUpdate && initialMappedData.length > 0) {
+      const total = initialMappedData.length;
+      const completed = total - lijstData.length;
+      onProgressUpdate(completed, total);
+    }
+  }, [lijstData.length, initialMappedData.length, onProgressUpdate]);
+
+  // Use useCallback for event handlers that are passed to child components
+  const antwoordFoutVolgende = useCallback(() => {
     if (lijstData.length > 0) {
       const [huidigeVraag, ...rest] = lijstData;
       setLijstData([...rest, huidigeVraag]);
+      // Force clear the input field when moving to next question
+      setTimeout(() => {
+        setUserInput("");
+      }, 100);
     }
     setToonAntwoord(false);
-  };
+  }, [lijstData]);
 
-  const handleAntwoordControleren = () => {
+  const handleAntwoordControleren = useCallback(() => {
     if (!lijstData.length || userInput.trim() === "") return;
     const [huidigeVraag, ...rest] = lijstData;
     if (userInput.trim().toLowerCase() === huidigeVraag.antwoord.toLowerCase()) {
       setShowCorrect(true);
+      if (onCorrectAnswer) onCorrectAnswer();
+      updateProgress();
       setTimeout(() => {
         setShowCorrect(false);
         setLijstData(shuffleArray(rest));
@@ -55,28 +237,53 @@ export default function LearnTool({
       }, 2000);
     } else {
       setToonAntwoord(true);
+      if (onWrongAnswer) onWrongAnswer();
+      updateProgress();
       setTimeout(() => {
         antwoordFoutVolgende();
-      }, 2000);
+        setUserInput(""); // Clear input after wrong answer too
+      }, 3500); // Increased from 2000 to 3500ms for incorrect answers
     }
-  };
+  }, [lijstData, userInput, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress]);
 
-  const handleAntwoordControlerenGedachten = (isAntwoordCorrect: boolean) => {
+  // Renamed from handleAntwoordControlerenGedachten
+  const handleSelfAssessment = useCallback((isAntwoordCorrect: boolean) => {
     if (!lijstData.length) return;
+
+    // Dismiss the overlay first
+    setShowGedachtenOverlay(false);
+
     const [huidigeVraag, ...rest] = lijstData;
     if (isAntwoordCorrect) {
-      setLijstData(shuffleArray(rest));
-    } else {
-      antwoordFoutVolgende();
-    }
-  };
+      // Call the onCorrectAnswer callback
+      if (onCorrectAnswer) onCorrectAnswer();
+      updateProgress();
 
-  const handleAntwoordmultikeuze = (isAntwoordCorrect: boolean) => {
+      // Use setTimeout to ensure state changes don't interfere
+      setTimeout(() => {
+        setLijstData(shuffleArray(rest));
+      }, 50); // Short delay
+    } else {
+      // Call the onWrongAnswer callback
+      if (onWrongAnswer) onWrongAnswer();
+      updateProgress();
+
+      // Use setTimeout to ensure state changes don't interfere
+      setTimeout(() => {
+        // Move the question to the end
+        setLijstData([...rest, huidigeVraag]);
+      }, 50); // Short delay
+    }
+  }, [lijstData, shuffleArray, onCorrectAnswer, onWrongAnswer, updateProgress]);
+
+  const handleAntwoordmultikeuze = useCallback((isAntwoordCorrect: boolean) => {
     if (!lijstData.length || isAnswering) return;
     setIsAnswering(true);
     const [huidigeVraag, ...rest] = lijstData;
     if (isAntwoordCorrect) {
       setShowCorrect(true);
+      if (onCorrectAnswer) onCorrectAnswer();
+      updateProgress();
       setTimeout(() => {
         setShowCorrect(false);
         setLijstData(shuffleArray(rest));
@@ -85,207 +292,200 @@ export default function LearnTool({
       }, 2000);
     } else {
       setToonAntwoord(true);
+      if (onWrongAnswer) onWrongAnswer();
+      updateProgress();
       setTimeout(() => {
         antwoordFoutVolgende();
         setRandomNumber(Math.floor(Math.random() * 4) + 1);
         setIsAnswering(false);
-      }, 2000);
+      }, 3500); // Increased from 2000 to 3500ms for incorrect answers
     }
-  };
+  }, [lijstData, isAnswering, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress]);
 
-  const QuestionDisplay = () => (
-    <div className="relative flex flex-col items-center w-full">
-      <p className='text-2xl font-extrabold text-center'>{lijstData[0].vraag}</p>
-      <div className="w-[95%] border-t border-neutral-700 my-4"></div>
-    </div>
-  );
+  // Handle showing the answer in gedachten mode
+  const handleShowGedachtenAnswer = useCallback(() => {
+    if (!lijstData.length) return;
+    setShowGedachtenOverlay(true);
+  }, [lijstData]);
 
-  const AnswerOverlay = ({ correct }: { correct: boolean }) => (
-    <motion.div
-      className={`absolute z-50 bottom-0 left-0 right-0 flex items-center justify-center ${correct ? "bg-green-700" : "bg-red-700"
-        } text-white h-20 rounded-lg text-2xl font-extrabold`}
-      initial={{ y: "100%" }}
-      animate={{ y: ["100%", "0%", "0%", "100%"] }}
-      transition={{ duration: 1.8, times: [0, 0.17, 0.83, 1] }}
-    >
-      {correct ? (
-        <>
-          <Image src={check} width={40} height={40} alt="check icon" className="mr-4" />
-          Correct!
-        </>
-      ) : (
-        <>
-          <Image src={wrong} width={40} height={40} alt="wrong icon" className="mr-4" />
-          Verkeerd! het antwoord was <span className="pl-1 font-extrabold">{lijstData[0].antwoord}</span>
-        </>
-      )}
-    </motion.div>
-  );
+  // Completely rewrite gedachten mode handlers to avoid any possibility of showing other overlays
+  const handleGedachtenCorrect = useCallback(() => {
+    if (!lijstData.length) return;
 
-  if (!["toets", "gedachten", "hints", "multikeuze"].includes(mode)) {
-    return <p>Ongeldige modus geselecteerd.</p>;
-  }
+    // First dismiss the overlay
+    setShowGedachtenOverlay(false);
+
+    // Call the onCorrectAnswer callback
+    if (onCorrectAnswer) onCorrectAnswer();
+    updateProgress();
+
+    // Use setTimeout to ensure state changes don't interfere with each other
+    setTimeout(() => {
+      const [_, ...rest] = lijstData;
+      // Move directly to the next question without triggering any other overlays
+      setLijstData(shuffleArray(rest));
+    }, 50);
+  }, [lijstData, shuffleArray, onCorrectAnswer, updateProgress]);
+
+  const handleGedachtenIncorrect = useCallback(() => {
+    if (!lijstData.length) return;
+
+    // First dismiss the overlay
+    setShowGedachtenOverlay(false);
+
+    // Call the onWrongAnswer callback
+    if (onWrongAnswer) onWrongAnswer();
+    updateProgress();
+
+    // Use setTimeout to ensure state changes don't interfere with each other
+    setTimeout(() => {
+      const [huidigeVraag, ...rest] = lijstData;
+      // Move the question to the end without triggering any other overlays
+      setLijstData([...rest, huidigeVraag]);
+    }, 50);
+  }, [lijstData, onWrongAnswer, updateProgress]);
+
+  // Use useMemo for derived calculations
+  const getOptionText = useCallback((buttonNumber: number, correctAnswer: string): string => {
+    if (randomNumber === buttonNumber) {
+      return correctAnswer;
+    }
+
+    if (lijstDataOud.length < 2) {
+      return "Optie";
+    }
+
+    let attempts = 0;
+    let randomAnswer = "";
+
+    do {
+      if (attempts > 10) {
+        const randomIndex = Math.floor(Math.random() * lijstDataOud.length);
+        return lijstDataOud[randomIndex]?.antwoord || "Optie";
+      }
+
+      attempts++;
+      const randomIndex = Math.floor(Math.random() * lijstDataOud.length);
+      randomAnswer = lijstDataOud[randomIndex]?.antwoord || "";
+    } while (randomAnswer.toLowerCase() === correctAnswer.toLowerCase() || randomAnswer === "");
+
+    return randomAnswer;
+  }, [randomNumber, lijstDataOud]);
 
   return (
-    <div className='bg-neutral-800 relative min-w-[500px] h-60 rounded-lg flex flex-col justify-center'>
-      <div id="invullen" className="w-full h-full flex flex-col items-center justify-center relative z-10 overflow-hidden">
-        {lijstData.length > 0 ? (
-          <>
-            <QuestionDisplay />
-            {mode === "toets" ? (
-              <>
-                <Input
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  className="border rounded p-4 w-60 border-neutral-700"
-                  placeholder='Antwoord komt hier'
-                />
-                <Button1
-                  onClick={handleAntwoordControleren}
-                  aria-label="Controleer antwoord"
-                  text='Controleer antwoord'
-                >
-                </Button1>
-              </>
-            ) : mode === "hints" ? (
-              <> <p>{lijstData[0].antwoord.length < 3 ? lijstData[0].antwoord : lijstData[0].antwoord.charAt(0) + '_'.repeat(lijstData[0].antwoord.length - 1) + lijstData[0].antwoord.charAt(lijstData[0].antwoord.length)}</p>
-                <Input
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  className="border rounded p-2 w-60 border-neutral-700"
-                  placeholder='Antwoord komt hier'
-                />
-                <Button1
-                  onClick={handleAntwoordControleren}
+    <div className='bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] rounded-lg flex flex-col justify-center overflow-hidden p-4'>
+      {initialMappedData.length === 0 ? (
+        <div className="text-center text-white p-4">
+          Lijst niet gevonden
+        </div>
+      ) : lijstData.length === 0 ? (
+        <div className="text-center text-white p-4">
+          <div className="font-bold text-xl mb-2">Gefeliciteerd!</div>
+          <div>Je hebt de lijst helemaal af!</div>
+          <div className='space-x-2'>
+            <Button1 onClick={() => setLijstData(shuffleArray(initialMappedData))} text="Opnieuw beginnen" className="mt-4" />
+            <Button1 text={"Terug naar home "} redirectTo='/home/start' useClNav={true} />
+          </div>
+        </div>
+      ) : (
+        <div className='flex flex-col items-center justify-center h-full'>
+          <QuestionDisplay question={lijstData[0]?.vraag || ""} />
 
-                  aria-label="Controleer antwoord"
-                  text='Controleer antwoord'
-                >
-                </Button1>
-              </>
-            ) : mode === "multikeuze" ? (
-              <div className='flex flex-col gap-4'>
-                <div className='flex flex-row items-center gap-4'>
-                  <Button1
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === 1)}
-                    className="w-40"
-                    disabled={isAnswering}
-                    aria-label="Multiple choice option 1"
-                    text={randomNumber === 1 ? lijstData[0].antwoord : (() => {
-                      let randomAnswer;
-                      do {
-                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
-                      } while (randomAnswer === lijstData[0].antwoord);
-                      return randomAnswer;
-                    })()}
-                  >
-                  </Button1>
-                  <Button1
-                    className="w-40"
-
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === 2)}
-                    disabled={isAnswering}
-                    aria-label="Multiple choice option 2"
-                    text={randomNumber === 2 ? lijstData[0].antwoord : (() => {
-                      let randomAnswer;
-                      do {
-                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
-                      } while (randomAnswer === lijstData[0].antwoord);
-                      return randomAnswer;
-                    })()}
-                  >
-
-                  </Button1>
-                </div>
-                <div className='flex flex-row items-center gap-4'>
-                  <Button1
-                    className="w-40"
-
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === 3)}
-                    disabled={isAnswering}
-                    aria-label="Multiple choice option 3"
-                    text={randomNumber === 3 ? lijstData[0].antwoord : (() => {
-                      let randomAnswer;
-                      do {
-                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
-                      } while (randomAnswer === lijstData[0].antwoord);
-                      return randomAnswer;
-                    })()}
-                  >
-
-                  </Button1>
-                  <Button1
-                    className="w-40"
-
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === 4)}
-                    disabled={isAnswering}
-                    aria-label="Multiple choice option 4"
-                    text={randomNumber === 4 ? lijstData[0].antwoord : (() => {
-                      let randomAnswer;
-                      do {
-                        randomAnswer = lijstDataOud[Math.floor(Math.random() * lijstDataOud.length)].antwoord;
-                      } while (randomAnswer === lijstData[0].antwoord);
-                      return randomAnswer;
-                    })()}
-                  >
-
-                  </Button1>
-                </div>
+          {mode === "toets" && (
+            <div className="w-full max-w-md">
+              <Input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder="Type je antwoord hier..."
+                className="w-full"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAntwoordControleren();
+                  }
+                }}
+              />
+              <div className="flex gap-2 mt-4">
+                <Button1 onClick={handleAntwoordControleren} text="Controleren" className="flex-1" />
               </div>
-            ) : (
-              <>
-                <Button1
-                  onClick={() => setToonAntwoord(true)}
-                  aria-label="Controleer antwoord"
-                  text='Controleer antwoord'
-                >
-                </Button1>
-                <AnimatePresence>
-                  {toonAntwoord && (
-                    <motion.div
-                      className="absolute z-50 bottom-0 left-0 right-0 flex flex-col items-center justify-center bg-green-700 text-white h-24 rounded-lg text-2xl"
-                      initial={{ y: "100%" }}
-                      animate={{ y: ["100%", "0%", "0%", "0%"] }}
-                      exit={{ y: "100%", transition: { duration: 0.4 } }}
-                      transition={{ duration: 1.8, times: [0, 0.17, 0.83, 1] }}
-                    >
-                      <div className="flex items-center flex-row">
-                        <p>
-                          het antwoord was <span className="pl-1 font-extrabold">{lijstData[0].antwoord}</span>, had je het goed?
-                        </p>
-                        <br />
-                        <Button1
-                          onClick={() => {
-                            setToonAntwoord(false);
-                            handleAntwoordControlerenGedachten(true);
-                          }}
-                          aria-label="Ja, antwoord is correct"
-                          text='Ja'
-                        >
-                        </Button1>
-                        <br />
-                        <Button1
-                          onClick={() => {
-                            setToonAntwoord(false);
-                            handleAntwoordControlerenGedachten(false);
-                          }}
-                          text='Nee'
-                          aria-label="Nee, antwoord is fout"
-                        >
-                        </Button1>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </>
-            )}
-          </>
-        ) : (
-          <p>Gefeliciteerd! Alle vragen beantwoord.</p>
+            </div>
+          )}
+
+          {mode === "multikeuze" && (
+            <div className="grid grid-cols-2 gap-2 w-full max-w-md mt-2">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <MultiChoiceButton
+                  key={index}
+                  onClick={() => handleAntwoordmultikeuze(randomNumber === index + 1)}
+                  isCorrect={randomNumber === index + 1}
+                  optionNumber={index + 1}
+                  text={getOptionText(index + 1, lijstData[0]?.antwoord || "")}
+                  disabled={isAnswering}
+                />
+              ))}
+            </div>
+          )}
+
+          {mode === "gedachten" && (
+            <div className="flex gap-2 mt-4 w-full max-w-md">
+              <Button1
+                onClick={handleShowGedachtenAnswer}
+                text="Toon Antwoord"
+                className="flex-1"
+              />
+            </div>
+          )}
+
+          {/* Add rendering for learn mode */}
+          {mode === "learn" && (
+            <div className="flex gap-2 mt-4 w-full max-w-md">
+              <Button1
+                onClick={handleShowGedachtenAnswer} // Re-use the same handler as gedachten
+                text="Toon Antwoord"
+                className="flex-1"
+              />
+            </div>
+          )}
+
+          {mode === "hints" && (
+            <div className="w-full max-w-md">
+              <div className="p-4 bg-neutral-700 rounded-lg text-center mb-4">
+                <span className="font-extrabold">Hint: {getHint(lijstData[0]?.antwoord || "")}</span>
+              </div>
+              <Input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder="Type je antwoord hier..."
+                className="w-full"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAntwoordControleren();
+                  }
+                }}
+              />
+              <div className="flex gap-2 mt-4">
+                <Button1 onClick={handleAntwoordControleren} text="Controleren" className="flex-1" />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      <AnimatePresence>
+        {toonAntwoord && (
+          <AnswerOverlay correct={false} answer={lijstData[0]?.antwoord} />
         )}
         {showCorrect && <AnswerOverlay correct={true} />}
-        {toonAntwoord && (mode === "toets" || mode === "hints" || mode === "multikeuze") && <AnswerOverlay correct={false} />}
-      </div>
+        {showGedachtenOverlay && lijstData.length > 0 && (
+          <GedachtenOverlay
+            answer={lijstData[0]?.antwoord || ""}
+            onCorrect={() => handleSelfAssessment(true)} // Use renamed handler
+            onIncorrect={() => handleSelfAssessment(false)} // Use renamed handler
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
-}
+};
+
+export default memo(LearnTool);

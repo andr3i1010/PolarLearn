@@ -19,10 +19,10 @@
 
 ## Wat kan PolarLearn tot nu toe?
 
-- [ ] Lijsten
+- [x] Lijsten
+- [ ] Quizzen
 - [x] Forum
 - [ ] LiveQuiz
-- [ ] Challenges
 
 ---
 
@@ -56,14 +56,5 @@ Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) te g
 
 # Hoe kan je bijdragen aan PolarLearn?
 
+join de discord: https://discord.gg/PhHsr9EF
 Je kan bijdragen aan PolarLearn door de code te downloaden en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een feature request hebt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie CONTRIBUTING.md voor meer informatie.
-
-## instalatie
-voor windows:
-vraag op discord
-
-voor mac/penguin:
-```
-bash install/unix.sh
-```
-in de polarlearn dir

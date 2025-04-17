@@ -7,6 +7,8 @@ import React, {
   useImperativeHandle,
   forwardRef,
   ReactNode,
+  useCallback,
+  useMemo,
 } from "react";
 import Link from "next/link";
 
@@ -14,17 +16,17 @@ interface DropdownProps {
   text: string;
   dropdownMatrix: [ReactNode, string][];
   selectorMode?: boolean;
-  onChangeSelected?: (selected: { id: string; display: ReactNode }) => void; // UPDATED
-  width?: number; // new optional width parameter
-  onSelect?: (value: string) => void; // Added onSelect callback
-  onChange?: (selected: any) => void; // Added onChange prop
-  disabled?: boolean; // NEW disabled prop
-  value?: string; // NEW value prop
+  onChangeSelected?: (selected: { id: string; display: ReactNode }) => void;
+  width?: number;
+  onSelect?: (value: string) => void;
+  onChange?: (selected: any) => void;
+  disabled?: boolean;
+  value?: string;
 }
 
 export interface DropdownHandle {
   getSelectedItem: () => string;
-  setValue: (newId: string, newDisplay: ReactNode) => void; // NEW method
+  setValue: (newId: string, newDisplay: ReactNode) => void;
 }
 
 const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
@@ -32,7 +34,6 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
     const [isExpanded, setIsExpanded] = useState(false);
     const [computedWidth, setComputedWidth] = useState<number>(0);
     const [dropdownHeight, setDropdownHeight] = useState<number>(0);
-    // Store both the selected option id and display.
     const [selectedOption, setSelectedOption] = useState<{
       id: string;
       display: ReactNode;
@@ -65,7 +66,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
         }, 0);
         setComputedWidth(maxWidth + (width !== undefined ? width : 60));
       }
-    }, [dropdownMatrix]);
+    }, [dropdownMatrix, width]);
 
     useEffect(() => {
       if (dropdownRef.current) {
@@ -73,43 +74,42 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
       }
     }, [isExpanded]);
 
-    const effectiveWidth = width !== undefined ? width : computedWidth;
+    const effectiveWidth = useMemo(() =>
+      width !== undefined ? width : computedWidth
+      , [width, computedWidth]);
 
-    const handleMouseEnter = () => {
+    const handleMouseEnter = useCallback(() => {
       isMouseOverMainButton.current = true;
       setIsExpanded(true);
-    };
+    }, []);
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = useCallback(() => {
       isMouseOverMainButton.current = false;
       if (!isMouseOverDropdown.current && !isMouseOverMainButton.current) {
         setIsExpanded(false);
       }
-    };
+    }, []);
 
-    const handleDropdownMouseEnter = () => {
+    const handleDropdownMouseEnter = useCallback(() => {
       isMouseOverDropdown.current = true;
-    };
+    }, []);
 
-    const handleDropdownMouseLeave = () => {
+    const handleDropdownMouseLeave = useCallback(() => {
       isMouseOverDropdown.current = false;
       if (!isMouseOverMainButton.current) {
         setIsExpanded(false);
       }
-    };
+    }, []);
 
-    // Accept both id (second element) and display (first element)
-    const handleItemClick = (optionId: string, optionDisplay: ReactNode) => {
+    const handleItemClick = useCallback((optionId: string, optionDisplay: ReactNode) => {
       if (selectorMode) {
         setSelectedOption({ id: optionId, display: optionDisplay });
-        onChangeSelected && onChangeSelected({ id: optionId, display: optionDisplay }); // UPDATED
-        onSelect && onSelect(optionId); // Call onSelect if provided
-        if (onChange) {
-          onChange(optionId);
-        }
+        onChangeSelected && onChangeSelected({ id: optionId, display: optionDisplay });
+        onSelect && onSelect(optionId);
       }
       setIsExpanded(false);
-    };
+      onChange && onChange({ id: optionId, display: optionDisplay });
+    }, [selectorMode, onChangeSelected, onSelect, onChange]);
 
     const handleButtonClick = () => {
       if (!isExpanded) {
@@ -118,8 +118,8 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
     };
 
     return (
-      <div 
-        className={`absolute z-50 ${disabled ? "pointer-events-none opacity-50" : ""}`} // Added z-50 for high stacking order
+      <div
+        className={`absolute z-50 ${disabled ? "pointer-events-none opacity-50" : ""}`}
       >
         <div
           className="inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg"
@@ -144,7 +144,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
 
             <div
               ref={dropdownRef}
-              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100" : "opacity-0"} shadow-lg`} // Add shadow if needed
+              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100" : "opacity-0"} shadow-lg`}
               style={{
                 height: isExpanded ? `${dropdownHeight}px` : "0px",
                 width: `${effectiveWidth - 8}px`,
@@ -183,9 +183,10 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
   }
 );
 
+Dropdown.displayName = "Dropdown";
+
 export default Dropdown;
 
-// Utility function to get currently selected item from a dropdown ref.
 export function getCurrentSelectedItem(
   dropdownRef: React.RefObject<DropdownHandle | null>
 ): string | undefined {

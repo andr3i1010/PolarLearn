@@ -1,0 +1,22 @@
+{
+  "name": "PolarLearn",
+  "short_name": "PolarLearn",
+  "description": "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door studenten.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#38bdf8",
+  "icons": [
+    {
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

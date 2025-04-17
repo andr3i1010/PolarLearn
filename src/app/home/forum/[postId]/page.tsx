@@ -8,6 +8,9 @@ import ForumReply from "@/components/ForumReply"
 import DeletePostButton from "@/components/DeletePostButton"
 import MarkdownRenderer from "@/components/md"
 import { cookies } from "next/headers"
+import CreatorLink from "@/components/links/CreatorLink"
+import ForumHome from "../page"; // added import
+import { Key } from "react"
 
 // Define the structure for vote data
 interface VoteData {
@@ -19,7 +22,14 @@ export default async function Page({
 }: {
     params: Promise<{ postId: string }>
 }) {
-    const { postId } = await params
+    const { postId } = await params;
+    // If postId is actually a tab identifier, delegate to ForumHome
+    if (
+        ["questions", "my-questions", "my-answers", "how-the-forum-works"].includes(postId)
+    ) {
+        return <ForumHome searchParams={Promise.resolve({})} params={{ tab: [postId] }} />;
+    }
+
     const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
     const currentUsername = session?.name || null
 
@@ -47,7 +57,7 @@ export default async function Page({
     })
 
     // Get list of creator identifiers (may be usernames or IDs)
-    const creatorIdentifiers = [post.creator, ...replies.map(reply => reply.creator)]
+    const creatorIdentifiers = [post.creator, ...replies.map((reply: { creator: any }) => reply.creator)]
 
     // Try to fetch users by ID first
     const usersById = await prisma.user.findMany({
@@ -67,19 +77,19 @@ export default async function Page({
     const userMap: Record<string, any> = {};
 
     // Map users by ID
-    usersById.forEach(user => {
+    usersById.forEach((user: { id: string | number }) => {
         if (user.id) userMap[user.id] = user;
     });
 
     // Map users by name
-    usersByName.forEach(user => {
+    usersByName.forEach((user: { name: string | null }) => {
         if (user.name) userMap[user.name] = user;
     });
 
     // Get post creator - try direct lookup or find by name
     const postcreator = userMap[post.creator] ||
-        usersById.find(u => u.id === post.creator) ||
-        usersByName.find(u => u.name === post.creator);
+        usersById.find((u: { id: any }) => u.id === post.creator) ||
+        usersByName.find((u: { name: any }) => u.name === post.creator);
 
     // Check if current user is the post creator, using multiple checks
     const isPostCreator = currentUsername === post.creator ||
@@ -128,7 +138,8 @@ export default async function Page({
                     )}
                 </div>
                 <div className="flex-grow">
-                    <h3 className="font-medium">{postcreator?.name || post.creator}</h3>
+                    {/* <h3 className="font-medium">{postcreator?.name || post.creator}</h3> */}
+                    <CreatorLink creator={postcreator?.name || post.creator} color="white" />
                     <p className="text-sm text-gray-400">{relativeTime}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -156,10 +167,10 @@ export default async function Page({
                 <div className="mt-10">
                     <h2 className="text-xl font-bold mb-4">Antwoorden ({replies.length})</h2>
                     <div className="flex flex-col">
-                        {replies.map((reply, index) => {
+                        {replies.map((reply: { creator: string | number; createdAt: Date; votes_data: unknown; post_id: Key | null | undefined; votes: number; content: string }, index: number) => {
                             const replyCreator = userMap[reply.creator] ||
-                                usersById.find(u => u.id === reply.creator) ||
-                                usersByName.find(u => u.name === reply.creator);
+                                usersById.find((u: { id: any }) => u.id === reply.creator) ||
+                                usersByName.find((u: { name: any }) => u.name === reply.creator);
                             const replyTime = formatRelativeTime(reply.createdAt);
 
                             // Check if current user is the reply creator - more flexible check
@@ -223,18 +234,19 @@ export default async function Page({
                                             )}
                                         </div>
                                         <div className="flex-grow">
-                                            <h3 className="font-medium">{replyCreator?.name || reply.creator}</h3>
+                                            {/* <h3 className="font-medium">{replyCreator?.name || reply.creator}</h3> */}
+                                            <CreatorLink creator={replyCreator?.name || reply.creator} color="white" />
                                             <p className="text-sm text-gray-400">{replyTime}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            {isReplyCreator && (
+                                            {isReplyCreator && reply.post_id && (
                                                 <DeletePostButton
-                                                    postId={reply.post_id}
+                                                    postId={String(reply.post_id)}
                                                     isCreator={true}  // Force to true since we already checked
                                                     isMainPost={false}
                                                 />
                                             )}
-                                            <VoteButtons postId={reply.post_id} initialVotes={reply.votes} initialUserVote={replyUserVote} />
+                                            <VoteButtons postId={String(reply.post_id)} initialVotes={reply.votes} initialUserVote={replyUserVote} user={session} />
                                         </div>
                                     </div>
                                     <div className="prose prose-invert max-w-none whitespace-pre-line">

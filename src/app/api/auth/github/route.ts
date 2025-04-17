@@ -1,4 +1,4 @@
-import { GithubOAuth } from "@/utils/auth/oauth";
+import { getGithubAuthUrl, getGithubTokens, getGithubUser, getGithubUserEmails, mergeGithubAccount } from "@/utils/auth/oauth";
 import { prisma } from "@/utils/prisma";
 import { createSession } from "@/utils/auth/session";
 import { NextResponse } from "next/server";
@@ -8,22 +8,20 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
 
   if (!code) {
-    const githubOAuth = new GithubOAuth();
-    const url = githubOAuth.getAuthUrl();
+    const url = await getGithubAuthUrl();
     return Response.redirect(url, 302);
   }
 
-  const githubOAuth = new GithubOAuth();
-  const tokenResponse = await githubOAuth.getTokens(code);
+  const tokenResponse = await getGithubTokens(code);
   const accessToken = tokenResponse.access_token;
   if (!accessToken) {
     return new Response("No access_token", { status: 400 });
   }
 
-  const githubProfile = await githubOAuth.getUser(accessToken);
+  const githubProfile = await getGithubUser(accessToken);
   let email = githubProfile.email;
   if (!email) {
-    const emails = await githubOAuth.getUserEmails(accessToken);
+    const emails = await getGithubUserEmails(accessToken);
     const primaryEmailObj = emails.find((e: any) => e.primary && e.verified);
     if (primaryEmailObj) {
       email = primaryEmailObj.email;
@@ -42,7 +40,7 @@ export async function GET(request: Request) {
   });
 
   if (!user) {
-    user = await githubOAuth.mergeGithubOAuth(accessToken, {
+    user = await mergeGithubAccount(accessToken, {
       id: String(githubProfile.id),
       email,
     });
@@ -61,6 +59,14 @@ export async function GET(request: Request) {
       data: { githubOAuthID: String(githubProfile.id) },
     });
   }
+
+  const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
+    ? process.env.NEXT_PUBLIC_URL
+    : "http://localhost:3000";
+
   await createSession(user.id);
-  return Response.redirect(new URL("/home/start", request.url), 302);
+  return Response.redirect(
+    new URL("/home/start", baseUrl),
+    302
+  );
 }

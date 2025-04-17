@@ -157,7 +157,7 @@ db.test_collection.insertOne({ created: new Date() });
 echo "✅ db aangemaakt"
 echo "🚀 Starten met install van node packages (Dit kan heel lang duren)"
 # Verberg npm logs
-npm i --legacy-peer-deps > /dev/null 2>&1
+pnpm i
 
 # .env bestand aanmaken (alleen als het nog niet bestaat)
 if [ ! -f .env ]; then
@@ -172,6 +172,7 @@ AUTH_GITHUB_SECRET=\"Stop hier de GitHub OAuth2 Client Secret die je hebt gekreg
 
 AUTH_SECRET=\"$random_string\"
 AUTH_URL=\"http://localhost:3000\"
+SECRET=\"$random_string\"
 " >> .env
     chmod 644 .env
     echo "✅ .env bestand aangemaakt!"

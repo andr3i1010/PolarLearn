@@ -2,7 +2,7 @@ FROM node:lts-alpine AS builder
 WORKDIR /app
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install
+RUN yes | pnpm install
 COPY . .
 COPY public /app/public
 RUN pnpx prisma generate
@@ -13,7 +13,7 @@ WORKDIR /app
 RUN npm install -g pnpm
 RUN apk add --no-cache git
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --prod
+RUN yes | pnpm install --prod
 COPY .git .git
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/.next .next

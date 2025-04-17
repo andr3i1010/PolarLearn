@@ -6,6 +6,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUserCredentials } from "@/utils/auth/user";
 import { createSession } from "@/utils/auth/session";
+import { EyeOff } from "lucide-react";
+import { Eye } from "lucide-react";
 
 export const metadata: Metadata = {
   title: 'PolarLearn - Account aanmaken',
@@ -29,6 +31,8 @@ export default function SignUpForm() {
   };
 
   const router = useRouter();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form className="space-y-4 md:space-y-6"
@@ -105,15 +109,22 @@ export default function SignUpForm() {
         >
           Wachtwoord
         </label>
-        <input
-          type="password"
-          maxLength={100}
-          name="password"
-          id="password"
-          placeholder="••••••••••••••••••••••••••••••••"
-          className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
-          required
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="••••••••"
+            className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 pr-10 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+          >
+            {showPassword ? <Eye /> : <EyeOff />}
+          </button>
+        </div>
       </div>
       <Button1 text="Maak 'm aan!" className="w-full" type="submit" />
     </form>

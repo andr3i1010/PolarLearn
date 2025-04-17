@@ -1,4 +1,11 @@
 "use client";
+// Beste developer,
+// Ik heb mijn tijd enorm verspilt aan alle animaties maken.
+// Het zou fijn zijn als jij de animatie zou maken voor als de gebruiker een paar loslaat,
+// dus dat het mooi beweegt naar zijn plek.
+// ik heb dit al gebrobeerd te doen, maar dat is verschrikkelijk mislukt.
+// const wastedHours = 4
+// Met vriendelijke groeten, andrei1010
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -36,12 +43,22 @@ import ak_img from '@/app/img/geography.svg';
 import gs_img from '@/app/img/history.svg';
 import bi_img from '@/app/img/bio.svg';
 
-// Define the pair type.
 type Pair = {
   id: number;
   "1": string;
   "2": string;
 };
+
+// Add interface for the list data
+interface ListToEdit {
+  list_id: string;
+  name: string;
+  subject: string;
+  data: Pair[];
+  lang_from: string;
+  lang_to: string;
+  mode: string;
+}
 
 // SortableItem component for each draggable pair.
 function SortableItem({
@@ -65,7 +82,7 @@ function SortableItem({
   );
 }
 
-export default function CreateListTool() {
+export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit }) {
   const router = useRouter(); // Initialize router
   const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>(undefined);
   const [listName, setListName] = useState("");
@@ -81,8 +98,29 @@ export default function CreateListTool() {
   const [selectedTaal, setSelectedTaal] = useState<string | undefined>(undefined);
   const [selectedSubject, setSelectedSubject] = useState<{ id: string; display: ReactNode } | undefined>(undefined);
   const [isDragging, setIsDragging] = useState(false); // NEW state for dragging
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [autosavedListId, setAutosavedListId] = useState<string | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const languageIds = ["NL", "FR", "EN", "DE"];
+  const isEditMode = !!listToEdit;
+
+  // Setup for subject icons
+  const subjectIcons: Record<string, any> = {
+    "NL": nl_img,
+    "DE": de_img,
+    "FR": fr_img,
+    "EN": eng_img,
+    "WI": math_img,
+    "NSK": nsk_img,
+    "GS": gs_img,
+    "BI": bi_img,
+    "AK": ak_img,
+  };
 
   useEffect(() => {
     const defaultDutchDisplay = (
@@ -132,13 +170,115 @@ export default function CreateListTool() {
     return () => { document.body.style.cursor = "default"; };
   }, [isDragging]);
 
+  // Populate form with existing data if editing
+  useEffect(() => {
+    if (listToEdit) {
+      // Set list name
+      setListName(listToEdit.name);
+
+      // Set subject
+      if (listToEdit.subject) {
+        const subjectIcon = subjectIcons[listToEdit.subject];
+        if (subjectIcon) {
+          const subjectDisplay = (
+            <div className="flex items-center gap-2">
+              <Image src={subjectIcon} alt={`${listToEdit.subject} icon`} width={20} height={20} />
+              <p>{getSubjectLabel(listToEdit.subject)}</p>
+            </div>
+          );
+
+          setSelectedSubject({ id: listToEdit.subject, display: subjectDisplay });
+          setSelectedLanguage(listToEdit.subject);
+
+          if (dropdownRef.current) {
+            dropdownRef.current.setValue(listToEdit.subject, subjectDisplay);
+          }
+        }
+      }
+
+      // Set data pairs
+      if (Array.isArray(listToEdit.data) && listToEdit.data.length > 0) {
+        const formattedPairs = listToEdit.data.map((item, index) => ({
+          id: index,
+          "1": item["1"] || "",
+          "2": item["2"] || ""
+        }));
+
+        setPairs(formattedPairs);
+        setNextId(formattedPairs.length);
+      }
+
+      // Set language selections
+      if (listToEdit.lang_from && vanDropdownRef.current) {
+        const langFrom = listToEdit.lang_from;
+        const fromIcon = subjectIcons[langFrom];
+        if (fromIcon) {
+          const display = (
+            <div className="flex items-center gap-2">
+              <Image src={fromIcon} alt={getLanguageLabel(langFrom)} width={20} height={20} />
+              <p>{getLanguageLabel(langFrom)}</p>
+            </div>
+          );
+          vanDropdownRef.current.setValue(langFrom, display);
+        }
+      }
+
+      if (listToEdit.lang_to && naarDropdownRef.current) {
+        const langTo = listToEdit.lang_to;
+        const toIcon = subjectIcons[langTo];
+        if (toIcon) {
+          const display = (
+            <div className="flex items-center gap-2">
+              <Image src={toIcon} alt={getLanguageLabel(langTo)} width={20} height={20} />
+              <p>{getLanguageLabel(langTo)}</p>
+            </div>
+          );
+          naarDropdownRef.current.setValue(langTo, display);
+        }
+      }
+    }
+  }, [listToEdit]);
+
+  // Helper function to get language label
+  const getLanguageLabel = (code: string) => {
+    switch (code) {
+      case "NL": return "Nederlands";
+      case "EN": return "Engels";
+      case "FR": return "Frans";
+      case "DE": return "Duits";
+      default: return code;
+    }
+  };
+
+  // Helper function to get subject label
+  const getSubjectLabel = (code: string) => {
+    switch (code) {
+      case "NL": return "Nederlands";
+      case "EN": return "Engels";
+      case "FR": return "Frans";
+      case "DE": return "Duits";
+      case "WI": return "Wiskunde";
+      case "NSK": return "NaSk";
+      case "GS": return "Geschiedenis";
+      case "BI": return "Biologie";
+      case "AK": return "Aardrijkskunde";
+      default: return code;
+    }
+  };
+
   const addPair = () => {
     setPairs([...pairs, { id: nextId, "1": '', "2": '' }]);
     setNextId(nextId + 1);
+    markHasChanges();
   };
 
   const removePair = (id: number) => {
     setPairs(pairs.filter((pair) => pair.id !== id));
+    markHasChanges();
+  };
+
+  const markHasChanges = () => {
+    setHasChanges(true);
   };
 
   const handleWordChange = (id: number, value: string) => {
@@ -147,6 +287,7 @@ export default function CreateListTool() {
         pair.id === id ? { ...pair, "1": value } : pair
       )
     );
+    markHasChanges();
   };
 
   const handleSecondInputChange = (id: number, value: string) => {
@@ -155,6 +296,7 @@ export default function CreateListTool() {
         pair.id === id ? { ...pair, "2": value } : pair
       )
     );
+    markHasChanges();
   };
 
   // New async function to handle the translation
@@ -189,13 +331,88 @@ export default function CreateListTool() {
       const oldIndex = pairs.findIndex((pair) => pair.id === active.id);
       const newIndex = pairs.findIndex((pair) => pair.id === over.id);
       setPairs(arrayMove(pairs, oldIndex, newIndex));
+      markHasChanges();
     }
   };
 
   // Add constant to check if the selected subject is a language
   const isLanguage = selectedLanguage && ["FR", "EN", "DE"].includes(selectedLanguage);
 
-  // NEW: Function to save the list (published: false)
+  // Function to autosave the list - simplified for reliability
+  const autosaveList = async () => {
+    // Only check for subject, always save if we have one
+    if (!selectedSubject) {
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // Make sure we have minimal required data
+      const listData = {
+        listId: listToEdit?.list_id ?? autosavedListId ?? undefined,
+        name: listName || "Naamloze Lijst",
+        mode: "list",
+        data: pairs.length > 0 ? pairs : [{ id: 0, "1": "", "2": "" }],
+        lang_from: vanDropdownRef.current?.getSelectedItem() || "NL",
+        lang_to: naarDropdownRef.current?.getSelectedItem() || "NL",
+        subject: selectedSubject.id,
+        autosave: true,
+        published: false
+      };
+
+      const data = await createListAction(listData);
+
+      if (data && typeof data === 'object' && 'list_id' in data) {
+        setAutosavedListId(data.list_id);
+        setLastSaved(new Date());
+        setHasChanges(false);
+      }
+    } catch (error) {
+      console.error("Autosave failed:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Simpler and more reliable debounced autosave function
+  useEffect(() => {
+    // Always save when subject is selected and any changes are made
+    if (selectedSubject) {
+      // Clear existing timeout
+      if (debouncedSaveTimeoutRef.current) {
+        clearTimeout(debouncedSaveTimeoutRef.current);
+      }
+
+      // Set new timeout to save after just 800ms
+      debouncedSaveTimeoutRef.current = setTimeout(() => {
+        autosaveList();
+      }, 800);
+    }
+
+    // Cleanup
+    return () => {
+      if (debouncedSaveTimeoutRef.current) {
+        clearTimeout(debouncedSaveTimeoutRef.current);
+      }
+    };
+  }, [listName, selectedSubject, pairs]); // Depend directly on changed data
+
+  // Track changes to list name
+  useEffect(() => {
+    if (listToEdit?.name !== listName && listName !== "") {
+      markHasChanges();
+    }
+  }, [listName]);
+
+  // Track changes to subject
+  useEffect(() => {
+    if (listToEdit?.subject !== selectedSubject?.id && selectedSubject) {
+      markHasChanges();
+    }
+  }, [selectedSubject]);
+
+  // Update the save and publish functions to handle both create and update
   async function saveList() {
     // Check for list name
     if (!listName.trim()) {
@@ -215,28 +432,35 @@ export default function CreateListTool() {
     }
 
     const listData = {
-      name: listName,
+      listId: listToEdit?.list_id ?? autosavedListId ?? undefined,
+      name: listName || "Naamloze Lijst",
       mode: "list",
       data: pairs,
       lang_from: vanDropdownRef.current?.getSelectedItem(),
       lang_to: naarDropdownRef.current?.getSelectedItem(),
-      subject: selectedSubject.id, // Include the subject
+      subject: selectedSubject.id,
+      published: false, // Explicitly save as unpublished
     };
+
     try {
       const data = await createListAction(listData);
-      console.log("List saved", data);
-      toast.success("Lijst succesvol opgeslagen.");
+      const message = isEditMode ? "Lijst succesvol bijgewerkt." : "Lijst succesvol opgeslagen.";
+      toast.success(message);
+      setHasChanges(false);
+      setLastSaved(new Date());
+
       if (data && typeof data === 'object' && 'list_id' in data) {
+        setAutosavedListId(data.list_id);
         router.push(`/learn/viewlist/${data.list_id}`);
       }
     } catch (error) {
-      console.error("Error saving list", error);
-      toast.error("Er trad een fout op bij het opslaan.");
+      console.error(isEditMode ? "Error updating list" : "Error saving list", error);
+      toast.error(`Er trad een fout op bij het ${isEditMode ? 'bijwerken' : 'opslaan'}.`);
     }
   }
 
   async function publishList() {
-    // Check for list name
+    // Same validation as saveList
     if (!listName.trim()) {
       toast.error("Voer een naam in voor de lijst.");
       return;
@@ -250,23 +474,32 @@ export default function CreateListTool() {
       toast.error("Vul ten minste één paar in.");
       return;
     }
+
     const listData = {
-      name: listName,
+      listId: listToEdit?.list_id ?? autosavedListId ?? undefined,
+      name: listName || "Naamloze Lijst",
       mode: "list",
       data: pairs,
       lang_from: vanDropdownRef.current?.getSelectedItem(),
       lang_to: naarDropdownRef.current?.getSelectedItem(),
-      subject: selectedSubject.id, // Include the subject
+      subject: selectedSubject.id,
+      published: true, // Explicitly publish the list
     };
+
     try {
       const data = await createListAction(listData);
-      toast.success("Lijst succesvol geüpload.");
+      const message = isEditMode ? "Lijst succesvol bijgewerkt en gepubliceerd." : "Lijst succesvol gepubliceerd.";
+      toast.success(message);
+      setHasChanges(false);
+      setLastSaved(new Date());
+
       if (data && typeof data === 'object' && 'list_id' in data) {
+        setAutosavedListId(data.list_id);
         router.push(`/learn/viewlist/${data.list_id}`);
       }
     } catch (error) {
-      console.error("Error publishing list", error instanceof Error ? error.stack : error);
-      toast.error("Er trad een fout op bij het uploaden.");
+      console.error(isEditMode ? "Error updating list" : "Error publishing list", error instanceof Error ? error.stack : error);
+      toast.error(`Er trad een fout op bij het ${isEditMode ? 'bijwerken' : 'uploaden'}.`);
     }
   }
 
@@ -285,7 +518,7 @@ export default function CreateListTool() {
   return (
     <div className="mx-2 overflow-clip">
       <div className="mx-2">
-        {/* Added Back Button */}
+        {/* Updated back button */}
         <Link
           href="/home/start"
           className="fixed top-4 right-4 z-[150] flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-colors hover:bg-neutral-600 drop-shadow-2xl"
@@ -308,6 +541,18 @@ export default function CreateListTool() {
         </Link>
 
         <div className="h-3" />
+        {/* Make the autosave status more visible */}
+        <div className="text-center text-sm my-2 h-5 flex justify-center items-center gap-2">
+          {isSaving ? (
+            <span className="text-amber-400 font-medium">Wijzigingen worden opgeslagen...</span>
+          ) : lastSaved ? (
+            <span className="text-emerald-400">
+              Laatst opgeslagen: {lastSaved.toLocaleTimeString()}
+            </span>
+          ) : (
+            <span className="text-gray-400">Alle wijzigingen worden automatisch opgeslagen</span>
+          )}
+        </div>
         <form className="relative z-[1000]">
           <div className="flex flex-row gap-4">
             <Dropdown
@@ -632,18 +877,16 @@ export default function CreateListTool() {
       </DndContext>
       <div className="mt-4 flex justify-center space-x-4">
         <Button1
-          text="Lijst uploaden"
+          text={isEditMode ? "Lijst publiceren" : "Lijst publiceren"}
           onClick={publishList}
         />
-        <Button1
-          text="Lijst opslaan"
-          onClick={saveList}
-        />
-        {/* NEW: Button to log raw list data */}
-        <Button1
-          text="Log Raw Data"
-          onClick={logRawData}
-        />
+        {/* Only keep the debug button if needed during development */}
+        {process.env.NODE_ENV === 'development' && (
+          <Button1
+            text="Log Raw Data"
+            onClick={logRawData}
+          />
+        )}
       </div>
       <div className="h-8" />
     </div>);

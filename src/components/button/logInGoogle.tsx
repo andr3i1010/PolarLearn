@@ -1,17 +1,18 @@
-function getGoogleOAuthUrl() {
-  const params = new URLSearchParams({
-    client_id: process.env.GOOGLE_ID || "",
-    redirect_uri: (process.env.NEXT_PUBLIC_URL || "http://localhost:3000") + "/api/auth/google",
-    response_type: "code",
-    scope: "openid profile email https://www.googleapis.com/auth/user.emails.read",
-    access_type: "offline",
-    prompt: "consent",
-  });
-  return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-}
+"use client";
+import { useState, useEffect } from 'react';
+import { getGoogleAuthUrl } from '@/utils/auth/oauth';
 
 export default function GoogleLogin() {
-  const authUrl = getGoogleOAuthUrl();
+  const [authUrl, setAuthUrl] = useState('#');
+
+  useEffect(() => {
+    const fetchAuthUrl = async () => {
+      const url = await getGoogleAuthUrl();
+      setAuthUrl(url);
+    };
+    fetchAuthUrl();
+  }, []);
+
   return (
     <a href={authUrl}>
       <button

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, memo } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import Button1 from "@/components/button/Button1"
@@ -13,7 +13,7 @@ interface ForumReplyProps {
   buttonText?: string
 }
 
-export default function ForumReply({ postId, buttonText = "Beantwoorden" }: ForumReplyProps) {
+function ForumReply({ postId, buttonText = "Beantwoorden" }: ForumReplyProps) {
   const [open, setOpen] = useState(false)
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -35,11 +35,22 @@ export default function ForumReply({ postId, buttonText = "Beantwoorden" }: Foru
     }
   }, [postId, content, router])
 
+  const handleOpenChange = useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setContent("");
+    }
+  }, []);
+
+  const handleContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+  }, []);
+
   return (
     <>
       <Button1 onClick={() => setOpen(true)} text={buttonText} />
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[500px] z-110">
           <DialogHeader>
             <DialogTitle>Beantwoord deze post</DialogTitle>
@@ -52,7 +63,7 @@ export default function ForumReply({ postId, buttonText = "Beantwoorden" }: Foru
             <Textarea
               placeholder="Typ je antwoord hier..."
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={handleContentChange}
               className="min-h-[150px] border-neutral-600 resize-none"
               required
             />
@@ -70,3 +81,5 @@ export default function ForumReply({ postId, buttonText = "Beantwoorden" }: Foru
     </>
   )
 }
+
+export default memo(ForumReply);

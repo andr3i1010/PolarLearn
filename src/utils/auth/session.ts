@@ -24,7 +24,7 @@ export async function createSession(userid: string) {
         // console.debug("createSession: Cookie created for session", sessionID);
         resolve(sessionID);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error("createSession: Error creating session", error);
         reject(error);
       });
@@ -42,12 +42,17 @@ export async function createCookie(sessionId: string, sessionExp: Date) {
   const jwe = await new CompactEncrypt(new TextEncoder().encode(payload))
     .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
     .encrypt(secret);
-  (await cookies()).set("polarlearn.session-id", jwe, {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "lax",
+
+  // Add these cookie options to ensure consistency
+  const cookieOptions = {
     expires: sessionExp,
-  });
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax' as const, // Type-safe declaration
+  };
+
+  (await cookies()).set("polarlearn.session-id", jwe, cookieOptions);
   // console.debug("createCookie: Cookie set for session", sessionId);
 }
 
@@ -76,64 +81,94 @@ export async function isLoggedIn() {
     // console.debug("isLoggedIn: No cookie found");
     return false;
   }
-  const sessionId = await decodeCookie(cookie.value);
-  if (!sessionId) {
-    // console.debug("isLoggedIn: Invalid session from token");
-    return false;
-  }
-  const session = await prisma.session.findUnique({
-    where: {
-      sessionID: sessionId,
-    },
-  });
-  if (!session) {
-    // console.debug("isLoggedIn: Session not found in DB, clearing cookie");
-    await (await cookies()).set('polarlearn.session-id', '', {
-      expires: new Date(0),
-    });
-    return false;
-  }
-  if (session.expires < new Date()) {
-    // console.debug("isLoggedIn: Session expired, logging out");
-    await logOut();
-    return false;
-  }
 
-  // Extend session expiration (sliding expiration)
-  const newExp = new Date(Date.now() + 1000 * 60 * 60 * 24); // 1 day extension
-  await prisma.session.update({
-    where: { sessionID: sessionId },
-    data: { expires: newExp },
-  });
-  // Update the cookie with the new expiration
-  await createCookie(sessionId, newExp);
-  // console.debug("isLoggedIn: Session is active", sessionId);
-  return true;
+  try {
+    const sessionId = await decodeCookie(cookie.value);
+    if (!sessionId) {
+      // console.debug("isLoggedIn: Invalid session from token");
+      return false;
+    }
+
+    const session = await prisma.session.findUnique({
+      where: {
+        sessionID: sessionId,
+      },
+    });
+
+    if (!session) {
+      // console.debug("isLoggedIn: Session not found in DB, clearing cookie");
+      await (await cookies()).set('polarlearn.session-id', '', {
+        expires: new Date(0),
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'lax' as const, // Fix type issue
+      });
+      return false;
+    }
+
+    if (session.expires < new Date()) {
+      // console.debug("isLoggedIn: Session expired, logging out");
+      await logOut();
+      return false;
+    }
+
+    // Extend session expiration (sliding expiration)
+    const newExp = new Date(Date.now() + 1000 * 60 * 60 * 24); // 1 day extension
+    await prisma.session.update({
+      where: { sessionID: sessionId },
+      data: { expires: newExp },
+    });
+
+    // Update the cookie with the new expiration
+    await createCookie(sessionId, newExp);
+    // console.debug("isLoggedIn: Session is active", sessionId);
+    return true;
+  } catch (error) {
+    console.error("isLoggedIn: Error verifying session", error);
+    // Don't automatically log out on errors - this could be causing the unexpected logouts
+    return false;
+  }
 }
 
 export async function logOut() {
-  // console.debug("logOut: Logging out user");
-  const cookie = await (await cookies()).get('polarlearn.session-id');
-  if (!cookie) {
-    // console.debug("logOut: No cookie found");
-    return;
-  }
-  const sessionId = await decodeCookie(cookie.value);
-  if (!sessionId) {
-    // console.debug("logOut: Invalid session token");
-    return;
-  }
-  await (await cookies()).delete('polarlearn.session-id');
+  try {
+    // console.debug("logOut: Logging out user");
+    const cookie = await (await cookies()).get('polarlearn.session-id');
+    if (!cookie) {
+      // console.debug("logOut: No cookie found");
+      return;
+    }
 
-  // console.debug("logOut: Cookie deleted for session", sessionId);
+    const sessionId = await decodeCookie(cookie.value);
+    if (!sessionId) {
+      // console.debug("logOut: Invalid session token");
+      await (await cookies()).delete('polarlearn.session-id');
+      return;
+    }
 
-  prisma.session.delete({
-    where: {
-      sessionID: sessionId,
-    },
-  }).then(() => {
-    // console.debug("logOut: Session record deleted for", sessionId);
-  }).catch(error => {
-    console.error("logOut: Error deleting session record", error);
-  });
+    // Set proper cookie deletion options
+    await (await cookies()).set('polarlearn.session-id', '', {
+      expires: new Date(0),
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite: 'lax' as const, // Fix type issue
+    });
+
+    // console.debug("logOut: Cookie deleted for session", sessionId);
+
+    try {
+      await prisma.session.delete({
+        where: {
+          sessionID: sessionId,
+        },
+      });
+      // console.debug("logOut: Session record deleted for", sessionId);
+    } catch (error) {
+      console.error("logOut: Error deleting session record", error);
+    }
+  } catch (error) {
+    console.error("logOut: Unexpected error during logout", error);
+  }
 }

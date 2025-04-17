@@ -1,4 +1,4 @@
-import { GoogleOAuth } from "@/utils/auth/oauth";
+import { getGoogleAuthUrl, getGoogleTokens, scanGoogleEmails, mergeGoogleAccount } from "@/utils/auth/oauth";
 import { prisma } from "@/utils/prisma";
 import { createSession } from "@/utils/auth/session";
 import { NextResponse } from "next/server";
@@ -8,13 +8,11 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
 
   if (!code) {
-    const googleOAuth = new GoogleOAuth();
-    const url = googleOAuth.getAuthUrl();
+    const url = await getGoogleAuthUrl();
     return Response.redirect(url, 302);
   }
 
-  const googleOAuth = new GoogleOAuth();
-  const tokens = await googleOAuth.getTokens(code);
+  const tokens = await getGoogleTokens(code);
   const idToken = tokens.id_token;
   if (!idToken) {
     return new Response("No id_token", { status: 400 });
@@ -40,7 +38,7 @@ export async function GET(request: Request) {
   });
 
   if (!user) {
-    user = await googleOAuth.scanAlternateGoogleEmails({
+    user = await scanGoogleEmails({
       access_token: tokens.access_token,
       providerAccountId: googleId,
     });
@@ -60,6 +58,14 @@ export async function GET(request: Request) {
       data: { googleOAuthID: googleId },
     });
   }
+
+  const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
+    ? process.env.NEXT_PUBLIC_URL
+    : "http://localhost:3000";
+
   await createSession(user.id);
-  return Response.redirect(new URL("/home/start", request.url), 302);
+  return Response.redirect(
+    new URL("/home/start", baseUrl),
+    302
+  );
 }

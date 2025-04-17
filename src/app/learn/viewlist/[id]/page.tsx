@@ -4,6 +4,11 @@ import Link from "next/link";
 import Tabs, { TabItem } from "@/components/Tabs";
 import Dropdown from "@/components/button/DropdownBtn";
 import React from 'react';
+import { PencilIcon, Trash2 } from "lucide-react";
+import { cookies } from "next/headers";
+import { getUserFromSession } from "@/utils/auth/auth";
+import { Badge } from "@/components/ui/badge";
+import DeleteListButton from "@/components/learning/DeleteListButton";
 
 import Image from "next/image";
 import nsk_img from '@/app/img/nask.svg';
@@ -13,6 +18,8 @@ import fr_img from '@/app/img/baguette.svg';
 import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
 import ak_img from '@/app/img/geography.svg';
+import gs_img from '@/app/img/history.svg';
+import bi_img from '@/app/img/bio.svg';
 
 import learn from '@/app/img/learn.svg';
 import test from '@/app/img/test.svg';
@@ -45,6 +52,11 @@ const SubjectIconWithSVG = ({ subject }: { subject: string }) => {
             return <Image src={de_img} alt="Duits" width={30} height={30} className={iconClass} />;
         case 'NL':  // Nederlands
             return <Image src={nl_img} alt="Nederlands" width={30} height={30} className={iconClass} />;
+        case 'GS':  // Geschiedenis
+            return <Image src={gs_img} alt="Geschiedenis" width={30} height={30} className={iconClass} />;
+        case 'BI':  // Biologie
+            return <Image src={bi_img} alt="Biologie" width={30} height={30} className={iconClass} />;
+        default: return null;
     }
 };
 
@@ -97,7 +109,12 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             published: true,
             updatedAt: true
         }
-    })
+    });
+
+    // Check if current user is the creator to show edit button
+    const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+    const isCreator = listData?.creator === currentUser?.name;
+    const isUnpublished = listData?.published === false;
 
     // Use the top-level subject field from the practice model
     const subject = listData?.subject || 'general';
@@ -197,7 +214,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             `/learn/mind/${id}`
         ],
         [
-            <div key="livequiz" className="flex items-center">
+            <div key="multichoice" className="flex items-center">
                 <Image src={livequiz} alt="Multikeuze plaatje" width={20} height={20} className="mr-2" />
                 <span className="font-medium">Multikeuze</span>
             </div>,
@@ -268,29 +285,18 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                                     </tr>
                                 </thead>
                                 <tbody className="bg-gray-800 divide-y divide-gray-800">
-                                    {wordPairs.map((pair) => {
-                                        // Use the term/definition directly if they are arrays
-                                        const terms = Array.isArray(pair["1"]) ? pair["1"] : pair["1"].split(',').map(t => t.trim());
-                                        const definitions = Array.isArray(pair["2"]) ? pair["2"] : pair["2"].split(',').map(d => d.trim());
-                                        if (terms.length !== definitions.length) {
+                                    {wordPairs
+                                        .filter(pair => 
+                                            pair["1"] !== "" || pair["2"] !== "" // Only filter out completely empty pairs
+                                        )
+                                        .map((pair) => {
                                             return (
                                                 <tr key={pair.id} className={pair.id % 2 === 0 ? 'bg-neutral-800' : 'bg-neutral-800'}>
                                                     <td className="px-6 py-4 text-center font-bold text-xl text-white">{pair["1"]}</td>
                                                     <td className="px-6 py-4 text-center font-bold text-xl text-white">{pair["2"]}</td>
                                                 </tr>
                                             );
-                                        }
-                                        return (
-                                            <React.Fragment key={pair.id}>
-                                                {terms.map((term, idx) => (
-                                                    <tr key={`${pair.id}-${idx}`} className={(pair.id + idx) % 2 === 0 ? 'bg-neutral-800' : 'bg-neutral-800'}>
-                                                        <td className="px-6 py-4 text-center font-bold text-xl text-white">{term}</td>
-                                                        <td className="px-6 py-4 text-center font-bold text-xl text-white">{definitions[idx]}</td>
-                                                    </tr>
-                                                ))}
-                                            </React.Fragment>
-                                        );
-                                    })}
+                                        })}
                                 </tbody>
                             </table>
                         </div>
@@ -318,10 +324,39 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
         <div className="px-4">
             <div className="h-4" />
             <div className="px-4 py-4">
-                <h1 className="text-4xl font-bold">
-                    <SubjectIconWithSVG subject={subject} />
-                    <span className="whitespace-normal break-words max-w-[40ch]">{listData?.name}</span>
-                </h1>
+                <div className="flex items-center justify-between">
+                    <h1 className="text-4xl font-bold flex items-center gap-2">
+                        <SubjectIconWithSVG subject={subject} />
+                        <span className="whitespace-normal break-words max-w-[40ch]">{listData?.name}</span>
+                        {isUnpublished && (
+                            <Badge
+                                variant="secondary"
+                                className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50"
+                            >
+                                Concept
+                            </Badge>
+                        )}
+                    </h1>
+
+                    {/* Creator actions */}
+                    {isCreator && (
+                        <div className="flex items-center gap-3">
+                            {/* Edit button */}
+                            <Link
+                                href={`/learn/editlist/${id}`}
+                                className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                                title="Lijst bewerken"
+                            >
+                                <PencilIcon className="h-6 w-6 text-white" />
+                            </Link>
+
+                            {/* Delete button */}
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                                <DeleteListButton listId={id} isCreator={isCreator} />
+                            </div>
+                        </div>
+                    )}
+                </div>
                 <div className="h-4" />
                 <div className="flex flex-col gap-4">
                     <div className="flex-row flex items-center">

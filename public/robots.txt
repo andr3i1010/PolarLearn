@@ -1,5 +1,4 @@
 User-agent: *
-Disallow: 
-Disallow: /adm/
-Disallow: /home/*
+Allow: /
 Allow: /home/forum
+Disallow: /*

@@ -1,4 +1,3 @@
-
 import { prisma } from "@/utils/prisma";
 import Image from 'next/image';
 import PlusBtn from "@/components/button/plus";
@@ -6,6 +5,10 @@ import Link from 'next/link';
 import CreatorLink from "@/components/links/CreatorLink";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
+import { PencilIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Trash2 } from "lucide-react";
+import DeleteListButton from "@/components/learning/DeleteListButton";
 
 // Subject images //
 import nsk_img from '@/app/img/nask.svg'
@@ -26,41 +29,100 @@ async function getRecentSubjects() {
   return (account?.list_data as any)?.recent_subjects || [];
 }
 
+// Define a more complete interface for practice list items
+interface PracticeListItem {
+  id: string;
+  list_id: string;
+  name: string;
+  mode: string;
+  subject: string;
+  lang_from: string;
+  lang_to: string;
+  data: any;
+  creator: string;
+  createdAt: Date;
+  updatedAt: Date;
+  published: boolean;
+}
+
 async function getRecentLists() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
+  if (!user) return [];
+
   const account = await prisma.user.findUnique({
-    where: { id: user?.id }
+    where: { id: user.id }
   });
 
-  // Get list IDs from user's recent_lists and created_lists
-  const recentListIds = (account?.list_data as any)?.recent_lists || [];
-  const createdListIds = (account?.list_data as any)?.created_lists || [];
-  const combinedListIds = [...recentListIds, ...createdListIds];
+  const listData = account?.list_data as any || {};
 
-  // Fetch complete list data from the database if we have IDs
-  if (combinedListIds.length > 0) {
-    const lists = await prisma.practice.findMany({
-      where: {
-        list_id: {
-          in: combinedListIds
-        }
-      }
-    });
+  // Get recently practiced lists - this array contains the IDs in order of recency
+  const recentListIds = Array.isArray(listData.recent_lists)
+    ? listData.recent_lists.filter(Boolean)
+    : [];
 
-    // Sort lists based on the combined order of recent and created lists
-    const orderedLists = combinedListIds
-      .map((id: string) => lists.find((list: { list_id: string; }) => list.list_id === id))
-      .filter(Boolean);
+  // Get user-created lists
+  const createdListIds = Array.isArray(listData.created_lists)
+    ? listData.created_lists.filter(Boolean)
+    : [];
 
-    return orderedLists;
+  // Create combined list of IDs to fetch
+  const combinedListIds = [...recentListIds, ...createdListIds].filter(Boolean);
+
+  // If we have no valid list IDs and no user, return empty array
+  if (combinedListIds.length === 0 && !user?.name) return [];
+
+  // Fetch all relevant lists
+  const lists = await prisma.practice.findMany({
+    where: {
+      OR: [
+        // Only include the list ID condition if we have IDs
+        ...(combinedListIds.length > 0 ? [{
+          list_id: { in: combinedListIds }
+        }] : []),
+        // Also include lists created by this user
+        { creator: user.name as string }
+      ]
+    }
+  });
+
+  // Create a map for quick lookup of the list's position in recentListIds
+  interface RecentListPositions {
+    [listId: string]: number;
   }
 
-  return [];
+  const recentListIdPositions: RecentListPositions = Object.fromEntries(
+    recentListIds.map((id: string, index: number) => [id, index])
+  );
+
+  // More sophisticated sorting that prioritizes recently practiced lists
+  return lists.sort((a: { list_id: string; updatedAt: string | number | Date; }, b: { list_id: string; updatedAt: string | number | Date; }) => {
+    // First, check if both lists are in recentListIds
+    const aInRecent = a.list_id in recentListIdPositions;
+    const bInRecent = b.list_id in recentListIdPositions;
+
+    if (aInRecent && bInRecent) {
+      // Both lists are recently practiced, compare their positions in recentListIds
+      return recentListIdPositions[a.list_id] - recentListIdPositions[b.list_id];
+    } else if (aInRecent) {
+      // Only a is recently practiced, so a comes first
+      return -1;
+    } else if (bInRecent) {
+      // Only b is recently practiced, so b comes first
+      return 1;
+    } else {
+      // Neither is recently practiced, fallback to updatedAt timestamp
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    }
+  });
 }
 
 export default async function Start() {
   const recentSubjects = await getRecentSubjects();
   const recentLists = await getRecentLists();
+
+  // Get current user name once to use in comparisons
+  const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+  const currentUserName = currentUser?.name;
 
   // Extract the subject emoji map for reuse
   const subjectEmojiMap: Record<string, React.ReactNode> = {
@@ -141,26 +203,27 @@ export default async function Start() {
                   <p className="absolute top-[35px] w-full pl-9 text-neutral-400 font-bold">
                     Je hebt nog geen vakken geoefend. Leer een lijst van een bepaalde vak, en de geoefende vak van de lijst komt hier.
                   </p>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
 
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
                 </>
               )}
               {recentSubjects.map((subject: string, index: number) => (
-                <div
+                <Link
                   key={index}
-                  className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-36 h-14 text-center place-items-center grid"
+                  href={`/learn/subjects/${subject}`}
+                  className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid transition-colors"
                 >
                   {
                     (() => {
                       return subjectEmojiMap[subject] ? subjectEmojiMap[subject] : "";
                     })()
                   }
-                </div>
+                </Link>
               ))}
             </div>
             <div className="h-3" />
@@ -184,8 +247,8 @@ export default async function Start() {
                 <>
                   {recentLists.map((list: any, index: number) => (
                     <div key={list.list_id}>
-                      <Link href={`/learn/viewlist/${list.list_id}`} key={index}>
-                        <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                      <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                        <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center" key={index}>
                           <div className="flex items-center">
                             {list.subject && (
                               <Image
@@ -196,7 +259,7 @@ export default async function Start() {
                                         list.subject === "EN" ? eng_img :
                                           list.subject === "WI" ? math_img :
                                             list.subject === "NSK" ? nsk_img :
-                                              list.subject === "AK" ? ak_img :  // added geography subject case
+                                              list.subject === "AK" ? ak_img :
                                                 list.subject === "GS" ? gs_img :
                                                   list.subject === "BI" ? bi_img : ''
                                 }
@@ -206,23 +269,53 @@ export default async function Start() {
                                 className="mr-2"
                               />
                             )}
-                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">{list.name}</span>
+                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                              {list.name}
+                              {list.published === false && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
+                                >
+                                  Concept
+                                </Badge>
+                              )}
+                            </span>
                           </div>
-
-                          <div className="flex items-center">
+                          <div className="flex-grow"></div>
+                          <div className="flex items-center pr-2">
                             {Array.isArray(list.data) && list.data.length === 1
                               ? "1 woord"
                               : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
                           </div>
+                        </Link>
 
-                          {/* Center: creator link absolutely centered */}
-                          {list.creator && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                              <CreatorLink creator={list.creator} />
+                        {list.creator && (
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
+                            <CreatorLink creator={list.creator} />
+                          </div>
+                        )}
+
+                        {/* Action buttons for list owner */}
+                        <div className="flex items-center gap-2">
+                          {list.creator === currentUserName && (
+                            <Link
+                              href={`/learn/editlist/${list.list_id}`}
+                              className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                              title="Lijst bewerken"
+                            >
+                              <PencilIcon className="h-5 w-5 text-white" />
+                            </Link>
+                          )}
+                          {list.creator === currentUserName && (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                              <DeleteListButton
+                                listId={list.list_id}
+                                isCreator={list.creator === currentUserName}
+                              />
                             </div>
                           )}
                         </div>
-                      </Link>
+                      </div>
                     </div>
                   ))}
                 </>

@@ -8,11 +8,11 @@ import { cookies } from "next/headers"
 export async function createReply(postId: string, content: string) {
   const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value)
 
-  if (!session || !session.name) {
+  if (!session || !session.id) {
     throw new Error("You must be logged in to reply")
   }
 
-  let gebruiker = await prisma.user.findFirst({ where: { name: session.name as string } })
+  let gebruiker = await prisma.user.findFirst({ where: { id: session.id } })
   if (!gebruiker || !gebruiker.loginAllowed || !gebruiker.forumAllowed) {
     throw new Error("je bent verbannen van PolarLearn")
   }
@@ -37,7 +37,7 @@ export async function createReply(postId: string, content: string) {
       title: `Re: ${originalPost.title}`,
       subject: originalPost.subject,
       content: content,
-      creator: session.name,
+      creator: session.id,
       votes: 0,
       votes_data: { users: {} }
     }
@@ -49,7 +49,7 @@ export async function createReply(postId: string, content: string) {
 export async function deletePost(postId: string) {
   const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value)
 
-  if (!session || !session.name) {
+  if (!session || !session.id) { // Check for session.id
     throw new Error("You must be logged in to delete a post")
   }
 
@@ -64,17 +64,12 @@ export async function deletePost(postId: string) {
     throw new Error("Post not found")
   }
 
-  // More flexible creator check
-  const isCreator = post.creator === session.name || post.creator === session.id;
-
-  if (!isCreator) {
-    // Try to find the user by ID to see if they match
-    const user = await prisma.user.findUnique({
-      where: { id: post.creator },
-      select: { name: true }
-    });
-
-    if (user?.name !== session.name) {
+  // Check if the session user ID matches the post creator ID
+  if (post.creator !== session.id) {
+    // As a fallback, check if the creator field might store the username (legacy)
+    // and if it matches the session username. This can be removed later
+    // once all creator fields are confirmed to be IDs.
+    if (post.creator !== session.name) {
       throw new Error("You can only delete your own posts");
     }
   }
