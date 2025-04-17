@@ -512,7 +512,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
       lang_to: naarDropdownRef.current?.getSelectedItem(),
       subject: selectedSubject?.id, // Include the subject
     };
-    console.log("Raw list data:", listData);
   }
 
   return (

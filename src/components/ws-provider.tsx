@@ -11,7 +11,6 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       const baseUrl = `${process.env.NODE_ENV === "production" ? "https://" : "http://"}${window.location.host}`;
       const wsUrl = baseUrl + "/api/ws";
-      console.log(wsUrl)
       const socket = new WebSocket(wsUrl);
 
       socket.addEventListener("open", () => {

@@ -100,7 +100,7 @@ const ExpandedSearchBar = memo(() => {
 });
 
 const dropdownMatrixStart: [React.ReactNode, string][] = [
-    ["Groepen", "/home/start"],
+    ["Groepen", "/learn/groups"],
     ["Gemaakte lijsten", "/home/forum"],
     ["Vakken", "/learn/subjects"],
 ];
@@ -151,13 +151,15 @@ export const TopNavBar = memo(function TopNavBar() {
         const showOnHomeRoutes = pathname === "/" || pathname.startsWith("/home");
         const isSearchRoute = pathname.startsWith('/home/search');
 
+        const showOnGroups = pathname === "/learn/groups" || pathname.startsWith("/learn/group/");
         return {
             showOnViewList,
             showOnSubjects,
+            showOnGroups,
             hideOnCreateList,
             showOnHomeRoutes,
-            shouldRender: showOnViewList || showOnSubjects || !(hideOnCreateList || !showOnHomeRoutes),
-            showNavLinks: !isSearchExpanded && (pathname.startsWith("/home") || showOnViewList || showOnSubjects) && !isSearchRoute,
+            shouldRender: showOnViewList || showOnSubjects || showOnGroups || !(hideOnCreateList || !showOnHomeRoutes),
+            showNavLinks: !isSearchExpanded && (pathname.startsWith("/home") || showOnViewList || showOnSubjects || showOnGroups) && !isSearchRoute,
             showLoginButton: pathname === "/",
             isSearchRoute
         };

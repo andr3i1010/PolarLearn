@@ -41,7 +41,6 @@ export default function SessionProvider({
             setIsAuthenticated(true);
             return true;
         } catch (error) {
-            console.error("Error checking session:", error);
             setIsAuthenticated(false);
             return false;
         } finally {
