@@ -447,7 +447,7 @@ Veel leerplezier! 🚀
     },
   ];
   let banned = false;
-  if (!user!.forumAllowed || !user!.loginAllowed) {
+  if (!user!.forumAllowed) {
     banned = true;
   }
 

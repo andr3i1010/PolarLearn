@@ -257,7 +257,6 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
         toast.error(result.error);
       }
     } catch (error) {
-      console.error("Error submitting post:", error);
       toast.error("Er is een fout opgetreden bij het plaatsen van je post.");
     } finally {
       setIsSubmitting(false);

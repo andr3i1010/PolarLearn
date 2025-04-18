@@ -171,12 +171,8 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                 if (isWordPairArray(parsedData)) {
                     wordPairs = parsedData;
                 } else {
-                    console.error("Data contains elements that don't match WordPair structure");
-                    // Try to salvage valid entries if possible
                     wordPairs = parsedData.filter(isWordPair);
                 }
-            } else {
-                console.error("Data is not an array:", parsedData);
             }
         } catch (error) {
             console.error("Error processing data:", error, "Raw data:", listData.data);

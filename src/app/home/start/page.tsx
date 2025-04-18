@@ -7,7 +7,6 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
 import { PencilIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Trash2 } from "lucide-react";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 
 // Subject images //
@@ -20,6 +19,7 @@ import nl_img from '@/app/img/nl.svg'
 import gs_img from '@/app/img/history.svg'
 import bi_img from '@/app/img/bio.svg'
 import ak_img from '@/app/img/geography.svg'
+import Jdenticon from "@/components/Jdenticon";
 
 async function getRecentSubjects() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
@@ -116,9 +116,42 @@ async function getRecentLists() {
   });
 }
 
+// Add this new function to fetch user's groups
+async function getUserGroups() {
+  const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+  if (!user) return [];
+
+  const userData = await prisma.user.findUnique({
+    where: { id: user.id }
+  });
+
+  // Get IDs of groups the user is in
+  const userOwnGroups = (userData?.ownGroups as string[]) || [];
+  const userInGroups = (userData?.inGroups as string[]) || [];
+
+  // Combine and deduplicate group IDs
+  const allUserGroupIds = [...new Set([...userOwnGroups, ...userInGroups])];
+
+  if (allUserGroupIds.length === 0) return [];
+
+  // Fetch all groups the user is a member of
+  return await prisma.group.findMany({
+    where: {
+      OR: [
+        { groupId: { in: allUserGroupIds } },
+        // Remove the problematic members query
+        { creator: user.id }
+      ]
+    },
+    orderBy: { updatedAt: 'desc' },
+    take: 5 // Limit to 5 most recent groups
+  });
+}
+
 export default async function Start() {
   const recentSubjects = await getRecentSubjects();
   const recentLists = await getRecentLists();
+  const userGroups = await getUserGroups();
 
   // Get current user name once to use in comparisons
   const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
@@ -193,7 +226,7 @@ export default async function Start() {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex flex-col">
         <div className="subjects">
           <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
           <div>
@@ -226,104 +259,105 @@ export default async function Start() {
                 </Link>
               ))}
             </div>
-            <div className="h-3" />
-            <div className="flex items-center text-center">
-              <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">Recente Lijsten:</h1>
-              <div className="ml-auto mr-5">
-                <PlusBtn redir="/learn/createlist" />
-              </div>
-            </div>
-            <div className="h-4" />
-            <div className="space-y-4">
-              {recentLists.length == 0 && (
-                <>
-                  <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
-                    Je hebt nog geen lijsten geoefend. Leer een lijst, en de geoefende lijst komt hier.
-                  </div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid "></div>
-                </>
-              )}
-              {recentLists.length > 0 && (
-                <>
-                  {recentLists.map((list: any, index: number) => (
-                    <div key={list.list_id}>
-                      <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                        <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center" key={index}>
-                          <div className="flex items-center">
-                            {list.subject && (
-                              <Image
-                                src={
-                                  list.subject === "NL" ? nl_img :
-                                    list.subject === "DE" ? de_img :
-                                      list.subject === "FR" ? fr_img :
-                                        list.subject === "EN" ? eng_img :
-                                          list.subject === "WI" ? math_img :
-                                            list.subject === "NSK" ? nsk_img :
-                                              list.subject === "AK" ? ak_img :
-                                                list.subject === "GS" ? gs_img :
-                                                  list.subject === "BI" ? bi_img : ''
-                                }
-                                alt={`${list.subject} icon`}
-                                width={24}
-                                height={24}
-                                className="mr-2"
-                              />
-                            )}
-                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                              {list.name}
-                              {list.published === false && (
-                                <Badge
-                                  variant="secondary"
-                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
-                                >
-                                  Concept
-                                </Badge>
-                              )}
-                            </span>
-                          </div>
-                          <div className="flex-grow"></div>
-                          <div className="flex items-center pr-2">
-                            {Array.isArray(list.data) && list.data.length === 1
-                              ? "1 woord"
-                              : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
-                          </div>
-                        </Link>
-
-                        {list.creator && (
-                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                            <CreatorLink creator={list.creator} />
-                          </div>
-                        )}
-
-                        {/* Action buttons for list owner */}
-                        <div className="flex items-center gap-2">
-                          {list.creator === currentUserName && (
-                            <Link
-                              href={`/learn/editlist/${list.list_id}`}
-                              className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                              title="Lijst bewerken"
-                            >
-                              <PencilIcon className="h-5 w-5 text-white" />
-                            </Link>
-                          )}
-                          {list.creator === currentUserName && (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                              <DeleteListButton
-                                listId={list.list_id}
-                                isCreator={list.creator === currentUserName}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
           </div>
         </div>
-      </div >
+        <div className="recent-lists mt-8">
+          <div className="flex items-center text-center">
+            <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">Recente Lijsten:</h1>
+            <div className="ml-auto mr-5">
+              <PlusBtn redir="/learn/createlist" />
+            </div>
+          </div>
+          <div className="h-4" />
+          <div className="space-y-4">
+            {recentLists.length == 0 && (
+              <>
+                <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
+                  Je hebt nog geen lijsten geoefend. Leer een lijst, en de geoefende lijst komt hier.
+                </div>
+                <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid "></div>
+              </>
+            )}
+            {recentLists.length > 0 && (
+              <>
+                {recentLists.map((list: any, index: number) => (
+                  <div key={list.list_id}>
+                    <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                      <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center" key={index}>
+                        <div className="flex items-center">
+                          {list.subject && (
+                            <Image
+                              src={
+                                list.subject === "NL" ? nl_img :
+                                  list.subject === "DE" ? de_img :
+                                    list.subject === "FR" ? fr_img :
+                                      list.subject === "EN" ? eng_img :
+                                        list.subject === "WI" ? math_img :
+                                          list.subject === "NSK" ? nsk_img :
+                                            list.subject === "AK" ? ak_img :
+                                              list.subject === "GS" ? gs_img :
+                                                list.subject === "BI" ? bi_img : ''
+                              }
+                              alt={`${list.subject} icon`}
+                              width={24}
+                              height={24}
+                              className="mr-2"
+                            />
+                          )}
+                          <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                            {list.name}
+                            {list.published === false && (
+                              <Badge
+                                variant="secondary"
+                                className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
+                              >
+                                Concept
+                              </Badge>
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex-grow"></div>
+                        <div className="flex items-center pr-2">
+                          {Array.isArray(list.data) && list.data.length === 1
+                            ? "1 woord"
+                            : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
+                        </div>
+                      </Link>
+
+                      {list.creator && (
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
+                          <CreatorLink creator={list.creator} />
+                        </div>
+                      )}
+
+                      {/* Action buttons for list owner */}
+                      <div className="flex items-center gap-2">
+                        {list.creator === currentUserName && (
+                          <Link
+                            href={`/learn/editlist/${list.list_id}`}
+                            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                            title="Lijst bewerken"
+                          >
+                            <PencilIcon className="h-5 w-5 text-white" />
+                          </Link>
+                        )}
+                        {list.creator === currentUserName && (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                            <DeleteListButton
+                              listId={list.list_id}
+                              isCreator={list.creator === currentUserName}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
       <div className="h-4" />
     </>
   );
