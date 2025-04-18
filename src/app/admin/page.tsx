@@ -7,7 +7,7 @@ import Link from "next/link";
 import Jdenticon from "@/components/Jdenticon";
 import { getUserFromSession } from "@/utils/auth/auth";
 import Button1 from "@/components/button/Button1";
-import { banUserForum, banUserPlatform, unbanUserForum, unbanUserPlatform } from "@/utils/auth/ban";
+import DeleteListButton from "@/components/learning/DeleteListButton";
 import BanButton from "./banButton";
 
 import {
@@ -43,31 +43,17 @@ import { use } from "react";
 import { date } from "zod";
 
 // Create a map for subject icons
+// WAAROM WAS DE NEDERLANDS APKORTING ANDERS!!!!! 
 const subjectIconMap: Record<string, any> = {
     WI: math_img,
     NSK: nsk_img,
-    NE: nl_img,
+    NL: nl_img,
     EN: eng_img,
     FR: fr_img,
     DE: de_img, // Use DE for Duits consistently
     AK: ak_img,
     GS: gs_img,
     BI: bi_img,
-};
-
-// Subject labels
-const subjectLabelMap: Record<string, string> = {
-    AK: "Aardrijkskunde",
-    BI: "Biologie",
-    DE: "Duits",
-    EN: "Engels",
-    FR: "Frans",
-    GS: "Geschiedenis",
-    NA: "Natuurkunde",
-    NSK: "NaSk",
-    NE: "Nederlands",
-    SK: "Scheikunde",
-    WI: "Wiskunde",
 };
 
 export default async function AdminPage({
@@ -266,6 +252,93 @@ export default async function AdminPage({
             )}
         </>
     );
+    const renderListsList = (lists: any[], totalListPages: number, currentPage: number, tabId: string) => (
+        <>
+            <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
+                {lists.length > 0 ? (
+                    lists.map((list) => (
+                        <div key={list.list_id} className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all">
+                            <Link href={`/learn/viewlist/${list.list_id}`} className="inline-block w-9/10 ">
+                                <div
+                                    className={` flex items-center cursor-pointer`}
+                                >
+                                    <div className="mr-4 flex-shrink-0">
+                                        {list?.subject ? (
+                                            <Image
+                                                src={subjectIconMap[list.subject] || "/default-icon.svg"}
+                                                alt={`${list.subject} icon`}
+                                                width={40}
+                                                height={40}
+                                                className="rounded-full" />
+                                        ) : ""}
+                                    </div>
+                                    <div className="flex flex-col flex-1">
+                                        <h3 className="font-medium text-lg">
+                                            {list.name}
+                                        </h3>
+                                        <span>
+                                            door {list.creator}
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </Link>
+                            <div className="inline-block w-1/10 ">
+                                <DeleteListButton
+                                    listId={list.list_id}
+                                    isCreator={true}
+                                    customText="Verwijder"
+                                />
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="p-8 text-center text-gray-400">
+                        {tabId === "my-questions"
+                            ? "Je hebt nog geen vragen gesteld."
+                            : "Je hebt nog geen antwoorden gegeven."}
+                    </div>
+                )}
+            </div>
+
+            {totalUserPages > 1 && (
+                <div className="mt-4 flex justify-center">
+                    <Pagination>
+                        <PaginationPrevious>
+                            {currentPage > 1 ? (
+                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage - 1}`}>Vorige</Link>
+                            ) : (
+                                <span className="text-gray-400">Vorige</span>
+                            )}
+                        </PaginationPrevious>
+                        {/* Render page numbers */}
+                        <PaginationContent>
+                            {Array.from({ length: totalUserPages }, (_, i) => {
+                                const pageNum = i + 1;
+                                return (
+                                    <PaginationItem key={pageNum}>
+                                        <PaginationLink
+                                            href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${pageNum}`}
+                                            isActive={pageNum === currentPage}
+                                        >
+                                            {pageNum}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                );
+                            })}
+                        </PaginationContent>
+                        <PaginationNext>
+                            {currentPage === totalUserPages ? (
+                                <span className="text-gray-400">Volgende</span>
+                            ) : (
+                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage + 1}`}>Volgende</Link>
+                            )}
+                        </PaginationNext>
+                    </Pagination>
+                </div>
+            )}
+        </>
+    );
 
     const tabs: TabItem[] = [
         {
@@ -276,7 +349,7 @@ export default async function AdminPage({
         {
             id: "lijsten",
             label: "Lijsten",
-            content: renderUserList(listslist, listTotal, page, "lijsten"),
+            content: renderListsList(listslist, listTotal, page, "lijsten"),
         }
     ];
     let banned = false;
