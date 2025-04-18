@@ -9,8 +9,12 @@ import DeletePostButton from "@/components/DeletePostButton"
 import MarkdownRenderer from "@/components/md"
 import { cookies } from "next/headers"
 import CreatorLink from "@/components/links/CreatorLink"
-import ForumHome from "../page"; // added import
+import ForumHome from "../page"
 import { Key } from "react"
+import { getUserNameById } from "@/serverActions/getUserName"
+
+// UUID validation regex pattern
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Define the structure for vote data
 interface VoteData {
@@ -43,7 +47,14 @@ export default async function Page({
         return <div>Post not found</div>
     }
 
-    // Debug post creator
+    // Check if post creator is a UUID and get the proper display name if needed
+    let jdenticonPostValue = post.creator;
+    if (UUID_REGEX.test(post.creator)) {
+        const userInfo = await getUserNameById(post.creator);
+        if (userInfo.jdenticonValue) {
+            jdenticonPostValue = userInfo.jdenticonValue;
+        }
+    }
 
     // Fetch replies to this post
     const replies = await prisma.forum.findMany({
@@ -55,6 +66,18 @@ export default async function Page({
             createdAt: 'asc'
         }
     })
+
+    // Process replies to get Jdenticon values for creators that are UUIDs
+    const repliesWithJdenticonValues = await Promise.all(replies.map(async (reply) => {
+        let jdenticonValue = reply.creator;
+        if (UUID_REGEX.test(reply.creator)) {
+            const userInfo = await getUserNameById(reply.creator);
+            if (userInfo.jdenticonValue) {
+                jdenticonValue = userInfo.jdenticonValue;
+            }
+        }
+        return { ...reply, jdenticonValue };
+    }));
 
     // Get list of creator identifiers (may be usernames or IDs)
     const creatorIdentifiers = [post.creator, ...replies.map((reply: { creator: any }) => reply.creator)]
@@ -95,7 +118,6 @@ export default async function Page({
     const isPostCreator = currentUsername === post.creator ||
         (postcreator?.name && currentUsername === postcreator.name);
 
-
     // Get user's current vote if logged in
     let userVote: "up" | "down" | null = null;
 
@@ -132,13 +154,12 @@ export default async function Page({
                         />
                     ) : (
                         <Jdenticon
-                            value={postcreator?.name || post.creator}
+                            value={jdenticonPostValue}
                             size={48}
                         />
                     )}
                 </div>
                 <div className="flex-grow">
-                    {/* <h3 className="font-medium">{postcreator?.name || post.creator}</h3> */}
                     <CreatorLink creator={postcreator?.name || post.creator} color="white" />
                     <p className="text-sm text-gray-400">{relativeTime}</p>
                 </div>
@@ -163,11 +184,11 @@ export default async function Page({
                 <ForumReply postId={post.post_id} />
             </div>
 
-            {replies.length > 0 && (
+            {repliesWithJdenticonValues.length > 0 && (
                 <div className="mt-10">
-                    <h2 className="text-xl font-bold mb-4">Antwoorden ({replies.length})</h2>
+                    <h2 className="text-xl font-bold mb-4">Antwoorden ({repliesWithJdenticonValues.length})</h2>
                     <div className="flex flex-col">
-                        {replies.map((reply: { creator: string | number; createdAt: Date; votes_data: unknown; post_id: Key | null | undefined; votes: number; content: string }, index: number) => {
+                        {repliesWithJdenticonValues.map((reply: { creator: string | number; createdAt: Date; votes_data: unknown; post_id: Key | null | undefined; votes: number; content: string, jdenticonValue: string }, index: number) => {
                             const replyCreator = userMap[reply.creator] ||
                                 usersById.find((u: { id: any }) => u.id === reply.creator) ||
                                 usersByName.find((u: { name: any }) => u.name === reply.creator);
@@ -196,7 +217,7 @@ export default async function Page({
 
                             // Determine border radius based on position
                             const isFirst = index === 0;
-                            const isLast = index === replies.length - 1;
+                            const isLast = index === repliesWithJdenticonValues.length - 1;
 
                             let replyClasses = "border border-neutral-600 bg-neutral-800 p-4";
 
@@ -228,13 +249,12 @@ export default async function Page({
                                                 />
                                             ) : (
                                                 <Jdenticon
-                                                    value={replyCreator?.name || reply.creator}
+                                                    value={reply.jdenticonValue}
                                                     size={40}
                                                 />
                                             )}
                                         </div>
                                         <div className="flex-grow">
-                                            {/* <h3 className="font-medium">{replyCreator?.name || reply.creator}</h3> */}
                                             <CreatorLink creator={replyCreator?.name || reply.creator} color="white" />
                                             <p className="text-sm text-gray-400">{replyTime}</p>
                                         </div>

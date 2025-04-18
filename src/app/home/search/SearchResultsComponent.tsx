@@ -24,12 +24,12 @@ import bi_img from '@/app/img/bio.svg';
 
 // Define subject icon and label maps
 const subjectIconMap: Record<string, any> = {
-    WI: math_img, NSK: nsk_img, NE: nl_img, EN: eng_img, FR: fr_img,
+    WI: math_img, NSK: nsk_img, NL: nl_img, EN: eng_img, FR: fr_img,
     DE: de_img, AK: ak_img, GS: gs_img, BI: bi_img,
 };
 const subjectLabelMap: Record<string, string> = {
     AK: "Aardrijkskunde", BI: "Biologie", DE: "Duits", EN: "Engels", FR: "Frans",
-    GS: "Geschiedenis", NA: "Natuurkunde", NSK: "NaSk", NE: "Nederlands",
+    GS: "Geschiedenis", NA: "Natuurkunde", NSK: "NaSk", NL: "Nederlands",
     SK: "Scheikunde", WI: "Wiskunde",
 };
 
