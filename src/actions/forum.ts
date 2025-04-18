@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { prisma } from "@/utils/prisma"
 import { getUserFromSession } from "@/utils/auth/auth"

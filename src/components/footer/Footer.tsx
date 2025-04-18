@@ -9,15 +9,16 @@ import Image from "next/image";
 import pl500 from "@/app/img/pl-500.png";
 import kofi from "@/app/img/kofi_symbol.webp";
 import Link from "next/link";
+import Button1 from "../button/Button1";
 
 export default async function Footer() {
   const git = await gitInfo();
   const gitInfoData =
     git !== "error"
       ? {
-          gitCommit: git.split("@")[0],
-          gitBranch: git.split("@")[1],
-        }
+        gitCommit: git.split("@")[0],
+        gitBranch: git.split("@")[1],
+      }
       : null;
   const user = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")?.value as string
@@ -145,6 +146,7 @@ export default async function Footer() {
               target="_blank"
               rel="noopener noreferrer"
             >Bug melden</a>
+            {user?.role === "admin" ? (<Button1 text="Admin" redirectTo="/admin" />) : ""}
           </div>
         </div>
       </div>
