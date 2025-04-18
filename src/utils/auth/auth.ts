@@ -17,14 +17,14 @@ export async function signInCredentials(
       return "invcreds";
     }
 
+    if (!user.loginAllowed) return 'banned';
+
     const hashedPassword = await hashPassword(password, user.salt);
 
     if (user.password === hashedPassword) {
       await createSession(user.id);
       return true;
-    } else {
-      return("invcreds");
-    }
+    } else return ("invcreds");
   } catch (error) {
     console.log(error);
     return error as string;

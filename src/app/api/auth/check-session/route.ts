@@ -50,11 +50,23 @@ export async function GET() {
             );
         }
 
+        if (!user.loginAllowed) {
+            return NextResponse.json(
+                { authenticated: false },
+                {
+                    status: 401,
+                    headers: {
+                        'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    }
+                }
+            );
+        }
+
         return NextResponse.json(
-            { authenticated: true, user: { name: user.name } },
+            { authenticated: true },
             {
                 headers: {
-                    // Completely disable caching for auth responses
                     'Cache-Control': 'private, no-cache, no-store, must-revalidate',
                     'Pragma': 'no-cache'
                 }
@@ -63,7 +75,6 @@ export async function GET() {
     } catch (error) {
         console.error("Error checking session:", error);
         return NextResponse.json(
-            { error: "Internal Server Error" },
             {
                 status: 500,
                 headers: {
