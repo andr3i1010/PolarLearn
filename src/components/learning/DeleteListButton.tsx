@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { Trash2 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { deleteListAction } from "@/serverActions/deleteList";
+import { removeListFromGroup } from "@/serverActions/groupActions";
 
 import {
     Dialog,
@@ -17,11 +18,13 @@ import Button1 from "@/components/button/Button1";
 interface DeleteListButtonProps {
     listId: string;
     isCreator: boolean;
+    groupId?: string; // Optional groupId for removing lists from groups
 }
 
 export default function DeleteListButton({
     listId,
     isCreator,
+    groupId,
 }: DeleteListButtonProps) {
     const [open, setOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -35,22 +38,30 @@ export default function DeleteListButton({
     const handleDelete = useCallback(async () => {
         setIsDeleting(true);
         try {
-            const result = await deleteListAction(listId);
-            
-            // Only redirect if we're on the view page of the list being deleted
-            if (pathname.includes(`/learn/viewlist/${listId}`) || 
-                pathname.includes(`/learn/editlist/${listId}`)) {
-                router.push('/home/start');
-            } else {
-                // Just refresh the current page without navigation to maintain scroll position
+            if (groupId) {
+                // Remove list from group
+                await removeListFromGroup(groupId, listId);
                 router.refresh();
+            } else {
+                // Delete the list
+                const result = await deleteListAction(listId);
+
+                // Only redirect if we're on the view page of the list being deleted
+                if (pathname.includes(`/learn/viewlist/${listId}`) ||
+                    pathname.includes(`/learn/editlist/${listId}`)) {
+                    router.push('/home/start');
+                } else {
+                    // Just refresh the current page without navigation to maintain scroll position
+                    router.refresh();
+                }
             }
         } catch (error) {
             console.error("Error deleting list:", error);
+        } finally {
             setIsDeleting(false);
             setOpen(false);
         }
-    }, [listId, router, pathname]);
+    }, [listId, router, pathname, groupId]);
 
     // Use event.stopPropagation to prevent triggering the link click when clicking the delete button
     return (
@@ -72,7 +83,9 @@ export default function DeleteListButton({
                     <DialogHeader>
                         <DialogTitle>Bevestig verwijdering</DialogTitle>
                         <DialogDescription>
-                            Weet je zeker dat je deze lijst wilt verwijderen? Dit kan niet ongedaan gemaakt worden.
+                            {groupId
+                                ? "Weet je zeker dat je deze lijst uit de groep wilt verwijderen? Dit kan niet ongedaan gemaakt worden."
+                                : "Weet je zeker dat je deze lijst wilt verwijderen? Dit kan niet ongedaan gemaakt worden."}
                         </DialogDescription>
                     </DialogHeader>
 

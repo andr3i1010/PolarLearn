@@ -22,13 +22,6 @@ import nl_img from "@/app/img/nl.svg";
 import ak_img from "@/app/img/geography.svg";
 import gs_img from "@/app/img/history.svg";
 import bi_img from "@/app/img/bio.svg";
-import {
-  Key,
-  ReactElement,
-  JSXElementConstructor,
-  ReactNode,
-  ReactPortal,
-} from "react";
 
 // Add an interface for list data structure
 interface ListData {

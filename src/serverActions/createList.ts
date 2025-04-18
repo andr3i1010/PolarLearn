@@ -74,7 +74,7 @@ export async function createListAction(listData: {
 					lang_from: listData.lang_from,
 					lang_to: listData.lang_to,
 					subject: listData.subject,
-					creator: session.name,
+					creator: session.id,
 					published: publishedState,
 				},
 			});
@@ -82,10 +82,10 @@ export async function createListAction(listData: {
 			// Only update the user data if this is not an autosave
 			if (!isAutosave) {
 				try {
-					// Find the user by email (more reliable than name)
-					const user = await prisma.user.findFirst({
+					// Find the user directly by ID (more reliable than finding by email)
+					const user = await prisma.user.findUnique({
 						where: {
-							email: session.email
+							id: session.id
 						}
 					});
 

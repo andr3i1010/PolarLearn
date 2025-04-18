@@ -3,6 +3,8 @@
 import { prisma } from '@/utils/prisma';
 import { cookies } from 'next/headers';
 import { getUserFromSession } from '@/utils/auth/auth';
+import { getUserByIdOrName } from '@/utils/user';
+import { revalidatePath } from 'next/cache';
 
 export async function deleteListAction(listId: string) {
     const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
@@ -22,17 +24,13 @@ export async function deleteListAction(listId: string) {
         throw new Error("List not found");
     }
 
-    // Check if the current user is the creator
-    const isCreator = list.creator === session.name || list.creator === session.id;
+    // Check if the current user is the creator directly by ID or name
+    if (list.creator !== session.id && list.creator !== session.name) {
+        // If not a direct match, try to resolve the creator ID to a username
+        const creatorUser = await getUserByIdOrName(list.creator);
 
-    if (!isCreator) {
-        // Try to find the user by ID to see if they match
-        const user = await prisma.user.findUnique({
-            where: { id: list.creator },
-            select: { name: true }
-        });
-
-        if (user?.name !== session.name) {
+        // If the resolved username doesn't match the current user's name, deny access
+        if (creatorUser?.name !== session.name) {
             throw new Error("You can only delete your own lists");
         }
     }
@@ -46,9 +44,10 @@ export async function deleteListAction(listId: string) {
 
     // Update the user's list_data to remove this list from recent_lists and created_lists
     try {
+        // Find the user by ID first, which is more reliable
         const userData = await prisma.user.findUnique({
             where: {
-                name: session.name
+                id: session.id
             },
             select: {
                 id: true,
@@ -83,6 +82,10 @@ export async function deleteListAction(listId: string) {
         console.error("Error updating user data after list deletion:", error);
         // Continue with the function, as the list is already deleted
     }
+
+    // Revalidate relevant paths
+    revalidatePath('/home/start');
+    revalidatePath('/learn/viewlist/[id]');
 
     return { success: true };
 }

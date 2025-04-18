@@ -1,5 +1,5 @@
 "use client"
-import React, { useCallback } from "react";
+import React, { useCallback, ReactNode } from "react";
 import Link from "next/link";
 
 interface ButtonProps {
@@ -10,6 +10,7 @@ interface ButtonProps {
   useClNav?: boolean;
   onClick?: () => void;
   disabled?: boolean;
+  icon?: ReactNode; // Add only the icon parameter
 }
 
 // Add missing cn utility if not available in your project
@@ -25,7 +26,8 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
   className,
   useClNav,
   onClick,
-  disabled = false
+  disabled = false,
+  icon // Add icon parameter
 }) {
   // Use useCallback to memoize the click handler
   const handleClick = useCallback(() => {
@@ -63,8 +65,9 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
           <Link
             href={redirectTo}
             prefetch={true}
-            className="block w-full rounded transition-all duration-300 bg-neutral-800 text-white font-bold py-2 px-4 text-center"
+            className="w-full rounded transition-all duration-300 bg-neutral-800 text-white font-bold py-2 px-4 text-center flex items-center justify-center"
           >
+            {icon && <span className="mr-2">{icon}</span>}
             {text}
           </Link>
         </div>
@@ -79,7 +82,8 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
           type={type || "button"}
           onClick={type ? undefined : handleClick}
           disabled={disabled}
-          className={buttonClasses}>
+          className={buttonClasses + " flex items-center justify-center"}>
+          {icon && <span className="mr-2">{icon}</span>}
           {text}
         </button>
       </div>

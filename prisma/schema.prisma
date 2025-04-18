@@ -24,6 +24,9 @@ model User {
   password       String
   salt           String
 
+  inGroups      Json?
+  ownGroups     Json?
+
   githubOAuthID  String?  @unique
   googleOAuthID  String?  @unique
 
@@ -78,4 +81,23 @@ model forum {
   votes_data Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model group {
+  id                  String @id @default(auto()) @map("_id") @db.ObjectId
+  groupId             String   @unique
+  name                String
+  description         String?
+  requiresApproval    Boolean? @default(false)
+  toBeApproved        Json?
+  everyoneCanAddLists Boolean? @default(true)
+
+  creator             String   @db.String
+  members             Json?
+  admins              String[]
+
+  listsAdded          Json?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }

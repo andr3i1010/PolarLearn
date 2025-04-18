@@ -24,12 +24,12 @@ import bi_img from '@/app/img/bio.svg';
 
 // Define subject icon and label maps
 const subjectIconMap: Record<string, any> = {
-    WI: math_img, NSK: nsk_img, NE: nl_img, EN: eng_img, FR: fr_img,
+    WI: math_img, NSK: nsk_img, NL: nl_img, EN: eng_img, FR: fr_img,
     DE: de_img, AK: ak_img, GS: gs_img, BI: bi_img,
 };
 const subjectLabelMap: Record<string, string> = {
     AK: "Aardrijkskunde", BI: "Biologie", DE: "Duits", EN: "Engels", FR: "Frans",
-    GS: "Geschiedenis", NA: "Natuurkunde", NSK: "NaSk", NE: "Nederlands",
+    GS: "Geschiedenis", NA: "Natuurkunde", NSK: "NaSk", NL: "Nederlands",
     SK: "Scheikunde", WI: "Wiskunde",
 };
 
@@ -72,14 +72,17 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         );
     }
 
+    // Escape regex special characters in the query
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     // Fetch lists
     const lists = await prisma.practice.findMany({
         where: {
             published: true,
             OR: [
-                { name: { contains: query, mode: 'insensitive' } },
-                { subject: { contains: query, mode: 'insensitive' } },
-                { creator: { contains: query, mode: 'insensitive' } },
+                { name: { contains: escapedQuery, mode: 'insensitive' } },
+                { subject: { contains: escapedQuery, mode: 'insensitive' } },
+                { creator: { contains: escapedQuery, mode: 'insensitive' } },
             ],
         },
         select: { list_id: true, name: true, subject: true, creator: true, data: true },
@@ -92,10 +95,10 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         where: {
             type: "thread",
             OR: [
-                { title: { contains: query, mode: 'insensitive' } },
-                { content: { contains: query, mode: 'insensitive' } },
-                { subject: { contains: query, mode: 'insensitive' } },
-                { creator: { contains: query, mode: 'insensitive' } },
+                { title: { contains: escapedQuery, mode: 'insensitive' } },
+                { content: { contains: escapedQuery, mode: 'insensitive' } },
+                { subject: { contains: escapedQuery, mode: 'insensitive' } },
+                { creator: { contains: escapedQuery, mode: 'insensitive' } },
             ],
         },
         select: { post_id: true, title: true, subject: true, creator: true, createdAt: true, content: true },
@@ -103,32 +106,90 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         take: 50,
     });
 
-    // Fetch user info for forum posts
-    const creatorIds = [...new Set(forumPosts.map(post => post.creator))];
+    // Add a new query to fetch groups
+    const groups = await prisma.group.findMany({
+        where: {
+            OR: [
+                { name: { contains: escapedQuery, mode: 'insensitive' } },
+                { description: { contains: escapedQuery, mode: 'insensitive' } },
+            ],
+        },
+        select: {
+            groupId: true,
+            name: true,
+            description: true,
+            members: true,
+            listsAdded: true,
+            creator: true,
+            requiresApproval: true
+        },
+        orderBy: { updatedAt: 'desc' },
+        take: 50,
+    });
+
+    // Extract ALL creator IDs from lists, forum posts, and now groups
+    const creatorIds = [
+        ...new Set([
+            ...lists.map(list => list.creator),
+            ...forumPosts.map(post => post.creator),
+            ...groups.map(group => group.creator)
+        ])
+    ];
+
+    // Fetch user info for ALL creators in a single query
     const users = await prisma.user.findMany({
-        where: { OR: [{ id: { in: creatorIds } }, { name: { in: creatorIds } }] },
+        where: {
+            OR: [
+                { id: { in: creatorIds } },
+                { name: { in: creatorIds } } // For backward compatibility
+            ]
+        },
         select: { id: true, name: true, image: true },
     });
-    type UserInfo = { id: string; name: string | null; image: string | null; };
-    const userMapById = users.reduce((acc: Record<string, UserInfo>, user: UserInfo) => {
-        acc[user.id] = user; return acc;
-    }, {} as Record<string, UserInfo>);
-    const userMapByName = users.reduce((acc: Record<string, UserInfo>, user: UserInfo) => {
-        if (user.name) acc[user.name] = user; return acc;
-    }, {} as Record<string, UserInfo>);
+
+    // Create lookup maps by both ID and name for efficient access
+    const userMapById = users.reduce((acc: Record<string, any>, user) => {
+        acc[user.id] = user;
+        return acc;
+    }, {});
+
+    const userMapByName = users.reduce((acc: Record<string, any>, user) => {
+        if (user.name) acc[user.name] = user;
+        return acc;
+    }, {});
+
+    // Enhance lists and posts with creator information
+    const enhancedLists = lists.map(list => {
+        const creatorId = list.creator;
+        const user = userMapById[creatorId] || userMapByName[creatorId];
+        return {
+            ...list,
+            creatorName: user?.name || creatorId,
+            creatorImage: user?.image
+        };
+    });
+
+    // Similarly enhance forum posts
+    const enhancedForumPosts = forumPosts.map(post => {
+        const creatorId = post.creator;
+        const user = userMapById[creatorId] || userMapByName[creatorId];
+        return {
+            ...post,
+            creatorName: user?.name || creatorId,
+            creatorImage: user?.image
+        };
+    });
 
     // Define tabs array using fetched data
     const tabs: TabItem[] = [
         {
             id: 'lists',
-            label: `Lijsten (${lists.length})`,
+            label: `Lijsten (${enhancedLists.length})`,
             content: (
-                // ... JSX for lists tab content ...
                 <div className="mt-4 space-y-4">
-                    {lists.length > 0 ? (
-                        lists.map((list) => (
+                    {enhancedLists.length > 0 ? (
+                        enhancedLists.map((list) => (
                             <div key={list.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                                {/* ... Link, Icon, Name, Word count, CreatorLink, Buttons ... */}
                                 <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center">
                                     <div className="flex items-center">
                                         {list.subject && (
@@ -152,7 +213,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                                     </div>
                                 </Link>
                                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                                    <CreatorLink creator={list.creator} />
+                                    <CreatorLink creator={list.creatorName || list.creator} />
                                 </div>
                                 {list.creator === currentUserName && (
                                     <div className="flex items-center gap-2">
@@ -181,48 +242,96 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         },
         {
             id: 'forum',
-            label: `Forum (${forumPosts.length})`,
+            label: `Forum (${enhancedForumPosts.length})`,
             content: (
-                // ... JSX for forum tab content ...
                 <div className="mt-4 space-y-4">
-                    {forumPosts.length > 0 ? (
-                        forumPosts.map((post) => {
-                            const creatorId = typeof post.creator === 'string' ? post.creator : String(post.creator);
-                            const user = userMapById[creatorId] || userMapByName[creatorId];
-                            const subjectIcon = getSubjectIcon(post.subject);
-                            const subjectLabel = getSubjectName(post.subject);
-                            const relativeTime = formatRelativeTime(post.createdAt);
-                            return (
-                                <Link key={post.post_id} href={`/home/forum/${post.post_id}`} className="block">
-                                    <div className="border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-start cursor-pointer mx-4 rounded-lg">
-                                        {/* ... Avatar, Post details ... */}
-                                        <div className="mr-4 flex-shrink-0 mt-1">
-                                            {user?.image ? (
-                                                <Image src={user.image} alt={`Avatar van ${user.name}`} width={40} height={40} className="rounded-full" />
-                                            ) : (
-                                                <Jdenticon value={user?.name || post.creator} size={40} />
-                                            )}
-                                        </div>
-                                        <div className="flex flex-col flex-1">
-                                            <div className="text-xs text-gray-400 mb-1 flex items-center">
-                                                {subjectIcon && <Image src={subjectIcon} alt={subjectLabel} width={16} height={16} className="mr-1" />}
-                                                <span>{subjectLabel}</span>
-                                                <span className="mx-1.5">•</span>
-                                                <span className="text-gray-500">{relativeTime}</span>
-                                                <span className="mx-1.5">•</span>
-                                                <span className="text-gray-500">Door: {user?.name || post.creator}</span>
-                                            </div>
-                                            <h3 className="font-medium text-lg mb-1">{post.title}</h3>
-                                            <p className="text-sm text-gray-300 line-clamp-2">
-                                                {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
-                                            </p>
-                                        </div>
+                    {enhancedForumPosts.length > 0 ? (
+                        enhancedForumPosts.map((post) => (
+                            <Link key={post.post_id} href={`/home/forum/${post.post_id}`} className="block">
+                                <div className="border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-start cursor-pointer mx-4 rounded-lg">
+                                    <div className="mr-4 flex-shrink-0 mt-1">
+                                        {post.creatorImage ? (
+                                            <Image src={post.creatorImage} alt={`Avatar van ${post.creatorName}`} width={40} height={40} className="rounded-full" />
+                                        ) : (
+                                            <Jdenticon value={post.creatorName || post.creator} size={40} />
+                                        )}
                                     </div>
-                                </Link>
-                            );
-                        })
+                                    <div className="flex flex-col flex-1">
+                                        <div className="text-xs text-gray-400 mb-1 flex items-center">
+                                            {getSubjectIcon(post.subject) && (
+                                                <Image
+                                                    src={getSubjectIcon(post.subject)}
+                                                    alt={getSubjectName(post.subject)}
+                                                    width={16}
+                                                    height={16}
+                                                    className="mr-1"
+                                                />
+                                            )}
+                                            <span>{getSubjectName(post.subject)}</span>
+                                            <span className="mx-1.5">•</span>
+                                            <span className="text-gray-500">{formatRelativeTime(post.createdAt)}</span>
+                                            <span className="mx-1.5">•</span>
+                                            <span className="text-gray-500">Door: {post.creatorName || post.creator}</span>
+                                        </div>
+                                        <h3 className="font-medium text-lg mb-1">{post.title}</h3>
+                                        <p className="text-sm text-gray-300 line-clamp-2">
+                                            {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))
                     ) : (
                         <div className="text-center text-neutral-400 py-8">Geen forum posts gevonden voor "{query}".</div>
+                    )}
+                </div>
+            ),
+        },
+        // Add new tab for groups
+        {
+            id: 'groups',
+            label: `Groepen (${groups.length})`,
+            content: (
+                <div className="mt-4 space-y-4">
+                    {groups.length > 0 ? (
+                        groups.map((group) => (
+                            <Link
+                                key={group.groupId}
+                                href={`/learn/group/${group.groupId}`}
+                                className="block"
+                            >
+                                <div className="relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center cursor-pointer">
+                                    <div className="flex items-center gap-3 py-2">
+                                        <Jdenticon value={group.name} size={40} />
+                                        <div className="flex flex-col">
+                                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                                                {group.name}
+                                            </span>
+                                            {group.description && (
+                                                <p className="text-sm text-neutral-400 mt-1 line-clamp-1">
+                                                    {group.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex-grow"></div>
+                                    <div className="flex items-center text-sm text-neutral-400">
+                                        <span>
+                                            {Array.isArray(group.members) ? group.members.length : 0} leden • {Array.isArray(group.listsAdded) ? group.listsAdded.length : 0} lijsten
+                                        </span>
+                                        {group.requiresApproval && (
+                                            <span className="ml-3 bg-amber-600/20 text-amber-500 border border-amber-600/50 px-2 py-0.5 rounded text-xs">
+                                                Gesloten
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="text-center text-neutral-400 py-8">
+                            Geen groepen gevonden voor "{query}".
+                        </div>
                     )}
                 </div>
             ),
