@@ -190,9 +190,8 @@ export default async function Page({ params }: PageProps) {
                       <div className="flex items-center pr-2">
                         {Array.isArray(list.data) && list.data.length === 1
                           ? "1 woord"
-                          : `${
-                              Array.isArray(list.data) ? list.data.length : 0
-                            } woorden`}
+                          : `${Array.isArray(list.data) ? list.data.length : 0
+                          } woorden`}
                       </div>
                     </Link>
 
@@ -201,7 +200,7 @@ export default async function Page({ params }: PageProps) {
                     </div>
 
                     {/* Action buttons for list owner */}
-                    {list.creator === currentUserName && (
+                    {(list.creator === currentUserName || currentUser?.role === "admin") && (
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/learn/editlist/${list.list_id}`}
@@ -213,7 +212,7 @@ export default async function Page({ params }: PageProps) {
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
                           <DeleteListButton
                             listId={list.list_id}
-                            isCreator={list.creator === currentUserName}
+                            isCreator={list.creator === currentUserName || currentUser?.role === "admin"}
                           />
                         </div>
                       </div>

@@ -64,13 +64,16 @@ export async function deletePost(postId: string) {
     throw new Error("Post not found")
   }
 
-  // Check if the session user ID matches the post creator ID
+  // Check if the session user ID matches the post creator ID or admin
   if (post.creator !== session.id) {
+
     // As a fallback, check if the creator field might store the username (legacy)
     // and if it matches the session username. This can be removed later
     // once all creator fields are confirmed to be IDs.
     if (post.creator !== session.name) {
-      throw new Error("You can only delete your own posts");
+      if (session?.role !== "admin") {
+        throw new Error("You can only delete your own posts");
+      }
     }
   }
 

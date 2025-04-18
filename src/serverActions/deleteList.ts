@@ -31,7 +31,9 @@ export async function deleteListAction(listId: string) {
 
         // If the resolved username doesn't match the current user's name, deny access
         if (creatorUser?.name !== session.name) {
-            throw new Error("You can only delete your own lists");
+                      if (session?.role !== "admin") {
+                throw new Error("You can only delete your own lists");
+            }
         }
     }
 
