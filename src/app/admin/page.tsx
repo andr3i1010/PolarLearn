@@ -9,6 +9,7 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import Button1 from "@/components/button/Button1";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import BanButton from "./banButton";
+import { cookies } from "next/headers";
 
 import {
     Pagination,
@@ -37,11 +38,6 @@ import nl_img from "@/app/img/nl.svg";
 import ak_img from "@/app/img/geography.svg";
 import gs_img from "@/app/img/history.svg";
 import bi_img from "@/app/img/bio.svg";
-import { cookies } from "next/headers";
-import MarkdownRenderer from "@/components/md";
-import { use } from "react";
-import { date } from "zod";
-
 // Create a map for subject icons
 // WAAROM WAS DE NEDERLANDS APKORTING ANDERS!!!!! 
 const subjectIconMap: Record<string, any> = {
@@ -80,7 +76,14 @@ export default async function AdminPage({
     if (session?.role != "admin") {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
-                <h1 className="text-4xl font-extrabold mb-4">Je hebt geen toegang tot deze pagina</h1>
+                <Image
+                    src={require('@/app/admin/ga_weg.png')} // Ensure the correct path to the image file
+                    alt="warning image"
+                    width={300}
+                    height={300}
+                    className="mb-4"
+                />
+                <h1 className="text-4xl font-extrabold mb-4">ga weg</h1>
                 <Link href="/">
                     <Button1 text="Terug naar home" />
                 </Link>
@@ -185,12 +188,19 @@ export default async function AdminPage({
                                     </div>
                                     <div className="flex flex-col flex-1">
                                         <h3 className="font-medium text-lg">
+
                                             {user.name}
                                             {user.id === currentUserId ? " (jij)" : ""}
+                                            {user?.role === "admin" ? " (admin)" : ""}
+                                            <span> </span>
+                                            {user?.forumAllowed ? "" : <span className="text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm bg-yellow-900 text-yellow-300">Forum banned</span>}
+                                            {user?.loginAllowed ? "" : <span className="text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm bg-red-900 text-red-300">Banned</span>}
                                         </h3>
                                         <span>
-                                            {user.forumAllowed ? "" : " reden: " + user.forumBanReason}
-                                            {user.loginAllowed ? "" : " reden: " + user.banReason}
+                                            {user.forumAllowed ? "" : ` reden: ${user.forumBanReason || "geen reden opgegeven"}`}
+                                            {!user.forumAllowed && !user.loginAllowed ? ", " : ""}
+                                            {!user.loginAllowed && user.forumAllowed ? " reden: " : ""}
+                                            {user.loginAllowed ? "" : `${user.banReason || "geen reden opgegeven"}`}
 
                                         </span>
                                     </div>
@@ -201,15 +211,14 @@ export default async function AdminPage({
                                 {!user.forumAllowed ? <BanButton userId={user.id} text="unban van forum" platform={false} unban={true} /> : <BanButton userId={user.id} text="ban van forum" platform={false} unban={false} />}
                             </div>
                             <div className="inline-block w-1/11 text-right">
-                                {!user.forumAllowed ? <BanButton userId={user.id} text="unban van platform" platform={true} unban={true} /> : <BanButton userId={user.id} text="ban van platform" platform={true} unban={false} />}
+                                {!user.loginAllowed ? <BanButton userId={user.id} text="unban van platform" platform={true} unban={true} /> : <BanButton userId={user.id} text="ban van platform" platform={true} unban={false} />}
                             </div>
                         </div>
                     ))
                 ) : (
                     <div className="p-8 text-center text-gray-400">
-                        {tabId === "my-questions"
-                            ? "Je hebt nog geen vragen gesteld."
-                            : "Je hebt nog geen antwoorden gegeven."}
+                        hoe tf ben jij hier gekomen?
+
                     </div>
                 )}
             </div>
@@ -294,9 +303,7 @@ export default async function AdminPage({
                     ))
                 ) : (
                     <div className="p-8 text-center text-gray-400">
-                        {tabId === "my-questions"
-                            ? "Je hebt nog geen vragen gesteld."
-                            : "Je hebt nog geen antwoorden gegeven."}
+                        WAT! er zijn geen lijsten?!?!?
                     </div>
                 )}
             </div>
