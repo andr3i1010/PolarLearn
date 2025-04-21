@@ -139,3 +139,55 @@ export const subjectLabelMap: Record<string, string> = {
     SK: "Scheikunde",
     WI: "Wiskunde",
 } as const;
+
+// Function to get the appropriate icon for each subject
+export const getSubjectIcon = (subjectCode: string) => {
+    switch (subjectCode) {
+        case "NL":
+            return nl_img;
+        case "FR":
+            return fr_img;
+        case "EN":
+            return eng_img;
+        case "DE":
+            return de_img;
+        case "WI":
+            return wis_img;
+        case "NSK":
+            return nsk_img;
+        case "AK":
+            return ak_img;
+        case "GS":
+            return gs_img;
+        case "BI":
+            return bi_img;
+        default:
+            return null;
+    }
+};
+
+// Function to get the full subject name
+export const getSubjectName = (subjectCode: string) => {
+    switch (subjectCode) {
+        case "NL":
+            return "Nederlands";
+        case "FR":
+            return "Frans";
+        case "EN":
+            return "Engels";
+        case "DE":
+            return "Duits";
+        case "WI":
+            return "Wiskunde";
+        case "NSK":
+            return "NaSk";
+        case "AK":
+            return "Aardrijkskunde";
+        case "GS":
+            return "Geschiedenis";
+        case "BI":
+            return "Biologie";
+        default:
+            return subjectCode;
+    }
+};
