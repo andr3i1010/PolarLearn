@@ -10,31 +10,10 @@ import DeleteListButton from "@/components/learning/DeleteListButton";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import Jdenticon from "@/components/Jdenticon";
 import { unstable_noStore as noStore } from 'next/cache'; // Ensure this is imported
-
-// Import subject icons
-import nsk_img from '@/app/img/nask.svg';
-import math_img from '@/app/img/math.svg';
-import eng_img from '@/app/img/english.svg';
-import fr_img from '@/app/img/baguette.svg';
-import de_img from '@/app/img/pretzel.svg';
-import nl_img from '@/app/img/nl.svg';
-import ak_img from '@/app/img/geography.svg';
-import gs_img from '@/app/img/history.svg';
-import bi_img from '@/app/img/bio.svg';
-
-// Define subject icon and label maps
-const subjectIconMap: Record<string, any> = {
-    WI: math_img, NSK: nsk_img, NL: nl_img, EN: eng_img, FR: fr_img,
-    DE: de_img, AK: ak_img, GS: gs_img, BI: bi_img,
-};
-const subjectLabelMap: Record<string, string> = {
-    AK: "Aardrijkskunde", BI: "Biologie", DE: "Duits", EN: "Engels", FR: "Frans",
-    GS: "Geschiedenis", NA: "Natuurkunde", NSK: "NaSk", NL: "Nederlands",
-    SK: "Scheikunde", WI: "Wiskunde",
-};
+import { subjectLabelMap, icons } from "@/components/icons";
 
 // Define helper functions
-const getSubjectIcon = (subjectCode: string) => subjectIconMap[subjectCode] || null;
+const getSubjectIcon = (subjectCode: keyof typeof icons) => icons[subjectCode] || null;
 const getSubjectName = (subjectCode: string) => subjectLabelMap[subjectCode] || subjectCode;
 
 // Update props to accept the full objects (make params optional)
@@ -194,7 +173,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                                     <div className="flex items-center">
                                         {list.subject && (
                                             <Image
-                                                src={getSubjectIcon(list.subject) || ""}
+                                                src={getSubjectIcon(list.subject as keyof typeof icons) || ""}
                                                 alt={`${getSubjectName(list.subject)} icon`}
                                                 width={24}
                                                 height={24}
@@ -258,9 +237,9 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                                     </div>
                                     <div className="flex flex-col flex-1">
                                         <div className="text-xs text-gray-400 mb-1 flex items-center">
-                                            {getSubjectIcon(post.subject) && (
+                                            {getSubjectIcon(post.subject as keyof typeof icons) && (
                                                 <Image
-                                                    src={getSubjectIcon(post.subject)}
+                                                    src={getSubjectIcon(post.subject as keyof typeof icons)}
                                                     alt={getSubjectName(post.subject)}
                                                     width={16}
                                                     height={16}
