@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 
 import { subjectEmojiMap, icons } from "@/components/icons";
-import Jdenticon from "@/components/Jdenticon";
 
 async function getRecentSubjects() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
@@ -18,22 +17,6 @@ async function getRecentSubjects() {
     where: { id: user?.id },
   });
   return (account?.list_data as any)?.recent_subjects || [];
-}
-
-// Define a more complete interface for practice list items
-interface PracticeListItem {
-  id: string;
-  list_id: string;
-  name: string;
-  mode: string;
-  subject: string;
-  lang_from: string;
-  lang_to: string;
-  data: any;
-  creator: string;
-  createdAt: Date;
-  updatedAt: Date;
-  published: boolean;
 }
 
 async function getRecentLists() {
