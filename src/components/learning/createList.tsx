@@ -31,17 +31,7 @@ import { createListAction } from "@/serverActions/createList";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation"; // Add router import
 import Link from "next/link";
-
-// Subject images //
-import nsk_img from '@/app/img/nask.svg';
-import math_img from '@/app/img/math.svg';
-import eng_img from '@/app/img/english.svg';
-import fr_img from '@/app/img/baguette.svg';
-import de_img from '@/app/img/pretzel.svg';
-import nl_img from '@/app/img/nl.svg';
-import ak_img from '@/app/img/geography.svg';
-import gs_img from '@/app/img/history.svg';
-import bi_img from '@/app/img/bio.svg';
+import { icons, subjectEmojiMap } from "@/components/icons"; // Import icons from a centralized location
 
 type Pair = {
   id: number;
@@ -111,21 +101,21 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
   // Setup for subject icons
   const subjectIcons: Record<string, any> = {
-    "NL": nl_img,
-    "DE": de_img,
-    "FR": fr_img,
-    "EN": eng_img,
-    "WI": math_img,
-    "NSK": nsk_img,
-    "GS": gs_img,
-    "BI": bi_img,
-    "AK": ak_img,
+    "NL": icons.nl_img,
+    "DE": icons.de_img,
+    "FR": icons.fr_img,
+    "EN": icons.eng_img,
+    "WI": icons.wis_img,
+    "NSK": icons.nask_img,
+    "GS": icons.gs_img,
+    "BI": icons.bi_img,
+    "AK": icons.ak_img,
   };
 
   useEffect(() => {
     const defaultDutchDisplay = (
       <div className="flex items-center gap-2">
-        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+        <Image src={icons.nl_img} alt="Nederlands" width={20} height={20} />
         <p>Nederlands</p>
       </div>
     );
@@ -152,7 +142,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
     // On load, default both language dropdowns to Dutch.
     const defaultDutchDisplay = (
       <div className="flex items-center gap-2">
-        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+        <Image src={icons.NL} alt="Nederlands" width={20} height={20} />
         <p>Nederlands</p>
       </div>
     );
@@ -558,63 +548,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
               ref={dropdownRef}
               text="Kies een vak"
               width={200}
-              dropdownMatrix={[
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={nl_img} alt="nederlands plaatje" width={20} height={20} />
-                    <p>Nederlands</p>
-                  </div>,
-                  "NL"
-                ],
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={math_img} alt="wiskunde plaatje" width={20} height={20} />
-                    <p>Wiskunde</p>
-                  </div>, "WI"
-                ],
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={nsk_img} alt="nask plaatje" width={20} height={20} />
-                    <p>NaSk</p>
-                  </div>, "NSK"
-                ],
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={ak_img} alt="aardrijkskunde plaatje" width={20} height={20} />
-                    <p>Aardrijkskunde</p>
-                  </div>, "AK"
-                ],
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={fr_img} alt="frans plaatje" width={20} height={20} />
-                    <p>Frans</p>
-                  </div>, "FR"
-                ],
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={eng_img} alt="engels plaatje" width={20} height={20} />
-                    <p>Engels</p>
-                  </div>, "EN"
-                ],
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={de_img} alt="duits plaatje" width={20} height={20} />
-                    <p>Duits</p>
-                  </div>, "DE"
-                ],
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={gs_img} alt="geschiedenis plaatje" width={20} height={20} />
-                    <p>Geschiedenis</p>
-                  </div>, "GS"
-                ],
-                [
-                  <div className="flex items-center gap-2">
-                    <Image src={bi_img} alt="biologie plaatje" width={20} height={20} />
-                    <p>Biologie</p>
-                  </div>, "BI"
-                ]
-              ]}
+              dropdownMatrix={Object.entries(subjectEmojiMap).map(([key, value]) => [value, key])}
               selectorMode={true}
               onChangeSelected={(selected) => {
                 setSelectedSubject(selected);
@@ -635,36 +569,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 ref={vanDropdownRef}
                 text="Van.."
                 width={200}
-                dropdownMatrix={[
-                  [
-                    <div className="flex items-center gap-2">
-                      <Image src={nl_img} alt="Nederlands" width={20} height={20} />
-                      <p>Nederlands</p>
-                    </div>,
-                    "NL"
-                  ],
-                  [
-                    <div className="flex items-center gap-2">
-                      <Image src={fr_img} alt="Frans" width={20} height={20} />
-                      <p>Frans</p>
-                    </div>,
-                    "FR"
-                  ],
-                  [
-                    <div className="flex items-center gap-2">
-                      <Image src={eng_img} alt="Engels" width={20} height={20} />
-                      <p>Engels</p>
-                    </div>,
-                    "EN"
-                  ],
-                  [
-                    <div className="flex items-center gap-2">
-                      <Image src={de_img} alt="Duits" width={20} height={20} />
-                      <p>Duits</p>
-                    </div>,
-                    "DE"
-                  ]
-                ]}
+                dropdownMatrix={Object.entries(subjectEmojiMap).map(([key, value]) => [value, key])}
                 selectorMode={true}
                 onChange={(selected) => setSelectedTaal(selected)}
               />
@@ -674,36 +579,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 ref={naarDropdownRef}
                 text="Naar.."
                 width={200}
-                dropdownMatrix={[
-                  [
-                    <div className="flex items-center gap-2">
-                      <Image src={nl_img} alt="Nederlands" width={20} height={20} />
-                      <p>Nederlands</p>
-                    </div>,
-                    "NL"
-                  ],
-                  [
-                    <div className="flex items-center gap-2">
-                      <Image src={fr_img} alt="Frans" width={20} height={20} />
-                      <p>Frans</p>
-                    </div>,
-                    "FR"
-                  ],
-                  [
-                    <div className="flex items-center gap-2">
-                      <Image src={eng_img} alt="Engels" width={20} height={20} />
-                      <p>Engels</p>
-                    </div>,
-                    "EN"
-                  ],
-                  [
-                    <div className="flex items-center gap-2">
-                      <Image src={de_img} alt="Duits" width={20} height={20} />
-                      <p>Duits</p>
-                    </div>,
-                    "DE"
-                  ]
-                ]}
+                dropdownMatrix={Object.entries(subjectEmojiMap).map(([key, value]) => [value, key])}
                 selectorMode={true}
                 disabled={selectedSubject && ["FR", "EN", "DE", "NL"].includes(selectedSubject.id)}
               />
