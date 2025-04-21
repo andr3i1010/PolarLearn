@@ -47,6 +47,16 @@ export const icons = {
     frans_icon: fr_img,
     duits_icon: de_img,
     nederlands_icon: nl_img,
+    NSK: nsk_img,
+    WI: wis_img,
+    EN: eng_img,
+    FR: fr_img,
+    DE: de_img,
+    NL: nl_img,
+    NE: nl_img,
+    GS: gs_img,
+    BI: bi_img,
+    AK: ak_img,
 } as const
 
 export const subjectEmojiMap: Record<string, React.ReactNode> = {
@@ -113,4 +123,19 @@ export const subjectEmojiMap: Record<string, React.ReactNode> = {
             Aardrijkskunde
         </span>
     ),
+} as const;
+
+// Subject labels
+export const subjectLabelMap: Record<string, string> = {
+    AK: "Aardrijkskunde",
+    BI: "Biologie",
+    DE: "Duits",
+    EN: "Engels",
+    FR: "Frans",
+    GS: "Geschiedenis",
+    NA: "Natuurkunde",
+    NSK: "NaSk",
+    NE: "Nederlands",
+    SK: "Scheikunde",
+    WI: "Wiskunde",
 } as const;
