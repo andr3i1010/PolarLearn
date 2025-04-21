@@ -1,10 +1,12 @@
 "use client"
 
-import * as React from "react"
+import React, { memo } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { SearchIcon } from "lucide-react"
+import Image from "next/image"
+import { icons } from "@/components/icons"
 
 // Define the item type to support ReactNode in the label
 export interface ComboboxItem {
@@ -14,64 +16,59 @@ export interface ComboboxItem {
   searchText: string;
 }
 
-// Default items (can be overridden via props)
+const SubjectLabel = memo(({ icon, alt, label }: { icon: any; alt: string; label: string }) => (
+  <div className="flex items-center">
+    <Image src={icon} alt={alt} width={24} height={24} className="mr-2" />
+    <span>{label}</span>
+  </div>
+));
 const defaultItems: ComboboxItem[] = [
   {
-    value: "AK",
-    label: "Aardrijkskunde",
-    searchText: "Aardrijkskunde",
-  },
-  {
-    value: "BI",
-    label: "Biologie",
-    searchText: "Biologie",
-  },
-  {
-    value: "DE",
-    label: "Duits",
-    searchText: "Duits",
-  },
-  {
-    value: "EN",
-    label: "Engels",
-    searchText: "Engels",
-  },
-  {
-    value: "FR",
-    label: "Frans",
-    searchText: "Frans",
-  },
-  {
-    value: "GS",
-    label: "Geschiedenis",
-    searchText: "Geschiedenis",
-  },
-  {
-    value: "NA",
-    label: "Natuurkunde",
-    searchText: "Natuurkunde",
+    value: "WI",
+    label: <SubjectLabel icon={icons.wis_img} alt="wiskunde" label="Wiskunde" />,
+    searchText: "Wiskunde",
   },
   {
     value: "NSK",
-    label: "NaSk",
+    label: <SubjectLabel icon={icons.nask_img} alt="nask" label="NaSk" />,
     searchText: "NaSk",
   },
   {
     value: "NE",
-    label: "Nederlands",
+    label: <SubjectLabel icon={icons.nl_img} alt="nederlands" label="Nederlands" />,
     searchText: "Nederlands",
   },
   {
-    value: "SK",
-    label: "Scheikunde",
-    searchText: "Scheikunde",
+    value: "EN",
+    label: <SubjectLabel icon={icons.eng_img} alt="engels" label="Engels" />,
+    searchText: "Engels",
   },
   {
-    value: "WI",
-    label: "Wiskunde",
-    searchText: "Wiskunde",
-  }
-]
+    value: "FR",
+    label: <SubjectLabel icon={icons.fr_img} alt="frans" label="Frans" />,
+    searchText: "Frans",
+  },
+  {
+    value: "DE",
+    label: <SubjectLabel icon={icons.de_img} alt="duits" label="Duits" />,
+    searchText: "Duits",
+  },
+  {
+    value: "AK",
+    label: <SubjectLabel icon={icons.ak_img} alt="aardrijkskunde" label="Aardrijkskunde" />,
+    searchText: "Aardrijkskunde",
+  },
+  {
+    value: "GS",
+    label: <SubjectLabel icon={icons.gs_img} alt="geschiedenis" label="Geschiedenis" />,
+    searchText: "Geschiedenis",
+  },
+  {
+    value: "BI",
+    label: <SubjectLabel icon={icons.bi_img} alt="biologie" label="Biologie" />,
+    searchText: "Biologie",
+  },
+];
 
 // Convert existing frameworks to match the new format
 const convertedItems: ComboboxItem[] = defaultItems.map(item => ({

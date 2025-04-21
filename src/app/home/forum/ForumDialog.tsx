@@ -17,74 +17,6 @@ import { toast } from "react-toastify";
 import ReactMarkdown from 'react-markdown';
 import Tabs, { TabItem } from "@/components/Tabs";
 
-// Import subject icons
-import nsk_img from '@/app/img/nask.svg';
-import math_img from '@/app/img/math.svg';
-import eng_img from '@/app/img/english.svg';
-import fr_img from '@/app/img/baguette.svg';
-import de_img from '@/app/img/pretzel.svg';
-import nl_img from '@/app/img/nl.svg';
-import ak_img from '@/app/img/geography.svg';
-import gs_img from '@/app/img/history.svg';
-import bi_img from '@/app/img/bio.svg';
-
-// Memoize the subject item labels to prevent re-renders
-const SubjectLabel = memo(({ icon, alt, label }: { icon: any; alt: string; label: string }) => (
-  <div className="flex items-center">
-    <Image src={icon} alt={alt} width={24} height={24} className="mr-2" />
-    <span>{label}</span>
-  </div>
-));
-
-// Updated subject items with proper SVG icons and memoized labels
-const subjectItems: ComboboxItem[] = [
-  {
-    value: "WI",
-    label: <SubjectLabel icon={math_img} alt="wiskunde" label="Wiskunde" />,
-    searchText: "Wiskunde",
-  },
-  {
-    value: "NSK",
-    label: <SubjectLabel icon={nsk_img} alt="nask" label="NaSk" />,
-    searchText: "NaSk",
-  },
-  {
-    value: "NE",
-    label: <SubjectLabel icon={nl_img} alt="nederlands" label="Nederlands" />,
-    searchText: "Nederlands",
-  },
-  {
-    value: "EN",
-    label: <SubjectLabel icon={eng_img} alt="engels" label="Engels" />,
-    searchText: "Engels",
-  },
-  {
-    value: "FR",
-    label: <SubjectLabel icon={fr_img} alt="frans" label="Frans" />,
-    searchText: "Frans",
-  },
-  {
-    value: "DE",
-    label: <SubjectLabel icon={de_img} alt="duits" label="Duits" />,
-    searchText: "Duits",
-  },
-  {
-    value: "AK",
-    label: <SubjectLabel icon={ak_img} alt="aardrijkskunde" label="Aardrijkskunde" />,
-    searchText: "Aardrijkskunde",
-  },
-  {
-    value: "GS",
-    label: <SubjectLabel icon={gs_img} alt="geschiedenis" label="Geschiedenis" />,
-    searchText: "Geschiedenis",
-  },
-  {
-    value: "BI",
-    label: <SubjectLabel icon={bi_img} alt="biologie" label="Biologie" />,
-    searchText: "Biologie",
-  },
-];
-
 // Memoized markdown preview component
 const MarkdownPreview = memo(({ content }: { content: string }) => (
   <div className="bg-neutral-800 border border-neutral-700 h-40 overflow-y-auto p-3 rounded-md prose prose-invert max-w-none whitespace-pre-line">
@@ -198,7 +130,6 @@ const SubjectField = memo(({
             <div className="flex items-center justify-between w-full">
               <div className="w-60">
                 <Combobox
-                  items={subjectItems}
                   placeholder="Selecteer een vak"
                   minWidth="100%"
                   onSelect={(value) => {
