@@ -10,6 +10,7 @@ import Button1 from "@/components/button/Button1";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import BanButton from "./banButton";
 import { cookies } from "next/headers";
+import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 
 import {
     Pagination,
@@ -19,15 +20,6 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-
 // Import the subject icons
 import nsk_img from "@/app/img/nask.svg";
 import math_img from "@/app/img/math.svg";
@@ -78,7 +70,7 @@ export default async function AdminPage({
             <div className="flex flex-col items-center justify-center h-screen">
                 <Image
                     src={require('@/app/admin/ga_weg.png')} // Ensure the correct path to the image file
-                    alt="warning image"
+                    alt="aardige man"
                     width={300}
                     height={300}
                     className="mb-4"
@@ -116,7 +108,14 @@ export default async function AdminPage({
         }),
         prisma.practice.count(),
     ]);
-
+    const [groupList, groupTotal] = await Promise.all([
+        prisma.group.findMany({
+            orderBy: {
+                createdAt: "desc", // Sort by newest first
+            },
+        }),
+        prisma.group.count(),
+    ]);
     // Get the parent thread information for context
 
     const totalUserPages = Math.ceil(totalUsers / take);
@@ -346,6 +345,82 @@ export default async function AdminPage({
             )}
         </>
     );
+    const renderGroupList = (groepn: any[], totalListPages: number, currentPage: number, tabId: string) => (
+        <>
+            <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
+                {groepn.length > 0 ? (
+                    groepn.map((groep) => (
+                        <div key={groep.groupId} className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex row">
+                            <Link href={`/learn/group/${groep.groupId}`} className="inline-block w-9/10 ">
+                                <div
+                                    className={` flex items-center cursor-pointer`}
+                                >
+                                    <div className="mr-4 flex-shrink-0">
+                                        <Jdenticon value={groep?.name as string} size={70} />
+                                    </div>
+                                    <div className="flex flex-col flex-1">
+                                        <h3 className="font-medium text-lg">
+                                            {groep.name}
+                                        </h3>
+                                        <span>
+                                            {groep.description} | door {prisma.user.findFirst({ where: { id: groep.creator } }).then(user => user?.name)}
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </Link>
+                            <div className="inline-block w-1/10 ">
+                                <DeleteGroupButton
+                                    groupId={groep.groupId}
+                                />
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="p-8 text-center text-gray-400">
+                        er zijn geen groepen!
+                    </div>
+                )}
+            </div>
+
+            {totalUserPages > 1 && (
+                <div className="mt-4 flex justify-center">
+                    <Pagination>
+                        <PaginationPrevious>
+                            {currentPage > 1 ? (
+                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage - 1}`}>Vorige</Link>
+                            ) : (
+                                <span className="text-gray-400">Vorige</span>
+                            )}
+                        </PaginationPrevious>
+                        {/* Render page numbers */}
+                        <PaginationContent>
+                            {Array.from({ length: totalUserPages }, (_, i) => {
+                                const pageNum = i + 1;
+                                return (
+                                    <PaginationItem key={pageNum}>
+                                        <PaginationLink
+                                            href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${pageNum}`}
+                                            isActive={pageNum === currentPage}
+                                        >
+                                            {pageNum}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                );
+                            })}
+                        </PaginationContent>
+                        <PaginationNext>
+                            {currentPage === totalUserPages ? (
+                                <span className="text-gray-400">Volgende</span>
+                            ) : (
+                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage + 1}`}>Volgende</Link>
+                            )}
+                        </PaginationNext>
+                    </Pagination>
+                </div>
+            )}
+        </>
+    );
 
     const tabs: TabItem[] = [
         {
@@ -357,6 +432,11 @@ export default async function AdminPage({
             id: "lijsten",
             label: "Lijsten",
             content: renderListsList(listslist, listTotal, page, "lijsten"),
+        },
+        {
+            id: "groepen",
+            label: "Groepen",
+            content: renderGroupList(groupList, groupTotal, page, "groepen"),
         }
     ];
     let banned = false;
