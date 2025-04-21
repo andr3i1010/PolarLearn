@@ -1,10 +1,8 @@
 "use client";
 import { useState, useCallback, useMemo, memo } from "react";
-import ForumBtn from "./forumBtn";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Combobox, ComboboxItem } from "./selectSubjCombobox";
 import Button1 from "@/components/button/Button1";
-import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -219,7 +217,10 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
 
   return (
     <>
-      <ForumBtn onClick={handleForumBtnClick} />
+      <Button1
+        text="Nieuwe forumpost"
+        onClick={handleForumBtnClick}
+      />
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="z-[110] max-w-3xl">
           <DialogHeader>
