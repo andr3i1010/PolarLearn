@@ -18,10 +18,47 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+
+// Import the subject icons
+import nsk_img from "@/app/img/nask.svg";
+import math_img from "@/app/img/math.svg";
+import eng_img from "@/app/img/english.svg";
+import fr_img from "@/app/img/baguette.svg";
+import de_img from "@/app/img/pretzel.svg";
+import nl_img from "@/app/img/nl.svg";
+import ak_img from "@/app/img/geography.svg";
+import gs_img from "@/app/img/history.svg";
+import bi_img from "@/app/img/bio.svg";
 import { cookies } from "next/headers";
 import MarkdownRenderer from "@/components/md";
-import { icons, getSubjectName } from "@/components/icons";
 
+// Create a map for subject icons
+const subjectIconMap: Record<string, any> = {
+  WI: math_img,
+  NSK: nsk_img,
+  NE: nl_img,
+  EN: eng_img,
+  FR: fr_img,
+  DE: de_img, // Use DE for Duits consistently
+  AK: ak_img,
+  GS: gs_img,
+  BI: bi_img,
+};
+
+// Subject labels
+const subjectLabelMap: Record<string, string> = {
+  AK: "Aardrijkskunde",
+  BI: "Biologie",
+  DE: "Duits",
+  EN: "Engels",
+  FR: "Frans",
+  GS: "Geschiedenis",
+  NA: "Natuurkunde",
+  NSK: "NaSk",
+  NE: "Nederlands",
+  SK: "Scheikunde",
+  WI: "Wiskunde",
+};
 
 export default async function ForumHome({
   searchParams,
@@ -203,9 +240,9 @@ export default async function ForumHome({
             const creatorId = typeof post.creator === 'string' ? post.creator : String(post.creator);
             const user =
               userMapById[creatorId] || userMapByName[creatorId];
-            const subjectIcon = icons[post.subject as keyof typeof icons];
+            const subjectIcon = subjectIconMap[post.subject];
             const subjectLabel =
-              getSubjectName(post.subject) || post.subject;
+              subjectLabelMap[post.subject] || post.subject;
             const relativeTime = formatRelativeTime(post.createdAt);
             const isReply = post.isReply === true;
 

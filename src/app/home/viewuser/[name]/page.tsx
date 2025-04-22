@@ -12,7 +12,17 @@ import DeleteListButton from "@/components/learning/DeleteListButton";
 
 import construction from "@/app/img/construction.gif";
 
-import { getSubjectIcon, getSubjectName } from "@/components/icons";
+// Import subject icons
+import nsk_img from "@/app/img/nask.svg";
+import math_img from "@/app/img/math.svg";
+import eng_img from "@/app/img/english.svg";
+import fr_img from "@/app/img/baguette.svg";
+import de_img from "@/app/img/pretzel.svg";
+import nl_img from "@/app/img/nl.svg";
+import ak_img from "@/app/img/geography.svg";
+import gs_img from "@/app/img/history.svg";
+import bi_img from "@/app/img/bio.svg";
+
 // Add an interface for list data structure
 interface ListData {
   created_lists?: string[] | null;
@@ -36,6 +46,58 @@ interface PageProps {
     selectedTab?: string;
   }>;
 }
+
+// Function to get the appropriate icon for each subject
+const getSubjectIcon = (subjectCode: string) => {
+  switch (subjectCode) {
+    case "NL":
+      return nl_img;
+    case "FR":
+      return fr_img;
+    case "EN":
+      return eng_img;
+    case "DE":
+      return de_img;
+    case "WI":
+      return math_img;
+    case "NSK":
+      return nsk_img;
+    case "AK":
+      return ak_img;
+    case "GS":
+      return gs_img;
+    case "BI":
+      return bi_img;
+    default:
+      return null;
+  }
+};
+
+// Function to get the full subject name
+const getSubjectName = (subjectCode: string) => {
+  switch (subjectCode) {
+    case "NL":
+      return "Nederlands";
+    case "FR":
+      return "Frans";
+    case "EN":
+      return "Engels";
+    case "DE":
+      return "Duits";
+    case "WI":
+      return "Wiskunde";
+    case "NSK":
+      return "NaSk";
+    case "AK":
+      return "Aardrijkskunde";
+    case "GS":
+      return "Geschiedenis";
+    case "BI":
+      return "Biologie";
+    default:
+      return subjectCode;
+  }
+};
 
 export default async function Page({ params }: PageProps) {
   // Await the Promise to get the actual params
@@ -63,23 +125,11 @@ export default async function Page({ params }: PageProps) {
     );
   }
 
-  // Safely access list data with optional chaining and type casting
-  const listdata = user?.list_data as ListData | undefined;
-
   // Fetch only published lists created by this user
   const rawLists = await prisma.practice.findMany({
     where: {
-      creator: user.name as string,
-      published: true, // Only show published lists
-    },
-    select: {
-      list_id: true,
-      name: true,
-      subject: true,
-      createdAt: true,
+      creator: user.id as string,
       published: true,
-      data: true,
-      creator: true,
     },
     orderBy: {
       createdAt: "desc", // Sort by newest first

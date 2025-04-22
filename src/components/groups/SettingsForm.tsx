@@ -10,7 +10,6 @@ import { Save, Loader2 } from "lucide-react";
 import { updateGroupSettings } from "@/serverActions/groupActions";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import Button1 from "@/components/button/Button1";
 
 interface SettingsFormProps {
     groupId: string;

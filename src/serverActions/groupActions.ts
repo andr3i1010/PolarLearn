@@ -362,6 +362,111 @@ export async function removeListFromGroup(groupId: string, listId: string) {
     }
 }
 
+// Remove a member from a group
+export async function removeMemberFromGroup(groupId: string, memberId: string) {
+    try {
+        const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+
+        if (!session || !session.id) {
+            return {
+                success: false,
+                error: "Je moet ingelogd zijn om dit te doen"
+            };
+        }
+
+        // Get the group data
+        const group = await prisma.group.findFirst({
+            where: { groupId }
+        });
+
+        if (!group) {
+            return {
+                success: false,
+                error: "Groep niet gevonden"
+            };
+        }
+
+        // Verify user is admin or creator
+        const isCreator = group.creator === session.id;
+        const isAdmin = Array.isArray(group.admins) && group.admins.includes(session.id);
+
+        if (!isCreator && !isAdmin) {
+            return {
+                success: false,
+                error: "Je hebt geen rechten om dit te doen"
+            };
+        }
+
+        // Cannot remove the creator
+        if (group.creator === memberId) {
+            return {
+                success: false,
+                error: "De eigenaar kan niet worden verwijderd"
+            };
+        }
+
+        // Get current members and admins
+        const members = Array.isArray(group.members) ? [...group.members] : [];
+        const admins = Array.isArray(group.admins) ? [...group.admins] : [];
+
+        // Find and remove the member
+        const memberIndex = members.findIndex(id => id === memberId);
+        if (memberIndex === -1) {
+            return {
+                success: false,
+                error: "Gebruiker is geen lid van deze groep"
+            };
+        }
+
+        // Remove from members array
+        members.splice(memberIndex, 1);
+
+        // Also remove from admins if they were an admin
+        const adminIndex = admins.findIndex(id => id === memberId);
+        if (adminIndex !== -1) {
+            admins.splice(adminIndex, 1);
+        }
+
+        // Update the group
+        await prisma.group.update({
+            where: { id: group.id },
+            data: {
+                members,
+                admins
+            }
+        });
+
+        // Update user's inGroups field to remove this group
+        const user = await prisma.user.findUnique({
+            where: { id: memberId }
+        });
+
+        if (user) {
+            const inGroups = Array.isArray(user.inGroups) ? [...user.inGroups] : [];
+            const updatedInGroups = inGroups.filter(id => id !== groupId);
+
+            await prisma.user.update({
+                where: { id: memberId },
+                data: {
+                    inGroups: updatedInGroups
+                }
+            });
+        }
+
+        revalidatePath(`/learn/group/${groupId}`);
+        return {
+            success: true,
+            message: "Lid verwijderd"
+        };
+    } catch (error) {
+        console.error("Error removing group member:", error);
+        return {
+            success: false,
+            error: "Er is een fout opgetreden"
+        };
+    }
+}
+
 // Create a new group
 export async function createGroupAction({
     name,
@@ -505,7 +610,7 @@ export async function deleteGroup(groupId: string) {
         }
 
         // Check if user is creator
-        const isCreator = group.creator === session.id || session?.role === 'admin';
+        const isCreator = group.creator === session.id;
 
         if (!isCreator) {
             return { success: false, error: "Alleen de eigenaar kan deze groep verwijderen" };
@@ -526,12 +631,13 @@ export async function deleteGroup(groupId: string) {
             const updatedOwnGroups = ownGroups.filter(id => id !== groupId);
 
             await prisma.user.update({
-                where: { id: user.id },
+                where: { id: session.id },
                 data: {
                     ownGroups: updatedOwnGroups
                 }
             });
         }
+
         revalidatePath('/learn/groups');
         return { success: true };
     } catch (error) {
@@ -666,7 +772,7 @@ export async function joinGroup(groupId: string) {
             });
 
             if (user) {
-                const inGroups = (user.inGroups as string[]) || [];
+                const inGroups = Array.isArray(user.inGroups) ? user.inGroups : [];
 
                 if (!inGroups.includes(groupId)) {
                     await prisma.user.update({
@@ -689,6 +795,168 @@ export async function joinGroup(groupId: string) {
     } catch (error) {
         console.error("Error joining group:", error);
         return { success: false, error: "Er is een fout opgetreden bij het lid worden van de groep" };
+    }
+}
+
+// Approve a group member
+export async function approveGroupMember(groupId: string, memberId: string) {
+    try {
+        const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+
+        if (!session || !session.id) {
+            return {
+                success: false,
+                error: "Je moet ingelogd zijn om dit te doen"
+            };
+        }
+
+        // Get the group data
+        const group = await prisma.group.findFirst({
+            where: { groupId }
+        });
+
+        if (!group) {
+            return {
+                success: false,
+                error: "Groep niet gevonden"
+            };
+        }
+
+        // Verify user is admin or creator
+        const isCreator = group.creator === session.id;
+        const isAdmin = Array.isArray(group.admins) && group.admins.includes(session.id);
+
+        if (!isCreator && !isAdmin) {
+            return {
+                success: false,
+                error: "Je hebt geen rechten om dit te doen"
+            };
+        }
+
+        // Get current members and pending members
+        const members = Array.isArray(group.members) ? [...group.members] : [];
+        const toBeApproved = Array.isArray(group.toBeApproved) ? [...group.toBeApproved] : [];
+
+        // Find and remove the member from toBeApproved
+        const memberIndex = toBeApproved.findIndex(id => id === memberId);
+        if (memberIndex === -1) {
+            return {
+                success: false,
+                error: "Geen goedkeuringsverzoek gevonden voor deze gebruiker"
+            };
+        }
+
+        toBeApproved.splice(memberIndex, 1);
+        members.push(memberId);
+
+        // Update the group
+        await prisma.group.update({
+            where: { id: group.id },
+            data: {
+                members,
+                toBeApproved
+            }
+        });
+
+        // Update user's inGroups field to include this group
+        const user = await prisma.user.findUnique({
+            where: { id: memberId }
+        });
+
+        if (user) {
+            const inGroups = Array.isArray(user.inGroups) ? user.inGroups : [];
+            if (!inGroups.includes(groupId)) {
+                await prisma.user.update({
+                    where: { id: memberId },
+                    data: {
+                        inGroups: [...inGroups, groupId]
+                    }
+                });
+            }
+        }
+
+        revalidatePath(`/learn/group/${groupId}`);
+        return {
+            success: true,
+            message: "Lid goedgekeurd"
+        };
+    } catch (error) {
+        console.error("Error approving group member:", error);
+        return {
+            success: false,
+            error: "Er is een fout opgetreden"
+        };
+    }
+}
+
+// Deny a group member
+export async function denyGroupMember(groupId: string, memberId: string) {
+    try {
+        const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+
+        if (!session || !session.id) {
+            return {
+                success: false,
+                error: "Je moet ingelogd zijn om dit te doen"
+            };
+        }
+
+        // Get the group data
+        const group = await prisma.group.findFirst({
+            where: { groupId }
+        });
+
+        if (!group) {
+            return {
+                success: false,
+                error: "Groep niet gevonden"
+            };
+        }
+
+        // Verify user is admin or creator
+        const isCreator = group.creator === session.id;
+        const isAdmin = Array.isArray(group.admins) && group.admins.includes(session.id);
+
+        if (!isCreator && !isAdmin) {
+            return {
+                success: false,
+                error: "Je hebt geen rechten om dit te doen"
+            };
+        }
+
+        // Get pending members
+        const toBeApproved = Array.isArray(group.toBeApproved) ? [...group.toBeApproved] : [];
+
+        // Find and remove the member from toBeApproved
+        const memberIndex = toBeApproved.findIndex(id => id === memberId);
+        if (memberIndex === -1) {
+            return {
+                success: false,
+                error: "Geen goedkeuringsverzoek gevonden voor deze gebruiker"
+            };
+        }
+
+        toBeApproved.splice(memberIndex, 1);
+
+        // Update the group
+        await prisma.group.update({
+            where: { id: group.id },
+            data: {
+                toBeApproved
+            }
+        });
+
+        revalidatePath(`/learn/group/${groupId}`);
+        return {
+            success: true,
+            message: "Lidverzoek geweigerd"
+        };
+    } catch (error) {
+        console.error("Error denying group member:", error);
+        return {
+            success: false,
+            error: "Er is een fout opgetreden"
+        };
     }
 }
 

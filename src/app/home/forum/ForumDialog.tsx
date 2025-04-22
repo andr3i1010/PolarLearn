@@ -1,8 +1,10 @@
 "use client";
 import { useState, useCallback, useMemo, memo } from "react";
+import ForumBtn from "./forumBtn";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Combobox, ComboboxItem } from "./selectSubjCombobox";
 import Button1 from "@/components/button/Button1";
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -14,6 +16,74 @@ import { createPostServer } from "./createPostServer";
 import { toast } from "react-toastify";
 import ReactMarkdown from 'react-markdown';
 import Tabs, { TabItem } from "@/components/Tabs";
+
+// Import subject icons
+import nsk_img from '@/app/img/nask.svg';
+import math_img from '@/app/img/math.svg';
+import eng_img from '@/app/img/english.svg';
+import fr_img from '@/app/img/baguette.svg';
+import de_img from '@/app/img/pretzel.svg';
+import nl_img from '@/app/img/nl.svg';
+import ak_img from '@/app/img/geography.svg';
+import gs_img from '@/app/img/history.svg';
+import bi_img from '@/app/img/bio.svg';
+
+// Memoize the subject item labels to prevent re-renders
+const SubjectLabel = memo(({ icon, alt, label }: { icon: any; alt: string; label: string }) => (
+  <div className="flex items-center">
+    <Image src={icon} alt={alt} width={24} height={24} className="mr-2" />
+    <span>{label}</span>
+  </div>
+));
+
+// Updated subject items with proper SVG icons and memoized labels
+const subjectItems: ComboboxItem[] = [
+  {
+    value: "WI",
+    label: <SubjectLabel icon={math_img} alt="wiskunde" label="Wiskunde" />,
+    searchText: "Wiskunde",
+  },
+  {
+    value: "NSK",
+    label: <SubjectLabel icon={nsk_img} alt="nask" label="NaSk" />,
+    searchText: "NaSk",
+  },
+  {
+    value: "NE",
+    label: <SubjectLabel icon={nl_img} alt="nederlands" label="Nederlands" />,
+    searchText: "Nederlands",
+  },
+  {
+    value: "EN",
+    label: <SubjectLabel icon={eng_img} alt="engels" label="Engels" />,
+    searchText: "Engels",
+  },
+  {
+    value: "FR",
+    label: <SubjectLabel icon={fr_img} alt="frans" label="Frans" />,
+    searchText: "Frans",
+  },
+  {
+    value: "DE",
+    label: <SubjectLabel icon={de_img} alt="duits" label="Duits" />,
+    searchText: "Duits",
+  },
+  {
+    value: "AK",
+    label: <SubjectLabel icon={ak_img} alt="aardrijkskunde" label="Aardrijkskunde" />,
+    searchText: "Aardrijkskunde",
+  },
+  {
+    value: "GS",
+    label: <SubjectLabel icon={gs_img} alt="geschiedenis" label="Geschiedenis" />,
+    searchText: "Geschiedenis",
+  },
+  {
+    value: "BI",
+    label: <SubjectLabel icon={bi_img} alt="biologie" label="Biologie" />,
+    searchText: "Biologie",
+  },
+];
 
 // Memoized markdown preview component
 const MarkdownPreview = memo(({ content }: { content: string }) => (
@@ -128,6 +198,7 @@ const SubjectField = memo(({
             <div className="flex items-center justify-between w-full">
               <div className="w-60">
                 <Combobox
+                  items={subjectItems}
                   placeholder="Selecteer een vak"
                   minWidth="100%"
                   onSelect={(value) => {
@@ -217,10 +288,7 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
 
   return (
     <>
-      <Button1
-        text="Nieuwe forumpost"
-        onClick={handleForumBtnClick}
-      />
+      <ForumBtn onClick={handleForumBtnClick} />
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="z-[110] max-w-3xl">
           <DialogHeader>

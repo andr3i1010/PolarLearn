@@ -8,7 +8,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MoveLeft, Search } from "lucide-react";
 import Link from "next/link";
 
-
 // SearchBar component
 const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
     const router = useRouter();
@@ -129,7 +128,6 @@ const NavigationLinks = memo(({ pathname, onExpandSearch }: { pathname: string, 
                     ["Uitloggen", "/auth/sign-out"]
                 ]}
             />
-
         </div>
     </>
 ));
