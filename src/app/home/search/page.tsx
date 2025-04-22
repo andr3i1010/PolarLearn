@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+
 import SearchResultsComponent from './SearchResultsComponent';
 
 // Use 'any' to bypass strict type checking for props
