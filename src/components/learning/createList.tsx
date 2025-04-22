@@ -99,7 +99,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   useEffect(() => {
     const defaultDutchDisplay = (
       <div className="flex items-center gap-2">
-        <Image src={icons.nl_img} alt="Nederlands" width={20} height={20} />
+        <Image src={icons.NL} alt="Nederlands" width={20} height={20} />
         <p>Nederlands</p>
       </div>
     );
