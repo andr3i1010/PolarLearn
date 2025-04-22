@@ -11,6 +11,7 @@ import DeleteListButton from "@/components/learning/DeleteListButton";
 import BanButton from "./banButton";
 import { cookies } from "next/headers";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
+import { getSubjectIcon } from "@/components/icons";
 
 import {
     Pagination,
@@ -20,29 +21,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
-// Import the subject icons
-import nsk_img from "@/app/img/nask.svg";
-import math_img from "@/app/img/math.svg";
-import eng_img from "@/app/img/english.svg";
-import fr_img from "@/app/img/baguette.svg";
-import de_img from "@/app/img/pretzel.svg";
-import nl_img from "@/app/img/nl.svg";
-import ak_img from "@/app/img/geography.svg";
-import gs_img from "@/app/img/history.svg";
-import bi_img from "@/app/img/bio.svg";
-// Create a map for subject icons
-// WAAROM WAS DE NEDERLANDS APKORTING ANDERS!!!!! 
-const subjectIconMap: Record<string, any> = {
-    WI: math_img,
-    NSK: nsk_img,
-    NL: nl_img,
-    EN: eng_img,
-    FR: fr_img,
-    DE: de_img, // Use DE for Duits consistently
-    AK: ak_img,
-    GS: gs_img,
-    BI: bi_img,
-};
+
 
 export default async function AdminPage({
     searchParams,
@@ -273,7 +252,7 @@ export default async function AdminPage({
                                     <div className="mr-4 flex-shrink-0">
                                         {list?.subject ? (
                                             <Image
-                                                src={subjectIconMap[list.subject] || "/default-icon.svg"}
+                                                src={getSubjectIcon(list.subject) || "/default-icon.svg"}
                                                 alt={`${list.subject} icon`}
                                                 width={40}
                                                 height={40}
