@@ -31,7 +31,7 @@ import { createListAction } from "@/serverActions/createList";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation"; // Add router import
 import Link from "next/link";
-import { icons, subjectEmojiMap } from "@/components/icons"; // Import icons from a centralized location
+import { icons, subjectEmojiMap, getSubjectIcon, getSubjectName } from "@/components/icons"; // Import icons from a centralized location
 
 type Pair = {
   id: number;
@@ -92,25 +92,9 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   const [isSaving, setIsSaving] = useState(false);
   const [autosavedListId, setAutosavedListId] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
-
-  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const languageIds = ["NL", "FR", "EN", "DE"];
   const isEditMode = !!listToEdit;
 
-  // Setup for subject icons
-  const subjectIcons: Record<string, any> = {
-    "NL": icons.nl_img,
-    "DE": icons.de_img,
-    "FR": icons.fr_img,
-    "EN": icons.eng_img,
-    "WI": icons.wis_img,
-    "NSK": icons.nask_img,
-    "GS": icons.gs_img,
-    "BI": icons.bi_img,
-    "AK": icons.ak_img,
-  };
 
   useEffect(() => {
     const defaultDutchDisplay = (
@@ -168,12 +152,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
       // Set subject
       if (listToEdit.subject) {
-        const subjectIcon = subjectIcons[listToEdit.subject];
+        const subjectIcon = getSubjectIcon(listToEdit.subject);
         if (subjectIcon) {
           const subjectDisplay = (
             <div className="flex items-center gap-2">
               <Image src={subjectIcon} alt={`${listToEdit.subject} icon`} width={20} height={20} />
-              <p>{getSubjectLabel(listToEdit.subject)}</p>
+              <p>{getSubjectName(listToEdit.subject)}</p>
             </div>
           );
 
@@ -201,12 +185,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
       // Set language selections
       if (listToEdit.lang_from && vanDropdownRef.current) {
         const langFrom = listToEdit.lang_from;
-        const fromIcon = subjectIcons[langFrom];
+        const fromIcon = getSubjectIcon(langFrom);
         if (fromIcon) {
           const display = (
             <div className="flex items-center gap-2">
-              <Image src={fromIcon} alt={getLanguageLabel(langFrom)} width={20} height={20} />
-              <p>{getLanguageLabel(langFrom)}</p>
+              <Image src={fromIcon} alt={getSubjectName(langFrom)} width={20} height={20} />
+              <p>{getSubjectName(langFrom)}</p>
             </div>
           );
           vanDropdownRef.current.setValue(langFrom, display);
@@ -215,12 +199,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
       if (listToEdit.lang_to && naarDropdownRef.current) {
         const langTo = listToEdit.lang_to;
-        const toIcon = subjectIcons[langTo];
+        const toIcon = getSubjectIcon(langTo);
         if (toIcon) {
           const display = (
             <div className="flex items-center gap-2">
-              <Image src={toIcon} alt={getLanguageLabel(langTo)} width={20} height={20} />
-              <p>{getLanguageLabel(langTo)}</p>
+              <Image src={toIcon} alt={getSubjectName(langTo)} width={20} height={20} />
+              <p>{getSubjectName(langTo)}</p>
             </div>
           );
           naarDropdownRef.current.setValue(langTo, display);
@@ -228,33 +212,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
       }
     }
   }, [listToEdit]);
-
-  // Helper function to get language label
-  const getLanguageLabel = (code: string) => {
-    switch (code) {
-      case "NL": return "Nederlands";
-      case "EN": return "Engels";
-      case "FR": return "Frans";
-      case "DE": return "Duits";
-      default: return code;
-    }
-  };
-
-  // Helper function to get subject label
-  const getSubjectLabel = (code: string) => {
-    switch (code) {
-      case "NL": return "Nederlands";
-      case "EN": return "Engels";
-      case "FR": return "Frans";
-      case "DE": return "Duits";
-      case "WI": return "Wiskunde";
-      case "NSK": return "NaSk";
-      case "GS": return "Geschiedenis";
-      case "BI": return "Biologie";
-      case "AK": return "Aardrijkskunde";
-      default: return code;
-    }
-  };
 
   const addPair = () => {
     setPairs([...pairs, { id: nextId, "1": '', "2": '' }]);
