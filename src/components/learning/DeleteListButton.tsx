@@ -19,12 +19,15 @@ interface DeleteListButtonProps {
     listId: string;
     isCreator: boolean;
     groupId?: string; // Optional groupId for removing lists from groups
+    customText?: string; // Optional custom text for the list
 }
 
 export default function DeleteListButton({
     listId,
     isCreator,
     groupId,
+    customText,
+
 }: DeleteListButtonProps) {
     const [open, setOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -75,7 +78,11 @@ export default function DeleteListButton({
                 className="text-red-400 h p-2 rounded  z-10"
                 title="Verwijderen"
             >
-                <Trash2 size={18} />
+                <div className="flex items-center justify-center">
+                    {customText ? <span>{customText}</span> : null}
+                    <Trash2 size={18} />
+                </div>
+
             </button>
 
             <Dialog open={open} onOpenChange={setOpen}>

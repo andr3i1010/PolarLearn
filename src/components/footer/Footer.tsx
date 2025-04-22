@@ -9,6 +9,7 @@ import Image from "next/image";
 import pl500 from "@/app/img/pl-500.png";
 import kofi from "@/app/img/kofi_symbol.webp";
 import Link from "next/link";
+import Button1 from "../button/Button1";
 
 export default async function Footer() {
   const git = await gitInfo();
@@ -118,37 +119,36 @@ export default async function Footer() {
               </a>
             </div>
           </div>
-          <div className="w-50 flex flex-col items-center">
-            <h1 className="font-extrabold text-3xl">Snelle Links</h1>
-            <hr className="w-full border-t-2 border-neutral-600 my-1" />
-            <div className="flex flex-col items-center space-y-2 mt-2">
-              <Link
-                className="flex items-center text-md text-neutral-500 hover:text-white transition"
-                href="/home/forum/tos"
-              >
-                Algemene voorwaarden
-              </Link>
-              <Link
-                className="flex items-center text-md text-neutral-500 hover:text-white transition"
-                href="/home/forum/privacy"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                className="flex items-center text-md text-neutral-500 hover:text-white transition"
-                href="/home/forum/faq"
-              >
-                Veelgestelde vragen
-              </Link>
-              <a
-                className="flex items-center text-md text-neutral-500 hover:text-white transition"
-                href="https://github.com/polarnl/PolarLearn/issues"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Bug melden
-              </a>
-            </div>
+        </div>
+        <div className="w-50 flex flex-col items-center">
+          <h1 className="font-extrabold text-3xl">Snelle Links</h1>
+          <hr className="w-full border-t-2 border-neutral-600 my-1" />
+          <div className="flex flex-col items-center space-y-2 mt-2">
+            <Link
+              className="flex items-center text-md text-neutral-500 hover:text-white transition"
+              href="/home/forum/tos"
+            >
+              Algemene voorwaarden
+            </Link>
+            <Link
+              className="flex items-center text-md text-neutral-500 hover:text-white transition"
+              href="/home/forum/privacy"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              className="flex items-center text-md text-neutral-500 hover:text-white transition"
+              href="/home/forum/faq"
+            >
+              Veelgestelde vragen
+            </Link>
+            <a
+              className="flex items-center text-md text-neutral-500 hover:text-white transition"
+              href="https://github.com/polarnl/PolarLearn/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Bug melden</a>
+            {user?.role === "admin" ? (<Button1 text="Admin" redirectTo="/admin" />) : ""}
           </div>
         </div>
       </div>

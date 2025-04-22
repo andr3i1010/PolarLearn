@@ -610,7 +610,7 @@ export async function deleteGroup(groupId: string) {
         }
 
         // Check if user is creator
-        const isCreator = group.creator === session.id;
+        const isCreator = group.creator === session.id || session?.role === 'admin';
 
         if (!isCreator) {
             return { success: false, error: "Alleen de eigenaar kan deze groep verwijderen" };
@@ -637,7 +637,6 @@ export async function deleteGroup(groupId: string) {
                 }
             });
         }
-
         revalidatePath('/learn/groups');
         return { success: true };
     } catch (error) {

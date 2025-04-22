@@ -3,7 +3,6 @@ import Jdenticon from "@/components/Jdenticon";
 import { prisma } from "@/utils/prisma";
 import Tabs, { TabItem } from "@/components/Tabs";
 import Image from "next/image";
-import construction from '@/app/img/construction.gif';
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { PlusIcon, PencilIcon } from "lucide-react";
@@ -11,7 +10,6 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import CreatorLink from "@/components/links/CreatorLink";
 import { getGroupLists } from "@/serverActions/groupActions";
-import { Button } from "@/components/ui/button";
 import { Trash, AlertTriangle } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
@@ -83,10 +81,16 @@ export default async function Page({
 
   // Get current user with complete information
   const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+  if (!currentUser) {
+    return <div className="text-center text-neutral-400">Je moet ingelogd zijn om deze pagina te bekijken.</div>;
+  }
 
   // Track both ID and name to handle different storage formats
-  const currentUserId = currentUser?.id || '';
-  const currentUserName = currentUser?.name || '';
+  const currentUserId = currentUser.id;
+  const currentUserName = currentUser.name;
+  if (!currentUserId || !currentUserName) {
+    return <div className="text-center text-neutral-400">Je moet ingelogd zijn om deze pagina te bekijken.</div>;
+  }
 
   // Check if user is creator or member of the group (using ID comparison)
   const members = groupData?.members as string[] || [];
@@ -334,7 +338,7 @@ export default async function Page({
       ),
     },
     // Add a settings tab that's only visible to admins and creators
-    ...(isAdmin || isCreator ? [{
+    ...(isAdmin || isCreator || currentUser?.role == "admin" ? [{
       id: "settings",
       label: "Instellingen",
       content: (
@@ -353,7 +357,7 @@ export default async function Page({
           </div>
 
           {/* Danger zone (only visible to creator) */}
-          {isCreator && (
+          {isCreator || currentUser?.role == "admin" && (
             <div className="mt-8 border border-red-500/20 rounded-lg p-6">
               <div className="flex items-start">
                 <AlertTriangle className="text-red-500 mr-4 h-6 w-6 flex-shrink-0 mt-1" />
