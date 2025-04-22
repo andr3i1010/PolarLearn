@@ -10,11 +10,7 @@ import DeleteListButton from "@/components/learning/DeleteListButton";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import Jdenticon from "@/components/Jdenticon";
 import { unstable_noStore as noStore } from 'next/cache'; // Ensure this is imported
-import { subjectLabelMap, icons } from "@/components/icons";
-
-// Define helper functions
-const getSubjectIcon = (subjectCode: keyof typeof icons) => icons[subjectCode] || null;
-const getSubjectName = (subjectCode: string) => subjectLabelMap[subjectCode] || subjectCode;
+import { getSubjectName, icons, getSubjectIcon } from "@/components/icons";
 
 // Update props to accept the full objects (make params optional)
 interface SearchResultsProps {
@@ -173,7 +169,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                                     <div className="flex items-center">
                                         {list.subject && (
                                             <Image
-                                                src={getSubjectIcon(list.subject as keyof typeof icons) || ""}
+                                                src={getSubjectIcon(list.subject) || ""}
                                                 alt={`${getSubjectName(list.subject)} icon`}
                                                 width={24}
                                                 height={24}
@@ -237,9 +233,9 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                                     </div>
                                     <div className="flex flex-col flex-1">
                                         <div className="text-xs text-gray-400 mb-1 flex items-center">
-                                            {getSubjectIcon(post.subject as keyof typeof icons) && (
+                                            {getSubjectIcon(post.subject) && (
                                                 <Image
-                                                    src={getSubjectIcon(post.subject as keyof typeof icons)}
+                                                    src={getSubjectIcon(post.subject)}
                                                     alt={getSubjectName(post.subject)}
                                                     width={16}
                                                     height={16}

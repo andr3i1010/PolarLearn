@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/pagination";
 import { cookies } from "next/headers";
 import MarkdownRenderer from "@/components/md";
-import { subjectLabelMap, icons } from "@/components/icons";
+import { icons, getSubjectName } from "@/components/icons";
 
 
 export default async function ForumHome({
@@ -205,7 +205,7 @@ export default async function ForumHome({
               userMapById[creatorId] || userMapByName[creatorId];
             const subjectIcon = icons[post.subject as keyof typeof icons];
             const subjectLabel =
-              subjectLabelMap[post.subject] || post.subject;
+              getSubjectName(post.subject) || post.subject;
             const relativeTime = formatRelativeTime(post.createdAt);
             const isReply = post.isReply === true;
 

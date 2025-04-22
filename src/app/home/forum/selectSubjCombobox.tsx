@@ -25,47 +25,47 @@ const SubjectLabel = memo(({ icon, alt, label }: { icon: any; alt: string; label
 const defaultItems: ComboboxItem[] = [
   {
     value: "WI",
-    label: <SubjectLabel icon={icons.wis_img} alt="wiskunde" label="Wiskunde" />,
+    label: <SubjectLabel icon={icons.WI} alt="wiskunde" label="Wiskunde" />,
     searchText: "Wiskunde",
   },
   {
     value: "NSK",
-    label: <SubjectLabel icon={icons.nask_img} alt="nask" label="NaSk" />,
+    label: <SubjectLabel icon={icons.NSK} alt="nask" label="NaSk" />,
     searchText: "NaSk",
   },
   {
     value: "NE",
-    label: <SubjectLabel icon={icons.nl_img} alt="nederlands" label="Nederlands" />,
+    label: <SubjectLabel icon={icons.NL} alt="nederlands" label="Nederlands" />,
     searchText: "Nederlands",
   },
   {
     value: "EN",
-    label: <SubjectLabel icon={icons.eng_img} alt="engels" label="Engels" />,
+    label: <SubjectLabel icon={icons.EN} alt="engels" label="Engels" />,
     searchText: "Engels",
   },
   {
     value: "FR",
-    label: <SubjectLabel icon={icons.fr_img} alt="frans" label="Frans" />,
+    label: <SubjectLabel icon={icons.FR} alt="frans" label="Frans" />,
     searchText: "Frans",
   },
   {
     value: "DE",
-    label: <SubjectLabel icon={icons.de_img} alt="duits" label="Duits" />,
+    label: <SubjectLabel icon={icons.DE} alt="duits" label="Duits" />,
     searchText: "Duits",
   },
   {
     value: "AK",
-    label: <SubjectLabel icon={icons.ak_img} alt="aardrijkskunde" label="Aardrijkskunde" />,
+    label: <SubjectLabel icon={icons.AK} alt="aardrijkskunde" label="Aardrijkskunde" />,
     searchText: "Aardrijkskunde",
   },
   {
     value: "GS",
-    label: <SubjectLabel icon={icons.gs_img} alt="geschiedenis" label="Geschiedenis" />,
+    label: <SubjectLabel icon={icons.GS} alt="geschiedenis" label="Geschiedenis" />,
     searchText: "Geschiedenis",
   },
   {
     value: "BI",
-    label: <SubjectLabel icon={icons.bi_img} alt="biologie" label="Biologie" />,
+    label: <SubjectLabel icon={icons.BI} alt="biologie" label="Biologie" />,
     searchText: "Biologie",
   },
 ];

@@ -9,7 +9,7 @@ import { PencilIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 
-import { subjectEmojiMap, icons } from "@/components/icons";
+import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
 
 async function getRecentSubjects() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
@@ -198,15 +198,7 @@ export default async function Start() {
                           {list.subject && (
                             <Image
                               src={
-                                list.subject === "NL" ? icons.nl_img :
-                                  list.subject === "DE" ? icons.de_img :
-                                    list.subject === "FR" ? icons.fr_img :
-                                      list.subject === "EN" ? icons.eng_img :
-                                        list.subject === "WI" ? icons.wis_img :
-                                          list.subject === "NSK" ? icons.nask_img :
-                                            list.subject === "AK" ? icons.ak_img :
-                                              list.subject === "GS" ? icons.gs_img :
-                                                list.subject === "BI" ? icons.bi_img : ''
+                                getSubjectIcon(list.subject)
                               }
                               alt={`${list.subject} icon`}
                               width={24}

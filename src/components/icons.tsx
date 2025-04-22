@@ -21,32 +21,6 @@ export const icons = {
     geschiedenis: gs_img,
     biologie: bi_img,
     aardrijkskunde: ak_img,
-    nask_img: nsk_img,
-    wis_img: wis_img,
-    eng_img: eng_img,
-    fr_img: fr_img,
-    de_img: de_img,
-    nl_img: nl_img,
-    gs_img: gs_img,
-    bi_img: bi_img,
-    ak_img: ak_img,
-    wiskunde_img: wis_img,
-    geschiedenis_img: gs_img,
-    biologie_img: bi_img,
-    aardrijkskunde_img: ak_img,
-    engels_img: eng_img,
-    frans_img: fr_img,
-    duits_img: de_img,
-    nederlands_img: nl_img,
-    nask_icon: nsk_img,
-    wiskunde_icon: wis_img,
-    geschiedenis_icon: gs_img,
-    biologie_icon: bi_img,
-    aardrijkskunde_icon: ak_img,
-    engels_icon: eng_img,
-    frans_icon: fr_img,
-    duits_icon: de_img,
-    nederlands_icon: nl_img,
     NSK: nsk_img,
     WI: wis_img,
     EN: eng_img,
@@ -123,21 +97,6 @@ export const subjectEmojiMap: Record<string, React.ReactNode> = {
             Aardrijkskunde
         </span>
     ),
-} as const;
-
-// Subject labels
-export const subjectLabelMap: Record<string, string> = {
-    AK: "Aardrijkskunde",
-    BI: "Biologie",
-    DE: "Duits",
-    EN: "Engels",
-    FR: "Frans",
-    GS: "Geschiedenis",
-    NA: "Natuurkunde",
-    NSK: "NaSk",
-    NE: "Nederlands",
-    SK: "Scheikunde",
-    WI: "Wiskunde",
 } as const;
 
 // Function to get the appropriate icon for each subject
