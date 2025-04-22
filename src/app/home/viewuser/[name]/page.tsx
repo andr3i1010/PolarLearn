@@ -125,23 +125,11 @@ export default async function Page({ params }: PageProps) {
     );
   }
 
-  // Safely access list data with optional chaining and type casting
-  const listdata = user?.list_data as ListData | undefined;
-
   // Fetch only published lists created by this user
   const rawLists = await prisma.practice.findMany({
     where: {
-      creator: user.name as string,
-      published: true, // Only show published lists
-    },
-    select: {
-      list_id: true,
-      name: true,
-      subject: true,
-      createdAt: true,
+      creator: user.id as string,
       published: true,
-      data: true,
-      creator: true,
     },
     orderBy: {
       createdAt: "desc", // Sort by newest first
