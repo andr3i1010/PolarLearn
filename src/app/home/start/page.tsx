@@ -9,7 +9,17 @@ import { PencilIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 
-import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
+// Subject images //
+import nsk_img from '@/app/img/nask.svg'
+import math_img from '@/app/img/math.svg'
+import eng_img from '@/app/img/english.svg'
+import fr_img from '@/app/img/baguette.svg'
+import de_img from '@/app/img/pretzel.svg'
+import nl_img from '@/app/img/nl.svg'
+import gs_img from '@/app/img/history.svg'
+import bi_img from '@/app/img/bio.svg'
+import ak_img from '@/app/img/geography.svg'
+import Jdenticon from "@/components/Jdenticon";
 
 async function getRecentSubjects() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
@@ -17,6 +27,22 @@ async function getRecentSubjects() {
     where: { id: user?.id },
   });
   return (account?.list_data as any)?.recent_subjects || [];
+}
+
+// Define a more complete interface for practice list items
+interface PracticeListItem {
+  id: string;
+  list_id: string;
+  name: string;
+  mode: string;
+  subject: string;
+  lang_from: string;
+  lang_to: string;
+  data: any;
+  creator: string;
+  createdAt: Date;
+  updatedAt: Date;
+  published: boolean;
 }
 
 async function getRecentLists() {
@@ -132,7 +158,71 @@ export default async function Start() {
   const currentUserName = currentUser?.name;
 
   // Extract the subject emoji map for reuse
-
+  const subjectEmojiMap: Record<string, React.ReactNode> = {
+    "NL": (
+      <span className="flex items-center">
+        <Image src={nl_img} alt={"nederlands plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Nederlands
+      </span>
+    ),
+    "DE": (
+      <span className="flex items-center">
+        <Image src={de_img} alt={"duits plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Duits
+      </span>
+    ),
+    "FR": (
+      <span className="flex items-center">
+        <Image src={fr_img} alt={"frans plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Frans
+      </span>
+    ),
+    "EN": (
+      <span className="flex items-center">
+        <Image src={eng_img} alt={"engels plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Engels
+      </span>
+    ),
+    "WI": (
+      <span className="flex items-center">
+        <Image src={math_img} alt={"wiskunde plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Wiskunde
+      </span>
+    ),
+    "NSK": (
+      <span className="flex items-center">
+        <Image src={nsk_img} alt={"nask plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        NaSk
+      </span>
+    ),
+    "GS": (
+      <span className="flex items-center">
+        <Image src={gs_img} alt={"geschiedenis plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Geschiedenis
+      </span>
+    ),
+    "BI": (
+      <span className="flex items-center">
+        <Image src={bi_img} alt={"biologie plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Biologie
+      </span>
+    ),
+    "AK": (
+      <span className="flex items-center">
+        <Image src={ak_img} alt={"aardrijkskunde plaatje"} width={20} height={20} />
+        <div className="w-2" />
+        Aardrijkskunde
+      </span>
+    ),
+  };
 
   return (
     <>
@@ -198,7 +288,15 @@ export default async function Start() {
                           {list.subject && (
                             <Image
                               src={
-                                getSubjectIcon(list.subject)
+                                list.subject === "NL" ? nl_img :
+                                  list.subject === "DE" ? de_img :
+                                    list.subject === "FR" ? fr_img :
+                                      list.subject === "EN" ? eng_img :
+                                        list.subject === "WI" ? math_img :
+                                          list.subject === "NSK" ? nsk_img :
+                                            list.subject === "AK" ? ak_img :
+                                              list.subject === "GS" ? gs_img :
+                                                list.subject === "BI" ? bi_img : ''
                               }
                               alt={`${list.subject} icon`}
                               width={24}

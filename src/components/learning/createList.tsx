@@ -31,7 +31,17 @@ import { createListAction } from "@/serverActions/createList";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation"; // Add router import
 import Link from "next/link";
-import { icons, subjectEmojiMap, getSubjectIcon, getSubjectName } from "@/components/icons"; // Import icons from a centralized location
+
+// Subject images //
+import nsk_img from '@/app/img/nask.svg';
+import math_img from '@/app/img/math.svg';
+import eng_img from '@/app/img/english.svg';
+import fr_img from '@/app/img/baguette.svg';
+import de_img from '@/app/img/pretzel.svg';
+import nl_img from '@/app/img/nl.svg';
+import ak_img from '@/app/img/geography.svg';
+import gs_img from '@/app/img/history.svg';
+import bi_img from '@/app/img/bio.svg';
 
 type Pair = {
   id: number;
@@ -92,14 +102,30 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   const [isSaving, setIsSaving] = useState(false);
   const [autosavedListId, setAutosavedListId] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+
+  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const languageIds = ["NL", "FR", "EN", "DE"];
   const isEditMode = !!listToEdit;
 
+  // Setup for subject icons
+  const subjectIcons: Record<string, any> = {
+    "NL": nl_img,
+    "DE": de_img,
+    "FR": fr_img,
+    "EN": eng_img,
+    "WI": math_img,
+    "NSK": nsk_img,
+    "GS": gs_img,
+    "BI": bi_img,
+    "AK": ak_img,
+  };
 
   useEffect(() => {
     const defaultDutchDisplay = (
       <div className="flex items-center gap-2">
-        <Image src={icons.nl_img} alt="Nederlands" width={20} height={20} />
+        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
         <p>Nederlands</p>
       </div>
     );
@@ -126,7 +152,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
     // On load, default both language dropdowns to Dutch.
     const defaultDutchDisplay = (
       <div className="flex items-center gap-2">
-        <Image src={icons.NL} alt="Nederlands" width={20} height={20} />
+        <Image src={nl_img} alt="Nederlands" width={20} height={20} />
         <p>Nederlands</p>
       </div>
     );
@@ -152,12 +178,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
       // Set subject
       if (listToEdit.subject) {
-        const subjectIcon = getSubjectIcon(listToEdit.subject);
+        const subjectIcon = subjectIcons[listToEdit.subject];
         if (subjectIcon) {
           const subjectDisplay = (
             <div className="flex items-center gap-2">
               <Image src={subjectIcon} alt={`${listToEdit.subject} icon`} width={20} height={20} />
-              <p>{getSubjectName(listToEdit.subject)}</p>
+              <p>{getSubjectLabel(listToEdit.subject)}</p>
             </div>
           );
 
@@ -185,12 +211,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
       // Set language selections
       if (listToEdit.lang_from && vanDropdownRef.current) {
         const langFrom = listToEdit.lang_from;
-        const fromIcon = getSubjectIcon(langFrom);
+        const fromIcon = subjectIcons[langFrom];
         if (fromIcon) {
           const display = (
             <div className="flex items-center gap-2">
-              <Image src={fromIcon} alt={getSubjectName(langFrom)} width={20} height={20} />
-              <p>{getSubjectName(langFrom)}</p>
+              <Image src={fromIcon} alt={getLanguageLabel(langFrom)} width={20} height={20} />
+              <p>{getLanguageLabel(langFrom)}</p>
             </div>
           );
           vanDropdownRef.current.setValue(langFrom, display);
@@ -199,12 +225,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
       if (listToEdit.lang_to && naarDropdownRef.current) {
         const langTo = listToEdit.lang_to;
-        const toIcon = getSubjectIcon(langTo);
+        const toIcon = subjectIcons[langTo];
         if (toIcon) {
           const display = (
             <div className="flex items-center gap-2">
-              <Image src={toIcon} alt={getSubjectName(langTo)} width={20} height={20} />
-              <p>{getSubjectName(langTo)}</p>
+              <Image src={toIcon} alt={getLanguageLabel(langTo)} width={20} height={20} />
+              <p>{getLanguageLabel(langTo)}</p>
             </div>
           );
           naarDropdownRef.current.setValue(langTo, display);
@@ -212,6 +238,33 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
       }
     }
   }, [listToEdit]);
+
+  // Helper function to get language label
+  const getLanguageLabel = (code: string) => {
+    switch (code) {
+      case "NL": return "Nederlands";
+      case "EN": return "Engels";
+      case "FR": return "Frans";
+      case "DE": return "Duits";
+      default: return code;
+    }
+  };
+
+  // Helper function to get subject label
+  const getSubjectLabel = (code: string) => {
+    switch (code) {
+      case "NL": return "Nederlands";
+      case "EN": return "Engels";
+      case "FR": return "Frans";
+      case "DE": return "Duits";
+      case "WI": return "Wiskunde";
+      case "NSK": return "NaSk";
+      case "GS": return "Geschiedenis";
+      case "BI": return "Biologie";
+      case "AK": return "Aardrijkskunde";
+      default: return code;
+    }
+  };
 
   const addPair = () => {
     setPairs([...pairs, { id: nextId, "1": '', "2": '' }]);
@@ -505,7 +558,63 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
               ref={dropdownRef}
               text="Kies een vak"
               width={200}
-              dropdownMatrix={Object.entries(subjectEmojiMap).map(([key, value]) => [value, key])}
+              dropdownMatrix={[
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={nl_img} alt="nederlands plaatje" width={20} height={20} />
+                    <p>Nederlands</p>
+                  </div>,
+                  "NL"
+                ],
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={math_img} alt="wiskunde plaatje" width={20} height={20} />
+                    <p>Wiskunde</p>
+                  </div>, "WI"
+                ],
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={nsk_img} alt="nask plaatje" width={20} height={20} />
+                    <p>NaSk</p>
+                  </div>, "NSK"
+                ],
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={ak_img} alt="aardrijkskunde plaatje" width={20} height={20} />
+                    <p>Aardrijkskunde</p>
+                  </div>, "AK"
+                ],
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={fr_img} alt="frans plaatje" width={20} height={20} />
+                    <p>Frans</p>
+                  </div>, "FR"
+                ],
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={eng_img} alt="engels plaatje" width={20} height={20} />
+                    <p>Engels</p>
+                  </div>, "EN"
+                ],
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={de_img} alt="duits plaatje" width={20} height={20} />
+                    <p>Duits</p>
+                  </div>, "DE"
+                ],
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={gs_img} alt="geschiedenis plaatje" width={20} height={20} />
+                    <p>Geschiedenis</p>
+                  </div>, "GS"
+                ],
+                [
+                  <div className="flex items-center gap-2">
+                    <Image src={bi_img} alt="biologie plaatje" width={20} height={20} />
+                    <p>Biologie</p>
+                  </div>, "BI"
+                ]
+              ]}
               selectorMode={true}
               onChangeSelected={(selected) => {
                 setSelectedSubject(selected);
@@ -526,7 +635,36 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 ref={vanDropdownRef}
                 text="Van.."
                 width={200}
-                dropdownMatrix={Object.entries(subjectEmojiMap).map(([key, value]) => [value, key])}
+                dropdownMatrix={[
+                  [
+                    <div className="flex items-center gap-2">
+                      <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+                      <p>Nederlands</p>
+                    </div>,
+                    "NL"
+                  ],
+                  [
+                    <div className="flex items-center gap-2">
+                      <Image src={fr_img} alt="Frans" width={20} height={20} />
+                      <p>Frans</p>
+                    </div>,
+                    "FR"
+                  ],
+                  [
+                    <div className="flex items-center gap-2">
+                      <Image src={eng_img} alt="Engels" width={20} height={20} />
+                      <p>Engels</p>
+                    </div>,
+                    "EN"
+                  ],
+                  [
+                    <div className="flex items-center gap-2">
+                      <Image src={de_img} alt="Duits" width={20} height={20} />
+                      <p>Duits</p>
+                    </div>,
+                    "DE"
+                  ]
+                ]}
                 selectorMode={true}
                 onChange={(selected) => setSelectedTaal(selected)}
               />
@@ -536,7 +674,36 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 ref={naarDropdownRef}
                 text="Naar.."
                 width={200}
-                dropdownMatrix={Object.entries(subjectEmojiMap).map(([key, value]) => [value, key])}
+                dropdownMatrix={[
+                  [
+                    <div className="flex items-center gap-2">
+                      <Image src={nl_img} alt="Nederlands" width={20} height={20} />
+                      <p>Nederlands</p>
+                    </div>,
+                    "NL"
+                  ],
+                  [
+                    <div className="flex items-center gap-2">
+                      <Image src={fr_img} alt="Frans" width={20} height={20} />
+                      <p>Frans</p>
+                    </div>,
+                    "FR"
+                  ],
+                  [
+                    <div className="flex items-center gap-2">
+                      <Image src={eng_img} alt="Engels" width={20} height={20} />
+                      <p>Engels</p>
+                    </div>,
+                    "EN"
+                  ],
+                  [
+                    <div className="flex items-center gap-2">
+                      <Image src={de_img} alt="Duits" width={20} height={20} />
+                      <p>Duits</p>
+                    </div>,
+                    "DE"
+                  ]
+                ]}
                 selectorMode={true}
                 disabled={selectedSubject && ["FR", "EN", "DE", "NL"].includes(selectedSubject.id)}
               />

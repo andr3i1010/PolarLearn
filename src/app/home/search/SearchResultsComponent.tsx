@@ -10,7 +10,32 @@ import DeleteListButton from "@/components/learning/DeleteListButton";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import Jdenticon from "@/components/Jdenticon";
 import { unstable_noStore as noStore } from 'next/cache'; // Ensure this is imported
-import { getSubjectName, icons, getSubjectIcon } from "@/components/icons";
+
+// Import subject icons
+import nsk_img from '@/app/img/nask.svg';
+import math_img from '@/app/img/math.svg';
+import eng_img from '@/app/img/english.svg';
+import fr_img from '@/app/img/baguette.svg';
+import de_img from '@/app/img/pretzel.svg';
+import nl_img from '@/app/img/nl.svg';
+import ak_img from '@/app/img/geography.svg';
+import gs_img from '@/app/img/history.svg';
+import bi_img from '@/app/img/bio.svg';
+
+// Define subject icon and label maps
+const subjectIconMap: Record<string, any> = {
+    WI: math_img, NSK: nsk_img, NL: nl_img, EN: eng_img, FR: fr_img,
+    DE: de_img, AK: ak_img, GS: gs_img, BI: bi_img,
+};
+const subjectLabelMap: Record<string, string> = {
+    AK: "Aardrijkskunde", BI: "Biologie", DE: "Duits", EN: "Engels", FR: "Frans",
+    GS: "Geschiedenis", NA: "Natuurkunde", NSK: "NaSk", NL: "Nederlands",
+    SK: "Scheikunde", WI: "Wiskunde",
+};
+
+// Define helper functions
+const getSubjectIcon = (subjectCode: string) => subjectIconMap[subjectCode] || null;
+const getSubjectName = (subjectCode: string) => subjectLabelMap[subjectCode] || subjectCode;
 
 // Update props to accept the full objects (make params optional)
 interface SearchResultsProps {
