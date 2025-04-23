@@ -64,6 +64,7 @@ install_node() {
     "linux"* )
             if command -v apt &> /dev/null; then
                 sudo apt update && sudo apt install -y nodejs
+                sudo apt install npm -y
             elif command -v dnf &> /dev/null; then
                 sudo dnf install -y nodejs
                 elif command brew -v &> /dev/null; then
