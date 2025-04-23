@@ -8,8 +8,9 @@ import { cookies } from "next/headers";
 import { PencilIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
-
 import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
+
+// TODO: gebruik getUserGroups om de startpagina te vullen met groepen
 
 async function getRecentSubjects() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
@@ -90,7 +91,6 @@ async function getRecentLists() {
   });
 }
 
-// Add this new function to fetch user's groups
 async function getUserGroups() {
   const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
   if (!user) return [];
@@ -125,7 +125,6 @@ async function getUserGroups() {
 export default async function Start() {
   const recentSubjects = await getRecentSubjects();
   const recentLists = await getRecentLists();
-  const userGroups = await getUserGroups();
 
   // Get current user name once to use in comparisons
   const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
