@@ -65,6 +65,7 @@ install_node() {
             if command -v apt &> /dev/null; then
                 sudo apt update && sudo apt install -y nodejs
                 sudo apt install npm -y
+                sudo npm install -g pnpm@latest-10
             elif command -v dnf &> /dev/null; then
                 sudo dnf install -y nodejs
                 elif command brew -v &> /dev/null; then
