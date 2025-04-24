@@ -24,10 +24,8 @@ import {
 
 
 export default async function AdminPage({
-    searchParams,
     params,
 }: {
-    searchParams: Promise<{ page?: string }>;
     params?: { tab?: string[] };
 }) {
 
@@ -95,21 +93,14 @@ export default async function AdminPage({
         }),
         prisma.group.count(),
     ]);
-    // Get the parent thread information for context
 
     const totalUserPages = Math.ceil(totalUsers / take);
-    const totalListPages = Math.ceil(listTotal / take);
-
-    // Also update the currentUsername variable to include both user ID and name for comparison
-    const currentUsername = session?.name;
     const currentUserId = session?.id;
 
-    // Get unique creator IDs from all lists
     const creatorIds = [...new Set([...listslist]
         .map(post => post.creator)
     )];
 
-    // Also try to fetch users by name in case creator contains usernames
     const users = await prisma.user.findMany({
         where: {
             OR: [{ id: { in: creatorIds } }, { name: { in: creatorIds } }],
