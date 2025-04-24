@@ -22,15 +22,15 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 
-
 export default async function AdminPage({
     params,
+    searchParams,
 }: {
     params?: { tab?: string[] };
+    searchParams?: { page?: string };
 }) {
-
     const defaultActiveTab =
-        params && params.tab && params.tab.length > 0 ? params.tab[0] : "questions";
+        params && params.tab && params.tab.length > 0 ? params.tab[0] : "gebruikers";
 
     const session = await getUserFromSession(
         (await cookies()).get("polarlearn.session-id")!.value
@@ -41,12 +41,11 @@ export default async function AdminPage({
         },
     });
 
-
     if (session?.role != "admin") {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
                 <Image
-                    src={require('@/app/admin/ga_weg.png')} // Ensure the correct path to the image file
+                    src={require("@/app/admin/ga_weg.png")}
                     alt="aardige man"
                     width={300}
                     height={300}
@@ -58,11 +57,9 @@ export default async function AdminPage({
                 </Link>
             </div>
         );
-
     }
-    // const page = parseInt(paramsSearch.page as string) || 1;
-    const page = 1;
 
+    const page = parseInt(searchParams?.page || "1");
     const take = 20;
     const skip = (page - 1) * take;
 
@@ -80,26 +77,31 @@ export default async function AdminPage({
     const [listslist, listTotal] = await Promise.all([
         prisma.practice.findMany({
             orderBy: {
-                createdAt: "desc", // Sort by newest first
+                createdAt: "desc",
             },
+            skip,
+            take,
         }),
         prisma.practice.count(),
     ]);
+
     const [groupList, groupTotal] = await Promise.all([
         prisma.group.findMany({
             orderBy: {
-                createdAt: "desc", // Sort by newest first
+                createdAt: "desc",
             },
+            skip,
+            take,
         }),
         prisma.group.count(),
     ]);
 
     const totalUserPages = Math.ceil(totalUsers / take);
+    const totalListPages = Math.ceil(listTotal / take);
+    const totalGroupPages = Math.ceil(groupTotal / take);
     const currentUserId = session?.id;
 
-    const creatorIds = [...new Set([...listslist]
-        .map(post => post.creator)
-    )];
+    const creatorIds = [...new Set([...listslist].map((post) => post.creator))];
 
     const users = await prisma.user.findMany({
         where: {
@@ -120,27 +122,94 @@ export default async function AdminPage({
     };
 
     // Create maps for both ID and name lookups
-    const userMapById = users.reduce((acc: Record<string, UserInfo>, user: UserInfo) => {
-        acc[user.id] = user;
-        return acc;
-    }, {} as Record<string, UserInfo>);
+    const userMapById = users.reduce(
+        (acc: Record<string, UserInfo>, user: UserInfo) => {
+            acc[user.id] = user;
+            return acc;
+        },
+        {} as Record<string, UserInfo>
+    );
 
-    const userMapByName = users.reduce((acc: Record<string, UserInfo>, user: UserInfo) => {
-        if (user.name) acc[user.name] = user;
-        return acc;
-    }, {} as Record<string, UserInfo>);
+    const userMapByName = users.reduce(
+        (acc: Record<string, UserInfo>, user: UserInfo) => {
+            if (user.name) acc[user.name] = user;
+            return acc;
+        },
+        {} as Record<string, UserInfo>
+    );
+
+    // Function to render pagination
+    const renderPagination = (totalPages: number, currentPage: number, tabId: string) => {
+        if (totalPages <= 1) return null;
+
+        return (
+            <div className="mt-4 flex justify-center">
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                href={currentPage > 1 ? `/admin/${tabId}?page=${currentPage - 1}` : "#"}
+                                className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                            />
+                        </PaginationItem>
+
+                        {Array.from({ length: totalPages }, (_, i) => {
+                            const pageNum = i + 1;
+                            // Show limited page numbers to avoid cluttering
+                            if (
+                                pageNum === 1 ||
+                                pageNum === totalPages ||
+                                (pageNum >= currentPage - 2 && pageNum <= currentPage + 2)
+                            ) {
+                                return (
+                                    <PaginationItem key={pageNum}>
+                                        <PaginationLink
+                                            href={`/admin/${tabId}?page=${pageNum}`}
+                                            isActive={pageNum === currentPage}
+                                        >
+                                            {pageNum}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                );
+                            }
+                            // Add ellipsis for skipped pages
+                            if (pageNum === currentPage - 3 || pageNum === currentPage + 3) {
+                                return (
+                                    <PaginationItem key={`ellipsis-${pageNum}`}>
+                                        <span className="px-4">...</span>
+                                    </PaginationItem>
+                                );
+                            }
+                            return null;
+                        })}
+
+                        <PaginationItem>
+                            <PaginationNext
+                                href={currentPage < totalPages ? `/admin/${tabId}?page=${currentPage + 1}` : "#"}
+                                className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            </div>
+        );
+    };
 
     // Function to render user list
-    const renderUserList = (users: any[], totalUserPages: number, currentPage: number, tabId: string) => (
+    const renderUserList = (users: any[], totalPages: number, currentPage: number) => (
         <>
             <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
                 {users.length > 0 ? (
                     users.map((user) => (
-                        <div key={user.id} className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all">
-                            <Link href={`/home/viewuser/${user.name}`} className="inline-block w-9/11 ">
-                                <div
-                                    className={` flex items-center cursor-pointer`}
-                                >
+                        <div
+                            key={user.id}
+                            className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all"
+                        >
+                            <Link
+                                href={`/home/viewuser/${user.name}`}
+                                className="inline-block w-9/11 "
+                            >
+                                <div className={` flex items-center cursor-pointer`}>
                                     <div className="mr-4 flex-shrink-0">
                                         {user?.image ? (
                                             <Image
@@ -148,117 +217,129 @@ export default async function AdminPage({
                                                 alt={`de profielfoto van ${user.name}`}
                                                 width={40}
                                                 height={40}
-                                                className="rounded-full" />
+                                                className="rounded-full"
+                                            />
                                         ) : (
-                                            <Jdenticon
-                                                value={user?.name}
-                                                size={40} />
+                                            <Jdenticon value={user?.name} size={40} />
                                         )}
                                     </div>
                                     <div className="flex flex-col flex-1">
                                         <h3 className="font-medium text-lg">
-
                                             {user.name}
                                             {user.id === currentUserId ? " (jij)" : ""}
                                             {user?.role === "admin" ? " (admin)" : ""}
                                             <span> </span>
-                                            {user?.forumAllowed ? "" : <span className="text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm bg-yellow-900 text-yellow-300">Forum banned</span>}
-                                            {user?.loginAllowed ? "" : <span className="text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm bg-red-900 text-red-300">Banned</span>}
+                                            {user?.forumAllowed ? (
+                                                ""
+                                            ) : (
+                                                <span className="text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm bg-yellow-900 text-yellow-300">
+                                                    Forum banned
+                                                </span>
+                                            )}
+                                            {user?.loginAllowed ? (
+                                                ""
+                                            ) : (
+                                                <span className="text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm bg-red-900 text-red-300">
+                                                    Banned
+                                                </span>
+                                            )}
                                         </h3>
                                         <span>
-                                            {user.forumAllowed ? "" : ` reden: ${user.forumBanReason || "geen reden opgegeven"}`}
+                                            {user.forumAllowed
+                                                ? ""
+                                                : ` reden: ${user.forumBanReason || "geen reden opgegeven"
+                                                }`}
                                             {!user.forumAllowed && !user.loginAllowed ? ", " : ""}
-                                            {!user.loginAllowed && user.forumAllowed ? " reden: " : ""}
-                                            {user.loginAllowed ? "" : `${user.banReason || "geen reden opgegeven"}`}
-
+                                            {!user.loginAllowed && user.forumAllowed
+                                                ? " reden: "
+                                                : ""}
+                                            {user.loginAllowed
+                                                ? ""
+                                                : `${user.banReason || "geen reden opgegeven"}`}
                                         </span>
                                     </div>
-
                                 </div>
                             </Link>
                             <div className="inline-block w-1/11 text-right">
-                                {!user.forumAllowed ? <BanButton userId={user.id} text="unban van forum" platform={false} unban={true} /> : <BanButton userId={user.id} text="ban van forum" platform={false} unban={false} />}
+                                {!user.forumAllowed ? (
+                                    <BanButton
+                                        userId={user.id}
+                                        text="unban van forum"
+                                        platform={false}
+                                        unban={true}
+                                    />
+                                ) : (
+                                    <BanButton
+                                        userId={user.id}
+                                        text="ban van forum"
+                                        platform={false}
+                                        unban={false}
+                                    />
+                                )}
                             </div>
                             <div className="inline-block w-1/11 text-right">
-                                {!user.loginAllowed ? <BanButton userId={user.id} text="unban van platform" platform={true} unban={true} /> : <BanButton userId={user.id} text="ban van platform" platform={true} unban={false} />}
+                                {!user.loginAllowed ? (
+                                    <BanButton
+                                        userId={user.id}
+                                        text="unban van platform"
+                                        platform={true}
+                                        unban={true}
+                                    />
+                                ) : (
+                                    <BanButton
+                                        userId={user.id}
+                                        text="ban van platform"
+                                        platform={true}
+                                        unban={false}
+                                    />
+                                )}
                             </div>
                         </div>
                     ))
                 ) : (
                     <div className="p-8 text-center text-gray-400">
                         hoe tf ben jij hier gekomen?
-
                     </div>
                 )}
             </div>
 
-            {totalUserPages > 1 && (
-                <div className="mt-4 flex justify-center">
-                    <Pagination>
-                        <PaginationPrevious>
-                            {currentPage > 1 ? (
-                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage - 1}`}>Vorige</Link>
-                            ) : (
-                                <span className="text-gray-400">Vorige</span>
-                            )}
-                        </PaginationPrevious>
-                        {/* Render page numbers */}
-                        <PaginationContent>
-                            {Array.from({ length: totalUserPages }, (_, i) => {
-                                const pageNum = i + 1;
-                                return (
-                                    <PaginationItem key={pageNum}>
-                                        <PaginationLink
-                                            href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${pageNum}`}
-                                            isActive={pageNum === currentPage}
-                                        >
-                                            {pageNum}
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                );
-                            })}
-                        </PaginationContent>
-                        <PaginationNext>
-                            {currentPage === totalUserPages ? (
-                                <span className="text-gray-400">Volgende</span>
-                            ) : (
-                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage + 1}`}>Volgende</Link>
-                            )}
-                        </PaginationNext>
-                    </Pagination>
-                </div>
-            )}
+            {renderPagination(totalPages, currentPage, "gebruikers")}
         </>
     );
-    const renderListsList = (lists: any[], totalListPages: number, currentPage: number, tabId: string) => (
+
+    const renderListsList = (lists: any[], totalPages: number, currentPage: number) => (
         <>
             <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
                 {lists.length > 0 ? (
                     lists.map((list) => (
-                        <div key={list.list_id} className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all">
-                            <Link href={`/learn/viewlist/${list.list_id}`} className="inline-block w-9/10 ">
-                                <div
-                                    className={` flex items-center cursor-pointer`}
-                                >
+                        <div
+                            key={list.list_id}
+                            className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all"
+                        >
+                            <Link
+                                href={`/learn/viewlist/${list.list_id}`}
+                                className="inline-block w-9/10 "
+                            >
+                                <div className={` flex items-center cursor-pointer`}>
                                     <div className="mr-4 flex-shrink-0">
                                         {list?.subject ? (
                                             <Image
-                                                src={getSubjectIcon(list.subject) || "/default-icon.svg"}
+                                                src={
+                                                    getSubjectIcon(list.subject) || "/default-icon.svg"
+                                                }
                                                 alt={`${list.subject} icon`}
                                                 width={40}
                                                 height={40}
-                                                className="rounded-full" />
-                                        ) : ""}
+                                                className="rounded-full"
+                                            />
+                                        ) : (
+                                            ""
+                                        )}
                                     </div>
                                     <div className="flex flex-col flex-1">
-                                        <h3 className="font-medium text-lg">
-                                            {list.name}
-                                        </h3>
-                                        <span>
-                                            door {list.creator}
-                                        </span>
+                                        <h3 className="font-medium text-lg">{list.name}</h3>
+                                        <span>door {list.creator}</span>
                                     </div>
-
                                 </div>
                             </Link>
                             <div className="inline-block w-1/10 ">
@@ -277,72 +358,40 @@ export default async function AdminPage({
                 )}
             </div>
 
-            {totalUserPages > 1 && (
-                <div className="mt-4 flex justify-center">
-                    <Pagination>
-                        <PaginationPrevious>
-                            {currentPage > 1 ? (
-                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage - 1}`}>Vorige</Link>
-                            ) : (
-                                <span className="text-gray-400">Vorige</span>
-                            )}
-                        </PaginationPrevious>
-                        {/* Render page numbers */}
-                        <PaginationContent>
-                            {Array.from({ length: totalUserPages }, (_, i) => {
-                                const pageNum = i + 1;
-                                return (
-                                    <PaginationItem key={pageNum}>
-                                        <PaginationLink
-                                            href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${pageNum}`}
-                                            isActive={pageNum === currentPage}
-                                        >
-                                            {pageNum}
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                );
-                            })}
-                        </PaginationContent>
-                        <PaginationNext>
-                            {currentPage === totalUserPages ? (
-                                <span className="text-gray-400">Volgende</span>
-                            ) : (
-                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage + 1}`}>Volgende</Link>
-                            )}
-                        </PaginationNext>
-                    </Pagination>
-                </div>
-            )}
+            {renderPagination(totalPages, currentPage, "lijsten")}
         </>
     );
-    const renderGroupList = (groepn: any[], totalListPages: number, currentPage: number, tabId: string) => (
+
+    const renderGroupList = (groepen: any[], totalPages: number, currentPage: number) => (
         <>
             <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
-                {groepn.length > 0 ? (
-                    groepn.map((groep) => (
-                        <div key={groep.groupId} className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex row">
-                            <Link href={`/learn/group/${groep.groupId}`} className="inline-block w-9/10 ">
-                                <div
-                                    className={` flex items-center cursor-pointer`}
-                                >
+                {groepen.length > 0 ? (
+                    groepen.map((groep) => (
+                        <div
+                            key={groep.groupId}
+                            className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex row"
+                        >
+                            <Link
+                                href={`/learn/group/${groep.groupId}`}
+                                className="inline-block w-9/10 "
+                            >
+                                <div className={` flex items-center cursor-pointer`}>
                                     <div className="mr-4 flex-shrink-0">
                                         <Jdenticon value={groep?.name as string} size={70} />
                                     </div>
                                     <div className="flex flex-col flex-1">
-                                        <h3 className="font-medium text-lg">
-                                            {groep.name}
-                                        </h3>
+                                        <h3 className="font-medium text-lg">{groep.name}</h3>
                                         <span>
-                                            {groep.description} | door {prisma.user.findFirst({ where: { id: groep.creator } }).then(user => user?.name)}
+                                            {groep.description} | door{" "}
+                                            {prisma.user
+                                                .findFirst({ where: { id: groep.creator } })
+                                                .then((user) => user?.name)}
                                         </span>
                                     </div>
-
                                 </div>
                             </Link>
                             <div className="inline-block w-1/10 ">
-                                <DeleteGroupButton
-                                    groupId={groep.groupId}
-                                />
+                                <DeleteGroupButton groupId={groep.groupId} />
                             </div>
                         </div>
                     ))
@@ -353,42 +402,7 @@ export default async function AdminPage({
                 )}
             </div>
 
-            {totalUserPages > 1 && (
-                <div className="mt-4 flex justify-center">
-                    <Pagination>
-                        <PaginationPrevious>
-                            {currentPage > 1 ? (
-                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage - 1}`}>Vorige</Link>
-                            ) : (
-                                <span className="text-gray-400">Vorige</span>
-                            )}
-                        </PaginationPrevious>
-                        {/* Render page numbers */}
-                        <PaginationContent>
-                            {Array.from({ length: totalUserPages }, (_, i) => {
-                                const pageNum = i + 1;
-                                return (
-                                    <PaginationItem key={pageNum}>
-                                        <PaginationLink
-                                            href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${pageNum}`}
-                                            isActive={pageNum === currentPage}
-                                        >
-                                            {pageNum}
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                );
-                            })}
-                        </PaginationContent>
-                        <PaginationNext>
-                            {currentPage === totalUserPages ? (
-                                <span className="text-gray-400">Volgende</span>
-                            ) : (
-                                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage + 1}`}>Volgende</Link>
-                            )}
-                        </PaginationNext>
-                    </Pagination>
-                </div>
-            )}
+            {renderPagination(totalPages, currentPage, "groepen")}
         </>
     );
 
@@ -396,33 +410,27 @@ export default async function AdminPage({
         {
             id: "gebruikers",
             label: "Gebruikers",
-            content: renderUserList(userslist, totalUserPages, page, "gebruikers"),
+            content: renderUserList(userslist, totalUserPages, page),
         },
         {
             id: "lijsten",
             label: "Lijsten",
-            content: renderListsList(listslist, listTotal, page, "lijsten"),
+            content: renderListsList(listslist, totalListPages, page),
         },
         {
             id: "groepen",
             label: "Groepen",
-            content: renderGroupList(groupList, groupTotal, page, "groepen"),
-        }
+            content: renderGroupList(groupList, totalGroupPages, page),
+        },
     ];
+
     let banned = false;
     if (!user!.forumAllowed || !user!.loginAllowed) {
         banned = true;
     }
 
     // Determine the base route dynamically
-    // This extracts everything before the last segment which would be the tab ID
     let baseRoute = "/admin";
-
-    // If we have a tab in the params, we're already at a subroute
-    if (params?.tab && params.tab.length > 0) {
-        // We're in a route like /home/forum/[tab] - the base path is everything before the tab
-        baseRoute = "/admin";
-    }
 
     return (
         <>
@@ -436,7 +444,7 @@ export default async function AdminPage({
                     tabs={tabs}
                     defaultActiveTab={defaultActiveTab}
                     withRoutes={true}
-                    baseRoute={baseRoute} // Use dynamically derived base route
+                    baseRoute={baseRoute}
                 />
             </div>
         </>
