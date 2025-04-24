@@ -16,16 +16,7 @@ import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
 import JoinGroupButton from "@/components/groups/JoinGroupButton";
 
-// Subject images
-import nsk_img from '@/app/img/nask.svg'
-import math_img from '@/app/img/math.svg'
-import eng_img from '@/app/img/english.svg'
-import fr_img from '@/app/img/baguette.svg'
-import de_img from '@/app/img/pretzel.svg'
-import nl_img from '@/app/img/nl.svg'
-import gs_img from '@/app/img/history.svg'
-import bi_img from '@/app/img/bio.svg'
-import ak_img from '@/app/img/geography.svg'
+import { getSubjectIcon } from "@/components/icons"
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import AddListDialog from "@/components/groups/AddListDialog";
 import Button1 from "@/components/button/Button1";
@@ -137,15 +128,7 @@ export default async function Page({
                         {list.subject && (
                           <Image
                             src={
-                              list.subject === "NL" ? nl_img :
-                                list.subject === "DE" ? de_img :
-                                  list.subject === "FR" ? fr_img :
-                                    list.subject === "EN" ? eng_img :
-                                      list.subject === "WI" ? math_img :
-                                        list.subject === "NSK" ? nsk_img :
-                                          list.subject === "AK" ? ak_img :
-                                            list.subject === "GS" ? gs_img :
-                                              list.subject === "BI" ? bi_img : ''
+                              getSubjectIcon(list.subject)
                             }
                             alt={`${list.subject} icon`}
                             width={24}

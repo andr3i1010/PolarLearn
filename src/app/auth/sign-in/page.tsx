@@ -37,7 +37,7 @@ export default async function SignInPage() {
 
     const sessionCookie = (await cookies()).get('polarlearn.session-id');
     if (!sessionCookie?.value) {
-        return "oeps, er is iets mis gegaan";
+        return loginPage;
     }
     let user = await getUserFromSession(sessionCookie.value)
     if (sessionCookie && user?.loginAllowed) {
