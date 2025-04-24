@@ -11,16 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 
 import Image from "next/image";
-import nsk_img from '@/app/img/nask.svg';
-import math_img from '@/app/img/math.svg';
-import eng_img from '@/app/img/english.svg';
-import fr_img from '@/app/img/baguette.svg';
-import de_img from '@/app/img/pretzel.svg';
-import nl_img from '@/app/img/nl.svg';
-import ak_img from '@/app/img/geography.svg';
-import gs_img from '@/app/img/history.svg';
-import bi_img from '@/app/img/bio.svg';
-
+import { icons, getSubjectIcon, getSubjectName } from "@/components/icons";
 import learn from '@/app/img/learn.svg';
 import test from '@/app/img/test.svg';
 import hints from '@/app/img/hint.svg';
@@ -28,37 +19,6 @@ import mind from '@/app/img/mind.svg';
 import livequiz from '@/app/img/livequiz.svg';
 
 import construction from '@/app/img/construction.gif';
-
-// Component to display the appropriate subject icon
-
-// Alternative implementation using the custom SVG images
-// Uncomment and use this if you prefer the custom SVG images
-
-const SubjectIconWithSVG = ({ subject }: { subject: string }) => {
-    const iconClass = "h-8 w-8 inline-block mr-2";
-
-    switch (subject?.toUpperCase()) {
-        case 'WI':  // Wiskunde
-            return <Image src={math_img} alt="Wiskunde" width={30} height={30} className={iconClass} />;
-        case 'NSK': // NaSk
-            return <Image src={nsk_img} alt="NaSk" width={30} height={30} className={iconClass} />;
-        case 'AK':  // Aardrijkskunde
-            return <Image src={ak_img} alt="Aardrijkskunde" width={30} height={30} className={iconClass} />;
-        case 'FR':  // Frans
-            return <Image src={fr_img} alt="Frans" width={30} height={30} className={iconClass} />;
-        case 'EN':  // Engels
-            return <Image src={eng_img} alt="Engels" width={30} height={30} className={iconClass} />;
-        case 'DE':  // Duits
-            return <Image src={de_img} alt="Duits" width={30} height={30} className={iconClass} />;
-        case 'NL':  // Nederlands
-            return <Image src={nl_img} alt="Nederlands" width={30} height={30} className={iconClass} />;
-        case 'GS':  // Geschiedenis
-            return <Image src={gs_img} alt="Geschiedenis" width={30} height={30} className={iconClass} />;
-        case 'BI':  // Biologie
-            return <Image src={bi_img} alt="Biologie" width={30} height={30} className={iconClass} />;
-        default: return null;
-    }
-};
 
 interface PageParams {
     params: {
@@ -122,35 +82,13 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
     // Check if the subject is a language
     const isLanguageSubject = ['NL', 'EN', 'FR', 'DE'].includes(subject.toUpperCase());
 
-    // Get language names for display
-    const getLanguageName = (code: string) => {
-        switch (code?.toUpperCase()) {
-            case 'NL': return 'Nederlands';
-            case 'EN': return 'Engels';
-            case 'FR': return 'Frans';
-            case 'DE': return 'Duits';
-            default: return code;
-        }
-    };
-
-    // Get language icon based on language code
-    const getLanguageIcon = (code: string) => {
-        switch (code?.toUpperCase()) {
-            case 'NL': return nl_img;
-            case 'EN': return eng_img;
-            case 'FR': return fr_img;
-            case 'DE': return de_img;
-            default: return null;
-        }
-    };
-
     // From and To language info
-    const fromLanguage = listData?.lang_from ? getLanguageName(listData.lang_from) : '';
-    const toLanguage = listData?.lang_to ? getLanguageName(listData.lang_to) : '';
+    const fromLanguage = listData?.lang_from ? getSubjectName(listData.lang_from) : '';
+    const toLanguage = listData?.lang_to ? getSubjectName(listData.lang_to) : '';
 
     // Get language icons
-    const fromLanguageIcon = listData?.lang_from ? getLanguageIcon(listData.lang_from) : null;
-    const toLanguageIcon = listData?.lang_to ? getLanguageIcon(listData.lang_to) : null;
+    const fromLanguageIcon = listData?.lang_from ? getSubjectIcon(listData.lang_from) : null;
+    const toLanguageIcon = listData?.lang_to ? getSubjectIcon(listData.lang_to) : null;
 
     // Handle the word pairs data - could be already an object or a JSON string
     let wordPairs: WordPair[] = [];
@@ -322,7 +260,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             <div className="px-4 py-4">
                 <div className="flex items-center justify-between">
                     <h1 className="text-4xl font-bold flex items-center gap-2">
-                        <SubjectIconWithSVG subject={subject} />
+                        <Image src={getSubjectIcon(subject)} alt="vak icon" width={30} height={30} className={"h-8 w-8 inline-block mr-2"} />
                         <span className="whitespace-normal break-words max-w-[40ch]">{listData?.name}</span>
                         {isUnpublished && (
                             <Badge
@@ -358,7 +296,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                     <div className="flex-row flex items-center">
                         <p>Gemaakt door:</p>
                         <div className="w-2" />
-                        <Link className="text-sky-400" href={`/home/viewuser/${listData?.creator}`}>{listData?.creator}</Link>
+                        <Link className="text-sky-400" href={`/home/viewuser/${(await prisma.user.findFirst({ where: { id: listData?.creator } }))?.name}`}>{(await prisma.user.findFirst({ where: { id: listData?.creator } }))?.name}</Link>
                     </div>
 
                     <div className="relative h-12">

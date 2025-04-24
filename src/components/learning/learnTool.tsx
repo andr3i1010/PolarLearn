@@ -9,7 +9,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import check from '@/app/img/check.svg';
 import wrong from '@/app/img/wrong.svg';
 import Button1 from "@/components/button/Button1";
-import { useRouter } from 'next/router';
 
 // Memoize the question display component
 const QuestionDisplay = memo(({ question }: { question: string }) => (
@@ -308,43 +307,6 @@ const LearnTool = ({
     setShowGedachtenOverlay(true);
   }, [lijstData]);
 
-  // Completely rewrite gedachten mode handlers to avoid any possibility of showing other overlays
-  const handleGedachtenCorrect = useCallback(() => {
-    if (!lijstData.length) return;
-
-    // First dismiss the overlay
-    setShowGedachtenOverlay(false);
-
-    // Call the onCorrectAnswer callback
-    if (onCorrectAnswer) onCorrectAnswer();
-    updateProgress();
-
-    // Use setTimeout to ensure state changes don't interfere with each other
-    setTimeout(() => {
-      const [_, ...rest] = lijstData;
-      // Move directly to the next question without triggering any other overlays
-      setLijstData(shuffleArray(rest));
-    }, 50);
-  }, [lijstData, shuffleArray, onCorrectAnswer, updateProgress]);
-
-  const handleGedachtenIncorrect = useCallback(() => {
-    if (!lijstData.length) return;
-
-    // First dismiss the overlay
-    setShowGedachtenOverlay(false);
-
-    // Call the onWrongAnswer callback
-    if (onWrongAnswer) onWrongAnswer();
-    updateProgress();
-
-    // Use setTimeout to ensure state changes don't interfere with each other
-    setTimeout(() => {
-      const [huidigeVraag, ...rest] = lijstData;
-      // Move the question to the end without triggering any other overlays
-      setLijstData([...rest, huidigeVraag]);
-    }, 50);
-  }, [lijstData, onWrongAnswer, updateProgress]);
-
   // Use useMemo for derived calculations
   const getOptionText = useCallback((buttonNumber: number, correctAnswer: string): string => {
     if (randomNumber === buttonNumber) {
@@ -435,8 +397,6 @@ const LearnTool = ({
               />
             </div>
           )}
-
-          {/* Add rendering for learn mode */}
           {mode === "learn" && (
             <div className="flex gap-2 mt-4 w-full max-w-md">
               <Button1

@@ -3,7 +3,6 @@ import Jdenticon from "@/components/Jdenticon";
 import { prisma } from "@/utils/prisma";
 import Tabs, { TabItem } from "@/components/Tabs";
 import Image from "next/image";
-import construction from '@/app/img/construction.gif';
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { PlusIcon, PencilIcon } from "lucide-react";
@@ -11,38 +10,20 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import CreatorLink from "@/components/links/CreatorLink";
 import { getGroupLists } from "@/serverActions/groupActions";
-import { Button } from "@/components/ui/button";
 import { Trash, AlertTriangle } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
 import JoinGroupButton from "@/components/groups/JoinGroupButton";
-import MemberApprovalButton from "@/components/groups/MemberApprovalButton";
-import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
 
-// Subject images
-import nsk_img from '@/app/img/nask.svg'
-import math_img from '@/app/img/math.svg'
-import eng_img from '@/app/img/english.svg'
-import fr_img from '@/app/img/baguette.svg'
-import de_img from '@/app/img/pretzel.svg'
-import nl_img from '@/app/img/nl.svg'
-import gs_img from '@/app/img/history.svg'
-import bi_img from '@/app/img/bio.svg'
-import ak_img from '@/app/img/geography.svg'
+import { getSubjectIcon } from "@/components/icons"
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import AddListDialog from "@/components/groups/AddListDialog";
 import Button1 from "@/components/button/Button1";
 
-// Improved function to fetch user details for members
+// Add this new function to fetch user details for members
 async function getGroupMembersDetails(memberIds: string[]) {
-  // Create a memberMap regardless of input
-  const memberMap = new Map();
-
-  if (!memberIds.length) {
-    // Return consistent structure even when empty
-    return { members: [], memberMap };
-  }
+  if (!memberIds.length) return [];
 
   // Fetch user details for all members
   const members = await prisma.user.findMany({
@@ -59,13 +40,7 @@ async function getGroupMembersDetails(memberIds: string[]) {
     }
   });
 
-  // Create a lookup map for quick access
-  members.forEach(member => {
-    memberMap.set(member.id, member);
-    if (member.name) memberMap.set(member.name, member);
-  });
-
-  return { members, memberMap };
+  return members;
 }
 
 export default async function Page({
@@ -83,10 +58,16 @@ export default async function Page({
 
   // Get current user with complete information
   const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+  if (!currentUser) {
+    return <div className="text-center text-neutral-400">Je moet ingelogd zijn om deze pagina te bekijken.</div>;
+  }
 
   // Track both ID and name to handle different storage formats
-  const currentUserId = currentUser?.id || '';
-  const currentUserName = currentUser?.name || '';
+  const currentUserId = currentUser.id;
+  const currentUserName = currentUser.name;
+  if (!currentUserId || !currentUserName) {
+    return <div className="text-center text-neutral-400">Je moet ingelogd zijn om deze pagina te bekijken.</div>;
+  }
 
   // Check if user is creator or member of the group (using ID comparison)
   const members = groupData?.members as string[] || [];
@@ -105,19 +86,9 @@ export default async function Page({
   // Get lists that are in the group
   const groupLists = await getGroupLists(id);
 
-  // Get members details for display with improved approach
+  // Get members details for display
   const memberIds = groupData?.members as string[] || [];
-  const pendingMembers = groupData?.toBeApproved as string[] || [];
-  const { members: membersDetails, memberMap } = await getGroupMembersDetails([...memberIds, ...pendingMembers]);
-
-  // Function to get a user-friendly display name
-  const getDisplayName = (userId: string) => {
-    const member = memberMap.get(userId);
-    return member?.name || "Gebruiker";  // Default to "User" instead of showing UUID
-  };
-
-  // Check for pending membership
-  const isPendingApproval = pendingMembers.includes(currentUserId) || pendingMembers.includes(currentUserName);
+  const membersDetails = await getGroupMembersDetails(memberIds);
 
   // Define tabs for this page
   const tabs: TabItem[] = [
@@ -157,15 +128,7 @@ export default async function Page({
                         {list.subject && (
                           <Image
                             src={
-                              list.subject === "NL" ? nl_img :
-                                list.subject === "DE" ? de_img :
-                                  list.subject === "FR" ? fr_img :
-                                    list.subject === "EN" ? eng_img :
-                                      list.subject === "WI" ? math_img :
-                                        list.subject === "NSK" ? nsk_img :
-                                          list.subject === "AK" ? ak_img :
-                                            list.subject === "GS" ? gs_img :
-                                              list.subject === "BI" ? bi_img : ''
+                              getSubjectIcon(list.subject)
                             }
                             alt={`${list.subject} icon`}
                             width={24}
@@ -228,43 +191,6 @@ export default async function Page({
       label: "Leden",
       content: (
         <div className="mt-4 p-4">
-          {/* Show pending members section for admins/creators */}
-          {(isAdmin || isCreator) && pendingMembers.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-xl font-bold mb-3">Goedkeuring nodig ({pendingMembers.length})</h2>
-              <div className="space-y-3">
-                {pendingMembers.map((memberId) => {
-                  const displayName = getDisplayName(memberId);
-
-                  return (
-                    <div key={`pending-${memberId}`} className="p-4 bg-neutral-800 hover:bg-neutral-700 transition-colors rounded-lg flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Jdenticon value={displayName} size={40} />
-                        <div className="ml-4">
-                          <div className="font-medium flex items-center">
-                            {displayName}
-                            <Badge className="ml-3 bg-orange-600/20 text-orange-500 border border-orange-600/50">
-                              Wachtend op goedkeuring
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <MemberApprovalButton
-                          groupId={id}
-                          memberId={memberId}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          <h2 className="text-xl font-bold mb-3">Leden ({memberIds.length})</h2>
-
           {memberIds.length === 0 ? (
             <div className="bg-neutral-800 text-neutral-400 text-center p-6 rounded-lg">
               Deze groep heeft nog geen leden.
@@ -272,7 +198,11 @@ export default async function Page({
           ) : (
             <div className="space-y-3">
               {memberIds.map((memberId) => {
-                const displayName = getDisplayName(memberId);
+                // Find user details if available
+                const memberDetails = membersDetails.find(m =>
+                  m.id === memberId || m.name === memberId
+                );
+                const displayName = memberDetails?.name || memberId;
 
                 // Check roles
                 const isGroupAdmin = Array.isArray(groupData?.admins) ?
@@ -316,11 +246,9 @@ export default async function Page({
                               />
                             )}
                             <span className="text-neutral-600">|</span>
-                            <RemoveMemberButton
-                              groupId={id}
-                              memberId={memberId}
-                              memberName={displayName}
-                            />
+                            <button className="text-sm text-red-400 hover:text-red-300 transition-colors">
+                              Verwijderen
+                            </button>
                           </>
                         )}
                       </div>
@@ -334,7 +262,7 @@ export default async function Page({
       ),
     },
     // Add a settings tab that's only visible to admins and creators
-    ...(isAdmin || isCreator ? [{
+    ...(isAdmin || isCreator || currentUser?.role == "admin" ? [{
       id: "settings",
       label: "Instellingen",
       content: (
@@ -353,7 +281,7 @@ export default async function Page({
           </div>
 
           {/* Danger zone (only visible to creator) */}
-          {isCreator && (
+          {isCreator || currentUser?.role == "admin" && (
             <div className="mt-8 border border-red-500/20 rounded-lg p-6">
               <div className="flex items-start">
                 <AlertTriangle className="text-red-500 mr-4 h-6 w-6 flex-shrink-0 mt-1" />
@@ -378,29 +306,20 @@ export default async function Page({
     <div className="flex flex-col p-4">
       <section className="flex flex-col">
         <div className="flex flex-row space-x-2 items-center justify-between">
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
             <Jdenticon value={groupData?.name as string} size={70} />
-            <div className="flex flex-col">
-              <h1 className="font-extrabold text-4xl">{groupData?.name}</h1>
-              <p>{groupData?.description}</p>
-            </div>
+            <h1 className="font-extrabold text-4xl">{groupData?.name}</h1>
           </div>
 
-          {/* Add join button for non-members or show pending status */}
+          {/* Add join button for non-members */}
           {currentUser && !isMember && (
-            isPendingApproval ? (
-              <div className="text-orange-500 bg-orange-500/10 px-4 py-2 rounded-md border border-orange-500/30 font-medium">
-                Wachtend op goedkeuring
-              </div>
-            ) : (
-              <JoinGroupButton
-                groupId={id}
-                requiresApproval={groupData?.requiresApproval === true}
-              />
-            )
+            <JoinGroupButton
+              groupId={id}
+              requiresApproval={groupData?.requiresApproval === true}
+            />
           )}
         </div>
-
+        <p className="pl-20">{groupData?.description}</p>
       </section>
       <hr className="flex-grow border-neutral-600 mt-2" />
 
