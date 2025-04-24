@@ -49,3 +49,6 @@ spam.bash
 .gitignore
 install/mongo/*
 mongo/*
+
+# Sentry Config File
+.env.sentry-build-plugin
