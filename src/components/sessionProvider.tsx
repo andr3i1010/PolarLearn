@@ -35,7 +35,7 @@ export default function SessionProvider({
 
             if (response.status === 401) {
                 setIsAuthenticated(false);
-                // router.push("/auth/sign-in");
+                router.push("/auth/sign-in");
                 return false;
             }
 
