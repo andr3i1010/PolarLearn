@@ -2,6 +2,7 @@
 
 import { useEffect, useState, createContext, useContext, ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface SessionContextType {
     isAuthenticated: boolean;
@@ -32,7 +33,7 @@ export default function SessionProvider({
         try {
             const response = await fetch("/api/auth/check-session");
 
-            if (!response.ok) {
+            if (response.status === 401) {
                 setIsAuthenticated(false);
                 router.push("/auth/sign-in");
                 return false;

@@ -6,13 +6,13 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 // Define JsonValue type to handle JSON data
-type JsonValue = 
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: JsonValue }
-  | JsonValue[];
+type JsonValue =
+    | string
+    | number
+    | boolean
+    | null
+    | { [key: string]: JsonValue }
+    | JsonValue[];
 
 // Helper type for the list data conversion
 type Pair = {
@@ -46,10 +46,13 @@ export default async function EditListPage({
         return notFound();
     }
 
-    // Check if the current user is the creator of the list
+    // Check if the current user is the creator of the list or an admin
     if (listFromDb.creator !== currentUser?.name) {
-        // Redirect to view page if user doesn't have permission to edit
-        redirect(`/learn/viewlist/${listId}`);
+        if (currentUser?.role !== "admin") {
+
+            // Redirect to view page if user doesn't have permission to edit
+            redirect(`/learn/viewlist/${listId}`);
+        }
     }
 
     // Convert the list data to the expected format

@@ -250,7 +250,7 @@ export default async function ForumHome({
             const isPostCreator =
               currentUserId === post.creator ||
               currentUsername === post.creator ||
-              (user?.name && currentUsername === user.name);
+              (user?.name && currentUsername === user.name) || session?.role === "admin";
 
             return (
               <div key={post.post_id} className="relative">
@@ -447,7 +447,7 @@ Veel leerplezier! 🚀
     },
   ];
   let banned = false;
-  if (!user!.forumAllowed || !user!.loginAllowed) {
+  if (!user!.forumAllowed) {
     banned = true;
   }
 

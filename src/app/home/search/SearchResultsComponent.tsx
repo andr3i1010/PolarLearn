@@ -215,7 +215,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
                                     <CreatorLink creator={list.creatorName || list.creator} />
                                 </div>
-                                {list.creator === currentUserName && (
+                                {(list.creator === currentUserName || currentUser?.role === "admin") && (
                                     <div className="flex items-center gap-2">
                                         <Link
                                             href={`/learn/editlist/${list.list_id}`}
