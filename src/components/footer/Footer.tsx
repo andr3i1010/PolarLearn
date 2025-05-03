@@ -24,7 +24,7 @@ export default async function Footer() {
     (await cookies()).get("polarlearn.session-id")?.value as string
   );
   return (
-    <footer className="w-full bg-neutral-800 pt-4 pb-8 drop-shadow-xl font-[family-name:var(--font-geist-sans)] mt-auto max-w-screen-xl mx-auto flex flex-row px-4">
+    <footer className="w-full bg-neutral-800 pt-4 pb-8 drop-shadow-xl font-[family-name:var(--font-geist-sans)] mt-auto max-w-screen-xl mx-auto flex flex-col md:flex-row px-4">
       <div>
         <div className="flex flex-row items-center space-x-4 w-min">
           <Image src={pl500} width={50} height={50} alt="PolarLearn logo" />
@@ -32,7 +32,7 @@ export default async function Footer() {
             PolarLearn
           </p>
         </div>
-        <div className="mt-2 flex flex-row items-start space-x-8 w-80">
+        <div className="mt-2 flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-8 w-full">
           <div className="flex flex-col space-y-2">
             <div className="flex items-center space-x-2">
               <FontAwesomeIcon
@@ -52,8 +52,8 @@ export default async function Footer() {
           </div>
         </div>
       </div>
-      <div className="flex flex-row justify-start pl-8 pt-2 w-full space-x-4">
-        <div className="w-40 flex flex-col items-center">
+      <div className="flex flex-col md:flex-row justify-start md:pl-8 pt-4 md:pt-2 space-y-4 md:space-y-0 md:space-x-4">
+        <div className="w-full md:w-40 flex flex-col items-center">
           <h1 className="font-extrabold text-3xl">Socials</h1>
           <hr className="w-full border-t-2 border-neutral-600 my-1" />
           <div className="flex flex-col items-center space-y-2 mt-2">
@@ -118,7 +118,7 @@ export default async function Footer() {
             </a>
           </div>
         </div>
-        <div className="w-50 flex flex-col items-center">
+        <div className="flex flex-col items-center">
           <h1 className="font-extrabold text-3xl">Snelle Links</h1>
           <hr className="w-full border-t-2 border-neutral-600 my-1" />
           <div className="flex flex-col items-center space-y-2 mt-2">
@@ -145,8 +145,14 @@ export default async function Footer() {
               href="https://github.com/polarnl/PolarLearn/issues"
               target="_blank"
               rel="noopener noreferrer"
-            >Bug melden</a>
-            {user?.role === "admin" ? (<Button1 text="Admin" redirectTo="/admin" />) : ""}
+            >
+              Bug melden
+            </a>
+            {user?.role === "admin" ? (
+              <Button1 text="Admin" redirectTo="/admin" />
+            ) : (
+              ""
+            )}
           </div>
         </div>
       </div>
