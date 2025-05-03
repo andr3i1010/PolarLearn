@@ -10,30 +10,7 @@ import { getAvailableLists, addListToGroup } from "@/serverActions/groupActions"
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Button1 from "../button/Button1";
-
-// Subject images
-import nsk_img from '@/app/img/nask.svg'
-import math_img from '@/app/img/math.svg'
-import eng_img from '@/app/img/english.svg'
-import fr_img from '@/app/img/baguette.svg'
-import de_img from '@/app/img/pretzel.svg'
-import nl_img from '@/app/img/nl.svg'
-import gs_img from '@/app/img/history.svg'
-import bi_img from '@/app/img/bio.svg'
-import ak_img from '@/app/img/geography.svg'
-
-// Map subject codes to images
-const subjectImages: { [key: string]: any } = {
-    "NL": nl_img,
-    "DE": de_img,
-    "FR": fr_img,
-    "EN": eng_img,
-    "WI": math_img,
-    "NSK": nsk_img,
-    "AK": ak_img,
-    "GS": gs_img,
-    "BI": bi_img
-};
+import { getSubjectIcon } from "@/components/icons";
 
 interface List {
     list_id: string;
@@ -228,9 +205,9 @@ export default function AddListDialog({ groupId, children }: AddListDialogProps)
                                         className="flex items-center justify-between p-3 rounded-lg bg-neutral-800 hover:bg-neutral-700"
                                     >
                                         <div className="flex items-center gap-3">
-                                            {list.subject && subjectImages[list.subject] && (
+                                            {list.subject && getSubjectIcon(list.subject) && (
                                                 <Image
-                                                    src={subjectImages[list.subject]}
+                                                    src={getSubjectIcon(list.subject)}
                                                     alt={list.subject}
                                                     width={24}
                                                     height={24}
@@ -259,7 +236,7 @@ export default function AddListDialog({ groupId, children }: AddListDialogProps)
                                             onClick={() => handleAddList(list.list_id)}
                                             disabled={isSubmitting !== null}
                                             text="Toevoegen"
-                                            icon={isSubmitting === list.list_id ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlusIcon className="h-4 w-4" /> }
+                                            icon={isSubmitting === list.list_id ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlusIcon className="h-4 w-4" />}
                                         />
                                     </div>
                                 ))}

@@ -1,12 +1,10 @@
 import ViewUserPage from '../page';
-import { unstable_noStore as noStore } from 'next/cache';
 
 export default async function ViewUserRoute({
     params,
 }: {
     params: Promise<{ name: string; tab: string[] }>;
 }) {
-    noStore(); // Disable caching
 
     // We need to await the params since it's a Promise in Next.js route handlers
     const { name, tab } = await params;

@@ -8,51 +8,9 @@ import { PencilIcon } from "lucide-react";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import CreatorLink from "@/components/links/CreatorLink";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
-
-// Import subject icons
-import nsk_img from '@/app/img/nask.svg';
-import math_img from '@/app/img/math.svg';
-import eng_img from '@/app/img/english.svg';
-import fr_img from '@/app/img/baguette.svg';
-import de_img from '@/app/img/pretzel.svg';
-import nl_img from '@/app/img/nl.svg';
-import ak_img from '@/app/img/geography.svg';
-import gs_img from '@/app/img/history.svg';
-import bi_img from '@/app/img/bio.svg';
+import { getSubjectIcon, getSubjectName } from "@/components/icons";
 import construction from '@/app/img/construction.gif';
 import { Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal } from "react";
-
-// Function to get the appropriate icon for each subject
-const getSubjectIcon = (subjectCode: string) => {
-    switch (subjectCode) {
-        case "NL": return nl_img;
-        case "FR": return fr_img;
-        case "EN": return eng_img;
-        case "DE": return de_img;
-        case "WI": return math_img;
-        case "NSK": return nsk_img;
-        case "AK": return ak_img;
-        case "GS": return gs_img;
-        case "BI": return bi_img;
-        default: return null;
-    }
-};
-
-// Function to get the full subject name
-const getSubjectName = (subjectCode: string) => {
-    switch (subjectCode) {
-        case "NL": return "Nederlands";
-        case "FR": return "Frans";
-        case "EN": return "Engels";
-        case "DE": return "Duits";
-        case "WI": return "Wiskunde";
-        case "NSK": return "NaSk";
-        case "AK": return "Aardrijkskunde";
-        case "GS": return "Geschiedenis";
-        case "BI": return "Biologie";
-        default: return subjectCode;
-    }
-};
 
 export default async function Page({ params }: { params: Promise<{ subject: string; tab?: string }> }) {
     // Await the Promise to get the actual params
