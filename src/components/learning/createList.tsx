@@ -521,7 +521,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
             placeholder="Lijstnaam komt hier"
           />
           <div className="mt-4 flex justify-center gap-4">
-            <div className="w-1/2 z-0 ml-52">
+            <div className="w-1/2 z-0 md:ml-52">
               <Dropdown
                 ref={vanDropdownRef}
                 text="Van.."
@@ -531,7 +531,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 onChange={(selected) => setSelectedTaal(selected)}
               />
             </div>
-            <div className="w-1/2 pl-28">
+            <div className="w-1/2 md:pl-28">
               <Dropdown
                 ref={naarDropdownRef}
                 text="Naar.."
