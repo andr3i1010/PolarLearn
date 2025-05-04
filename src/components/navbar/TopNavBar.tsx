@@ -403,28 +403,30 @@ export const TopNavBar = memo(function TopNavBar() {
                         <ExpandedSearchBar />
                     ) : (
                         <>
-                            {/* Mobile menu button */}
-                            <button
-                                className="md:hidden ml-auto p-2 rounded-full hover:bg-neutral-800"
-                                onClick={() => setIsMobileMenuOpen(true)}
-                            >
-                                <Menu size={24} />
-                            </button>
-
-                            {/* Mobile search button */}
-                            <button
-                                className="md:hidden p-2 rounded-full hover:bg-neutral-800 mr-2"
-                                onClick={handleExpandSearch}
-                            >
-                                <Search size={24} />
-                            </button>
-
                             {/* Desktop navigation */}
                             {displayConditions.showNavLinks && (
-                                <NavigationLinks
-                                    pathname={pathname}
-                                    onExpandSearch={handleExpandSearch}
-                                />
+                                <>
+                                    {/* Mobile menu button */}
+                                    <button
+                                        className="md:hidden ml-auto p-2 rounded-full hover:bg-neutral-800"
+                                        onClick={() => setIsMobileMenuOpen(true)}
+                                    >
+                                        <Menu size={24} />
+                                    </button>
+
+                                    {/* Mobile search button */}
+                                    <button
+                                        className="md:hidden p-2 rounded-full hover:bg-neutral-800 mr-2"
+                                        onClick={handleExpandSearch}
+                                    >
+                                        <Search size={24} />
+                                    </button>
+                                    <NavigationLinks
+                                        pathname={pathname}
+                                        onExpandSearch={handleExpandSearch}
+                                    />
+                                    {displayConditions.showLoginButton && <LoginButton />}
+                                </>
                             )}
                             {displayConditions.showLoginButton && <LoginButton />}
                         </>
@@ -433,7 +435,7 @@ export const TopNavBar = memo(function TopNavBar() {
             </nav>
 
             {/* Mobile menu */}
-            <MobileMenu
+            < MobileMenu
                 isOpen={isMobileMenuOpen}
                 onClose={() => setIsMobileMenuOpen(false)}
                 pathname={pathname}
