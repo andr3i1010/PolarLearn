@@ -581,6 +581,23 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                             type="text"
                             placeholder={isLanguage ? "Woord in het Nederlands" : "Begrip"}
                           />
+                          <input
+                            value={pair["2"]}
+                            onChange={(e) => handleSecondInputChange(pair.id, e.target.value)}
+                            onFocus={() => {
+                              setSelectedPairId(pair.id);
+                              setSelectedInput('secondInput');
+                              const trimmedWord = pair["1"].trim();
+                              if (trimmedWord.length > 0) {
+                                getTranslation(pair["1"], selectedLanguage).then(translatedText => {
+                                  setTranslations(prev => ({ ...prev, [pair.id]: translatedText }));
+                                });
+                              }
+                            }}
+                            className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
+                            type="text"
+                            placeholder={isLanguage ? "Vertaling" : "Uitleg van het begrip"}
+                          />
                           <div className="flex flex-row items-center gap-2">
                             <div
                               className="cursor-grab"
@@ -632,23 +649,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                               </svg>
                             </button>
                           </div>
-                          <input
-                            value={pair["2"]}
-                            onChange={(e) => handleSecondInputChange(pair.id, e.target.value)}
-                            onFocus={() => {
-                              setSelectedPairId(pair.id);
-                              setSelectedInput('secondInput');
-                              const trimmedWord = pair["1"].trim();
-                              if (trimmedWord.length > 0) {
-                                getTranslation(pair["1"], selectedLanguage).then(translatedText => {
-                                  setTranslations(prev => ({ ...prev, [pair.id]: translatedText }));
-                                });
-                              }
-                            }}
-                            className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
-                            type="text"
-                            placeholder={isLanguage ? "Vertaling" : "Uitleg van het begrip"}
-                          />
                         </div>
                         {translations[pair.id] && selectedPairId === pair.id && selectedInput === 'secondInput' && (
                           <div className="mt-2 border-t border-neutral-600 pt-2 flex justify-end">
