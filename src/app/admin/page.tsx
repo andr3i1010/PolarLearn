@@ -338,7 +338,7 @@ export default async function AdminPage({
                                     </div>
                                     <div className="flex flex-col flex-1">
                                         <h3 className="font-medium text-lg">{list.name}</h3>
-                                        <span>door {list.creator}</span>
+                                        <span>door {userMapById[list.creator]?.name}</span>
                                     </div>
                                 </div>
                             </Link>
