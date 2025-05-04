@@ -143,7 +143,7 @@ const LearnToolHeader = ({
             <div className="w-full bg-neutral-800 p-3 flex items-center justify-between sticky top-0 z-100 border-b border-neutral-700">
                 {/* Left side: Method dropdown and back button */}
                 <div className="flex items-center gap-3">
-                    <div className="relative learn-dropdown">
+                    <div className="relative learn-dropdown hidden md:block">
                         <Dropdown
                             text={getMethodDisplayText()}
                             dropdownMatrix={learningMethods}
@@ -184,7 +184,7 @@ const LearnToolHeader = ({
 
                     <Link
                         href="/home/start"
-                        className="flex items-center justify-center h-8 w-8 bg-neutral-700 hover:bg-neutral-600 transition-colors rounded-full"
+                        className="flex items-center justify-center h-8 w-8 bg-neutral-700 hover:bg-neutral-600 transition-colors rounded-full hidden md:block"
                     >
                         <X className="h-5 w-5" />
                     </Link>
