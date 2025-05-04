@@ -572,33 +572,36 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                       >
                         <div className="flex flex-row items-center gap-2">
                           <span className="text-white mr-2 text-xl">{index + 1}</span>
-                          <input
-                            value={pair["1"]}
-                            onChange={(e) => handleWordChange(pair.id, e.target.value)}
-                            onFocus={() => { setSelectedPairId(pair.id); setSelectedInput('word'); }}
-                            onBlur={() => { if (selectedInput !== 'translationButton') { setSelectedPairId(null); setSelectedInput(null); } }}
-                            className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pr-4 text-xl"
-                            type="text"
-                            placeholder={isLanguage ? "Woord in het Nederlands" : "Begrip"}
-                          />
-                          <input
-                            value={pair["2"]}
-                            onChange={(e) => handleSecondInputChange(pair.id, e.target.value)}
-                            onFocus={() => {
-                              setSelectedPairId(pair.id);
-                              setSelectedInput('secondInput');
-                              const trimmedWord = pair["1"].trim();
-                              if (trimmedWord.length > 0) {
-                                getTranslation(pair["1"], selectedLanguage).then(translatedText => {
-                                  setTranslations(prev => ({ ...prev, [pair.id]: translatedText }));
-                                });
-                              }
-                            }}
-                            className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
-                            type="text"
-                            placeholder={isLanguage ? "Vertaling" : "Uitleg van het begrip"}
-                          />
-                          <div className="flex flex-row items-center gap-2">
+
+                          <div className="flex flex-col md:flex-row items-center gap-2 w-full">
+                            <input
+                              value={pair["1"]}
+                              onChange={(e) => handleWordChange(pair.id, e.target.value)}
+                              onFocus={() => { setSelectedPairId(pair.id); setSelectedInput('word'); }}
+                              onBlur={() => { if (selectedInput !== 'translationButton') { setSelectedPairId(null); setSelectedInput(null); } }}
+                              className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pr-4 text-xl"
+                              type="text"
+                              placeholder={isLanguage ? "Woord in het Nederlands" : "Begrip"}
+                            />
+                            <input
+                              value={pair["2"]}
+                              onChange={(e) => handleSecondInputChange(pair.id, e.target.value)}
+                              onFocus={() => {
+                                setSelectedPairId(pair.id);
+                                setSelectedInput('secondInput');
+                                const trimmedWord = pair["1"].trim();
+                                if (trimmedWord.length > 0) {
+                                  getTranslation(pair["1"], selectedLanguage).then(translatedText => {
+                                    setTranslations(prev => ({ ...prev, [pair.id]: translatedText }));
+                                  });
+                                }
+                              }}
+                              className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
+                              type="text"
+                              placeholder={isLanguage ? "Vertaling" : "Uitleg van het begrip"}
+                            />
+                          </div>
+                          <div className="flex flex-col md:flex-row items-center">
                             <div
                               className="cursor-grab"
                               {...dragListeners}
