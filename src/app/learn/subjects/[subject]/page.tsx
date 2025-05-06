@@ -81,12 +81,12 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
     );
 
     // Sort practiced lists according to when they were practiced (most recent first)
-    const sortedPracticedLists = practicedLists.sort((a, b) => {
+    const sortedPracticedLists = practicedLists.sort((a: { list_id: string | number; }, b: { list_id: string | number; }) => {
         return recentListIdPositions[a.list_id] - recentListIdPositions[b.list_id];
     });
 
     // Find lists created by current user for this subject
-    const myLists = currentUserName ? lists.filter(list => list.creator === currentUserName) : [];
+    const myLists = currentUserName ? lists.filter((list: { creator: any; }) => list.creator === currentUserName) : [];
 
     // Fetch forum posts for this subject
     const forumPosts = await prisma.forum.findMany({
@@ -112,7 +112,7 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
     const replyCountMap: Record<string, number> = {};
 
     if (forumPosts.length > 0) {
-        const postIds = forumPosts.map(post => post.post_id);
+        const postIds = forumPosts.map((post: { post_id: any; }) => post.post_id);
         const replyCounts = await prisma.forum.groupBy({
             by: ['post_id'],
             where: {
@@ -124,13 +124,13 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
             }
         });
 
-        replyCounts.forEach(item => {
+        replyCounts.forEach((item: { post_id: string | number; _count: { post_id: number; }; }) => {
             replyCountMap[item.post_id] = item._count.post_id;
         });
     }
 
     // Get user names for creators
-    const creatorIds = forumPosts.map(post => post.creator);
+    const creatorIds = forumPosts.map((post: { creator: any; }) => post.creator);
     const creators = creatorIds.length > 0 ?
         await prisma.user.findMany({
             where: { id: { in: creatorIds } },
@@ -139,8 +139,10 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
 
     // Create a map of user IDs to names
     const creatorNameMap: Record<string, string> = {};
-    creators.forEach(user => {
-        creatorNameMap[user.id] = user.name as string;
+    creators.forEach((user: { id: string; name: string | null; }) => {
+        if (user.name) {
+            creatorNameMap[user.id] = user.name;
+        }
     });
 
     // Define tabs for this page
@@ -194,7 +196,7 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
                                                 </Link>
                                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
                                                     <DeleteListButton
-                                                        listId={list.list_id}
+                                                        listId={String(list.list_id)}
                                                         isCreator={list.creator === currentUserName}
                                                     />
                                                 </div>
@@ -261,7 +263,7 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
                                             </Link>
                                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
                                                 <DeleteListButton
-                                                    listId={list.list_id}
+                                                    listId={String(list.list_id)}
                                                     isCreator={true}
                                                 />
                                             </div>

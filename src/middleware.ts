@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { decodeCookie } from '@/utils/auth/session';
 import { prisma } from '@/utils/prisma';
-import crypto from 'node:crypto';
 
 export async function middleware(request: NextRequest) {
     const nonce = Buffer.from(crypto.randomUUID()).toString('base64')

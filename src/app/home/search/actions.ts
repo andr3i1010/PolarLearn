@@ -35,7 +35,7 @@ export async function searchContent(query: string) {
         });
 
         // Get unique creator IDs from forum posts
-        const creatorIds = [...new Set(forumPosts.map(post => post.creator))];
+        const creatorIds = [...new Set(forumPosts.map((post: { creator: any; }) => post.creator))];
 
         // Look up usernames for these IDs
         const users = await prisma.user.findMany({
@@ -52,15 +52,15 @@ export async function searchContent(query: string) {
         });
 
         // Create a lookup map of user IDs to usernames
-        const userMap = users.reduce((map, user) => {
-            if (user.id) map[user.id] = user.name || 'Onbekend';
+        const userMap = users.reduce((map: Record<string, string>, user: { id: string | number; name: string | null; }) => {
+            if (user.id) map[String(user.id)] = user.name || 'Onbekend';
             return map;
         }, {} as Record<string, string>);
 
         // Enhance forum posts with creator usernames
-        const enhancedForumPosts = forumPosts.map(post => ({
+        const enhancedForumPosts = forumPosts.map((post: { creator: string | number; }) => ({
             ...post,
-            creatorName: userMap[post.creator] || post.creator // Fallback to ID if no username found
+            creatorName: userMap[String(post.creator)] || post.creator // Fallback to ID if no username found
         }));
 
         return { lists, forumPosts: enhancedForumPosts };

@@ -387,7 +387,7 @@ export default async function AdminPage({
                                             {groep.description} | Gemaakt door{" "}
                                             {prisma.user
                                                 .findFirst({ where: { id: groep.creator } })
-                                                .then((user) => user?.name)}
+                                                .then((user) => user?.name ?? "Onbekende gebruiker")}
                                         </span>
                                     </div>
                                 </div>
