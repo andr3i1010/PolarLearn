@@ -48,3 +48,6 @@ public/sw*
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# BELANGERIJK NIET VERWIJDEREN DIT IS VOOR DE DB ALS JE DE INSTALLER GEBRUIKT
+install/mongo/*
