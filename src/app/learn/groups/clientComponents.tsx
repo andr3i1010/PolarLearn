@@ -39,8 +39,8 @@ const groupFormSchema = z.object({
         .optional()
         .or(z.literal(''))
         .transform(val => val === '' ? undefined : val),
-    isPublic: z.boolean().default(true),
-    canEveryoneAddLists: z.boolean().default(false),
+    isPublic: z.boolean(),
+    canEveryoneAddLists: z.boolean(),
 });
 
 type GroupFormValues = z.infer<typeof groupFormSchema>;
