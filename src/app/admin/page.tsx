@@ -260,40 +260,42 @@ export default async function AdminPage({
                                     </div>
                                 </div>
                             </Link>
-                            <div className="inline-block w-1/11 text-right">
-                                {!user.forumAllowed ? (
-                                    <BanButton
-                                        userId={user.id}
-                                        text="unban van forum"
-                                        platform={false}
-                                        unban={true}
-                                    />
-                                ) : (
-                                    <BanButton
-                                        userId={user.id}
-                                        text="ban van forum"
-                                        platform={false}
-                                        unban={false}
-                                    />
-                                )}
-                            </div>
-                            <div className="inline-block w-1/11 text-right">
-                                {!user.loginAllowed ? (
-                                    <BanButton
-                                        userId={user.id}
-                                        text="unban van platform"
-                                        platform={true}
-                                        unban={true}
-                                    />
-                                ) : (
-                                    <BanButton
-                                        userId={user.id}
-                                        text="ban van platform"
-                                        platform={true}
-                                        unban={false}
-                                    />
-                                )}
-                            </div>
+                            {user.role !== 'admin' && (
+                                <>
+                                    <div className="inline-block w-1/11 text-right">
+                                        {!user.forumAllowed ? (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="unban van forum"
+                                                platform={false}
+                                                unban={true}
+                                            />
+                                        ) : (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="ban van forum"
+                                                platform={false}
+                                                unban={false}
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="inline-block w-1/11 text-right">
+                                        {!user.loginAllowed ? (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="unban van platform"
+                                                platform={true}
+                                                unban={true}
+                                            />
+                                        ) : (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="ban van platform"
+                                                platform={true}
+                                                unban={false}
+                                            />
+                                        )}
+                                    </div></>)}
                         </div>
                     ))
                 ) : (
