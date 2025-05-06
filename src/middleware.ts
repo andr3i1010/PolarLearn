@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
     const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
     const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.cloudflare.com;
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.cloudflare.com ${process.env.NEXT_PUBLIC_URL};
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data:;
     font-src 'self';
