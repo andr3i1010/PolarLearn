@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { getUserFromSession } from '@/utils/auth/auth';
 import { redirect } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
+import { JsonValue } from '@prisma/client/runtime/library';
 
 export async function createListAction(listData: {
 	listId?: string;  // Optional listId for updates
@@ -23,7 +24,7 @@ export async function createListAction(listData: {
 	}
 
 	try {
-		let result;
+		let result: { name: string; id: string; createdAt: Date; updatedAt: Date; list_id: string; mode: string; subject: string; lang_from: string; lang_to: string; data: JsonValue; creator: string; published: boolean; };
 		const isAutosave = listData.autosave === true;
 
 		// If listId is provided, update an existing list
@@ -108,7 +109,12 @@ export async function createListAction(listData: {
 						created_lists: [
 							...(currentListData.created_lists || []),
 							result.list_id
-						]
+						],
+						// Also add to recent_lists to ensure it shows up on the home page
+						recent_lists: [
+							result.list_id,
+							...(currentListData.recent_lists || []).filter((id: any) => id !== result.list_id)
+						].slice(0, 10) // Keep only the 10 most recent lists
 					};
 
 					// Update the user record

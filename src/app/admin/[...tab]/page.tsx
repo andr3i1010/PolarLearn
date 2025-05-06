@@ -4,6 +4,8 @@ import AdminPage from '../page';
 // ik haat typescript
 // ik haat typescript
 // uuren verspilt aan typescript: 1
+
+// same bro
 export default async function ViewUserRoute({
     params,
     searchParams,
