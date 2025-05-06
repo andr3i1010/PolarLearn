@@ -37,7 +37,8 @@ const nextConfig: NextConfig = {
   experimental: {
     nodeMiddleware: true,
     ppr: 'incremental'
-  }
+  },
+  productionBrowserSourceMaps: true
 };
 
 // Only apply Sentry config in production

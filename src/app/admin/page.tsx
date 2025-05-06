@@ -340,7 +340,7 @@ export default async function AdminPage({
                                     </div>
                                     <div className="flex flex-col flex-1">
                                         <h3 className="font-medium text-lg">{list.name}</h3>
-                                        <span>door {userMapById[list.creator]?.name}</span>
+                                        <span>Gemaakt door {userMapById[list.creator]?.name}</span>
                                     </div>
                                 </div>
                             </Link>
@@ -384,7 +384,7 @@ export default async function AdminPage({
                                     <div className="flex flex-col flex-1">
                                         <h3 className="font-medium text-lg">{groep.name}</h3>
                                         <span>
-                                            {groep.description} | door{" "}
+                                            {groep.description} | Gemaakt door{" "}
                                             {prisma.user
                                                 .findFirst({ where: { id: groep.creator } })
                                                 .then((user) => user?.name)}

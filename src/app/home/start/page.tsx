@@ -54,8 +54,9 @@ async function getRecentLists() {
         ...(combinedListIds.length > 0 ? [{
           list_id: { in: combinedListIds }
         }] : []),
-        // Also include lists created by this user
-        { creator: user.name as string }
+        // Check for creator being either username or user ID
+        { creator: user.name as string },
+        { creator: user.id }
       ]
     }
   });
