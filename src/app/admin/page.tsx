@@ -46,7 +46,7 @@ export default async function AdminPage({
             <div className="flex flex-col items-center justify-center h-screen">
                 <Image
                     src={require("@/app/admin/ga_weg.png")}
-                    alt="aardige man"
+                    alt="aardige man" // vind ik ook
                     width={300}
                     height={300}
                     className="mb-4"
@@ -129,15 +129,6 @@ export default async function AdminPage({
         },
         {} as Record<string, UserInfo>
     );
-
-    const userMapByName = users.reduce(
-        (acc: Record<string, UserInfo>, user: UserInfo) => {
-            if (user.name) acc[user.name] = user;
-            return acc;
-        },
-        {} as Record<string, UserInfo>
-    );
-
     // Function to render pagination
     const renderPagination = (totalPages: number, currentPage: number, tabId: string) => {
         if (totalPages <= 1) return null;
@@ -198,6 +189,7 @@ export default async function AdminPage({
     // Function to render user list
     const renderUserList = (users: any[], totalPages: number, currentPage: number) => (
         <>
+            <h1 className="font-extrabold text-2xl pb-4 ">{totalUsers} gebruikers in db</h1>
             <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
                 {users.length > 0 ? (
                     users.map((user) => (
@@ -311,6 +303,7 @@ export default async function AdminPage({
 
     const renderListsList = (lists: any[], totalPages: number, currentPage: number) => (
         <>
+            <h1 className="font-extrabold text-2xl py-4">{} lijsten in db</h1>
             <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
                 {lists.length > 0 ? (
                     lists.map((list) => (
@@ -425,11 +418,6 @@ export default async function AdminPage({
             content: renderGroupList(groupList, totalGroupPages, page),
         },
     ];
-
-    let banned = false;
-    if (!user!.forumAllowed || !user!.loginAllowed) {
-        banned = true;
-    }
 
     // Determine the base route dynamically
     let baseRoute = "/admin";

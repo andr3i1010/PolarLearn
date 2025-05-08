@@ -21,26 +21,28 @@ const QuestionDisplay = memo(({ question }: { question: string }) => (
 const AnswerOverlay = memo(({ correct, answer }: { correct: boolean; answer?: string }) => (
   <motion.div
     className={`absolute z-50 bottom-0 left-0 right-0 flex items-center justify-center ${correct ? "bg-green-700" : "bg-red-700"
-      } text-white h-20 rounded-lg text-2xl font-extrabold`}
+      } text-white rounded-lg text-2xl font-extrabold max-h-[60vh]`}
     initial={{ y: "100%" }}
     animate={{ y: "0%" }}
     exit={{ y: "100%" }}
     transition={{ duration: 0.4, ease: "easeOut" }}
   >
-    {correct ? (
-      <>
-        <Image src={check} width={40} height={40} alt="check icon" className="mr-4" />
-        Correct!
-      </>
-    ) : (
-      <div className="flex items-center px-4 max-w-full">
-        <Image src={wrong} width={40} height={40} alt="wrong icon" className="mr-4 flex-shrink-0" />
-        <div className="overflow-hidden">
-          <span>Verkeerd! het antwoord was </span>
-          <span className="pl-1 font-extrabold truncate block max-w-[calc(100vw-180px)]">{answer}</span>
+    <div className="w-full py-4 max-h-[inherit] overflow-y-auto">
+      {correct ? (
+        <div className="flex items-center justify-center">
+          <Image src={check} width={40} height={40} alt="check icon" className="mr-4" />
+          Correct!
         </div>
-      </div>
-    )}
+      ) : (
+        <div className="flex flex-col md:flex-row items-start px-4 w-full py-2">
+          <Image src={wrong} width={40} height={40} alt="wrong icon" className="mr-4 flex-shrink-0 mb-2 md:mb-0 mt-1" />
+          <div className="w-full text-center md:text-left">
+            <span>Verkeerd! het antwoord was </span>
+            <span className="pl-1 font-extrabold break-words">{answer}</span>
+          </div>
+        </div>
+      )}
+    </div>
   </motion.div>
 ));
 
@@ -52,39 +54,37 @@ const GedachtenOverlay = memo(({ answer, onCorrect, onIncorrect }: {
 }) => (
   <motion.div
     className="absolute z-50 bottom-0 left-0 right-0 flex flex-col items-center justify-center 
-    bg-blue-500 text-white rounded-lg p-4 text-xl"
+    bg-blue-500 text-white rounded-lg max-h-[60vh]"
     initial={{ y: "100%" }}
     animate={{ y: "0%" }}
     exit={{ y: "100%" }}
     transition={{ duration: 0.4, ease: "easeOut" }}
   >
-    <div className="flex items-center px-4 max-w-full mb-3">
-      <div className="overflow-hidden text-center">
-        <span>Het antwoord was </span>
-        <span className="pl-1 font-extrabold block">{answer}</span>
-        <span className="mt-2 block">Had je het goed?</span>
+    <div className="w-full p-4 max-h-[inherit] overflow-y-auto">
+      <div className="flex flex-col items-center px-4 max-w-full mb-3">
+        <div className="overflow-hidden text-center">
+          <span>Het antwoord was </span>
+          <span className="pl-1 font-extrabold block break-words">{answer}</span>
+          <span className="mt-2 block">Had je het goed?</span>
+        </div>
       </div>
-    </div>
-    <div className="flex gap-3 mt-2">
-      <Button1
-        onClick={onCorrect}
-        text="Ja"
-      />
-      <Button1
-        onClick={onIncorrect}
-        text="Nee"
-      />
+      <div className="flex gap-3 mt-2 justify-center">
+        <Button1
+          onClick={onCorrect}
+          text="Ja"
+        />
+        <Button1
+          onClick={onIncorrect}
+          text="Nee"
+        />
+      </div>
     </div>
   </motion.div>
 ));
 
 // Memoize the multi-choice button component
 const MultiChoiceButton = memo(({
-  onClick,
-  isCorrect,
-  optionNumber,
-  text,
-  disabled
+  onClick, isCorrect, optionNumber, text, disabled
 }: {
   onClick: () => void,
   isCorrect: boolean,
@@ -92,38 +92,32 @@ const MultiChoiceButton = memo(({
   text: string,
   disabled: boolean
 }) => {
-  const isTruncated = text.length > 60;
-  const displayText = isTruncated ? text.substring(0, 60) + "..." : text;
-  const shouldShowTooltip = isTruncated && !disabled;
-
+  const needsClamp = text.length > 40;
   return (
-    <div className="relative p-1.5 transform-gpu">
-      {shouldShowTooltip ? (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="w-full">
-                <Button1
-                  onClick={onClick}
-                  disabled={disabled}
-                  text={displayText}
-                  className="w-full h-auto text-sm"
-                />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="bg-neutral-900 border border-neutral-700 text-white max-w-xs text-xs">
+    <div className="relative transform-gpu h-full w-full">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="w-full h-full">
+              <Button1
+                onClick={onClick}
+                disabled={disabled}
+                text={text}
+                wrapText={needsClamp}
+                textClassName="text-sm"
+                className="w-full border border-neutral-700"
+              />
+            </div>
+          </TooltipTrigger>
+          {needsClamp && (
+            <TooltipContent
+              className="z-[999] bg-neutral-900 border border-neutral-700 text-white max-w-xs text-xs p-2 whitespace-normal break-words"
+            >
               {text}
             </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ) : (
-        <Button1
-          onClick={onClick}
-          disabled={disabled}
-          text={displayText}
-          className="w-full h-auto text-sm"
-        />
-      )}
+          )}
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 });
@@ -335,7 +329,7 @@ const LearnTool = ({
   }, [randomNumber, lijstDataOud]);
 
   return (
-    <div className='bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] rounded-lg flex flex-col justify-center overflow-hidden p-4'>
+    <div className='bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-[60vh] rounded-lg flex flex-col justify-center overflow-hidden p-4'>
       {initialMappedData.length === 0 ? (
         <div className="text-center text-white p-4">
           Lijst niet gevonden
@@ -376,14 +370,15 @@ const LearnTool = ({
           {mode === "multikeuze" && (
             <div className="grid grid-cols-2 gap-2 w-full max-w-md mt-2">
               {Array.from({ length: 4 }).map((_, index) => (
-                <MultiChoiceButton
-                  key={index}
-                  onClick={() => handleAntwoordmultikeuze(randomNumber === index + 1)}
-                  isCorrect={randomNumber === index + 1}
-                  optionNumber={index + 1}
-                  text={getOptionText(index + 1, lijstData[0]?.antwoord || "")}
-                  disabled={isAnswering}
-                />
+                <div key={index} className="h-auto min-h-[80px]">
+                  <MultiChoiceButton
+                    onClick={() => handleAntwoordmultikeuze(randomNumber === index + 1)}
+                    isCorrect={randomNumber === index + 1}
+                    optionNumber={index + 1}
+                    text={getOptionText(index + 1, lijstData[0]?.antwoord || "")}
+                    disabled={isAnswering}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -409,8 +404,8 @@ const LearnTool = ({
 
           {mode === "hints" && (
             <div className="w-full max-w-md">
-              <div className="p-4 bg-neutral-700 rounded-lg text-center mb-4">
-                <span className="font-extrabold">Hint: {getHint(lijstData[0]?.antwoord || "")}</span>
+              <div className="p-4 bg-neutral-700 rounded-lg text-center mb-4 max-h-[120px] overflow-y-auto">
+                <span className="font-extrabold break-words whitespace-pre-wrap">Hint: {getHint(lijstData[0]?.antwoord || "")}</span>
               </div>
               <Input
                 type="text"

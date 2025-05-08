@@ -11,6 +11,8 @@ interface ButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   icon?: ReactNode; // Add only the icon parameter
+  wrapText?: boolean; // Add wrapText parameter
+  textClassName?: string; // Add textClassName parameter
 }
 
 // Add missing cn utility if not available in your project
@@ -27,7 +29,9 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
   useClNav,
   onClick,
   disabled = false,
-  icon // Add icon parameter
+  icon, // Add icon parameter
+  wrapText = false, // Add wrapText parameter
+  textClassName // Add textClassName parameter
 }) {
   // Use useCallback to memoize the click handler
   const handleClick = useCallback(() => {
@@ -57,6 +61,14 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
     disabled && "cursor-not-allowed"
   );
 
+  // Text styling classes - add wrap/clamp option
+  const textClasses = cn(
+    wrapText
+      ? "whitespace-normal break-words line-clamp-2 overflow-hidden"
+      : "whitespace-nowrap truncate",
+    textClassName
+  );
+
   // Optimize rendering based on link type
   if (useClNav === true && redirectTo && !disabled) {
     return (
@@ -68,7 +80,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
             className="w-full rounded transition-all duration-300 bg-neutral-800 text-white font-bold py-2 px-4 text-center flex items-center justify-center"
           >
             {icon && <span className="mr-2">{icon}</span>}
-            {text}
+            <span className={textClasses}>{text}</span>
           </Link>
         </div>
       </div>
@@ -84,7 +96,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
           disabled={disabled}
           className={buttonClasses + " flex items-center justify-center"}>
           {icon && <span className="mr-2">{icon}</span>}
-          {text}
+          <span className={textClasses}>{text}</span>
         </button>
       </div>
     </div>

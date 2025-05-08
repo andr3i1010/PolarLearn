@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
     script-src 'self' 'unsafe-inline' 'unsafe-eval' ${process.env.NEXT_PUBLIC_URL} https://*.cloudflare.com https://*.sentry.io;
     worker-src 'self' blob:;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data:;
+    img-src 'self' blob: data: *;
     font-src 'self';
     object-src 'none';
     base-uri 'self';
