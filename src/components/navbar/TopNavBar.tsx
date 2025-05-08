@@ -317,7 +317,7 @@ export const TopNavBar = memo(function TopNavBar() {
     // Use useMemo for display conditions to prevent recalculations on every render
     const displayConditions = useMemo(() => {
         const showOnViewList = pathname.startsWith('/learn/viewlist');
-        const showOnSubjects = pathname.startsWith('/learn/subjects');
+        const showOnSubjects = pathname.startsWith('/learn/subject') || pathname === "/learn/subjects";
         const hideOnCreateList = pathname === "/home/createlist";
         const showOnHomeRoutes = pathname === "/" || pathname.startsWith("/home");
         const isSearchRoute = pathname.startsWith('/home/search');

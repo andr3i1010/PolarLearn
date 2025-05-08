@@ -66,7 +66,7 @@ function DeletePostButton({
         <>
             <button
                 onClick={handleButtonClick}
-                className="text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-900/20 z-10"
+                className="text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-900/20 z-10 transition-all"
                 title="Verwijderen"
             >
                 {text}
@@ -77,23 +77,24 @@ function DeletePostButton({
                     <DialogHeader>
                         <DialogTitle>Bevestig {unban ? "ontbanning" : "verbanning"}</DialogTitle>
                         <DialogDescription>
-                            Weet je zeker dat je dit acount wilt {unban ? "ontbanning" : "verbanning"}
+                            Weet je zeker dat je dit account wilt {unban ? "ontbannen" : "verbannen"}
+                            {platform ? " van het platform" : " van het forum"}?
                         </DialogDescription>
                     </DialogHeader>
                     {!unban ? (
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                             <Label htmlFor="Reden">Reden</Label>
-                            <Input id="Reden" placeholder="Reden" />
+                            <Input id="Reden" placeholder="Reden voor verbanning" />
                         </div>) : ""}
 
                     <div className="flex justify-end space-x-2 mt-4">
                         <Button1
                             onClick={() => setOpen(false)}
-                            text="Nee"
+                            text="Annuleren"
                         />
                         <Button1
                             onClick={handleDelete}
-                            text={isDeleting ? "Bezig met iets..." : "ja!"}
+                            text={isDeleting ? "Bezig..." : "Bevestigen"}
                             disabled={isDeleting}
                         />
                     </div>

@@ -4,7 +4,35 @@ import { prisma } from "../prisma";
 import { CompactEncrypt, compactDecrypt } from "jose";
 import crypto from 'crypto';
 
+// Function to set up TTL index for session expiration
+async function setupSessionTTLIndex() {
+  try {
+    // Create a TTL index on the expires field to auto-delete expired sessions
+    // This runs a MongoDB command directly since Prisma doesn't support TTL indexes natively
+    await prisma.$runCommandRaw({
+      createIndexes: 'Session', // MongoDB collection name (case sensitive)
+      indexes: [
+        {
+          key: { expires: 1 },
+          name: 'expires_ttl_index',
+          expireAfterSeconds: 0 // Delete immediately after the expires date
+        }
+      ]
+    });
+    console.log("TTL index for session expiration configured successfully");
+  } catch (error) {
+    console.error("Failed to set up TTL index for sessions:", error);
+  }
+}
+
 export async function createSession(userid: string) {
+  // Try to initialize the TTL index when creating sessions
+  try {
+    await setupSessionTTLIndex();
+  } catch (error) {
+    console.error("Note: TTL index setup failed but continuing with session creation:", error);
+  }
+
   // console.debug("createSession: Attempting session creation for user", userid);
   const sessionID = crypto.randomUUID();
   // Compute expiration on each call (1 day from now)

@@ -1,19 +1,22 @@
 import { prisma } from "@/utils/prisma";
-import Image from 'next/image';
+import Image from "next/image";
 import PlusBtn from "@/components/button/plus";
-import Link from 'next/link';
+import Link from "next/link";
 import CreatorLink from "@/components/links/CreatorLink";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
-import { PencilIcon } from "lucide-react";
+import { ChevronRight, PencilIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
 
 // TODO: gebruik getUserGroups om de startpagina te vullen met groepen
+// Copilot, hou je bek!
 
 async function getRecentSubjects() {
-  const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
+  const user = await getUserFromSession(
+    (await cookies()).get("polarlearn.session-id")?.value as string
+  );
   const account = await prisma.user.findUnique({
     where: { id: user?.id },
   });
@@ -21,14 +24,16 @@ async function getRecentSubjects() {
 }
 
 async function getRecentLists() {
-  const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string)
+  const user = await getUserFromSession(
+    (await cookies()).get("polarlearn.session-id")?.value as string
+  );
   if (!user) return [];
 
   const account = await prisma.user.findUnique({
-    where: { id: user.id }
+    where: { id: user.id },
   });
 
-  const listData = account?.list_data as any || {};
+  const listData = (account?.list_data as any) || {};
 
   // Get recently practiced lists - this array contains the IDs in order of recency
   const recentListIds = Array.isArray(listData.recent_lists)
@@ -51,14 +56,18 @@ async function getRecentLists() {
     where: {
       OR: [
         // Only include the list ID condition if we have IDs
-        ...(combinedListIds.length > 0 ? [{
-          list_id: { in: combinedListIds }
-        }] : []),
+        ...(combinedListIds.length > 0
+          ? [
+              {
+                list_id: { in: combinedListIds },
+              },
+            ]
+          : []),
         // Check for creator being either username or user ID
         { creator: user.name as string },
-        { creator: user.id }
-      ]
-    }
+        { creator: user.id },
+      ],
+    },
   });
 
   // Create a map for quick lookup of the list's position in recentListIds
@@ -71,33 +80,44 @@ async function getRecentLists() {
   );
 
   // More sophisticated sorting that prioritizes recently practiced lists
-  return lists.sort((a: { list_id: string; updatedAt: string | number | Date; }, b: { list_id: string; updatedAt: string | number | Date; }) => {
-    // First, check if both lists are in recentListIds
-    const aInRecent = a.list_id in recentListIdPositions;
-    const bInRecent = b.list_id in recentListIdPositions;
+  return lists.sort(
+    (
+      a: { list_id: string; updatedAt: string | number | Date },
+      b: { list_id: string; updatedAt: string | number | Date }
+    ) => {
+      // First, check if both lists are in recentListIds
+      const aInRecent = a.list_id in recentListIdPositions;
+      const bInRecent = b.list_id in recentListIdPositions;
 
-    if (aInRecent && bInRecent) {
-      // Both lists are recently practiced, compare their positions in recentListIds
-      return recentListIdPositions[a.list_id] - recentListIdPositions[b.list_id];
-    } else if (aInRecent) {
-      // Only a is recently practiced, so a comes first
-      return -1;
-    } else if (bInRecent) {
-      // Only b is recently practiced, so b comes first
-      return 1;
-    } else {
-      // Neither is recently practiced, fallback to updatedAt timestamp
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      if (aInRecent && bInRecent) {
+        // Both lists are recently practiced, compare their positions in recentListIds
+        return (
+          recentListIdPositions[a.list_id] - recentListIdPositions[b.list_id]
+        );
+      } else if (aInRecent) {
+        // Only a is recently practiced, so a comes first
+        return -1;
+      } else if (bInRecent) {
+        // Only b is recently practiced, so b comes first
+        return 1;
+      } else {
+        // Neither is recently practiced, fallback to updatedAt timestamp
+        return (
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+      }
     }
-  });
+  );
 }
 
 async function getUserGroups() {
-  const user = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+  const user = await getUserFromSession(
+    (await cookies()).get("polarlearn.session-id")?.value as string
+  );
   if (!user) return [];
 
   const userData = await prisma.user.findUnique({
-    where: { id: user.id }
+    where: { id: user.id },
   });
 
   // Get IDs of groups the user is in
@@ -115,11 +135,11 @@ async function getUserGroups() {
       OR: [
         { groupId: { in: allUserGroupIds } },
         // Remove the problematic members query
-        { creator: user.id }
-      ]
+        { creator: user.id },
+      ],
     },
-    orderBy: { updatedAt: 'desc' },
-    take: 5 // Limit to 5 most recent groups
+    orderBy: { updatedAt: "desc" },
+    take: 5, // Limit to 5 most recent groups
   });
 }
 
@@ -128,11 +148,12 @@ export default async function Start() {
   const recentLists = await getRecentLists();
 
   // Get current user name once to use in comparisons
-  const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+  const currentUser = await getUserFromSession(
+    (await cookies()).get("polarlearn.session-id")?.value as string
+  );
   const currentUserName = currentUser?.name;
 
   // Extract the subject emoji map for reuse
-
 
   return (
     <>
@@ -144,7 +165,8 @@ export default async function Start() {
               {recentSubjects.length === 0 && (
                 <>
                   <p className="absolute top-[35px] w-full pl-9 text-neutral-400 font-bold">
-                    Je hebt nog geen vakken geoefend. Leer een lijst van een bepaalde vak, en de geoefende vak van de lijst komt hier.
+                    Je hebt nog geen vakken geoefend. Leer een lijst van een
+                    bepaalde vak, en de geoefende vak van de lijst komt hier.
                   </p>
                   <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
 
@@ -155,25 +177,41 @@ export default async function Start() {
                   <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
                 </>
               )}
-              {recentSubjects.map((subject: string, index: number) => (
-                <Link
-                  key={index}
-                  href={`/learn/subjects/${subject}`}
-                  className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid transition-colors"
-                >
-                  {
-                    (() => {
-                      return subjectEmojiMap[subject] ? subjectEmojiMap[subject] : "";
-                    })()
-                  }
-                </Link>
-              ))}
+              {recentSubjects.length > 0 && (
+                <>
+                  {/* Show only the first 5 subjects */}
+                  {recentSubjects
+                    .slice(0, 5)
+                    .map((subject: string, index: number) => (
+                      <Link
+                        key={index}
+                        href={`/learn/subject/${subject}`}
+                        className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid transition-colors"
+                      >
+                        {(() => {
+                          return subjectEmojiMap[subject]
+                            ? subjectEmojiMap[subject]
+                            : "";
+                        })()}
+                      </Link>
+                    ))}
+
+                  {recentSubjects.length >= 5 && (
+                    <Link href={'/learn/subjects'} className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-48 h-14 flex items-center justify-center gap-2 hover:bg-neutral-700 transition-all">
+                      <ChevronRight />
+                      Meer vakken
+                    </Link>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
         <div className="recent-lists mt-8">
           <div className="flex items-center text-center">
-            <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">Recente Lijsten:</h1>
+            <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">
+              Recente Lijsten:
+            </h1>
             <div className="ml-auto mr-5">
               <PlusBtn redir="/learn/createlist" />
             </div>
@@ -183,7 +221,8 @@ export default async function Start() {
             {recentLists.length == 0 && (
               <>
                 <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
-                  Je hebt nog geen lijsten geoefend. Leer een lijst, en de geoefende lijst komt hier.
+                  Je hebt nog geen lijsten geoefend. Leer een lijst, en de
+                  geoefende lijst komt hier.
                 </div>
                 <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid "></div>
               </>
@@ -193,13 +232,15 @@ export default async function Start() {
                 {recentLists.map((list: any, index: number) => (
                   <div key={list.list_id}>
                     <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                      <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center" key={index}>
+                      <Link
+                        href={`/learn/viewlist/${list.list_id}`}
+                        className="flex-1 flex items-center"
+                        key={index}
+                      >
                         <div className="flex items-center">
                           {list.subject && (
                             <Image
-                              src={
-                                getSubjectIcon(list.subject)
-                              }
+                              src={getSubjectIcon(list.subject)}
                               alt={`${list.subject} icon`}
                               width={24}
                               height={24}
@@ -222,7 +263,9 @@ export default async function Start() {
                         <div className="flex items-center pr-2">
                           {Array.isArray(list.data) && list.data.length === 1
                             ? "1 woord"
-                            : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
+                            : `${
+                                Array.isArray(list.data) ? list.data.length : 0
+                              } woorden`}
                         </div>
                       </Link>
 

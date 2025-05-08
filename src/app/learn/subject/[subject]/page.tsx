@@ -351,7 +351,7 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
                     tabs={tabs}
                     defaultActiveTab={tab || "practiced-lists"}
                     withRoutes={true}
-                    baseRoute={`/learn/subjects/${subject}`}
+                    baseRoute={`/learn/subject/${subject}`}
                 />
             </div>
             <div className="h-4" />
