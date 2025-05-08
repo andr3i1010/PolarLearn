@@ -6,7 +6,7 @@ import pkg from "@/../package.json";
 import { cookies } from "next/headers";
 import { getUserFromSession } from "@/utils/auth/auth";
 import Image from "next/image";
-import pl500 from "@/app/img/pl-500.png";
+import pl500 from "@/app/img/pl-500.svg";
 import kofi from "@/app/img/kofi_symbol.webp";
 import Link from "next/link";
 import Button1 from "../button/Button1";

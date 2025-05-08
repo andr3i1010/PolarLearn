@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import pl500 from '@/app/img/pl-500.png';
+import pl500 from '@/app/img/pl-500.svg';
 import SignInForm from '@/app/auth/sign-in/form';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next'

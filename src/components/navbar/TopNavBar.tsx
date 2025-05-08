@@ -2,7 +2,7 @@
 import { useMemo, memo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
-import pl500 from "@/app/img/pl-500.png";
+import pl500 from "@/app/img/pl-500.svg";
 import DropdownBtn from "@/components/button/DropdownBtn";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MoveLeft, Search, Menu, X } from "lucide-react";
