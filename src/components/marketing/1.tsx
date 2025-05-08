@@ -1,7 +1,7 @@
 "use client"
 import { motion } from "motion/react"
 import Image from "next/image"
-import pl_500 from '@/app/img/pl-500.png'
+import pl_500 from '@/app/img/pl-500.svg'
 import React from 'react';
 import Button1 from "../button/Button1";
 
@@ -35,7 +35,7 @@ export default function FirstMarketingComponent() {
                         Ouvrer
                     </div>
                     <hr className="w-full border-t border-neutral-600 mt-2 -mx-4" />
-                    <div className="h-4"/>
+                    <div className="h-4" />
                     <div className="w-full flex justify-center">
                         <input
                             className="bg-neutral-800 text-white h-12 w-3/4 rounded-lg text-center text-xl"
@@ -43,8 +43,8 @@ export default function FirstMarketingComponent() {
                             placeholder="Antwoord komt hier"
                         />
                     </div>
-                    <div className="h-4"/>
-                    <Button1 text="Inleveren"/>
+                    <div className="h-4" />
+                    <Button1 text="Inleveren" />
                 </div>
             </motion.div>
         </div>

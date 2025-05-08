@@ -1,5 +1,5 @@
 import Image from "next/image";
-import pl500 from "@/app/img/pl-500.png";
+import pl500 from "@/app/img/pl-500.svg";
 import SignUpForm from "./form";
 import ToastProvider from "../../../components/toast/toast";
 export default async function SignUpPage() {
@@ -34,10 +34,10 @@ export default async function SignUpPage() {
     </>
   );
 
-//   if (await auth()) {
-//     return redirect("/home/start");
-//   } else {
-//     return signUpPage;
-    //   }
-    return signUpPage;
+  //   if (await auth()) {
+  //     return redirect("/home/start");
+  //   } else {
+  //     return signUpPage;
+  //   }
+  return signUpPage;
 }
