@@ -44,7 +44,7 @@ next-env.d.ts
 pnpm-lock.yaml
 .pnpm*
 .gitignore
-public/sw*
+/public/sw*
 
 # Sentry Config File
 .env.sentry-build-plugin
