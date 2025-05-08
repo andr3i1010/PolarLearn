@@ -61,6 +61,7 @@
     "motion": "^12.9.7",
     "next": "15.4.0-canary.23",
     "next-pwa": "^5.6.0",
+    "next-view-transitions": "^0.3.4",
     "next-ws": "^2.0.7",
     "oauth4webapi": "^3.5.0",
     "passport-google-oauth": "^2.0.0",

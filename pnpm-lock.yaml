@@ -161,6 +161,9 @@ importers:
       next-pwa:
         specifier: ^5.6.0
         version: 5.6.0(@babel/core@7.27.1)(esbuild@0.25.4)(next@15.4.0-canary.23(@babel/core@7.27.1)(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(webpack@5.99.5(esbuild@0.25.4))
+      next-view-transitions:
+        specifier: ^0.3.4
+        version: 0.3.4(next@15.4.0-canary.23(@babel/core@7.27.1)(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next-ws:
         specifier: ^2.0.7
         version: 2.0.7(next@15.4.0-canary.23(@babel/core@7.27.1)(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(ws@8.18.2)
@@ -4689,6 +4692,13 @@ packages:
     resolution: {integrity: sha512-XV8g8C6B7UmViXU8askMEYhWwQ4qc/XqJGnexbLV68hzKaGHZDMtHsm2TNxFcbR7+ypVuth/wwpiIlMwpRJJ5A==}
     peerDependencies:
       next: '>=9.0.0'
+
+  next-view-transitions@0.3.4:
+    resolution: {integrity: sha512-SSiskenQ8JkEFGzPjvFwC5LGGoqgTxM5dxexkeugxvcXFLpWI2ZUh4IsCURD3ovW+8Ue7xXlrtrpy8b7XR7IwQ==}
+    peerDependencies:
+      next: '>=14.0.0'
+      react: ^18.2.0
+      react-dom: ^18.2.0
 
   next-ws@2.0.7:
     resolution: {integrity: sha512-KoPKVzMVjGjWKDrtCCB5pL0fAWwjwsd9KtjazKm1fDgcDDJ/IQZRxHcXN4zT5CKFnmkFcGQq9NyuPODxVdW/fw==}
@@ -11064,6 +11074,12 @@ snapshots:
       - supports-color
       - uglify-js
       - webpack
+
+  next-view-transitions@0.3.4(next@15.4.0-canary.23(@babel/core@7.27.1)(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      next: 15.4.0-canary.23(@babel/core@7.27.1)(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   next-ws@2.0.7(next@15.4.0-canary.23(@babel/core@7.27.1)(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(ws@8.18.2):
     dependencies:

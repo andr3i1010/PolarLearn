@@ -8,6 +8,7 @@ import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
 import SessionWrapper from "@/components/SessionWrapper";
 import React from "react";
+import { ViewTransitions } from "next-view-transitions";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -111,31 +112,33 @@ export default async function RootLayout({
   const footerContent = await Footer();
 
   return (
-    <html lang="en" className={`${geistSans.className} antialiased`}>
-      <Head>
-        <link rel="icon" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
-      </Head>
-      <body className={`antialiased flex flex-col min-h-screen `}>
-        <noscript>
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
-            <div className="flex flex-col items-center">
-              <p className="text-6xl pb-4">❌</p>
+    <ViewTransitions>
+      <html lang="en" className={`${geistSans.className} antialiased`}>
+        <Head>
+          <link rel="icon" href="/favicon.png" />
+          <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        </Head>
+        <body className={`antialiased flex flex-col min-h-screen `}>
+          <noscript>
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
+              <div className="flex flex-col items-center">
+                <p className="text-6xl pb-4">❌</p>
 
-              <p className="text-xl">
-                PolarLearn werkt niet zonder JavaScript. Zet JavaScript aan om verder te gaan.
-              </p>
+                <p className="text-xl">
+                  PolarLearn werkt niet zonder JavaScript. Zet JavaScript aan om
+                  verder te gaan.
+                </p>
+              </div>
             </div>
-          </div>
-        </noscript>
-        <div
-          style={{ display: "none" }}
-          dangerouslySetInnerHTML={{ __html: art }}
-        />
-        <SessionWrapper>
-          <ToastProvider>
-            <WSProvider>
-              {/* <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
+          </noscript>
+          <div
+            style={{ display: "none" }}
+            dangerouslySetInnerHTML={{ __html: art }}
+          />
+          <SessionWrapper>
+            <ToastProvider>
+              <WSProvider>
+                {/* <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
                 <div className="flex flex-col items-center">
                   <p className="text-6xl">⚠️</p>
                   <br />
@@ -144,13 +147,14 @@ export default async function RootLayout({
                   </p>
                 </div>
               </div> */}
-              <TopNavBar />
-              {children}
-              {footerContent}
-            </WSProvider>
-          </ToastProvider>
-        </SessionWrapper>
-      </body>
-    </html>
+                <TopNavBar />
+                {children}
+                {footerContent}
+              </WSProvider>
+            </ToastProvider>
+          </SessionWrapper>
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

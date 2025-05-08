@@ -7,7 +7,7 @@ export default function SessionWrapper({ children }: { children: React.ReactNode
     const pathname = usePathname();
 
     // Only apply SessionProvider if not on the root path
-    if (pathname === '/' || pathname.startsWith('/auth')) {
+    if (pathname === '/' || pathname.startsWith('/auth') || pathname.startsWith('/admin')) {
         return <>{children}</>;
     }
 
