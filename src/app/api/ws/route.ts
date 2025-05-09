@@ -1,3 +1,4 @@
+// wat is dit?
 export function SOCKET(
   client: import("ws").WebSocket,
   request: import("http").IncomingMessage,
