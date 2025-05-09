@@ -38,6 +38,11 @@ model User {
   forumBanReason String?
   forumBanEnd    DateTime?
 
+  streakCount    Int      @default(0)
+  lastActivity   DateTime?
+  streakData     Json?    // key: YYYY-MM-DD, value: "done" | "frozen"
+  freezeCount    Int      @default(0)
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -51,7 +56,6 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 model practice {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   list_id   String

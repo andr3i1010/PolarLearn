@@ -7,6 +7,7 @@ import DropdownBtn from "@/components/button/DropdownBtn";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MoveLeft, Search, Menu, X } from "lucide-react";
 import Link from "next/link";
+import StreakNavbarThing from "../streak/streakNav";
 
 // SearchBar component
 const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
@@ -26,7 +27,7 @@ const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
             onClick={handleSearchClick}
         >
             <div className="rounded-4xl border-4 border-neutral-700 duration-300 hover:border-transparent">
-                <div className="bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-4xl duration-300 flex row">
+                <div className="bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-4xl duration-300 flex flex-row items-center">
                     <Search size={18} className="mr-2 text-neutral-400" />
                     <span className="text-neutral-400">Zoeken...</span>
                 </div>
@@ -283,9 +284,10 @@ const NavigationLinks = memo(
                 </div>
                 <div className="w-36" />
 
-                <div className="flex-grow mx-4 max-w">
+                <div className="flex-grow mx-4 max-w pr-5">
                     <SearchBar onExpand={onExpandSearch} />
                 </div>
+                <StreakNavbarThing/>
                 <div className="w-50" />
                 <div className="ml-auto relative block dropdown-right">
                     <DropdownBtn
@@ -447,34 +449,6 @@ export const TopNavBar = memo(function TopNavBar() {
         .dropdown-right > div.absolute {
           right: 6px !important;
           top: -24px !important;
-        }
-
-        /* Add transition styles for smooth animations */
-        .fade-in {
-          transition: opacity 0.3s ease-in-out;
-        }
-
-        .search-expanded {
-          max-width: 100%;
-        }
-
-        /* Mobile menu transitions */
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-          }
-          to {
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
         }
       `}</style>
         </>

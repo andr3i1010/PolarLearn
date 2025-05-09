@@ -5,6 +5,13 @@ import { Input } from "@/components/ui/input";
 import { AnimatePresence, motion } from "motion/react";
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { updateDailyStreak } from '@/components/streak/updateStreak';
+import dynamic from 'next/dynamic';
+
+// Import Lottie dynamically to avoid SSR issues
+const Lottie = dynamic(() => import('lottie-react'), {
+  ssr: false,
+});
 
 import check from '@/app/img/check.svg';
 import wrong from '@/app/img/wrong.svg';
@@ -85,6 +92,109 @@ const GedachtenOverlay = memo(({ answer, onCorrect, onIncorrect }: {
     </div>
   </motion.div>
 ));
+
+// Replace the modal StreakScreen with an inline version
+const StreakCelebration = memo(({ streak, isNewStreak }: {
+  streak: number;
+  isNewStreak: boolean;
+}) => {
+  // Fix the type to accept any animation data
+  const [animation, setAnimation] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load animation on component mount
+  useEffect(() => {
+    // Preload the animation as early as possible
+    const loadAnimation = async () => {
+      try {
+        // Add a slight delay to ensure component is fully mounted
+        await new Promise(resolve => setTimeout(resolve, 10));
+        const animationModule = await import('@/app/img/flame.json');
+        setAnimation(animationModule.default);
+        // Add a slight delay before showing to ensure smooth transition
+        setTimeout(() => setIsLoading(false), 50);
+      } catch (error) {
+        console.error("Failed to load animation:", error);
+        setIsLoading(false); // Show fallback on error
+      }
+    };
+
+    loadAnimation();
+
+    // Clean up any pending timeouts on unmount
+    return () => {
+      setAnimation(null);
+    };
+  }, []);
+
+  return (
+    <div className="w-full bg-gradient-to-br from-orange-500/20 to-yellow-500/20 border border-orange-500 rounded-xl p-6 my-4">
+      <div className="flex flex-col items-center">
+        <div className="w-24 h-24 mb-2 relative flex items-center justify-center">
+
+          <Lottie animationData={animation} loop={true} />
+        </div>
+
+        <h2 className="text-2xl font-bold mb-2 text-white text-center">
+          Je hebt een reeks gestart!
+        </h2>
+
+        <div className="text-5xl font-bold text-orange-400 my-4 text-center">
+          {streak} <span className="text-lg">{streak === 1 ? 'dag' : 'dagen'}</span>
+        </div>
+
+        <p className="text-center text-gray-300">
+          Je bent goed bezig! Blijf elke dag leren om je streak te behouden.
+        </p>
+      </div>
+    </div>
+  );
+});
+
+// Update FreezeReward to be an inline component like StreakCelebration
+const FreezeReward = memo(({ streak }: { streak: number }) => {
+
+  return (
+    <div className="w-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500 rounded-xl p-6 my-4">
+      <div className="flex flex-col items-center">
+
+        <h2 className="text-2xl font-bold mb-2 text-white text-center">
+          Bevriezer verdiend!
+        </h2>
+
+        <div className="text-6xl font-bold text-blue-400 my-4 text-center">
+          🧊
+        </div>
+
+        <p className="text-center text-gray-300">
+          Je hebt 3 dagen achter elkaar geleerd. Je hebt een bevriezer verdiend!
+          Dit kan je gebruiken om je reeks te behouden als je een dag mist.
+        </p>
+      </div>
+    </div>
+  );
+});
+
+// Add another variant of the freeze component for when a freeze is used
+const FreezeUsed = memo(({ streak }: { streak: number }) => {
+  return (
+    <div className="w-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500 rounded-xl p-6 my-4">
+      <div className="flex flex-col items-center">
+        <h2 className="text-2xl font-bold mb-2 text-white text-center">
+          Bevriezer gebruikt!
+        </h2>
+
+        <div className="text-6xl font-bold text-indigo-400 my-4 text-center">
+          🧊❄️
+        </div>
+
+        <p className="text-center text-gray-300">
+          Je miste een dag, maar we hebben een bevriezer gebruikt om je reeks van {streak} {streak === 1 ? 'dag' : 'dagen'} te redden!
+        </p>
+      </div>
+    </div>
+  );
+});
 
 // Memoize the multi-choice button component
 const MultiChoiceButton = memo(({
@@ -175,6 +285,15 @@ const LearnTool = ({
   const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() * 4) + 1);
   const [isAnswering, setIsAnswering] = useState(false);
   const [showGedachtenOverlay, setShowGedachtenOverlay] = useState(false);
+  const [streakInfo, setStreakInfo] = useState<{ currentStreak: number; isNewStreak: boolean }>({
+    currentStreak: 0,
+    isNewStreak: false
+  });
+  const [listCompleted, setListCompleted] = useState(false);
+  const [streakUpdated, setStreakUpdated] = useState(false);
+  const [streakStarted, setStreakStarted] = useState(false);
+  const [freezeAwarded, setFreezeAwarded] = useState(false);
+  const [freezeUsed, setFreezeUsed] = useState(false);
 
   // Use an effect to clear the input field when the current question changes
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
@@ -186,6 +305,38 @@ const LearnTool = ({
       setUserInput("");
     }
   }, [lijstData]);
+
+  // Add an effect to update streak when the list is completed
+  useEffect(() => {
+    // Only run when the list changes from not-completed to completed
+    if (initialMappedData.length > 0 && lijstData.length === 0 && !listCompleted) {
+      setListCompleted(true);
+
+      const updateStreak = async () => {
+        const result = await updateDailyStreak();
+        if (result.success) {
+          setStreakInfo({
+            currentStreak: result.currentStreak || 0,
+            isNewStreak: result.isNewStreak === true
+          });
+
+          // Track if the streak was updated for potential UI changes
+          setStreakUpdated(result.streakUpdated === true);
+
+          // Track if a freeze was awarded or used
+          setFreezeAwarded(result.freezeAwarded === true);
+          setFreezeUsed(result.freezeUsed === true);
+
+          // Determine which screen to show first
+          if (result.streakUpdated && result.isNewStreak) {
+            setStreakStarted(true);
+          }
+        }
+      };
+
+      updateStreak();
+    }
+  }, [lijstData.length, initialMappedData.length, listCompleted]);
 
   // Call this when a question is processed (either right or wrong)
   const updateProgress = useCallback(() => {
@@ -367,15 +518,41 @@ const LearnTool = ({
           Lijst niet gevonden
         </div>
       ) : lijstData.length === 0 ? (
-        <div className="text-center text-white p-4">
+        <div className="text-center text-white p-4 overflow-y-auto max-h-full">
           <div className="font-bold text-xl mb-2">Gefeliciteerd!</div>
           <div>Je hebt de lijst helemaal af!</div>
-          <div className='space-x-2'>
-            <Button1 onClick={() => setLijstData(shuffleArray(initialMappedData))} text="Opnieuw beginnen" className="mt-4" />
+
+          {/* Show freeze used message if a freeze was used */}
+          {freezeUsed && (
+            <FreezeUsed streak={streakInfo.currentStreak} />
+          )}
+
+          {/* Show freeze award if earned */}
+          {freezeAwarded && (
+            <FreezeReward streak={streakInfo.currentStreak} />
+          )}
+
+          {/* Show streak celebration directly in the completion screen if a streak started */}
+          {streakStarted && (
+            <StreakCelebration
+              streak={streakInfo.currentStreak}
+              isNewStreak={true}
+            />
+          )}
+
+          <div className='space-x-2 mt-4'>
+            <Button1 onClick={() => {
+              setLijstData(shuffleArray(initialMappedData));
+              setListCompleted(false);
+              setStreakUpdated(false);
+              setStreakStarted(false);
+              setFreezeAwarded(false);
+              setFreezeUsed(false);
+            }} text="Opnieuw beginnen" className="mt-4" />
             <Button1 text={"Terug naar home "} redirectTo='/home/start' useClNav={true} />
           </div>
         </div>
-      ) : (
+      ) : lijstData.length > 0 ? (
         <div className='flex flex-col items-center justify-center h-full'>
           <QuestionDisplay question={lijstData[0]?.vraag || ""} />
 
@@ -457,7 +634,8 @@ const LearnTool = ({
             </div>
           )}
         </div>
-      )}
+      ) : null}
+
       <AnimatePresence>
         {toonAntwoord && (
           <AnswerOverlay correct={false} answer={lijstData[0]?.antwoord} />
@@ -466,8 +644,8 @@ const LearnTool = ({
         {showGedachtenOverlay && lijstData.length > 0 && (
           <GedachtenOverlay
             answer={lijstData[0]?.antwoord || ""}
-            onCorrect={() => handleSelfAssessment(true)} // Use renamed handler
-            onIncorrect={() => handleSelfAssessment(false)} // Use renamed handler
+            onCorrect={() => handleSelfAssessment(true)}
+            onIncorrect={() => handleSelfAssessment(false)}
           />
         )}
       </AnimatePresence>

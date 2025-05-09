@@ -7,8 +7,22 @@ import crypto from 'crypto';
 // Function to set up TTL index for session expiration
 async function setupSessionTTLIndex() {
   try {
-    // Create a TTL index on the expires field to auto-delete expired sessions
-    // This runs a MongoDB command directly since Prisma doesn't support TTL indexes natively
+    // First check if the index already exists to avoid unnecessary operations
+    const indexInfo = await prisma.$runCommandRaw({
+      listIndexes: 'Session',
+    });
+
+    // @ts-ignore - indexInfo is a MongoDB response with cursor.firstBatch array
+    const indexes = indexInfo.cursor.firstBatch;
+    const ttlIndexExists = indexes.some((idx: any) =>
+      idx.name === 'expires_ttl_index' && idx.expireAfterSeconds === 0
+    );
+
+    if (ttlIndexExists) {
+      return;
+    }
+
+    // If the index doesn't exist or has different settings, create/recreate it
     await prisma.$runCommandRaw({
       createIndexes: 'Session', // MongoDB collection name (case sensitive)
       indexes: [
@@ -25,14 +39,13 @@ async function setupSessionTTLIndex() {
   }
 }
 
-export async function createSession(userid: string) {
-  // Try to initialize the TTL index when creating sessions
-  try {
-    await setupSessionTTLIndex();
-  } catch (error) {
-    console.error("Note: TTL index setup failed but continuing with session creation:", error);
-  }
+// New function to ensure TTL index exists after Prisma schema push
+export async function ensureSessionTTLIndex() {
+  console.log("Ensuring TTL index exists after Prisma schema operations...");
+  return setupSessionTTLIndex();
+}
 
+export async function createSession(userid: string) {
   // console.debug("createSession: Attempting session creation for user", userid);
   const sessionID = crypto.randomUUID();
   // Compute expiration on each call (1 day from now)
