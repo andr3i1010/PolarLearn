@@ -11,6 +11,8 @@ import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import Jdenticon from "@/components/Jdenticon";
 import { unstable_noStore as noStore } from 'next/cache'; // Ensure this is imported
 import { getSubjectName, icons, getSubjectIcon } from "@/components/icons";
+import { Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal } from "react";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
 // Update props to accept the full objects (make params optional)
 interface SearchResultsProps {
@@ -105,9 +107,9 @@ export default async function SearchResultsComponent({ searchParams, params }: S
     // Extract ALL creator IDs from lists, forum posts, and now groups
     const creatorIds = [
         ...new Set([
-            ...lists.map(list => list.creator),
-            ...forumPosts.map(post => post.creator),
-            ...groups.map(group => group.creator)
+            ...lists.map((list: { creator: any; }) => list.creator),
+            ...forumPosts.map((post: { creator: any; }) => post.creator),
+            ...groups.map((group: { creator: any; }) => group.creator)
         ])
     ];
 
@@ -123,18 +125,18 @@ export default async function SearchResultsComponent({ searchParams, params }: S
     });
 
     // Create lookup maps by both ID and name for efficient access
-    const userMapById = users.reduce((acc: Record<string, any>, user) => {
+    const userMapById = users.reduce((acc: Record<string, any>, user: { id: string | number; }) => {
         acc[user.id] = user;
         return acc;
     }, {});
 
-    const userMapByName = users.reduce((acc: Record<string, any>, user) => {
+    const userMapByName = users.reduce((acc: Record<string, any>, user: { name: string | null; id: string; image: string | null; }) => {
         if (user.name) acc[user.name] = user;
         return acc;
     }, {});
 
     // Enhance lists and posts with creator information
-    const enhancedLists = lists.map(list => {
+    const enhancedLists = lists.map((list: { list_id: any; creator: any; name: any; subject: any; data: any; }) => {
         const creatorId = list.creator;
         const user = userMapById[creatorId] || userMapByName[creatorId];
         return {
@@ -145,7 +147,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
     });
 
     // Similarly enhance forum posts
-    const enhancedForumPosts = forumPosts.map(post => {
+    const enhancedForumPosts = forumPosts.map((post: { creator: any; }) => {
         const creatorId = post.creator;
         const user = userMapById[creatorId] || userMapByName[creatorId];
         return {
@@ -201,7 +203,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                                         </Link>
                                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
                                             <DeleteListButton
-                                                listId={list.list_id}
+                                                listId={String(list.list_id)}
                                                 isCreator={true}
                                             />
                                         </div>
@@ -221,7 +223,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
             content: (
                 <div className="mt-4 space-y-4">
                     {enhancedForumPosts.length > 0 ? (
-                        enhancedForumPosts.map((post) => (
+                        enhancedForumPosts.map((post: any) => (
                             <Link key={post.post_id} href={`/home/forum/${post.post_id}`} className="block">
                                 <div className="border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-start cursor-pointer mx-4 rounded-lg">
                                     <div className="mr-4 flex-shrink-0 mt-1">
@@ -250,7 +252,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                                         </div>
                                         <h3 className="font-medium text-lg mb-1">{post.title}</h3>
                                         <p className="text-sm text-gray-300 line-clamp-2">
-                                            {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
+                                            {String(post.content ?? "").length > 150 ? `${String(post.content ?? "").substring(0, 150)}...` : String(post.content ?? "")}
                                         </p>
                                     </div>
                                 </div>
@@ -269,7 +271,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
             content: (
                 <div className="mt-4 space-y-4">
                     {groups.length > 0 ? (
-                        groups.map((group) => (
+                        groups.map((group: { groupId: Key | null | undefined; name: any; description: any; members: any; listsAdded: any; requiresApproval: any; creator: any; }) => (
                             <Link
                                 key={group.groupId}
                                 href={`/learn/group/${group.groupId}`}
@@ -277,7 +279,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                             >
                                 <div className="relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center cursor-pointer">
                                     <div className="flex items-center gap-3 py-2">
-                                        <Jdenticon value={group.name} size={40} />
+                                        <Jdenticon value={String(group.name || 'Unknown Group')} size={40} />
                                         <div className="flex flex-col">
                                             <span className="text-lg whitespace-normal break-words max-w-[40ch]">
                                                 {group.name}

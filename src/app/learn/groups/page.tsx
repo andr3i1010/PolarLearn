@@ -5,8 +5,9 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
 import Jdenticon from "@/components/Jdenticon";
 import { Badge } from "@/components/ui/badge";
+import { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Groepen",
     description: "Je groepen",
 };

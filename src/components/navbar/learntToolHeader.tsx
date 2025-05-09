@@ -184,7 +184,7 @@ const LearnToolHeader = ({
 
                     <Link
                         href="/home/start"
-                        className="flex items-center justify-center h-8 w-8 bg-neutral-700 hover:bg-neutral-600 transition-colors rounded-full hidden md:block"
+                        className="flex items-center justify-center h-8 w-8 bg-neutral-700 hover:bg-neutral-600 transition-colors rounded-full md:block"
                     >
                         <X className="h-5 w-5" />
                     </Link>

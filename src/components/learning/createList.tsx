@@ -95,6 +95,10 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isEditMode = !!listToEdit;
 
+  // Fix the type issue with language entries
+  const languageEntries: [ReactNode, string][] = Object.entries(subjectEmojiMap)
+    .filter(([key]) => ["FR", "EN", "DE", "NL"].includes(key))
+    .map(([key, value]): [ReactNode, string] => [value, key]);
 
   useEffect(() => {
     const defaultDutchDisplay = (
@@ -296,11 +300,17 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
     try {
       // Make sure we have minimal required data
+      const formattedPairs = pairs.map(pair => ({
+        id: pair.id,
+        "1": pair["1"] || "",
+        "2": pair["2"] || ""
+      }));
+
       const listData = {
         listId: listToEdit?.list_id ?? autosavedListId ?? undefined,
         name: listName || "Naamloze Lijst",
         mode: "list",
-        data: pairs.length > 0 ? pairs : [{ id: 0, "1": "", "2": "" }],
+        data: formattedPairs,
         lang_from: vanDropdownRef.current?.getSelectedItem() || "NL",
         lang_to: naarDropdownRef.current?.getSelectedItem() || "NL",
         subject: selectedSubject.id,
@@ -378,11 +388,17 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
       return;
     }
 
+    const formattedPairs = pairs.map(pair => ({
+      id: pair.id,
+      "1": pair["1"] || "",
+      "2": pair["2"] || ""
+    }));
+
     const listData = {
       listId: listToEdit?.list_id ?? autosavedListId ?? undefined,
       name: listName || "Naamloze Lijst",
       mode: "list",
-      data: pairs,
+      data: formattedPairs,
       lang_from: vanDropdownRef.current?.getSelectedItem(),
       lang_to: naarDropdownRef.current?.getSelectedItem(),
       subject: selectedSubject.id,
@@ -422,11 +438,17 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
       return;
     }
 
+    const formattedPairs = pairs.map(pair => ({
+      id: pair.id,
+      "1": pair["1"] || "",
+      "2": pair["2"] || ""
+    }));
+
     const listData = {
       listId: listToEdit?.list_id ?? autosavedListId ?? undefined,
       name: listName || "Naamloze Lijst",
       mode: "list",
-      data: pairs,
+      data: formattedPairs,
       lang_from: vanDropdownRef.current?.getSelectedItem(),
       lang_to: naarDropdownRef.current?.getSelectedItem(),
       subject: selectedSubject.id,
@@ -526,7 +548,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 ref={vanDropdownRef}
                 text="Van.."
                 width={200}
-                dropdownMatrix={Object.entries(subjectEmojiMap).map(([key, value]) => [value, key])}
+                dropdownMatrix={languageEntries}
                 selectorMode={true}
                 onChange={(selected) => setSelectedTaal(selected)}
               />
@@ -536,7 +558,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 ref={naarDropdownRef}
                 text="Naar.."
                 width={200}
-                dropdownMatrix={Object.entries(subjectEmojiMap).map(([key, value]) => [value, key])}
+                dropdownMatrix={languageEntries}
                 selectorMode={true}
                 disabled={selectedSubject && ["FR", "EN", "DE", "NL"].includes(selectedSubject.id)}
               />

@@ -4,6 +4,8 @@ import AdminPage from '../page';
 // ik haat typescript
 // ik haat typescript
 // uuren verspilt aan typescript: 1
+
+// same bro
 export default async function ViewUserRoute({
     params,
     searchParams,
@@ -19,15 +21,14 @@ export default async function ViewUserRoute({
 
         // Return the AdminPage component with the extracted parameters
         return <AdminPage
-            params={{ tab: [selectedTab] }}
-            searchParams={{ page }}
+            params={Promise.resolve({ tab: [selectedTab] })}
+            searchParams={Promise.resolve({ page })}
         />;
     } catch (error) {
         // als iets fout gaat ga dan naar geruikers
         return <AdminPage
-            params={{ tab: ['gebruikers'] }}
-            searchParams={{ page: '1' }}
+            params={Promise.resolve({ tab: ['gebruikers'] })}
+            searchParams={Promise.resolve({ page: '1' })}
         />;
-
     }
 }

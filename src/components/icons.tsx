@@ -130,6 +130,8 @@ export const getSubjectName = (subjectCode: string) => {
     switch (subjectCode) {
         case "NL":
             return "Nederlands";
+        case "NE":
+            return "Nederlands";
         case "FR":
             return "Frans";
         case "EN":

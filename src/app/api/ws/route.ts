@@ -10,10 +10,10 @@ export function SOCKET(
         ? message
         : Array.isArray(message)
           ? Buffer.concat(message).toString("utf8")
-          : message.toString("utf8");
-      if (msg === "connect") {
-        client.send("OK");
-      }
+          : typeof message === "object" && "toString" in message
+            ? message.toString("utf8")
+            : "";
+      
     } catch (error) {
       console.error("Error processing WS message:", error);
     }

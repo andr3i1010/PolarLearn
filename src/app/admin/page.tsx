@@ -12,6 +12,8 @@ import BanButton from "./banButton";
 import { cookies } from "next/headers";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import { getSubjectIcon } from "@/components/icons";
+import DeleteUserButton from "./DeleteUserButton";
+import ResetPasswordButton from "./ResetPasswordButton";
 
 import {
     Pagination,
@@ -26,27 +28,23 @@ export default async function AdminPage({
     params,
     searchParams,
 }: {
-    params?: { tab?: string[] };
-    searchParams?: { page?: string };
+    params?: Promise<{ tab?: string[] }>;
+    searchParams?: Promise<{ page?: string }>;
 }) {
+    const awaitedParams = params ? await params : undefined;
     const defaultActiveTab =
-        params && params.tab && params.tab.length > 0 ? params.tab[0] : "gebruikers";
+        awaitedParams?.tab && awaitedParams.tab.length > 0 ? awaitedParams.tab[0] : "gebruikers";
 
     const session = await getUserFromSession(
         (await cookies()).get("polarlearn.session-id")!.value
     );
-    const user = await prisma.user.findFirst({
-        where: {
-            name: session!.name,
-        },
-    });
 
     if (session?.role != "admin") {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
                 <Image
                     src={require("@/app/admin/ga_weg.png")}
-                    alt="aardige man"
+                    alt="aardige man" // vind ik ook
                     width={300}
                     height={300}
                     className="mb-4"
@@ -59,7 +57,7 @@ export default async function AdminPage({
         );
     }
 
-    const page = parseInt(searchParams?.page || "1");
+    const page = parseInt((await searchParams)?.page || "1");
     const take = 20;
     const skip = (page - 1) * take;
 
@@ -129,15 +127,6 @@ export default async function AdminPage({
         },
         {} as Record<string, UserInfo>
     );
-
-    const userMapByName = users.reduce(
-        (acc: Record<string, UserInfo>, user: UserInfo) => {
-            if (user.name) acc[user.name] = user;
-            return acc;
-        },
-        {} as Record<string, UserInfo>
-    );
-
     // Function to render pagination
     const renderPagination = (totalPages: number, currentPage: number, tabId: string) => {
         if (totalPages <= 1) return null;
@@ -198,6 +187,7 @@ export default async function AdminPage({
     // Function to render user list
     const renderUserList = (users: any[], totalPages: number, currentPage: number) => (
         <>
+            <h1 className="font-extrabold text-2xl pb-4 ">{totalUsers} gebruikers in db</h1>
             <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
                 {users.length > 0 ? (
                     users.map((user) => (
@@ -207,7 +197,7 @@ export default async function AdminPage({
                         >
                             <Link
                                 href={`/home/viewuser/${user.name}`}
-                                className="inline-block w-9/11 "
+                                className="inline-block w-7/11 "
                             >
                                 <div className={` flex items-center cursor-pointer`}>
                                     <div className="mr-4 flex-shrink-0">
@@ -244,6 +234,7 @@ export default async function AdminPage({
                                                 </span>
                                             )}
                                         </h3>
+                                        <h3>email: {user?.email}</h3>
                                         <span>
                                             {user.forumAllowed
                                                 ? ""
@@ -260,40 +251,49 @@ export default async function AdminPage({
                                     </div>
                                 </div>
                             </Link>
-                            <div className="inline-block w-1/11 text-right">
-                                {!user.forumAllowed ? (
-                                    <BanButton
-                                        userId={user.id}
-                                        text="unban van forum"
-                                        platform={false}
-                                        unban={true}
-                                    />
-                                ) : (
-                                    <BanButton
-                                        userId={user.id}
-                                        text="ban van forum"
-                                        platform={false}
-                                        unban={false}
-                                    />
-                                )}
-                            </div>
-                            <div className="inline-block w-1/11 text-right">
-                                {!user.loginAllowed ? (
-                                    <BanButton
-                                        userId={user.id}
-                                        text="unban van platform"
-                                        platform={true}
-                                        unban={true}
-                                    />
-                                ) : (
-                                    <BanButton
-                                        userId={user.id}
-                                        text="ban van platform"
-                                        platform={true}
-                                        unban={false}
-                                    />
-                                )}
-                            </div>
+                            {user.role !== 'admin' && (
+                                <>
+                                    <div className="inline-block w-1/11 text-right">
+                                        {!user.forumAllowed ? (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="unban van forum"
+                                                platform={false}
+                                                unban={true}
+                                            />
+                                        ) : (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="ban van forum"
+                                                platform={false}
+                                                unban={false}
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="inline-block w-1/11 text-right">
+                                        {!user.loginAllowed ? (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="unban van platform"
+                                                platform={true}
+                                                unban={true}
+                                            />
+                                        ) : (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="ban van platform"
+                                                platform={true}
+                                                unban={false}
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="inline-block w-1/11 text-right">
+                                        <ResetPasswordButton userId={user.id} />
+                                    </div>
+                                    <div className="inline-block w-1/11 text-right">
+                                        <DeleteUserButton userId={user.id} />
+                                    </div>
+                                </>)}
                         </div>
                     ))
                 ) : (
@@ -309,6 +309,7 @@ export default async function AdminPage({
 
     const renderListsList = (lists: any[], totalPages: number, currentPage: number) => (
         <>
+            <h1 className="font-extrabold text-2xl py-4">{listTotal} lijsten in db</h1>
             <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
                 {lists.length > 0 ? (
                     lists.map((list) => (
@@ -338,7 +339,7 @@ export default async function AdminPage({
                                     </div>
                                     <div className="flex flex-col flex-1">
                                         <h3 className="font-medium text-lg">{list.name}</h3>
-                                        <span>door {userMapById[list.creator]?.name}</span>
+                                        <span>Gemaakt door {userMapById[list.creator]?.name}</span>
                                     </div>
                                 </div>
                             </Link>
@@ -364,6 +365,7 @@ export default async function AdminPage({
 
     const renderGroupList = (groepen: any[], totalPages: number, currentPage: number) => (
         <>
+            <h1 className="font-extrabold text-2xl py-4">{groupTotal} groepen in db</h1>
             <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
                 {groepen.length > 0 ? (
                     groepen.map((groep) => (
@@ -382,10 +384,8 @@ export default async function AdminPage({
                                     <div className="flex flex-col flex-1">
                                         <h3 className="font-medium text-lg">{groep.name}</h3>
                                         <span>
-                                            {groep.description} | door{" "}
-                                            {prisma.user
-                                                .findFirst({ where: { id: groep.creator } })
-                                                .then((user) => user?.name)}
+                                            {groep.description} | Gemaakt door{" "}
+                                            {userMapById[groep.creator]?.name || "Onbekende gebruiker"}
                                         </span>
                                     </div>
                                 </div>
@@ -423,11 +423,6 @@ export default async function AdminPage({
             content: renderGroupList(groupList, totalGroupPages, page),
         },
     ];
-
-    let banned = false;
-    if (!user!.forumAllowed || !user!.loginAllowed) {
-        banned = true;
-    }
 
     // Determine the base route dynamically
     let baseRoute = "/admin";

@@ -1,68 +1,46 @@
-"use client";
-
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import { getUserNameById } from '@/serverActions/getUserName';
+import CreatorLinkClient from './CreatorLinkClient';
 
 interface CreatorLinkProps {
   creator: string;
   color?: string;
-  // Add prop for controlling which value to use for Jdenticon
   setJdenticonValue?: (value: string) => void;
+  prefetchedName?: string;
+  prefetchedJdenticonValue?: string;
 }
 
 // UUID validation regex pattern
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function CreatorLink({ creator, color, setJdenticonValue }: CreatorLinkProps) {
-  const router = useRouter();
-  const [displayName, setDisplayName] = useState<string>(creator);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+export default async function CreatorLink({
+  creator,
+  color,
+  setJdenticonValue,
+  prefetchedName,
+  prefetchedJdenticonValue
+}: CreatorLinkProps) {
+  let displayName = prefetchedName || creator;
+  let jdenticonValue = prefetchedJdenticonValue || creator;
 
-  useEffect(() => {
-    // Check if creator is a UUID
-    if (creator && UUID_REGEX.test(creator)) {
-      setIsLoading(true);
-
-      // Use server action to get the user info
-      getUserNameById(creator)
-        .then(userInfo => {
-          if (userInfo.name) {
-            setDisplayName(userInfo.name);
-            
-            // Update the Jdenticon value if the callback is provided
-            if (setJdenticonValue && userInfo.jdenticonValue) {
-              setJdenticonValue(userInfo.jdenticonValue);
-            }
-          }
-        })
-        .catch(err => {
-          console.error("Error fetching user name:", err);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    } else {
-      setDisplayName(creator);
-      // For non-UUID values, we can use the creator directly for Jdenticon
-      if (setJdenticonValue) {
-        setJdenticonValue(creator);
+  // If we don't have a prefetched name and creator is a UUID, fetch it server-side
+  if (!prefetchedName && creator && UUID_REGEX.test(creator)) {
+    try {
+      const userInfo = await getUserNameById(creator);
+      if (userInfo.name) {
+        displayName = userInfo.name;
+        jdenticonValue = userInfo.jdenticonValue || creator;
       }
+    } catch (err) {
+      console.error("Error fetching user name on server:", err);
     }
-  }, [creator, setJdenticonValue]);
-
-  const handleCreatorClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    router.push(`/home/viewuser/${displayName}`);
-  };
+  }
 
   return (
-    <span
-      className={`${color === 'white' ? 'text-white hover:text-blue-400 transition' : 'text-blue-400'} hover:underline cursor-pointer ${isLoading ? 'opacity-70' : ''}`}
-      onClick={handleCreatorClick}
-    >
-      {isLoading ? '...' : displayName}
-    </span>
+    <CreatorLinkClient
+      displayName={displayName}
+      jdenticonValue={jdenticonValue}
+      color={color}
+      setJdenticonValue={setJdenticonValue}
+    />
   );
 }

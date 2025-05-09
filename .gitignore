@@ -42,13 +42,12 @@ next-env.d.ts
 # Persoonlijke dingen
 .idea/
 pnpm-lock.yaml
-.env.local
-.vscode/
 .pnpm*
-spam.bash
 .gitignore
-install/mongo/*
-mongo/*
+/public/sw*
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# BELANGERIJK NIET VERWIJDEREN DIT IS VOOR DE DB ALS JE DE INSTALLER GEBRUIKT
+install/mongo/*

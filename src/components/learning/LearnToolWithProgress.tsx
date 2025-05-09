@@ -8,7 +8,7 @@ interface LearnToolWithProgressProps {
     mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze";
     rawlistdata: any[];
     listId: string;
-    currentMethod: string;
+    currentMethod?: string;  // Make currentMethod optional
 }
 
 export default function LearnToolWithProgress({

@@ -68,7 +68,7 @@ export default async function Page({
     })
 
     // Process replies to get Jdenticon values for creators that are UUIDs
-    const repliesWithJdenticonValues = await Promise.all(replies.map(async (reply) => {
+    const repliesWithJdenticonValues = await Promise.all(replies.map(async (reply: { creator: string; createdAt: Date; votes_data: unknown; post_id: Key | null | undefined; votes: number; content: string; }) => {
         let jdenticonValue = reply.creator;
         if (UUID_REGEX.test(reply.creator)) {
             const userInfo = await getUserNameById(reply.creator);

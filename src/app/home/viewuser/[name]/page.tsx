@@ -75,7 +75,12 @@ export default async function Page({ params }: PageProps) {
   });
 
   const createdLists: PracticeList[] = rawLists.map((list) => ({
-    ...list,
+    list_id: list.list_id as string,
+    name: list.name as string,
+    subject: list.subject as string,
+    createdAt: list.createdAt as Date,
+    published: list.published as boolean,
+    creator: list.creator as string,
     data: Array.isArray(list.data) ? list.data : []
   }));
 

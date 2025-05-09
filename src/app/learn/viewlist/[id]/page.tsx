@@ -9,6 +9,9 @@ import { cookies } from "next/headers";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
+import CreatorLink from "@/components/links/CreatorLink";
+import { addToRecentLists } from "@/utils/actions/updateRecentLists";
+import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
 
 import Image from "next/image";
 import { icons, getSubjectIcon, getSubjectName } from "@/components/icons";
@@ -70,6 +73,16 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             updatedAt: true
         }
     });
+
+    // Add this list to user's recent lists
+    if (listData) {
+        await addToRecentLists(id);
+
+        // Also add the subject to recent subjects if available
+        if (listData.subject) {
+            await addToRecentSubjects(listData.subject);
+        }
+    }
 
     // Check if current user is the creator to show edit button
     const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
@@ -296,7 +309,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                     <div className="flex-row flex items-center">
                         <p>Gemaakt door:</p>
                         <div className="w-2" />
-                        <Link className="text-sky-400" href={`/home/viewuser/${(await prisma.user.findFirst({ where: { id: listData?.creator } }))?.name}`}>{(await prisma.user.findFirst({ where: { id: listData?.creator } }))?.name}</Link>
+                        <CreatorLink creator={listData?.creator || ""} />
                     </div>
 
                     <div className="relative h-12">

@@ -2,7 +2,7 @@
 import { useMemo, memo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import NavBtn from "@/components/button/Button1";
-import pl500 from "@/app/img/pl-500.png";
+import pl500 from "@/app/img/pl-500.svg";
 import DropdownBtn from "@/components/button/DropdownBtn";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MoveLeft, Search, Menu, X } from "lucide-react";
@@ -317,7 +317,7 @@ export const TopNavBar = memo(function TopNavBar() {
     // Use useMemo for display conditions to prevent recalculations on every render
     const displayConditions = useMemo(() => {
         const showOnViewList = pathname.startsWith('/learn/viewlist');
-        const showOnSubjects = pathname.startsWith('/learn/subjects');
+        const showOnSubjects = pathname.startsWith('/learn/subject') || pathname === "/learn/subjects";
         const hideOnCreateList = pathname === "/home/createlist";
         const showOnHomeRoutes = pathname === "/" || pathname.startsWith("/home");
         const isSearchRoute = pathname.startsWith('/home/search');
