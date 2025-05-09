@@ -10,6 +10,10 @@ import check from '@/app/img/check.svg';
 import wrong from '@/app/img/wrong.svg';
 import Button1 from "@/components/button/Button1";
 
+function verwijderSpecialeTekens(tekst: string): string {
+  return tekst.replace(/[^a-zA-Z0-9\s]/g, '').trim().toLowerCase();
+}
+
 // Memoize the question display component
 const QuestionDisplay = memo(({ question }: { question: string }) => (
   <div className="px-4 py-2 bg-neutral-700 rounded-lg mb-4 min-w-[240px] max-w-[400px] text-center">
@@ -128,11 +132,9 @@ const MultiChoiceButton = memo(({
   );
 });
 
-// Update the hint generator function to handle multiple words
 const getHint = (answer: string): string => {
   if (!answer || answer.length === 0) return '';
 
-  // Split by spaces and process each word
   return answer.split(' ').map(word => {
     if (word.length === 0) return '';
     return word.charAt(0) + '_'.repeat(word.length - 1);
@@ -209,7 +211,6 @@ const LearnTool = ({
     }
   }, [lijstData.length, initialMappedData.length, onProgressUpdate]);
 
-  // Use useCallback for event handlers that are passed to child components
   const antwoordFoutVolgende = useCallback(() => {
     if (lijstData.length > 0) {
       const [huidigeVraag, ...rest] = lijstData;
@@ -223,9 +224,40 @@ const LearnTool = ({
   }, [lijstData]);
 
   const handleAntwoordControleren = useCallback(() => {
+
+    // als er geen input is stop
     if (!lijstData.length || userInput.trim() === "") return;
+
     const [huidigeVraag, ...rest] = lijstData;
-    if (userInput.trim().toLowerCase() === huidigeVraag.antwoord.toLowerCase()) {
+    let huidigAntwoordZonderSpecialeTekens = verwijderSpecialeTekens(huidigeVraag.antwoord);
+    let userInputZonderSpecialeTekens = verwijderSpecialeTekens(userInput);
+    let userInputCorrect = false;
+
+    // simple goed antwoord
+    if (huidigAntwoordZonderSpecialeTekens === userInputZonderSpecialeTekens) {
+      userInputCorrect = true;
+    }
+    // goed antwoord met "of" of "/"
+    if (huidigeVraag.antwoord.includes("of") || huidigeVraag.antwoord.includes("/")) {
+      const antwoorden = huidigeVraag.antwoord.split(/\s*(?:of|\/)\s*/).map((antwoord: string) => antwoord.trim());
+      antwoorden.forEach((antwoord: string) => {
+        if (userInputZonderSpecialeTekens.trim() === verwijderSpecialeTekens(antwoord).trim()) {
+          userInputCorrect = true;
+          return;
+        }
+      });
+    }
+    // goed antwoord zonder dingen tussen haakjes
+    if (huidigeVraag.antwoord.includes("(") && huidigeVraag.antwoord.includes(")")) {
+      const antwoordZonderHaakjes = huidigeVraag.antwoord.replace(/\(.*?\)/g, "").trim();
+      if (userInputZonderSpecialeTekens === verwijderSpecialeTekens(antwoordZonderHaakjes)) {
+        userInputCorrect = true;
+      }
+    }
+
+
+
+    if (userInputCorrect) {
       setShowCorrect(true);
       if (onCorrectAnswer) onCorrectAnswer();
       updateProgress();
