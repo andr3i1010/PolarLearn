@@ -4,6 +4,9 @@ import { prisma } from "@/utils/prisma"
 import { getUserFromSession } from "@/utils/auth/auth"
 import { v4 as uuidv4 } from 'uuid'
 import { cookies } from "next/headers"
+import { formSchema } from '@/app/home/forum/formSchema';
+import { revalidatePath } from 'next/cache';
+import { z } from "zod";
 
 export async function createReply(postId: string, content: string) {
   const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value)
@@ -100,4 +103,110 @@ export async function deletePost(postId: string) {
   }
 
   return { success: true }
+}
+
+// Add a function to fetch a post by ID
+export async function getPost(postId: string) {
+  try {
+    const post = await prisma.forum.findUnique({
+      where: {
+        post_id: postId
+      },
+    });
+
+    return post;
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    throw error;
+  }
+}
+
+// Define the return type for better TypeScript support
+type UpdatePostResult =
+  | { success: true; postId: string }
+  | { success: false; error: string };
+
+export async function updatePost(
+  postId: string,
+  formData: z.infer<typeof formSchema>
+): Promise<UpdatePostResult> {
+  try {
+    // Validate the form data
+    const validatedData = formSchema.parse(formData);
+
+    // Get the current user
+    const user = await getUserFromSession(
+      (await cookies()).get("polarlearn.session-id")?.value as string
+    );
+
+    if (!user || !user.id) {
+      return {
+        success: false,
+        error: "Je moet ingelogd zijn om een post te bewerken.",
+      };
+    }
+
+    // Check if user is allowed to use the announcement category
+    if (validatedData.category === "announcement" && user.role !== "admin") {
+      return {
+        success: false,
+        error: "Je hebt geen toestemming om aankondigingen te maken.",
+      };
+    }
+
+    // Fetch the post to ensure the user is the creator
+    const existingPost = await prisma.forum.findUnique({
+      where: { post_id: postId },
+    });
+
+    if (!existingPost) {
+      return {
+        success: false,
+        error: "Post niet gevonden.",
+      };
+    }
+
+    if (existingPost.creator !== user.id && user.role !== "admin") {
+      return {
+        success: false,
+        error: "Je kunt alleen je eigen posts bewerken.",
+      };
+    }
+
+    // Update the post in the database
+    await prisma.forum.update({
+      where: { post_id: postId },
+      data: {
+        title: validatedData.title,
+        content: validatedData.content,
+        subject: validatedData.subject,
+        category: validatedData.category,
+        updatedAt: new Date(),
+      },
+    });
+
+    // Revalidate the post page to show the updated content
+    revalidatePath(`/home/forum/${postId}`);
+
+    return {
+      success: true,
+      postId: postId,
+    };
+  } catch (error) {
+    console.error("Error updating forum post:", error);
+
+    // Return appropriate error message based on error type
+    if (error instanceof z.ZodError) {
+      const errorMessage = error.errors.map((e) => e.message).join(", ");
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+
+    return {
+      success: false,
+      error: "Er is een fout opgetreden bij het bewerken van je post.",
+    };
+  }
 }

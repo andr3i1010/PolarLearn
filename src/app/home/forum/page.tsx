@@ -21,7 +21,7 @@ import {
 import { cookies } from "next/headers";
 import MarkdownRenderer from "@/components/md";
 import { icons, getSubjectName } from "@/components/icons";
-
+import { Badge } from "@/components/ui/badge";
 
 export default async function ForumHome({
   searchParams,
@@ -69,10 +69,7 @@ export default async function ForumHome({
     prisma.forum.findMany({
       where: {
         type: "thread",
-        OR: [
-          { creator: userId },
-          { creator: userName as string }
-        ]
+        OR: [{ creator: userId }, { creator: userName as string }],
       },
       orderBy: { createdAt: "desc" },
       skip,
@@ -81,10 +78,7 @@ export default async function ForumHome({
     prisma.forum.count({
       where: {
         type: "thread",
-        OR: [
-          { creator: userId },
-          { creator: userName as string }
-        ]
+        OR: [{ creator: userId }, { creator: userName as string }],
       },
     }),
   ]);
@@ -94,10 +88,7 @@ export default async function ForumHome({
     prisma.forum.findMany({
       where: {
         type: "reply",
-        OR: [
-          { creator: userId },
-          { creator: userName as string }
-        ]
+        OR: [{ creator: userId }, { creator: userName as string }],
       },
       orderBy: { createdAt: "desc" },
       select: {
@@ -114,16 +105,15 @@ export default async function ForumHome({
     prisma.forum.count({
       where: {
         type: "reply",
-        OR: [
-          { creator: userId },
-          { creator: userName as string }
-        ]
+        OR: [{ creator: userId }, { creator: userName as string }],
       },
     }),
   ]);
 
   // Get the parent thread information for context
-  const parentIds = myReplies.map((reply: { replyTo: any; }) => reply.replyTo).filter(Boolean) as string[];
+  const parentIds = myReplies
+    .map((reply: { replyTo: any }) => reply.replyTo)
+    .filter(Boolean) as string[];
   const parentThreads = await prisma.forum.findMany({
     where: {
       post_id: {
@@ -137,13 +127,19 @@ export default async function ForumHome({
   });
 
   // Create a map of parent thread titles for quick lookup
-  const parentThreadMap = parentThreads.reduce((acc: { [x: string]: any; }, thread: { post_id: string | number; title: any; }) => {
-    acc[thread.post_id] = thread.title;
-    return acc;
-  }, {} as Record<string, string>);
+  const parentThreadMap = parentThreads.reduce(
+    (
+      acc: { [x: string]: any },
+      thread: { post_id: string | number; title: any }
+    ) => {
+      acc[thread.post_id] = thread.title;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 
   // Enhance the reply objects with parent thread titles
-  const enhancedReplies = myReplies.map((reply: { replyTo: any; }) => ({
+  const enhancedReplies = myReplies.map((reply: { replyTo: any }) => ({
     ...reply,
     title: parentThreadMap[reply.replyTo || ""] || "Onbekende thread", // Fallback title if parent not found
     isReply: true, // Flag to identify this as a reply for UI handling
@@ -159,10 +155,13 @@ export default async function ForumHome({
 
   // Get unique creator IDs from all forum posts
   const allPosts = [...forumPosts, ...myQuestions, ...enhancedReplies];
-  const creatorIds = [...new Set(allPosts
-    .filter(post => 'creator' in post) // Only include posts with a creator property
-    .map(post => post.creator)
-  )];
+  const creatorIds = [
+    ...new Set(
+      allPosts
+        .filter((post) => "creator" in post) // Only include posts with a creator property
+        .map((post) => post.creator)
+    ),
+  ];
 
   // Also try to fetch users by name in case creator contains usernames
   const users = await prisma.user.findMany({
@@ -184,28 +183,42 @@ export default async function ForumHome({
   };
 
   // Create maps for both ID and name lookups
-  const userMapById = users.reduce((acc: Record<string, UserInfo>, user: UserInfo) => {
-    acc[user.id] = user;
-    return acc;
-  }, {} as Record<string, UserInfo>);
+  const userMapById = users.reduce(
+    (acc: Record<string, UserInfo>, user: UserInfo) => {
+      acc[user.id] = user;
+      return acc;
+    },
+    {} as Record<string, UserInfo>
+  );
 
-  const userMapByName = users.reduce((acc: Record<string, UserInfo>, user: UserInfo) => {
-    if (user.name) acc[user.name] = user;
-    return acc;
-  }, {} as Record<string, UserInfo>);
+  const userMapByName = users.reduce(
+    (acc: Record<string, UserInfo>, user: UserInfo) => {
+      if (user.name) acc[user.name] = user;
+      return acc;
+    },
+    {} as Record<string, UserInfo>
+  );
+
 
   // Function to render post list
-  const renderPostList = (posts: any[], totalPages: number, currentPage: number, tabId: string) => (
+  const renderPostList = (
+    posts: any[],
+    totalPages: number,
+    currentPage: number,
+    tabId: string
+  ) =>
+  (
     <>
       <div className="border w-33/34 border-neutral-700 rounded-md overflow-hidden">
         {posts.length > 0 ? (
           posts.map((post) => {
-            const creatorId = typeof post.creator === 'string' ? post.creator : String(post.creator);
-            const user =
-              userMapById[creatorId] || userMapByName[creatorId];
+            const creatorId =
+              typeof post.creator === "string"
+                ? post.creator
+                : String(post.creator);
+            const user = userMapById[creatorId] || userMapByName[creatorId];
             const subjectIcon = icons[post.subject as keyof typeof icons];
-            const subjectLabel =
-              getSubjectName(post.subject) || post.subject;
+            const subjectLabel = getSubjectName(post.subject) || post.subject;
             const relativeTime = formatRelativeTime(post.createdAt);
             const isReply = post.isReply === true;
 
@@ -213,11 +226,36 @@ export default async function ForumHome({
             const isPostCreator =
               currentUserId === post.creator ||
               currentUsername === post.creator ||
-              (user?.name && currentUsername === user.name) || session?.role === "admin";
+              (user?.name && currentUsername === user.name) ||
+              session?.role === "admin";
+            
+            let category = "";
+            let catBagdeColor = ""
+            switch (post.category) {
+              case "school":
+                category = "School-gerelateerd";
+                catBagdeColor = "bg-blue-500"
+                break;
+              case "general":
+                category = "Niet school-gerelateerd";
+                catBagdeColor = "bg-green-500"
+                break;
+              case "help":
+                category = "Hulp";
+                catBagdeColor = "bg-yellow-500"
+                break;
+              case "announcement":
+                category = "Aankondiging";
+                catBagdeColor = "bg-red-500"
+                break;
+            }
 
             return (
               <div key={post.post_id} className="relative">
-                <Link href={`/home/forum/${isReply ? post.replyTo : post.post_id}`} className="block">
+                <Link
+                  href={`/home/forum/${isReply ? post.replyTo : post.post_id}`}
+                  className="block"
+                >
                   <div
                     className={`border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-center cursor-pointer`}
                   >
@@ -239,6 +277,14 @@ export default async function ForumHome({
                     </div>
                     <div className="flex flex-col flex-1">
                       <div className="text-xs text-gray-400 mb-1 flex items-center">
+                        {post.category && (
+                          <>
+                            <Badge variant="outline" className={`text-xs ${catBagdeColor}`}>
+                              {category}
+                            </Badge>
+                            <span className="mx-1.5">•</span>
+                          </>
+                        )}
                         {subjectIcon && (
                           <Image
                             src={subjectIcon}
@@ -248,8 +294,12 @@ export default async function ForumHome({
                             className="mr-1"
                           />
                         )}
-                        <span>{subjectLabel}</span>
-                        <span className="mx-1.5">•</span>
+                        {post.subject && (
+                          <>
+                            <span>{subjectLabel}</span>
+                            <span className="mx-1.5">•</span>
+                          </>
+                        )}
                         <span className="text-gray-500">{relativeTime}</span>
                         <span className="mx-1.5">•</span>
                         <span className="text-gray-500">
@@ -259,7 +309,9 @@ export default async function ForumHome({
                       <h3 className="font-medium text-lg">
                         {isReply ? (
                           <>
-                            <span className="text-gray-400 font-normal text-sm">Antwoord op: </span>
+                            <span className="text-gray-400 font-normal text-sm">
+                              Antwoord op:{" "}
+                            </span>
                             {post.title}
                           </>
                         ) : (
@@ -304,7 +356,13 @@ export default async function ForumHome({
           <Pagination>
             <PaginationPrevious>
               {currentPage > 1 ? (
-                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage - 1}`}>Vorige</Link>
+                <Link
+                  href={`/home/forum${
+                    tabId !== "questions" ? `/${tabId}` : ""
+                  }?page=${currentPage - 1}`}
+                >
+                  Vorige
+                </Link>
               ) : (
                 <span className="text-gray-400">Vorige</span>
               )}
@@ -316,7 +374,9 @@ export default async function ForumHome({
                 return (
                   <PaginationItem key={pageNum}>
                     <PaginationLink
-                      href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${pageNum}`}
+                      href={`/home/forum${
+                        tabId !== "questions" ? `/${tabId}` : ""
+                      }?page=${pageNum}`}
                       isActive={pageNum === currentPage}
                     >
                       {pageNum}
@@ -329,7 +389,13 @@ export default async function ForumHome({
               {currentPage === totalPages ? (
                 <span className="text-gray-400">Volgende</span>
               ) : (
-                <Link href={`/home/forum${tabId !== "questions" ? `/${tabId}` : ""}?page=${currentPage + 1}`}>Volgende</Link>
+                <Link
+                  href={`/home/forum${
+                    tabId !== "questions" ? `/${tabId}` : ""
+                  }?page=${currentPage + 1}`}
+                >
+                  Volgende
+                </Link>
               )}
             </PaginationNext>
           </Pagination>
@@ -347,12 +413,22 @@ export default async function ForumHome({
     {
       id: "my-questions",
       label: "Mijn vragen",
-      content: renderPostList(myQuestions, myQuestionsPages, page, "my-questions"),
+      content: renderPostList(
+        myQuestions,
+        myQuestionsPages,
+        page,
+        "my-questions"
+      ),
     },
     {
       id: "my-answers",
       label: "Mijn antwoorden",
-      content: renderPostList(enhancedReplies, myAnswersPages, page, "my-answers"),
+      content: renderPostList(
+        enhancedReplies,
+        myAnswersPages,
+        page,
+        "my-answers"
+      ),
     },
     {
       id: "how-the-forum-works",
@@ -404,8 +480,7 @@ In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over sc
 
 Veel leerplezier! 🚀
     `}
-        >
-        </MarkdownRenderer>
+        ></MarkdownRenderer>
       ),
     },
   ];

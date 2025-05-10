@@ -8,8 +8,15 @@ import {
 } from "@/components/ui/popover"
 import { Check, Flame, Snowflake, X } from "lucide-react"
 
-import { getStreak, getFreezes, getWeekActivity } from "./streakData"
+import { getAllStreakData } from "./streakData"
 import { ColorRing } from "react-loader-spinner"
+
+// Create a cache to prevent redundant requests
+let dataCache = {
+    data: null as any,
+    timestamp: 0,
+    loading: false
+};
 
 export default function StreakNavbarThing() {
     const [streakCnt, setStreakCnt] = useState(0)
@@ -18,24 +25,75 @@ export default function StreakNavbarThing() {
     const [weekActivity, setWeekActivity] = useState<Array<{ date: string, status: string }>>([])
 
     useEffect(() => {
+        let isMounted = true;
+
         const loadData = async () => {
             try {
-                const streak = await getStreak()
-                const freezes = await getFreezes()
-                const activityData = await getWeekActivity()
+                // Check if we have cached data that's less than 5 minutes old
+                const now = Date.now();
+                if (dataCache.data && now - dataCache.timestamp < 5 * 60 * 1000) {
+                    // Use cached data
+                    if (isMounted) {
+                        setStreakCnt(dataCache.data.streak);
+                        setFreezeCnt(dataCache.data.freezes);
+                        setWeekActivity(dataCache.data.weekActivity);
+                        setLoading(false);
+                    }
+                    return;
+                }
 
-                setWeekActivity(activityData)
-                setStreakCnt(streak || 0)
-                setFreezeCnt(freezes || 0)
+                // If another component is already loading the data, wait for it
+                if (dataCache.loading) {
+                    // Poll until data is available
+                    const checkInterval = setInterval(() => {
+                        if (dataCache.data && isMounted) {
+                            setStreakCnt(dataCache.data.streak);
+                            setFreezeCnt(dataCache.data.freezes);
+                            setWeekActivity(dataCache.data.weekActivity);
+                            setLoading(false);
+                            clearInterval(checkInterval);
+                        }
+                    }, 100);
+
+                    // Cleanup interval if component unmounts
+                    return () => clearInterval(checkInterval);
+                }
+
+                // Mark as loading to prevent duplicate requests
+                dataCache.loading = true;
+
+                // Fetch new data
+                const data = await getAllStreakData();
+
+                // Cache the result
+                dataCache = {
+                    data,
+                    timestamp: now,
+                    loading: false
+                };
+
+                if (isMounted) {
+                    setStreakCnt(data.streak);
+                    setFreezeCnt(data.freezes);
+                    setWeekActivity(data.weekActivity);
+                    setLoading(false);
+                }
             } catch (error) {
-                console.error("Error loading streak data:", error)
-            } finally {
-                setLoading(false)
+                dataCache.loading = false;
+                console.error("Error loading streak data:", error);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
-        }
+        };
 
-        loadData()
-    }, [])
+        loadData();
+
+        // Cleanup function
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -75,7 +133,7 @@ export default function StreakNavbarThing() {
             <PopoverContent className={`w-80 bg-neutral-800 z-110 drop-shadow-2xl min-h-40 flex flex-col space-y-3 text-white justify-center`}>
                 <div className="flex flex-row space-x-3">
                     <div className="flex flex-col items-center justify-center h-min-10 hover:bg-neutral-700 drop-shadow-2xl rounded-lg w-full transition-all gap-y-3 text-white border-neutral-700 border-1 py-3">
-                        <Flame className={`${ streakCnt >= 1 ? "text-orange-400" : "text-white"}`} />
+                        <Flame className={`${streakCnt >= 1 ? "text-orange-400" : "text-white"}`} />
                         {loading ? (
                             <ColorRing
                                 visible={true}

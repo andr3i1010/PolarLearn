@@ -77,12 +77,16 @@ model forum {
   type      String
   replyTo   String?
   title     String
-  subject   String
+  subject   String?
   content   String
+  category  String? 
+
   creator   String   @db.String
+
   locked    Boolean  @default(false)
   votes     Int      @db.Int @default(0)
   votes_data Json?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

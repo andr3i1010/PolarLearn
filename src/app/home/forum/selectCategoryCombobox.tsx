@@ -1,72 +1,58 @@
 "use client"
 
-import React, { memo } from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import React, { memo, useMemo } from "react"
+import { Book, Check, ChevronsUpDown, Globe, Megaphone, MessageCircle, MessageCircleQuestion } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { SearchIcon } from "lucide-react"
-import Image from "next/image"
-import { icons } from "@/components/icons"
 
 // Define the item type to support ReactNode in the label
 export interface ComboboxItem {
   value: string;
   label: React.ReactNode;
-  // SearchText is used for filtering when label is a ReactNode
   searchText: string;
 }
 
-const SubjectLabel = memo(({ icon, alt, label }: { icon: any; alt: string; label: string }) => (
-  <div className="flex items-center">
-    <Image src={icon} alt={alt} width={24} height={24} className="mr-2" />
-    <span>{label}</span>
-  </div>
-));
 const defaultItems: ComboboxItem[] = [
   {
-    value: "WI",
-    label: <SubjectLabel icon={icons.WI} alt="wiskunde" label="Wiskunde" />,
+    value: "school",
+    label: (
+      <div className="flex flex-row">
+        <Book />
+        <span className="ml-2">School-gerelateerd</span>
+      </div>
+    ),
     searchText: "Wiskunde",
   },
   {
-    value: "NSK",
-    label: <SubjectLabel icon={icons.NSK} alt="nask" label="NaSk" />,
-    searchText: "NaSk",
+    value: "general",
+    label: (
+      <div className="flex flex-row">
+        <MessageCircle />
+        <span className="ml-2">Niet school-gerelateerd</span>
+      </div>
+    ),
+    searchText: "Niet school-gerelateerd",
   },
   {
-    value: "NE",
-    label: <SubjectLabel icon={icons.NL} alt="nederlands" label="Nederlands" />,
-    searchText: "Nederlands",
+    value: "help",
+    label: (
+      <div className="flex flex-row">
+        <MessageCircleQuestion />
+        <span className="ml-2">Hulp</span>
+      </div>
+    ),
+    searchText: "hulp",
   },
   {
-    value: "EN",
-    label: <SubjectLabel icon={icons.EN} alt="engels" label="Engels" />,
-    searchText: "Engels",
-  },
-  {
-    value: "FR",
-    label: <SubjectLabel icon={icons.FR} alt="frans" label="Frans" />,
-    searchText: "Frans",
-  },
-  {
-    value: "DE",
-    label: <SubjectLabel icon={icons.DE} alt="duits" label="Duits" />,
-    searchText: "Duits",
-  },
-  {
-    value: "AK",
-    label: <SubjectLabel icon={icons.AK} alt="aardrijkskunde" label="Aardrijkskunde" />,
-    searchText: "Aardrijkskunde",
-  },
-  {
-    value: "GS",
-    label: <SubjectLabel icon={icons.GS} alt="geschiedenis" label="Geschiedenis" />,
-    searchText: "Geschiedenis",
-  },
-  {
-    value: "BI",
-    label: <SubjectLabel icon={icons.BI} alt="biologie" label="Biologie" />,
-    searchText: "Biologie",
+    value: "announcement",
+    label: (
+      <div className="flex flex-row">
+        <Megaphone />
+        <span className="ml-2">Aankondigingen</span>
+      </div>
+    ),
+    searchText: "aankondigingen",
   },
 ];
 
@@ -82,22 +68,24 @@ interface ComboboxProps {
   searchPlaceholder?: string;
   className?: string;
   onSelect?: (value: string) => void;
-  onSelectAction?: (value: any) => void; // Add this prop
-  initialValue?: string; // Add this prop
-  defaultValue?: any; // Add this prop
+  onSelectAction?: (value: string) => void; // Add support for onSelectAction
+  initialValue?: string; // Add support for initialValue
+  defaultValue?: string; // Add support for defaultValue
   minWidth?: string | number;
+  isAdmin?: boolean; // Add isAdmin prop
 }
 
-export function Combobox({
+export function SelectCategoryCombobox({
   items = convertedItems,
-  placeholder = "Selecteer een vak",
-  searchPlaceholder = "Zoek voor een vak...",
+  placeholder = "Selecteer een categorie",
+  searchPlaceholder = "Zoek voor een categorie...",
   className,
   onSelect,
-  onSelectAction, // Include the new prop in function parameters
-  initialValue = "", // Include with default empty string
-  defaultValue, // Include new prop
+  onSelectAction, // Include in props
+  initialValue = "",
+  defaultValue = "",
   minWidth = "16rem",
+  isAdmin = false, // Default to false
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(initialValue || defaultValue || "")
@@ -108,24 +96,43 @@ export function Combobox({
   const [dropPosition, setDropPosition] = React.useState<'bottom' | 'top'>('bottom')
   const [isPositioned, setIsPositioned] = React.useState(false)
 
+  // Filter items based on user role - remove announcement category for non-admins
+  const filteredCategories = useMemo(() => {
+    if (!isAdmin) {
+      return items.filter(item => item.value !== "announcement");
+    }
+    return items;
+  }, [items, isAdmin]);
+
   // Filter items based on search term using searchText property
   const filteredItems = React.useMemo(() => {
-    return items.filter(item =>
+    return filteredCategories.filter(item =>
       item.searchText.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [searchTerm, items])
+    );
+  }, [searchTerm, filteredCategories]);
+
+  // Update useEffect to handle initialValue and defaultValue changes
+  React.useEffect(() => {
+    if (initialValue) {
+      setValue(initialValue);
+    } else if (defaultValue && !value) {
+      setValue(defaultValue);
+    }
+  }, [initialValue, defaultValue, value]);
 
   // Function to handle selection
   const handleSelect = (currentValue: string) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
+
+    // Call both callbacks for compatibility
     if (onSelect) {
       onSelect(newValue);
     }
-    // Call onSelectAction if it exists
     if (onSelectAction) {
       onSelectAction(newValue);
     }
+
     setOpen(false);
     setSearchTerm("");
   };
@@ -275,7 +282,7 @@ export function Combobox({
         className="w-full justify-between border-neutral-700"
         onClick={() => setOpen(!open)}
         style={{ minWidth: "inherit" }}
-        type="button" // Add this to prevent form submission when clicked
+        type="button" // Add this to prevent form submission
       >
         <div className="truncate text-left">
           {selectedItem ? selectedItem.label : placeholder}

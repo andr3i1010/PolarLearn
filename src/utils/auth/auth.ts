@@ -3,6 +3,7 @@
 import { prisma } from "../prisma";
 import { hashPassword } from "./user";
 import { createSession, decodeCookie } from "./session";
+import { cookies } from "next/headers";
 
 export async function signInCredentials(
   email: string,
@@ -31,22 +32,40 @@ export async function signInCredentials(
   }
 }
 
-export async function getUserFromSession(sessionId: string) {
-  if (!sessionId) {
+export async function getUserFromSession(sessionId?: string) {
+  try {
+    if (!sessionId) {
+      const sessionCookie = (await cookies()).get("polarlearn.session-id");
+      if (!sessionCookie || !sessionCookie.value) {
+        return null;
+      }
+      sessionId = sessionCookie.value;
+    }
+
+    const decodedSessionId = await decodeCookie(sessionId);
+    if (!decodedSessionId) {
+      return null;
+    }
+
+    const session = await prisma.session.findFirst({
+      where: {
+        sessionID: decodedSessionId,
+      },
+    });
+
+    if (!session) {
+      return null;
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id: session.userId,
+      },
+    });
+
+    return user;
+  } catch (error) {
+    console.error("Error getting user from session:", error);
     return null;
   }
-  const session = await prisma.session.findFirst({
-    where: {
-      sessionID: await decodeCookie(sessionId) as string,
-    },
-  });
-  if (!session) {
-    return null;
-  }
-  const user = await prisma.user.findFirst({
-    where: {
-      id: session.userId,
-    },
-  });
-  return user;
 }
