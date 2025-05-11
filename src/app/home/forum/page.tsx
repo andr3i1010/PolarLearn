@@ -22,6 +22,7 @@ import { cookies } from "next/headers";
 import MarkdownRenderer from "@/components/md";
 import { icons, getSubjectName } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
+import { Book, Megaphone, MessageCircle, MessageCircleQuestion } from "lucide-react";
 
 export default async function ForumHome({
   searchParams,
@@ -231,22 +232,27 @@ export default async function ForumHome({
             
             let category = "";
             let catBagdeColor = ""
+            let categoryIcon;
             switch (post.category) {
               case "school":
                 category = "School-gerelateerd";
                 catBagdeColor = "bg-blue-500"
+                categoryIcon = <Book/>
                 break;
               case "general":
                 category = "Niet school-gerelateerd";
                 catBagdeColor = "bg-green-500"
+                categoryIcon = <MessageCircle/>
                 break;
               case "help":
                 category = "Hulp";
                 catBagdeColor = "bg-yellow-500"
+                categoryIcon = <MessageCircleQuestion />
                 break;
               case "announcement":
                 category = "Aankondiging";
                 catBagdeColor = "bg-red-500"
+                categoryIcon = <Megaphone />
                 break;
             }
 
@@ -280,6 +286,7 @@ export default async function ForumHome({
                         {post.category && (
                           <>
                             <Badge variant="outline" className={`text-xs ${catBagdeColor}`}>
+                              {categoryIcon}
                               {category}
                             </Badge>
                             <span className="mx-1.5">•</span>

@@ -15,6 +15,7 @@ import { getUserNameById } from "@/serverActions/getUserName"
 import EditPostBtn from "./editPostBtn"
 import { icons, getSubjectName } from "@/components/icons"
 import { Badge } from "@/components/ui/badge"
+import { Book, MessageCircle, MessageCircleQuestion, Megaphone } from "lucide-react"
 
 // UUID validation regex pattern
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -153,22 +154,28 @@ export default async function Page({
     // Determine category display
     let categoryDisplay = "";
     let categoryBadgeColor = "";
+    let categoryIcon;
+    
     switch (post.category) {
         case "school":
             categoryDisplay = "School-gerelateerd";
             categoryBadgeColor = "bg-blue-500";
+            categoryIcon = <Book />
             break;
         case "general":
             categoryDisplay = "Niet school-gerelateerd";
             categoryBadgeColor = "bg-green-500";
+            categoryIcon = <MessageCircle />
             break;
         case "help":
             categoryDisplay = "Hulp";
             categoryBadgeColor = "bg-yellow-500";
+            categoryIcon = <MessageCircleQuestion />
             break;
         case "announcement":
             categoryDisplay = "Aankondiging";
             categoryBadgeColor = "bg-red-500";
+            categoryIcon = <Megaphone />
             break;
     }
 
@@ -203,6 +210,7 @@ export default async function Page({
                             </div>
                             {post.category && (
                                 <Badge variant="outline" className={`${categoryBadgeColor}`}>
+                                    {categoryIcon}
                                     {categoryDisplay}
                                 </Badge>
                             )}
