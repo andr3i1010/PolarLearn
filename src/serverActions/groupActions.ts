@@ -504,8 +504,8 @@ export async function deleteGroup(groupId: string) {
             return { success: false, error: "Groep niet gevonden" };
         }
 
-        // Check if user is creator
-        const isCreator = group.creator === session.id || session?.role === 'admin';
+        // Check if user is creator (by id or name) or admin
+        const isCreator = group.creator === session.id || group.creator === session.name || session?.role === 'admin';
 
         if (!isCreator) {
             return { success: false, error: "Alleen de eigenaar kan deze groep verwijderen" };
@@ -608,87 +608,305 @@ export async function toggleMemberAdminStatus(groupId: string, memberId: string)
 // Join a group
 export async function joinGroup(groupId: string) {
     try {
-        const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
+        const session = await getUserFromSession(
+            (await cookies()).get("polarlearn.session-id")?.value as string
+        );
 
-        if (!session || !session.id) {
-            return { success: false, error: "Je moet ingelogd zijn om lid te worden van een groep" };
+        if (!session) {
+            return { success: false, error: "Je moet ingelogd zijn om lid te worden" };
         }
 
         // Get the group
-        const group = await prisma.group.findFirst({
-            where: { groupId }
+        const group = await prisma.group.findUnique({
+            where: { groupId },
         });
 
         if (!group) {
             return { success: false, error: "Groep niet gevonden" };
         }
 
+        // Get current members and pending approvals
+        const members = group.members ?
+            (Array.isArray(group.members) ? group.members : []) : [];
+
         // Check if user is already a member
-        const members = group.members as string[] || [];
         if (members.includes(session.id)) {
             return { success: false, error: "Je bent al lid van deze groep" };
         }
 
-        // Check if group requires approval
+        // Handle groups that require approval
         if (group.requiresApproval) {
-            // Add to pending member requests
-            const pendingMembers = group.toBeApproved as string[] || [];
+            // Get current pending approvals
+            let pendingApprovals: string[] = [];
 
-            if (pendingMembers.includes(session.id)) {
-                return { success: false, error: "Je lidmaatschapsverzoek is al in behandeling" };
+            if (group.toBeApproved) {
+                if (Array.isArray(group.toBeApproved)) {
+                    pendingApprovals = group.toBeApproved as string[];
+                } else if (typeof group.toBeApproved === 'object') {
+                    pendingApprovals = Object.keys(group.toBeApproved as object);
+                }
             }
 
-            // Add user to pending members
+            // Check if user already has a pending request
+            if (pendingApprovals.includes(session.id)) {
+                return {
+                    success: false,
+                    error: "Je hebt al een verzoek ingediend om lid te worden"
+                };
+            }
+
+            // Add user to pending approvals
+            const updatedPendingApprovals = [...pendingApprovals, session.id];
+
             await prisma.group.update({
-                where: { id: group.id },
-                data: {
-                    toBeApproved: [...pendingMembers, session.id]
-                }
+                where: { groupId },
+                data: { toBeApproved: updatedPendingApprovals }
             });
 
             return {
                 success: true,
-                pending: true,
-                message: "Je verzoek om lid te worden is verzonden naar de groepsbeheerder"
+                message: "Je verzoek is ingediend en wacht op goedkeuring"
             };
         } else {
-            // Directly add user to members for public groups
+            // If no approval required, add user directly to members
+            const updatedMembers = [...members, session.id];
+
             await prisma.group.update({
-                where: { id: group.id },
-                data: {
-                    members: [...members, session.id]
-                }
+                where: { groupId },
+                data: { members: updatedMembers }
             });
 
-            // Also update user's inGroups field to include this group
-            const user = await prisma.user.findUnique({
-                where: { id: session.id }
-            });
-
-            if (user) {
-                const inGroups = (user.inGroups as string[]) || [];
-
-                if (!inGroups.includes(groupId)) {
-                    await prisma.user.update({
-                        where: { id: session.id },
-                        data: {
-                            inGroups: [...inGroups, groupId]
-                        }
-                    });
-                }
-            }
-
-            revalidatePath('/learn/groups');
-            revalidatePath(`/learn/group/${groupId}`);
-
-            return {
-                success: true,
-                message: "Je bent nu lid van deze groep"
-            };
+            return { success: true, message: "Je bent nu lid van deze groep" };
         }
     } catch (error) {
         console.error("Error joining group:", error);
-        return { success: false, error: "Er is een fout opgetreden bij het lid worden van de groep" };
+        return { success: false, error: "Er is een fout opgetreden" };
+    }
+}
+
+/**
+ * Get users pending approval for a group
+ */
+export async function getPendingApprovals(groupId: string) {
+    try {
+        const session = await getUserFromSession(
+            (await cookies()).get("polarlearn.session-id")?.value as string
+        );
+
+        if (!session) {
+            return { success: false, error: "Je moet ingelogd zijn" };
+        }
+
+        // Get the group
+        const group = await prisma.group.findUnique({
+            where: { groupId },
+        });
+
+        if (!group) {
+            return { success: false, error: "Groep niet gevonden" };
+        }
+
+        // Check if user is admin or creator
+        const isAdmin = Array.isArray(group.admins) && group.admins.includes(session.id);
+        const isCreator = group.creator === session.id;
+
+        if (!isAdmin && !isCreator && session.role !== "admin") {
+            return { success: false, error: "Je hebt geen toestemming om verzoeken te bekijken" };
+        }
+
+        // Get the pending approvals
+        const pendingApprovals = group.toBeApproved || [];
+
+        // If the field exists but is an empty array or empty object, return empty list
+        if (Array.isArray(pendingApprovals) && pendingApprovals.length === 0 ||
+            (typeof pendingApprovals === 'object' && Object.keys(pendingApprovals).length === 0)) {
+            return { success: true, pendingApprovals: [] };
+        }
+
+        // Now fetch user details for each pending approval
+        let userIds: string[] = [];
+
+        if (Array.isArray(pendingApprovals)) {
+            // Filter out non-string values and ensure we only have strings
+            userIds = pendingApprovals
+                .filter((id): id is string => typeof id === 'string')
+                .map(id => id);
+        } else {
+            // If it's stored as an object with timestamps or additional data
+            userIds = Object.keys(pendingApprovals);
+        }
+
+        const users = await prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: { id: true, name: true, image: true }
+        });
+
+        return {
+            success: true,
+            pendingApprovals: users
+        };
+    } catch (error) {
+        console.error("Error getting pending approvals:", error);
+        return { success: false, error: "Er is een fout opgetreden" };
+    }
+}
+
+/**
+ * Approve or reject a user's request to join a group
+ */
+export async function handleMembershipRequest(
+    groupId: string,
+    userId: string,
+    approved: boolean
+) {
+    try {
+        const session = await getUserFromSession(
+            (await cookies()).get("polarlearn.session-id")?.value as string
+        );
+
+        if (!session) {
+            return { success: false, error: "Je moet ingelogd zijn" };
+        }
+
+        // Get the group
+        const group = await prisma.group.findUnique({
+            where: { groupId },
+        });
+
+        if (!group) {
+            return { success: false, error: "Groep niet gevonden" };
+        }
+
+        // Check if user is admin or creator
+        const isAdmin = Array.isArray(group.admins) && group.admins.includes(session.id);
+        const isCreator = group.creator === session.id;
+
+        if (!isAdmin && !isCreator && session.role !== "admin") {
+            return { success: false, error: "Je hebt geen toestemming om verzoeken te behandelen" };
+        }
+
+        // Get current members and pending approvals
+        const members = group.members ?
+            (Array.isArray(group.members) ? group.members : []) : [];
+
+        let pendingApprovals: string[] = [];
+        if (group.toBeApproved) {
+            if (Array.isArray(group.toBeApproved)) {
+                // Filter out non-string values and ensure we only have strings
+                pendingApprovals = group.toBeApproved
+                    .filter((id): id is string => typeof id === 'string')
+                    .map(id => id);
+            } else {
+                // If it's stored as an object with timestamps or additional data
+                pendingApprovals = Object.keys(group.toBeApproved);
+            }
+        }
+
+        // Remove user from pending approvals
+        const updatedPendingApprovals = pendingApprovals.filter(id => id !== userId);
+
+        // Add user to members if approved
+        let updatedMembers = [...members];
+        if (approved && !updatedMembers.includes(userId)) {
+            updatedMembers.push(userId);
+        }
+
+        // Update the group
+        await prisma.group.update({
+            where: { groupId },
+            data: {
+                members: updatedMembers,
+                toBeApproved: updatedPendingApprovals
+            }
+        });
+
+        return {
+            success: true,
+            message: approved ? "Gebruiker toegevoegd aan de groep" : "Verzoek afgewezen"
+        };
+    } catch (error) {
+        console.error("Error handling membership request:", error);
+        return { success: false, error: "Er is een fout opgetreden" };
+    }
+}
+
+// Remove a member from a group
+export async function removeMemberFromGroup(groupId: string, memberId: string) {
+    try {
+        const session = await getUserFromSession(
+            (await cookies()).get("polarlearn.session-id")?.value as string
+        );
+
+        if (!session || !session.id) {
+            return {
+                success: false,
+                error: "Je moet ingelogd zijn om deze actie uit te voeren",
+            };
+        }
+
+        // Get the group
+        const group = await prisma.group.findFirst({
+            where: { groupId },
+        });
+
+        if (!group) {
+            return {
+                success: false,
+                error: "Groep niet gevonden",
+            };
+        }
+
+        // Check if current user is creator, admin, or platform admin
+        const isCreator = group.creator === session.id;
+        const isAdmin =
+            (Array.isArray(group.admins) && group.admins.includes(session.id)) ||
+            session.role === "admin";
+
+        if (!isCreator && !isAdmin) {
+            return {
+                success: false,
+                error: "Je hebt geen rechten om leden te verwijderen",
+            };
+        }
+
+        // Check if target is the creator (creator can't be removed)
+        if (group.creator === memberId) {
+            return {
+                success: false,
+                error: "De eigenaar kan niet uit de groep worden verwijderd",
+            };
+        }
+
+        // Prepare the updated members array
+        const currentMembers = (group.members || []) as string[];
+        const updatedMembers = currentMembers.filter(
+            member => member !== memberId
+        );
+
+        // Update members list
+        await prisma.group.update({
+            where: { groupId },
+            data: {
+                members: updatedMembers,
+                // Also remove from admins if they were an admin
+                admins: Array.isArray(group.admins) ?
+                    group.admins.filter(admin => admin !== memberId) :
+                    group.admins
+            },
+        });
+
+        // Revalidate the group page
+        revalidatePath(`/learn/group/${groupId}`);
+
+        return {
+            success: true,
+        };
+    } catch (error) {
+        console.error("Error removing member from group:", error);
+        return {
+            success: false,
+            error: "Er is een fout opgetreden bij het verwijderen van het lid",
+        };
     }
 }
 

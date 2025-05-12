@@ -9,7 +9,7 @@ import Image from "next/image"
 import { icons } from "@/components/icons"
 
 // Define the item type to support ReactNode in the label
-export interface ComboboxItem {
+interface ComboboxItem {
   value: string;
   label: React.ReactNode;
   // SearchText is used for filtering when label is a ReactNode

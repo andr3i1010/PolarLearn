@@ -1,34 +1,36 @@
 "use server";
 
-import { prisma } from "@/utils/prisma"
-import { getUserFromSession } from "@/utils/auth/auth"
-import { v4 as uuidv4 } from 'uuid'
-import { cookies } from "next/headers"
-import { formSchema } from '@/app/home/forum/formSchema';
-import { revalidatePath } from 'next/cache';
+import { prisma } from "@/utils/prisma";
+import { getUserFromSession } from "@/utils/auth/auth";
+import { v4 as uuidv4 } from "uuid";
+import { cookies } from "next/headers";
+import { formSchema } from "@/app/home/forum/formSchema";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export async function createReply(postId: string, content: string) {
-  const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value)
+  const session = await getUserFromSession(
+    (await cookies()).get("polarlearn.session-id")!.value
+  );
 
   if (!session || !session.id) {
-    throw new Error("You must be logged in to reply")
+    throw new Error("You must be logged in to reply");
   }
 
-  let gebruiker = await prisma.user.findFirst({ where: { id: session.id } })
+  let gebruiker = await prisma.user.findFirst({ where: { id: session.id } });
   if (!gebruiker || !gebruiker.loginAllowed || !gebruiker.forumAllowed) {
-    throw new Error("je bent verbannen van PolarLearn")
+    throw new Error("je bent verbannen van PolarLearn");
   }
 
   // Get the original post to copy the subject
   const originalPost = await prisma.forum.findUnique({
     where: {
-      post_id: postId
-    }
-  })
+      post_id: postId,
+    },
+  });
 
   if (!originalPost) {
-    throw new Error("Original post not found")
+    throw new Error("Original post not found");
   }
 
   // Create the reply
@@ -42,34 +44,36 @@ export async function createReply(postId: string, content: string) {
       content: content,
       creator: session.id,
       votes: 0,
-      votes_data: { users: {} }
-    }
-  })
+      votes_data: { users: {} },
+    },
+  });
 
-  return reply
+  return reply;
 }
 
 export async function deletePost(postId: string) {
-  const session = await getUserFromSession((await cookies()).get('polarlearn.session-id')!.value)
+  const session = await getUserFromSession(
+    (await cookies()).get("polarlearn.session-id")!.value
+  );
 
-  if (!session || !session.id) { // Check for session.id
-    throw new Error("You must be logged in to delete a post")
+  if (!session || !session.id) {
+    // Check for session.id
+    throw new Error("You must be logged in to delete a post");
   }
 
   // Get the post to ensure the current user is the creator
   const post = await prisma.forum.findUnique({
     where: {
-      post_id: postId
-    }
-  })
+      post_id: postId,
+    },
+  });
 
   if (!post) {
-    throw new Error("Post not found")
+    throw new Error("Post not found");
   }
 
   // Check if the session user ID matches the post creator ID or admin
   if (post.creator !== session.id) {
-
     // As a fallback, check if the creator field might store the username (legacy)
     // and if it matches the session username. This can be removed later
     // once all creator fields are confirmed to be IDs.
@@ -84,25 +88,25 @@ export async function deletePost(postId: string) {
   if (post.type !== "reply") {
     await prisma.forum.deleteMany({
       where: {
-        replyTo: postId
-      }
-    })
+        replyTo: postId,
+      },
+    });
   }
 
   // Delete the post itself
   await prisma.forum.delete({
     where: {
-      post_id: postId
-    }
-  })
+      post_id: postId,
+    },
+  });
 
   // If it was a main post, redirect to forum list
   // If it was a reply, we'll just refresh the page
   if (post.type !== "reply") {
-    return { redirect: "/home/forum" }
+    return { redirect: "/home/forum" };
   }
 
-  return { success: true }
+  return { success: true };
 }
 
 // Add a function to fetch a post by ID
@@ -110,7 +114,7 @@ export async function getPost(postId: string) {
   try {
     const post = await prisma.forum.findUnique({
       where: {
-        post_id: postId
+        post_id: postId,
       },
     });
 
@@ -208,5 +212,33 @@ export async function updatePost(
       success: false,
       error: "Er is een fout opgetreden bij het bewerken van je post.",
     };
+  }
+}
+
+/**
+ * Server action to check if the current user is an admin
+ * @returns {Promise<boolean>} True if user is an admin, false otherwise
+ */
+export async function checkIsAdmin(): Promise<boolean> {
+  try {
+    // Use the custom auth system instead of NextAuth
+    const cookieStore = cookies();
+    const sessionCookie = (await cookieStore).get("polarlearn.session-id");
+
+    if (!sessionCookie?.value) {
+      return false;
+    }
+
+    const session = await getUserFromSession(sessionCookie.value);
+
+    // Check if user is authenticated and has admin role (using lowercase "admin" based on other code)
+    if (session?.role === "admin") {
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Error checking admin status:", error);
+    return false;
   }
 }

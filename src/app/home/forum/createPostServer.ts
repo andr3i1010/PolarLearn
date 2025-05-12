@@ -40,7 +40,7 @@ type CreatePostResult =
   | { success: false; error: string };
 
 // Export a function to get the form schema
-export async function getFormSchema() {
+async function getFormSchema() {
   return formSchema;
 }
 
