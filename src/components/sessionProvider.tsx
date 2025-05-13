@@ -20,7 +20,7 @@ export const useSession = () => useContext(SessionContext);
 
 export default function SessionProvider({
     children,
-    checkInterval = 10000
+    checkInterval = 30000 // 30 seconds
 }: {
     children: ReactNode;
     checkInterval?: number;

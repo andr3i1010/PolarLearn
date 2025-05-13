@@ -9,6 +9,7 @@ import {
 import { Check, Flame, Snowflake, X } from "lucide-react"
 
 import { getAllStreakData } from "./streakData"
+import { updateDailyStreak } from "./updateStreak"
 import { ColorRing } from "react-loader-spinner"
 
 // Create a cache to prevent redundant requests
@@ -29,6 +30,9 @@ export default function StreakNavbarThing() {
 
         const loadData = async () => {
             try {
+                // Always update streak before fetching data
+                await updateDailyStreak();
+
                 // Check if we have cached data that's less than 5 minutes old
                 const now = Date.now();
                 if (dataCache.data && now - dataCache.timestamp < 5 * 60 * 1000) {

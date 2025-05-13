@@ -33,7 +33,7 @@ async function setupSessionTTLIndex() {
         }
       ]
     });
-    console.log("TTL index for session expiration configured successfully");
+    // console.log("TTL index for session expiration configured successfully");
   } catch (error) {
     console.error("Failed to set up TTL index for sessions:", error);
   }
@@ -41,9 +41,12 @@ async function setupSessionTTLIndex() {
 
 // New function to ensure TTL index exists after Prisma schema push
 export async function ensureSessionTTLIndex() {
-  console.log("Ensuring TTL index exists after Prisma schema operations...");
+  // console.log("Ensuring TTL index exists after Prisma schema operations...");
   return setupSessionTTLIndex();
 }
+
+// Ensure TTL index is set up on module load
+ensureSessionTTLIndex();
 
 export async function createSession(userid: string) {
   // console.debug("createSession: Attempting session creation for user", userid);
@@ -126,7 +129,7 @@ export async function isLoggedIn() {
   try {
     const sessionId = await decodeCookie(cookie.value);
     if (!sessionId) {
-      // console.debug("isLoggedIn: Invalid session from token");
+      console.error("isLoggedIn: Invalid session from token or token expired");
       return false;
     }
 
@@ -137,7 +140,7 @@ export async function isLoggedIn() {
     });
 
     if (!session) {
-      // console.debug("isLoggedIn: Session not found in DB, clearing cookie");
+      console.error("isLoggedIn: Session not found in DB for sessionId", sessionId);
       await (await cookies()).set('polarlearn.session-id', '', {
         expires: new Date(0),
         path: '/',
@@ -149,7 +152,7 @@ export async function isLoggedIn() {
     }
 
     if (session.expires < new Date()) {
-      // console.debug("isLoggedIn: Session expired, logging out");
+      console.error("isLoggedIn: Session expired in DB for sessionId", sessionId);
       await logOut();
       return false;
     }
