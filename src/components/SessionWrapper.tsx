@@ -12,7 +12,7 @@ export default function SessionWrapper({ children }: { children: React.ReactNode
     }
 
     return (
-        <SessionProvider checkInterval={5 * 60 * 1000}>
+        <SessionProvider checkInterval={5 * 1000}>
             {children}
         </SessionProvider>
     );

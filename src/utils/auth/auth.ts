@@ -18,7 +18,7 @@ export async function signInCredentials(
       return "invcreds";
     }
 
-    if (!user.loginAllowed) return 'banned';
+    if (!user.loginAllowed) return user.banReason as string;
 
     const hashedPassword = await hashPassword(password, user.salt);
 

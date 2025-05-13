@@ -71,11 +71,8 @@ export default function SignInForm() {
                   case "invcreds":
                     toast.error("Ongeldige inloggegevens");
                     break;
-                  case "banned":
-                    toast.error('Je bent permanent verbannen van PolarLearn. Deze actie kan niet ongedaan worden gemaakt.');
-                    break;
                   default:
-                    toast.error("interne serverfout");
+                    toast.error(`Je bent permanent verbannen van PolarLearn met reden: ${result || 'Niet gevonden in database'}. Deze actie kan niet ongedaan worden gemaakt.`);
                     break;
                 }
               } else {
