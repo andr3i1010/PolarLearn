@@ -1,6 +1,14 @@
 // Dit is een verzameling van de leericonen die worden gebruikt in de app
 
 import Image from "next/image"
+import { memo } from "react"
+
+interface ComboboxItem {
+    value: string;
+    label: React.ReactNode;
+    searchText: string;
+}
+
 import nsk_img from '@/app/img/nask.svg'
 import wis_img from '@/app/img/math.svg'
 import eng_img from '@/app/img/english.svg'
@@ -10,17 +18,11 @@ import nl_img from '@/app/img/nl.svg'
 import gs_img from '@/app/img/history.svg'
 import bi_img from '@/app/img/bio.svg'
 import ak_img from '@/app/img/geography.svg'
+import la_img from '@/app/img/oude_taal1.svg'
+import gr_img from '@/app/img/oude_taal2.svg'
+
 
 export const icons = {
-    nask: nsk_img,
-    wiskunde: wis_img,
-    engels: eng_img,
-    frans: fr_img,
-    duits: de_img,
-    nederlands: nl_img,
-    geschiedenis: gs_img,
-    biologie: bi_img,
-    aardrijkskunde: ak_img,
     NSK: nsk_img,
     WI: wis_img,
     EN: eng_img,
@@ -31,6 +33,8 @@ export const icons = {
     GS: gs_img,
     BI: bi_img,
     AK: ak_img,
+    GR: gr_img,
+    LA: la_img
 } as const
 
 export const subjectEmojiMap: Record<string, React.ReactNode> = {
@@ -97,6 +101,20 @@ export const subjectEmojiMap: Record<string, React.ReactNode> = {
             Aardrijkskunde
         </span>
     ),
+    "LA": (
+        <span className="flex items-center">
+            <Image src={la_img} alt={"Latijn plaatje"} width={20} height={20} />
+            <div className="w-2" />
+            Latijn
+        </span>
+    ),
+    "GR": (
+        <span className="flex items-center">
+            <Image src={gr_img} alt={"Grieks plaatje"} width={20} height={20} />
+            <div className="w-2" />
+            Grieks
+        </span>
+    ),
 } as const;
 
 // Function to get the appropriate icon for each subject
@@ -120,6 +138,10 @@ export const getSubjectIcon = (subjectCode: string) => {
             return gs_img;
         case "BI":
             return bi_img;
+        case "LA":
+            return la_img;
+        case "GR":
+            return gr_img;
         default:
             return null;
     }
@@ -148,7 +170,69 @@ export const getSubjectName = (subjectCode: string) => {
             return "Geschiedenis";
         case "BI":
             return "Biologie";
+        case "LA":
+            return "Latijn";
+        case "GR":
+            return "Grieks";
         default:
             return subjectCode;
     }
 };
+const SubjectLabel = memo(({ icon, alt, label }: { icon: any; alt: string; label: string }) => (
+    <div className="flex items-center">
+        <Image src={icon} alt={alt} width={24} height={24} className="mr-2" />
+        <span>{label}</span>
+    </div>
+));
+export const defaultItems: ComboboxItem[] = [
+    {
+        value: "WI",
+        label: <SubjectLabel icon={icons.WI} alt="wiskunde" label="Wiskunde" />,
+        searchText: "Wiskunde",
+    },
+    {
+        value: "NSK",
+        label: <SubjectLabel icon={icons.NSK} alt="nask" label="NaSk" />,
+        searchText: "NaSk",
+    },
+    {
+        value: "NE",
+        label: <SubjectLabel icon={icons.NL} alt="nederlands" label="Nederlands" />,
+        searchText: "Nederlands",
+    },
+    {
+        value: "EN",
+        label: <SubjectLabel icon={icons.EN} alt="engels" label="Engels" />,
+        searchText: "Engels",
+    },
+    {
+        value: "FR",
+        label: <SubjectLabel icon={icons.FR} alt="frans" label="Frans" />,
+        searchText: "Frans",
+    },
+    {
+        value: "DE",
+        label: <SubjectLabel icon={icons.DE} alt="duits" label="Duits" />,
+        searchText: "Duits",
+    },
+    {
+        value: "AK",
+        label: <SubjectLabel icon={icons.AK} alt="aardrijkskunde" label="Aardrijkskunde" />,
+        searchText: "Aardrijkskunde",
+    },
+    {
+        value: "GS",
+        label: <SubjectLabel icon={icons.GS} alt="geschiedenis" label="Geschiedenis" />,
+        searchText: "Geschiedenis",
+    },
+    {
+        value: "LA",
+        label: <SubjectLabel icon={icons.LA} alt="Latijn" label="Latijn" />,
+        searchText: "Latijn",
+    },
+    {
+        value: "GR",
+        label: <SubjectLabel icon={icons.GR} alt="Grieks" label="Grieks" />,
+        searchText: "Grieks",
+    }
+];
