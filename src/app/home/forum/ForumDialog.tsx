@@ -230,7 +230,6 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
 
   // Watch the selected category and log it for debugging
   const selectedCategory = form.watch("category");
-  console.log("Selected category:", selectedCategory);
 
   // Clear subject if category is changed to non-school
   useEffect(() => {
