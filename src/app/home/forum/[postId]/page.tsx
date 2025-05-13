@@ -212,12 +212,12 @@ export default async function Page({
   }
 
   // Get subject info if available
-  const subjectIcon = post.subject
-    ? icons[post.subject as keyof typeof icons]
-    : null;
-  const subjectName = post.subject
-    ? getSubjectName(post.subject) || post.subject
-    : null;
+  let subjectIcon = null;
+  let subjectName = null;
+  if (post.category === "school" && post.subject) {
+    subjectIcon = icons[post.subject as keyof typeof icons];
+    subjectName = getSubjectName(post.subject) || post.subject;
+  }
 
   return (
     <div className="px-4 py-4">
@@ -264,21 +264,12 @@ export default async function Page({
             </div>
             <div className="text-sm text-gray-400 flex flex-wrap gap-2">
               <span title={formattedDate}>{relativeTime}</span>
-              {post.updatedAt && post.updatedAt !== post.createdAt && (
-                <span
-                  title={`Laatste update: ${new Date(
-                    post.updatedAt
-                  ).toLocaleDateString("nl-NL", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}`}
-                >
-                  • Bewerkt
-                </span>
-              )}
+              {post.updatedAt && post.createdAt &&
+                new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > 1000 && (
+                  <span>
+                    • Bewerkt
+                  </span>
+                )}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -396,9 +387,8 @@ export default async function Page({
                         {replyCreator?.image ? (
                           <Image
                             src={replyCreator.image}
-                            alt={`de profielfoto van ${
-                              replyCreator.name || "iemand"
-                            }`}
+                            alt={`de profielfoto van ${replyCreator.name || "iemand"
+                              }`}
                             width={40}
                             height={40}
                             className="rounded-full"

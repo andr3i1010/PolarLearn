@@ -232,8 +232,19 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
   const selectedCategory = form.watch("category");
   console.log("Selected category:", selectedCategory);
 
+  // Clear subject if category is changed to non-school
+  useEffect(() => {
+    if (selectedCategory !== "school" && form.getValues("subject")) {
+      form.setValue("subject", "");
+    }
+  }, [selectedCategory, form]);
+
   // Form submission handler - use useCallback to prevent recreation on render
   const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
+    // Always clear subject if not school category
+    if (values.category !== "school" && values.subject) {
+      values.subject = "";
+    }
     if (banned) {
       const banEndMsg = banEnd ? `Je bent verbannen tot ${new Date(banEnd).toLocaleDateString()}` : "Je bent permanent verbannen";
       toast.error(`${banEndMsg}. Met de reden: ${banreason ?? "Geen reden opgegeven"}. Als je denkt dat dit een fout is, join de discord. Die kan je vinden in de forum.`);

@@ -178,15 +178,21 @@ export async function updatePost(
     }
 
     // Update the post in the database
+    // If the category is not 'school', always clear the subject
+    const updateData: any = {
+      title: validatedData.title,
+      content: validatedData.content,
+      category: validatedData.category,
+      updatedAt: new Date(),
+    };
+    if (validatedData.category === 'school') {
+      updateData.subject = validatedData.subject;
+    } else {
+      updateData.subject = '';
+    }
     await prisma.forum.update({
       where: { post_id: postId },
-      data: {
-        title: validatedData.title,
-        content: validatedData.content,
-        subject: validatedData.subject,
-        category: validatedData.category,
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
 
     // Revalidate the post page to show the updated content
