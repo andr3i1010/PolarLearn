@@ -9,7 +9,7 @@ import { PlusIcon, PencilIcon } from "lucide-react";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import CreatorLink from "@/components/links/CreatorLink";
-import { getGroupLists } from "@/serverActions/groupActions";
+import { getGroupLists, getPendingApprovals } from "@/serverActions/groupActions";
 import { Trash, AlertTriangle } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
@@ -20,6 +20,8 @@ import { getSubjectIcon } from "@/components/icons"
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import AddListDialog from "@/components/groups/AddListDialog";
 import Button1 from "@/components/button/Button1";
+import PendingApprovals from "@/components/groups/PendingApprovals";
+import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
 
 // Add this new function to fetch user details for members
 async function getGroupMembersDetails(memberIds: string[]) {
@@ -69,9 +71,9 @@ export default async function Page({
     return <div className="text-center text-neutral-400">Je moet ingelogd zijn om deze pagina te bekijken.</div>;
   }
 
-  // Check if user is creator or member of the group (using ID comparison)
+  // Check if user is creator or member of the group (using ID or name comparison)
   const members = groupData?.members as string[] || [];
-  const isCreator = groupData?.creator === currentUserId;
+  const isCreator = groupData?.creator === currentUserId || groupData?.creator === currentUserName;
   const isAdmin = Array.isArray(groupData?.admins) ?
     groupData.admins.includes(currentUserId) : false;
 
@@ -89,6 +91,15 @@ export default async function Page({
   // Get members details for display
   const memberIds = groupData?.members as string[] || [];
   const membersDetails = await getGroupMembersDetails(memberIds);
+
+  // Fetch pending approval requests
+  let pendingRequests = [];
+  if (isAdmin || isCreator || currentUser?.role === "admin") {
+    const pendingResult = await getPendingApprovals(id);
+    if (pendingResult.success && pendingResult.pendingApprovals) {
+      pendingRequests = pendingResult.pendingApprovals;
+    }
+  }
 
   // Define tabs for this page
   const tabs: TabItem[] = [
@@ -191,6 +202,32 @@ export default async function Page({
       label: "Leden",
       content: (
         <div className="mt-4 p-4">
+          {/* Approval Requests Section - Only visible to admins */}
+          {(isAdmin || isCreator || currentUser?.role === "admin") && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold mb-4 flex items-center">
+                Openstaande verzoeken
+                {pendingRequests.length > 0 && (
+                  <Badge className="ml-2 bg-amber-600 text-white" variant="secondary">
+                    {pendingRequests.length}
+                  </Badge>
+                )}
+              </h2>
+
+              {pendingRequests.length > 0 ? (
+                <PendingApprovals groupId={id} />
+              ) : (
+                <div className="bg-neutral-800 text-neutral-400 p-4 rounded-lg">
+                  Er zijn geen openstaande verzoeken.
+                </div>
+              )}
+
+              <hr className="my-6 border-neutral-600" />
+            </div>
+          )}
+
+          {/* Existing Members Section */}
+          <h2 className="text-xl font-bold mb-4">Groepsleden</h2>
           {memberIds.length === 0 ? (
             <div className="bg-neutral-800 text-neutral-400 text-center p-6 rounded-lg">
               Deze groep heeft nog geen leden.
@@ -246,9 +283,11 @@ export default async function Page({
                               />
                             )}
                             <span className="text-neutral-600">|</span>
-                            <button className="text-sm text-red-400 hover:text-red-300 transition-colors">
-                              Verwijderen
-                            </button>
+                            <RemoveMemberButton
+                              groupId={id}
+                              memberId={memberId}
+                              memberName={displayName}
+                            />
                           </>
                         )}
                       </div>
@@ -262,7 +301,7 @@ export default async function Page({
       ),
     },
     // Add a settings tab that's only visible to admins and creators
-    ...(isAdmin || isCreator || currentUser?.role == "admin" ? [{
+    ...(isAdmin || isCreator || currentUser?.role === "admin" ? [{
       id: "settings",
       label: "Instellingen",
       content: (
@@ -280,8 +319,8 @@ export default async function Page({
             />
           </div>
 
-          {/* Danger zone (only visible to creator) */}
-          {isCreator || currentUser?.role == "admin" && (
+          {/* Danger zone (only visible to creator or admin) */}
+          {(isCreator || currentUser?.role === "admin") && (
             <div className="mt-8 border border-red-500/20 rounded-lg p-6">
               <div className="flex items-start">
                 <AlertTriangle className="text-red-500 mr-4 h-6 w-6 flex-shrink-0 mt-1" />

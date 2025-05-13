@@ -1,7 +1,7 @@
 "use client";
-import { useState, useCallback, useMemo, memo } from "react";
+import { useState, useCallback, useMemo, memo, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Combobox, ComboboxItem } from "./selectSubjCombobox";
+import { Combobox } from "./selectSubjCombobox";
 import Button1 from "@/components/button/Button1";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -14,6 +14,8 @@ import { createPostServer } from "./createPostServer";
 import { toast } from "react-toastify";
 import ReactMarkdown from 'react-markdown';
 import Tabs, { TabItem } from "@/components/Tabs";
+import { SelectCategoryCombobox } from "./selectCategoryCombobox";
+import { getUserFromSession } from "@/utils/auth/auth";
 
 // Memoized markdown preview component
 const MarkdownPreview = memo(({ content }: { content: string }) => (
@@ -111,13 +113,27 @@ const SubjectField = memo(({
   control,
   isSubmitting,
   banned,
-  onSubmit
+  onSubmit,
+  category,
+  form
 }: {
   control: any;
   isSubmitting: boolean;
   banned: boolean;
   onSubmit: () => void;
+  category: string;
+  form: any;
 }) => {
+  // Use exact string comparison - category might sometimes be undefined
+  const isSchoolCategory = category === "school";
+
+  // Auto-clear subject field when changing away from school category
+  useEffect(() => {
+    if (!isSchoolCategory && form) {
+      form.setValue("subject", "");
+    }
+  }, [isSchoolCategory, form]);
+
   return (
     <FormField
       control={control}
@@ -127,13 +143,16 @@ const SubjectField = memo(({
           <FormControl>
             <div className="flex items-center justify-between w-full">
               <div className="w-60">
-                <Combobox
-                  placeholder="Selecteer een vak"
-                  minWidth="100%"
-                  onSelect={(value) => {
-                    field.onChange(value);
-                  }}
-                />
+                {isSchoolCategory ? (
+                  <Combobox
+                    placeholder="Selecteer een vak"
+                    minWidth="100%"
+                    initialValue={field.value}
+                    onSelectAction={(value) => {
+                      field.onChange(value);
+                    }}
+                  />
+                ) : null}
               </div>
               <Button1
                 text={isSubmitting ? 'Bezig met plaatsen...' : 'Post aanmaken'}
@@ -149,10 +168,36 @@ const SubjectField = memo(({
   );
 });
 
+// Memoized category field component
+const CategoryField = memo(({ control, isAdmin }: { control: any; isAdmin: boolean }) => {
+  return (
+    <FormField
+      control={control}
+      name="category"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-xl">Categorie:</FormLabel>
+          <FormControl>
+            <SelectCategoryCombobox
+              initialValue={field.value}
+              onSelect={(value) => {
+                field.onChange(value);
+              }}
+              isAdmin={isAdmin}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+});
+
 // ForumDialog component with memoization
 function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason: string | null | undefined; banEnd: Date | null | undefined }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Initialize form with react-hook-form and zod validation
   const form = useForm<z.infer<typeof formSchema>>({
@@ -161,11 +206,31 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
       title: "",
       content: "",
       subject: "",
+      category: "",
     },
   });
 
+  // Fetch user session and check if admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const user = await getUserFromSession();
+        setIsAdmin(user?.role === "admin");
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
+
   // Extract content separately to avoid re-rendering the entire form
   const content = form.watch("content");
+
+  // Watch the selected category and log it for debugging
+  const selectedCategory = form.watch("category");
+  console.log("Selected category:", selectedCategory);
 
   // Form submission handler - use useCallback to prevent recreation on render
   const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
@@ -231,14 +296,20 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit(onSubmit)(e);
+            }} className="space-y-6">
               <TitleField control={form.control} />
+              <CategoryField control={form.control} isAdmin={isAdmin} />
               <ContentField control={form.control} content={content} />
               <SubjectField
                 control={form.control}
                 isSubmitting={isSubmitting}
                 banned={banned}
                 onSubmit={handleFormSubmit}
+                category={selectedCategory} // Make sure this is passed correctly
+                form={form}
               />
             </form>
           </Form>

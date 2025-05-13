@@ -57,7 +57,7 @@ function DeletePostButton({
     <>
       <button
         onClick={handleButtonClick}
-        className="text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-900/20 z-10"
+        className="text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-900/20 z-10 transition-all"
         title="Verwijderen"
       >
         <Trash2 size={18} />

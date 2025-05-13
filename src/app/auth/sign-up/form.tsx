@@ -9,7 +9,7 @@ import { createSession } from "@/utils/auth/session";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'PolarLearn - Account aanmaken',
   description: 'Accountcreatiepagina van PolarLearn',
 }

@@ -16,8 +16,23 @@ const formSchema = z.object({
     .string()
     .min(1, "Postinhoud is verplicht")
     .max(5000, "Inhoud mag maximaal 5000 tekens bevatten"),
-  subject: z.string().min(1, "Selecteer een vak"),
-});
+  category: z.string().min(1, "Selecteer een categorie"),
+  subject: z.string(),
+}).refine(
+  (data) => {
+    // Only require subject selection when category is school
+    if (data.category !== "school") {
+      return true;
+    }
+
+    // For school category, subject is required
+    return data.subject.length > 0;
+  },
+  {
+    message: "Selecteer een vak",
+    path: ["subject"], // Path tells Zod which field caused the error
+  }
+);
 
 // Define the return type for better TypeScript support
 type CreatePostResult =
@@ -25,7 +40,7 @@ type CreatePostResult =
   | { success: false; error: string };
 
 // Export a function to get the form schema
-export async function getFormSchema() {
+async function getFormSchema() {
   return formSchema;
 }
 
@@ -40,12 +55,22 @@ export async function createPostServer(
     const user = await getUserFromSession(
       (await cookies()).get("polarlearn.session-id")?.value as string
     );
+
     if (!user || !user.id) {
       return {
         success: false,
         error: "Je moet ingelogd zijn om een post te maken.",
       };
     }
+
+    // Check if user is allowed to use the announcement category
+    if (validatedData.category === "announcement" && user.role !== "admin") {
+      return {
+        success: false,
+        error: "Je hebt geen toestemming om aankondigingen te maken.",
+      };
+    }
+
     // Create the post in the database
     const post = await prisma.forum.create({
       data: {
@@ -54,7 +79,8 @@ export async function createPostServer(
         title: validatedData.title as string,
         content: validatedData.content as string,
         subject: validatedData.subject as string,
-        creator: user.id, // Use user ID
+        category: validatedData.category as string,
+        creator: user.id,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
