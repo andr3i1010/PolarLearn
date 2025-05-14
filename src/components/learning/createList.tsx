@@ -6,6 +6,8 @@
 // ik heb dit al gebrobeerd te doen, maar dat is verschrikkelijk mislukt.
 // const wastedHours = 4
 // Met vriendelijke groeten, andrei1010
+
+// todo: herschrijf dit
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
