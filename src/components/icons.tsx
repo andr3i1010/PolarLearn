@@ -182,3 +182,6 @@ export const defaultItems: ComboboxItem[] = Vakken.map(vak => ({
     label: <SubjectLabel icon={vak.icon} alt={vak.naam.toLowerCase()} label={vak.naam} />,
     searchText: vak.naam,
 }));
+export const icons = Object.fromEntries(
+    Vakken.map(vak => [vak.afkorting, vak.icon])
+) as Record<string, any>;
