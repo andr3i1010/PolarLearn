@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { updateDailyStreak } from '@/components/streak/updateStreak';
+import { invalidateStreakCache } from '@/components/streak/streakClient';
 import dynamic from 'next/dynamic';
 
 // Import Lottie dynamically to avoid SSR issues
@@ -331,6 +332,9 @@ const LearnTool = ({
           if (result.streakUpdated && result.isNewStreak) {
             setStreakStarted(true);
           }
+
+          // Invalidate the streak cache to update the UI
+          invalidateStreakCache();
         }
       };
 

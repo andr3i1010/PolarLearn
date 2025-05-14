@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
     Popover,
     PopoverContent,
@@ -19,19 +19,65 @@ let dataCache = {
     loading: false
 };
 
+// Function to reset the cache
+function resetCache() {
+    dataCache = {
+        data: null,
+        timestamp: 0,
+        loading: false
+    };
+}
+
 export default function StreakNavbarThing() {
     const [streakCnt, setStreakCnt] = useState(0)
     const [freezeCnt, setFreezeCnt] = useState(0)
     const [loading, setLoading] = useState(true)
     const [weekActivity, setWeekActivity] = useState<Array<{ date: string, status: string }>>([])
 
+    // Function to load fresh streak data
+    const refreshData = useCallback(async () => {
+        if (dataCache.loading) return;
+
+        setLoading(true);
+        resetCache();
+
+        try {
+            dataCache.loading = true;
+            const data = await getAllStreakData();
+
+            dataCache = {
+                data,
+                timestamp: Date.now(),
+                loading: false
+            };
+
+            setStreakCnt(data.streak);
+            setFreezeCnt(data.freezes);
+            setWeekActivity(data.weekActivity);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error refreshing streak data:", error);
+            dataCache.loading = false;
+            setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         let isMounted = true;
 
+        // Listen for streak data updates
+        const handleStreakUpdate = () => {
+            if (isMounted) {
+                refreshData();
+            }
+        };
+
+        window.addEventListener('streak-data-updated', handleStreakUpdate);
+
         const loadData = async () => {
             try {
-                // Always update streak before fetching data
-                await updateDailyStreak();
+                // We no longer update streak automatically - this will happen when a list is completed
+                // await updateDailyStreak();
 
                 // Check if we have cached data that's less than 5 minutes old
                 const now = Date.now();
@@ -96,8 +142,9 @@ export default function StreakNavbarThing() {
         // Cleanup function
         return () => {
             isMounted = false;
+            window.removeEventListener('streak-data-updated', handleStreakUpdate);
         };
-    }, []);
+    }, [refreshData]);
 
     const getStatusIcon = (status: string) => {
         switch (status) {
