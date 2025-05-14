@@ -1,18 +1,12 @@
 import { prisma } from "@/utils/prisma";
 import Tabs, { TabItem } from "@/components/Tabs";
-import Link from "next/link";
-import Image from "next/image";
-import CreatorLink from "@/components/links/CreatorLink";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
-import { PencilIcon, Search } from "lucide-react";
-import DeleteListButton from "@/components/learning/DeleteListButton";
-import { formatRelativeTime } from "@/utils/formatRelativeTime";
-import Jdenticon from "@/components/Jdenticon";
-import { unstable_noStore as noStore } from 'next/cache'; // Ensure this is imported
-import { getSubjectName, icons, getSubjectIcon } from "@/components/icons";
-import { Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal } from "react";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import { Search } from "lucide-react";
+import { unstable_noStore as noStore } from 'next/cache';
+import SearchListsTab from "./SearchListsTab";
+import SearchForumTab from "./SearchForumTab";
+import SearchGroupsTab from "./SearchGroupsTab";
 
 // Update props to accept the full objects (make params optional)
 interface SearchResultsProps {
@@ -28,6 +22,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         (await cookies()).get("polarlearn.session-id")?.value as string
     );
     const currentUserName = currentUser?.name;
+    const currentUserRole = currentUser?.role;
 
     // Await the props objects before accessing properties, as per error message
     const awaitedSearchParams = await searchParams;
@@ -52,7 +47,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
     // Escape regex special characters in the query
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    // Fetch lists
+    // Initial fetch of lists (first page)
     const lists = await prisma.practice.findMany({
         where: {
             published: true,
@@ -64,10 +59,21 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         },
         select: { list_id: true, name: true, subject: true, creator: true, data: true },
         orderBy: { createdAt: 'desc' },
-        take: 50,
+        take: 20,
     });
 
-    // Fetch forum posts
+    const listsCount = await prisma.practice.count({
+        where: {
+            published: true,
+            OR: [
+                { name: { contains: escapedQuery, mode: 'insensitive' } },
+                { subject: { contains: escapedQuery, mode: 'insensitive' } },
+                { creator: { contains: escapedQuery, mode: 'insensitive' } },
+            ],
+        },
+    });
+
+    // Initial fetch of forum posts (first page)
     const forumPosts = await prisma.forum.findMany({
         where: {
             type: "thread",
@@ -80,10 +86,22 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         },
         select: { post_id: true, title: true, subject: true, creator: true, createdAt: true, content: true },
         orderBy: { createdAt: 'desc' },
-        take: 50,
+        take: 20,
     });
 
-    // Add a new query to fetch groups
+    const forumCount = await prisma.forum.count({
+        where: {
+            type: "thread",
+            OR: [
+                { title: { contains: escapedQuery, mode: 'insensitive' } },
+                { content: { contains: escapedQuery, mode: 'insensitive' } },
+                { subject: { contains: escapedQuery, mode: 'insensitive' } },
+                { creator: { contains: escapedQuery, mode: 'insensitive' } },
+            ],
+        },
+    });
+
+    // Initial fetch of groups (first page)
     const groups = await prisma.group.findMany({
         where: {
             OR: [
@@ -101,10 +119,19 @@ export default async function SearchResultsComponent({ searchParams, params }: S
             requiresApproval: true
         },
         orderBy: { updatedAt: 'desc' },
-        take: 50,
+        take: 20,
     });
 
-    // Extract ALL creator IDs from lists, forum posts, and now groups
+    const groupsCount = await prisma.group.count({
+        where: {
+            OR: [
+                { name: { contains: escapedQuery, mode: 'insensitive' } },
+                { description: { contains: escapedQuery, mode: 'insensitive' } },
+            ],
+        },
+    });
+
+    // Extract ALL creator IDs from lists, forum posts, and groups
     const creatorIds = [
         ...new Set([
             ...lists.map((list: { creator: any; }) => list.creator),
@@ -135,181 +162,53 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         return acc;
     }, {});
 
-    // Enhance lists and posts with creator information
-    const enhancedLists = lists.map((list: { list_id: any; creator: any; name: any; subject: any; data: any; }) => {
-        const creatorId = list.creator;
-        const user = userMapById[creatorId] || userMapByName[creatorId];
-        return {
-            ...list,
-            creatorName: user?.name || creatorId,
-            creatorImage: user?.image
-        };
-    });
-
-    // Similarly enhance forum posts
-    const enhancedForumPosts = forumPosts.map((post: { creator: any; }) => {
-        const creatorId = post.creator;
-        const user = userMapById[creatorId] || userMapByName[creatorId];
-        return {
-            ...post,
-            creatorName: user?.name || creatorId,
-            creatorImage: user?.image
-        };
-    });
-
     // Define tabs array using fetched data
     const tabs: TabItem[] = [
         {
             id: 'lists',
-            label: `Lijsten (${enhancedLists.length})`,
+            label: `Lijsten (${listsCount})`,
             content: (
-                <div className="mt-4 space-y-4">
-                    {enhancedLists.length > 0 ? (
-                        enhancedLists.map((list) => (
-                            <div key={list.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                                <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center">
-                                    <div className="flex items-center">
-                                        {list.subject && (
-                                            <Image
-                                                src={getSubjectIcon(list.subject) || ""}
-                                                alt={`${getSubjectName(list.subject)} icon`}
-                                                width={24}
-                                                height={24}
-                                                className="mr-2"
-                                            />
-                                        )}
-                                        <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                                            {list.name}
-                                        </span>
-                                    </div>
-                                    <div className="flex-grow"></div>
-                                    <div className="flex items-center pr-2 text-sm text-neutral-400">
-                                        {Array.isArray(list.data) && list.data.length === 1
-                                            ? "1 woord"
-                                            : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
-                                    </div>
-                                </Link>
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                                    <CreatorLink creator={list.creatorName || list.creator} />
-                                </div>
-                                {(list.creator === currentUserName || currentUser?.role === "admin") && (
-                                    <div className="flex items-center gap-2">
-                                        <Link
-                                            href={`/learn/editlist/${list.list_id}`}
-                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                                            title="Lijst bewerken"
-                                        >
-                                            <PencilIcon className="h-5 w-5 text-white" />
-                                        </Link>
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                                            <DeleteListButton
-                                                listId={String(list.list_id)}
-                                                isCreator={true}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ))
-                    ) : (
-                        <div className="text-center text-neutral-400 py-8">Geen lijsten gevonden voor "{query}".</div>
-                    )}
+                <div className="mt-4">
+                    <SearchListsTab
+                        query={query}
+                        initialLists={lists}
+                        initialTotal={listsCount}
+                        initialUserMapById={userMapById}
+                        initialUserMapByName={userMapByName}
+                        currentUserName={currentUserName ?? null}
+                        currentUserRole={currentUserRole ?? null}
+                    />
                 </div>
             ),
         },
         {
             id: 'forum',
-            label: `Forum (${enhancedForumPosts.length})`,
+            label: `Forum (${forumCount})`,
             content: (
-                <div className="mt-4 space-y-4">
-                    {enhancedForumPosts.length > 0 ? (
-                        enhancedForumPosts.map((post: any) => (
-                            <Link key={post.post_id} href={`/home/forum/${post.post_id}`} className="block">
-                                <div className="border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-start cursor-pointer mx-4 rounded-lg">
-                                    <div className="mr-4 flex-shrink-0 mt-1">
-                                        {post.creatorImage ? (
-                                            <Image src={post.creatorImage} alt={`Avatar van ${post.creatorName}`} width={40} height={40} className="rounded-full" />
-                                        ) : (
-                                            <Jdenticon value={post.creatorName || post.creator} size={40} />
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col flex-1">
-                                        <div className="text-xs text-gray-400 mb-1 flex items-center">
-                                            {getSubjectIcon(post.subject) && (
-                                                <Image
-                                                    src={getSubjectIcon(post.subject)}
-                                                    alt={getSubjectName(post.subject)}
-                                                    width={16}
-                                                    height={16}
-                                                    className="mr-1"
-                                                />
-                                            )}
-                                            <span>{getSubjectName(post.subject)}</span>
-                                            <span className="mx-1.5">•</span>
-                                            <span className="text-gray-500">{formatRelativeTime(post.createdAt)}</span>
-                                            <span className="mx-1.5">•</span>
-                                            <span className="text-gray-500">Door: {post.creatorName || post.creator}</span>
-                                        </div>
-                                        <h3 className="font-medium text-lg mb-1">{post.title}</h3>
-                                        <p className="text-sm text-gray-300 line-clamp-2">
-                                            {String(post.content ?? "").length > 150 ? `${String(post.content ?? "").substring(0, 150)}...` : String(post.content ?? "")}
-                                        </p>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))
-                    ) : (
-                        <div className="text-center text-neutral-400 py-8">Geen forum posts gevonden voor "{query}".</div>
-                    )}
+                <div className="mt-4">
+                    <SearchForumTab
+                        query={query}
+                        initialPosts={forumPosts}
+                        initialTotal={forumCount}
+                        initialUserMapById={userMapById}
+                        initialUserMapByName={userMapByName}
+                    />
                 </div>
             ),
         },
         // Add new tab for groups
         {
             id: 'groups',
-            label: `Groepen (${groups.length})`,
+            label: `Groepen (${groupsCount})`,
             content: (
-                <div className="mt-4 space-y-4">
-                    {groups.length > 0 ? (
-                        groups.map((group: { groupId: Key | null | undefined; name: any; description: any; members: any; listsAdded: any; requiresApproval: any; creator: any; }) => (
-                            <Link
-                                key={group.groupId}
-                                href={`/learn/group/${group.groupId}`}
-                                className="block"
-                            >
-                                <div className="relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center cursor-pointer">
-                                    <div className="flex items-center gap-3 py-2">
-                                        <Jdenticon value={String(group.name || 'Unknown Group')} size={40} />
-                                        <div className="flex flex-col">
-                                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                                                {group.name}
-                                            </span>
-                                            {group.description && (
-                                                <p className="text-sm text-neutral-400 mt-1 line-clamp-1">
-                                                    {group.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="flex-grow"></div>
-                                    <div className="flex items-center text-sm text-neutral-400">
-                                        <span>
-                                            {Array.isArray(group.members) ? group.members.length : 0} leden • {Array.isArray(group.listsAdded) ? group.listsAdded.length : 0} lijsten
-                                        </span>
-                                        {group.requiresApproval && (
-                                            <span className="ml-3 bg-amber-600/20 text-amber-500 border border-amber-600/50 px-2 py-0.5 rounded text-xs">
-                                                Gesloten
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </Link>
-                        ))
-                    ) : (
-                        <div className="text-center text-neutral-400 py-8">
-                            Geen groepen gevonden voor "{query}".
-                        </div>
-                    )}
+                <div className="mt-4">
+                    <SearchGroupsTab
+                        query={query}
+                        initialGroups={groups}
+                        initialTotal={groupsCount}
+                        initialUserMapById={userMapById}
+                        initialUserMapByName={userMapByName}
+                    />
                 </div>
             ),
         },

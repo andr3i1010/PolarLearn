@@ -10,7 +10,7 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import CreatorLink from "@/components/links/CreatorLink";
 import { getGroupLists, getPendingApprovals } from "@/serverActions/groupActions";
-import { Trash, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";

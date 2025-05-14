@@ -21,6 +21,7 @@ import {
   MessageCircleQuestion,
   Megaphone,
 } from "lucide-react";
+import ForumRepliesList from "../ForumRepliesList";
 
 // UUID validation regex pattern
 const UUID_REGEX =
@@ -75,8 +76,8 @@ export default async function Page({
     }
   }
 
-  // Fetch replies to this post
-  const replies = await prisma.forum.findMany({
+  // Fetch initial set of replies (first page)
+  const initialRepliesData = await prisma.forum.findMany({
     where: {
       type: "reply",
       replyTo: postId,
@@ -84,35 +85,35 @@ export default async function Page({
     orderBy: {
       createdAt: "asc",
     },
+    take: 10, // Initial page size
   });
 
-  // Process replies to get Jdenticon values for creators that are UUIDs
-  const repliesWithJdenticonValues = await Promise.all(
-    replies.map(
-      async (reply: {
-        creator: string;
-        createdAt: Date;
-        votes_data: unknown;
-        post_id: Key | null | undefined;
-        votes: number;
-        content: string;
-      }) => {
-        let jdenticonValue = reply.creator;
-        if (UUID_REGEX.test(reply.creator)) {
-          const userInfo = await getUserNameById(reply.creator);
-          if (userInfo.jdenticonValue) {
-            jdenticonValue = userInfo.jdenticonValue;
-          }
+  // Count total replies
+  const totalReplies = await prisma.forum.count({
+    where: {
+      type: "reply",
+      replyTo: postId,
+    },
+  });
+
+  // Process replies to get Jdenticon values
+  const initialRepliesWithJdenticon = await Promise.all(
+    initialRepliesData.map(async (reply) => {
+      let jdenticonValue = reply.creator;
+      if (UUID_REGEX.test(reply.creator)) {
+        const userInfo = await getUserNameById(reply.creator);
+        if (userInfo.jdenticonValue) {
+          jdenticonValue = userInfo.jdenticonValue;
         }
-        return { ...reply, jdenticonValue };
       }
-    )
+      return { ...reply, jdenticonValue };
+    })
   );
 
   // Get list of creator identifiers (may be usernames or IDs)
   const creatorIdentifiers = [
     post.creator,
-    ...replies.map((reply: { creator: any }) => reply.creator),
+    ...initialRepliesData.map((reply: { creator: any }) => reply.creator),
   ];
 
   // Try to fetch users by ID first
@@ -307,128 +308,14 @@ export default async function Page({
         <ForumReply postId={post.post_id} />
       </div>
 
-      {repliesWithJdenticonValues.length > 0 && (
-        <div className="mt-10">
-          <h2 className="text-xl font-bold mb-4">
-            Antwoorden ({repliesWithJdenticonValues.length})
-          </h2>
-          <div className="flex flex-col">
-            {repliesWithJdenticonValues.map(
-              (
-                reply: {
-                  creator: string | number;
-                  createdAt: Date;
-                  votes_data: unknown;
-                  post_id: Key | null | undefined;
-                  votes: number;
-                  content: string;
-                  jdenticonValue: string;
-                },
-                index: number
-              ) => {
-                const replyCreator =
-                  userMap[reply.creator] ||
-                  usersById.find((u: { id: any }) => u.id === reply.creator) ||
-                  usersByName.find(
-                    (u: { name: any }) => u.name === reply.creator
-                  );
-                const replyTime = formatRelativeTime(reply.createdAt);
-
-                // Check if current user is the reply creator - more flexible check
-                const isReplyCreator =
-                  currentUsername === reply.creator ||
-                  (replyCreator?.name &&
-                    currentUsername === replyCreator.name) ||
-                  session?.role === "admin";
-                // Get user's vote on this reply
-                let replyUserVote: "up" | "down" | null = null;
-
-                if (session?.name && reply.votes_data) {
-                  const replyVotesData = reply.votes_data as unknown;
-
-                  if (
-                    replyVotesData &&
-                    typeof replyVotesData === "object" &&
-                    "users" in replyVotesData &&
-                    replyVotesData.users &&
-                    typeof replyVotesData.users === "object"
-                  ) {
-                    const typedReplyVotesData = replyVotesData as VoteData;
-                    replyUserVote =
-                      typedReplyVotesData.users[session.name] || null;
-                  }
-                }
-
-                // Determine border radius based on position
-                const isFirst = index === 0;
-                const isLast = index === repliesWithJdenticonValues.length - 1;
-
-                let replyClasses =
-                  "border border-neutral-600 bg-neutral-800 p-4";
-
-                if (isFirst && isLast) {
-                  // If single reply, round all corners
-                  replyClasses += " rounded-lg";
-                } else if (isFirst) {
-                  // First reply - round top corners
-                  replyClasses += " rounded-t-lg border-b-0";
-                } else if (isLast) {
-                  // Last reply - round bottom corners
-                  replyClasses += " rounded-b-lg";
-                } else {
-                  // Middle reply - no rounded corners
-                  replyClasses += " border-b-0";
-                }
-
-                return (
-                  <div key={reply.post_id} className={replyClasses}>
-                    <div className="flex items-center mb-4">
-                      <div className="mr-4">
-                        {replyCreator?.image ? (
-                          <Image
-                            src={replyCreator.image}
-                            alt={`de profielfoto van ${replyCreator.name || "iemand"
-                              }`}
-                            width={40}
-                            height={40}
-                            className="rounded-full"
-                          />
-                        ) : (
-                          <Jdenticon value={reply.jdenticonValue} size={40} />
-                        )}
-                      </div>
-                      <div className="flex-grow">
-                        <CreatorLink
-                          creator={replyCreator?.name || reply.creator}
-                          color="white"
-                        />
-                        <p className="text-sm text-gray-400">{replyTime}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {isReplyCreator && reply.post_id && (
-                          <DeletePostButton
-                            postId={String(reply.post_id)}
-                            isCreator={true} // Force to true since we already checked
-                            isMainPost={false}
-                          />
-                        )}
-                        <VoteButtons
-                          postId={String(reply.post_id)}
-                          initialVotes={reply.votes}
-                          initialUserVote={replyUserVote}
-                          user={session}
-                        />
-                      </div>
-                    </div>
-                    <div className="prose prose-invert max-w-none whitespace-pre-line">
-                      <MarkdownRenderer content={reply.content} />
-                    </div>
-                  </div>
-                );
-              }
-            )}
-          </div>
-        </div>
+      {totalReplies > 0 && (
+        <ForumRepliesList
+          postId={postId}
+          initialReplies={initialRepliesWithJdenticon}
+          initialTotal={totalReplies}
+          initialUserMap={userMap}
+          currentUser={session}
+        />
       )}
     </div>
   );

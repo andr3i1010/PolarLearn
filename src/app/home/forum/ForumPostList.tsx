@@ -76,8 +76,8 @@ export default function ForumPostList({
         {tab === "my-questions"
           ? "Je hebt nog geen vragen gesteld."
           : tab === "my-answers"
-          ? "Je hebt nog geen antwoorden gegeven."
-          : "Geen posts gevonden."}
+            ? "Je hebt nog geen antwoorden gegeven."
+            : "Geen posts gevonden."}
       </div>
     );
   }
@@ -91,11 +91,6 @@ export default function ForumPostList({
         loader={
           <div className="text-center p-4 bg-neutral-800 border border-neutral-700">
             Laden...
-          </div>
-        }
-        endMessage={
-          <div className="text-center p-4 text-gray-400 bg-neutral-800 border border-neutral-700">
-            Geen posts meer om te laden
           </div>
         }
         scrollThreshold={0.8}
