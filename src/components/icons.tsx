@@ -18,7 +18,11 @@ import gs_img from '@/app/img/history.svg'
 import bi_img from '@/app/img/bio.svg'
 import ak_img from '@/app/img/geography.svg'
 import la_img from '@/app/img/oude_taal1.svg'
+import mu_img from '@/app/img/muziek.svg'
+import ot_img from '@/app/img/anders.svg'
+import gl_img from '@/app/img/gl.svg'
 import gr_img from '@/app/img/oude_taal2.svg'
+
 
 // als je een vak wil toevoegen voeg die toe aan vakken verder hoef je niks te doen!!
 
@@ -122,6 +126,30 @@ export const Vakken: vak[] = [
         afkorting: "GS",
         naam: "Geschiedenis",
         icon: gs_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "MU",
+        naam: "Muziek",
+        icon: mu_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "OT",
+        naam: "Anders",
+        icon: ot_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "GL",
+        naam: "Godsdienst / Levensbeschouwing",
+        icon: gl_img,
         istaal: false,
         van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
         naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
