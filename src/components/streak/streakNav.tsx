@@ -166,7 +166,7 @@ export default function StreakNavbarThing() {
     return (
         <Popover>
             <PopoverTrigger>
-                <div className="bg-neutral-800 text-white rounded-lg flex items-center justify-center min-w-40 min-h-10 hover:bg-neutral-700 transition-colors px-2">
+                <div className="bg-neutral-800 text-white rounded-lg flex items-center justify-center min-w-20 min-h-10 hover:bg-neutral-700 transition-colors">
                     <Flame className={`mr-1 ${streakCnt >= 1 ? "text-orange-400" : "text-white"}`} />
                     {loading ? (
                         <ColorRing
@@ -174,7 +174,6 @@ export default function StreakNavbarThing() {
                             height="40"
                             width="40"
                             ariaLabel="color-ring-loading"
-                            wrapperStyle={{}}
                             wrapperClass="color-ring-wrapper"
                             colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                         />
@@ -191,7 +190,6 @@ export default function StreakNavbarThing() {
                                 height="40"
                                 width="40"
                                 ariaLabel="color-ring-loading"
-                                wrapperStyle={{}}
                                 wrapperClass="color-ring-wrapper"
                                 colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                             />
@@ -207,7 +205,6 @@ export default function StreakNavbarThing() {
                                 height="40"
                                 width="40"
                                 ariaLabel="color-ring-loading"
-                                wrapperStyle={{}}
                                 wrapperClass="color-ring-wrapper"
                                 colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                             />

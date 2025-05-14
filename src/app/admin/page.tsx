@@ -14,6 +14,7 @@ import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import { getSubjectIcon } from "@/components/icons";
 import DeleteUserButton from "./DeleteUserButton";
 import ResetPasswordButton from "./ResetPasswordButton";
+import SendNotificationButton from "./SendNotificationButton";
 
 import {
     Pagination,
@@ -292,6 +293,9 @@ export default async function AdminPage({
                                     </div>
                                     <div className="inline-block w-1/11 text-right">
                                         <DeleteUserButton userId={user.id} />
+                                    </div>
+                                    <div className="inline-block w-1/11 text-right">
+                                        <SendNotificationButton userId={user.id} userName={user.name} />
                                     </div>
                                 </>)}
                         </div>

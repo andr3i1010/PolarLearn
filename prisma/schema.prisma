@@ -16,35 +16,47 @@ model config {
 }
  
 model User {
-  id             String   @id @map("_id") @db.String
-  name           String?  @unique
-  email          String?  @unique
-  emailVerified  DateTime?
-  image          String?
-  password       String
-  salt           String
+  id               String   @id @map("_id") @db.String
+  name             String?  @unique
+  email            String?  @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String
+  salt             String
 
-  inGroups      Json?
-  ownGroups     Json?
+  inGroups         Json?
+  ownGroups        Json?
 
-  githubOAuthID  String?  @unique
-  googleOAuthID  String?  @unique
+  githubOAuthID    String?  @unique
+  googleOAuthID    String?  @unique
 
-  list_data      Json?
-  role           String?
-  loginAllowed   Boolean?
-  banReason      String?
-  forumAllowed   Boolean?
-  forumBanReason String?
-  forumBanEnd    DateTime?
+  list_data        Json?
+  role             String?
+  loginAllowed     Boolean?
+  banReason        String?
+  forumAllowed     Boolean?
+  forumBanReason   String?
+  forumBanEnd      DateTime?
 
-  streakCount    Int      @default(0)
-  lastActivity   DateTime?
-  streakData     Json?    // key: YYYY-MM-DD, value: "done" | "frozen"
-  freezeCount    Int      @default(0)
+  notificationData Json? 
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  /* Notification JSON Example: 
+  {
+    "0": {
+      "icon": [lucide icoon hier],
+      "content": "Lorem Ipsum",
+      "read": bool,
+    }
+  }
+  */
+
+  streakCount      Int      @default(0)
+  lastActivity     DateTime?
+  streakData       Json?    // key: YYYY-MM-DD, value: "done" | "frozen"
+  freezeCount      Int      @default(0)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
  
 model Session {
@@ -53,8 +65,8 @@ model Session {
   userId       String   @db.String
   expires      DateTime
  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 model practice {
   id String @id @default(auto()) @map("_id") @db.ObjectId

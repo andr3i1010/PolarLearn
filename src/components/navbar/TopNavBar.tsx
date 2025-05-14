@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MoveLeft, Search, Menu, X } from "lucide-react";
 import Link from "next/link";
 import StreakNavbarThing from "../streak/streakNav";
+import NotificationNav from "../notification/notificiationNav";
 
 // SearchBar component
 const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
@@ -23,7 +24,7 @@ const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
 
     return (
         <div
-            className="relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95 w-full"
+            className="relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95"
             onClick={handleSearchClick}
         >
             <div className="rounded-4xl border-4 border-neutral-700 duration-300 hover:border-transparent">
@@ -287,7 +288,8 @@ const NavigationLinks = memo(
                 <div className="flex-grow mx-4 max-w pr-5">
                     <SearchBar onExpand={onExpandSearch} />
                 </div>
-                <StreakNavbarThing/>
+                <StreakNavbarThing />
+                <NotificationNav/>
                 <div className="w-50" />
                 <div className="ml-auto relative block dropdown-right">
                     <DropdownBtn
