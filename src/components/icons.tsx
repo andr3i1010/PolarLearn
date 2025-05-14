@@ -20,7 +20,6 @@ import ak_img from '@/app/img/geography.svg'
 import la_img from '@/app/img/oude_taal1.svg'
 import gr_img from '@/app/img/oude_taal2.svg'
 
-// warn: istaal, van en naar doen NOG niks maar dit word toegevoegt aan createList
 // als je een vak wil toevoegen voeg die toe aan vakken verder hoef je niks te doen!!
 
 interface taal {
