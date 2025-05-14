@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import Button1 from "@/components/button/Button1"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MessageSquare } from "lucide-react"
+import { MessageSquare, Trash2 } from "lucide-react"
 import { sendUserNotification } from "./notificationActions"
 
 interface SendNotificationButtonProps {
@@ -85,26 +85,25 @@ export default function SendNotificationButton({
                     </DialogHeader>
 
                     <div className="grid w-full max-w-sm items-center gap-4">
-                        {isAdmin && (
-                            <div>
-                                <label className="text-sm font-medium leading-none mb-2 block">Icoon</label>
-                                <Select value={icon} onValueChange={setIcon}>
-                                    <SelectTrigger className="bg-neutral-900 border-neutral-700">
-                                        <SelectValue placeholder="Kies een icoon" />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-neutral-900 border-neutral-700">
-                                        <SelectItem value="MessageSquare">Bericht</SelectItem>
-                                        <SelectItem value="Bell">Bel</SelectItem>
-                                        <SelectItem value="Info">Info</SelectItem>
-                                        <SelectItem value="AlertCircle">Alert</SelectItem>
-                                        <SelectItem value="Mail">E-mail</SelectItem>
-                                        <SelectItem value="User">Gebruiker</SelectItem>
-                                        <SelectItem value="Award">Award</SelectItem>
-                                        <SelectItem value="Star">Ster</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
+                        <div>
+                            <label className="text-sm font-medium leading-none mb-2 block">Icoon</label>
+                            <Select value={icon} onValueChange={setIcon}>
+                                <SelectTrigger className="bg-neutral-900 border-neutral-700">
+                                    <SelectValue placeholder="Kies een icoon" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-neutral-900 border-neutral-700 text-white">
+                                    <SelectItem value="MessageSquare">Bericht</SelectItem>
+                                    <SelectItem value="Bell">Bel</SelectItem>
+                                    <SelectItem value="Info">Info</SelectItem>
+                                    <SelectItem value="AlertCircle">Alert</SelectItem>
+                                    <SelectItem value="Mail">E-mail</SelectItem>
+                                    <SelectItem value="User">Gebruiker</SelectItem>
+                                    <SelectItem value="Award">Award</SelectItem>
+                                    <SelectItem value="Star">Ster</SelectItem>
+                                    <SelectItem value="Trash2">Prullenbak</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
 
                         <div>
                             <label className="text-sm font-medium leading-none mb-2 block">Bericht</label>

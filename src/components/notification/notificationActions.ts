@@ -172,3 +172,91 @@ export async function markNotificationsAsRead() {
         return { success: false, message: "Er ging iets mis" };
     }
 }
+
+// Add a new function to delete a specific notification
+export async function deleteNotification(notificationKey: string) {
+    try {
+        const cookieStore = await cookies();
+        const sessionId = cookieStore.get("polarlearn.session-id")?.value;
+
+        if (!sessionId) {
+            return { success: false, message: "Je moet ingelogd zijn" };
+        }
+
+        const user = await getUserFromSession(sessionId);
+        if (!user) {
+            return { success: false, message: "Je moet ingelogd zijn" };
+        }
+
+        // Get current notifications
+        const notificationData = safelyParseNotificationData(user.notificationData);
+
+        // Check if notification exists
+        if (!notificationData[notificationKey]) {
+            return { success: false, message: "Notificatie niet gevonden" };
+        }
+
+        // Create a copy and delete the notification
+        const updatedNotifications = { ...notificationData };
+        delete updatedNotifications[notificationKey];
+
+        // Update in database
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                notificationData: updatedNotifications as any
+            }
+        });
+
+        return { success: true, message: "Notificatie verwijderd" };
+    } catch (error) {
+        console.error("Error deleting notification:", error);
+        return { success: false, message: "Er ging iets mis" };
+    }
+}
+
+// Add a function to mark a single notification as read
+export async function markNotificationAsRead(notificationKey: string) {
+    try {
+        const cookieStore = await cookies();
+        const sessionId = cookieStore.get("polarlearn.session-id")?.value;
+
+        if (!sessionId) {
+            return { success: false, message: "Je moet ingelogd zijn" };
+        }
+
+        const user = await getUserFromSession(sessionId);
+        if (!user) {
+            return { success: false, message: "Je moet ingelogd zijn" };
+        }
+
+        // Get current notifications
+        const notificationData = safelyParseNotificationData(user.notificationData);
+
+        // Check if notification exists and is not already read
+        if (!notificationData[notificationKey]) {
+            return { success: false, message: "Notificatie niet gevonden" };
+        }
+
+        if (notificationData[notificationKey].read) {
+            return { success: true, message: "Notificatie was al gelezen" };
+        }
+
+        // Create a copy and mark as read
+        const updatedNotifications = { ...notificationData };
+        updatedNotifications[notificationKey].read = true;
+
+        // Update in database
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                notificationData: updatedNotifications as any
+            }
+        });
+
+        return { success: true, message: "Notificatie gemarkeerd als gelezen" };
+    } catch (error) {
+        console.error("Error marking notification as read:", error);
+        return { success: false, message: "Er ging iets mis" };
+    }
+}

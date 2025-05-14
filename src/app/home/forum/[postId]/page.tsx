@@ -152,8 +152,9 @@ export default async function Page({
   // Check if current user is the post creator, using multiple checks
   const isPostCreator =
     currentUsername === post.creator ||
-    (postcreator?.name && currentUsername === postcreator.name) ||
-    session?.role === "admin";
+    (postcreator?.name && currentUsername === postcreator.name);
+
+  const isAdmin = session?.role === "admin";
 
   // Get user's current vote if logged in
   let userVote: "up" | "down" | null = null;
@@ -274,20 +275,23 @@ export default async function Page({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {isPostCreator && (
+            {isPostCreator || isAdmin ? (
               <div>
                 <EditPostBtn
                   postId={post.post_id}
-                  isCreator={true}
+                  isCreator={isPostCreator}
                   isMainPost={true}
                 />
                 <DeletePostButton
                   postId={post.post_id}
-                  isCreator={true}
+                  isCreator={isPostCreator}
                   isMainPost={true}
+                  title={post.title}
+                  creatorId={post.creator}
+                  isAdmin={session?.role === "admin"} // make sure this is set
                 />
               </div>
-            )}
+            ) : null}
             <VoteButtons
               postId={post.post_id}
               initialVotes={post.votes}

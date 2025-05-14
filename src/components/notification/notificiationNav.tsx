@@ -1,4 +1,4 @@
-import { Bell, BellDot, Check } from "lucide-react";
+import { Bell, BellDot, Check, Trash2 } from "lucide-react";
 import {
     Popover,
     PopoverContent,
@@ -6,10 +6,15 @@ import {
 } from "@/components/ui/popover";
 import Button1 from "../button/Button1";
 import { useEffect, useState } from "react";
-import { getAllNotifs, markNotificationsAsRead } from "./notificationActions";
+import {
+    getAllNotifs,
+    markNotificationsAsRead,
+    deleteNotification as deleteNotificationAction,
+    markNotificationAsRead
+} from "./notificationActions";
 import React from "react";
 import * as LucideIcons from "lucide-react";
-import { LucideIcon, LucideProps } from "lucide-react";
+import { LucideProps } from "lucide-react";
 
 // Define proper type based on the schema example
 interface NotificationItem {
@@ -107,6 +112,56 @@ export default function NotificationNav() {
         }
     };
 
+    // New function to delete a notification
+    const deleteNotification = async (key: string, e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent triggering the notification click
+
+        if (!notifications) return;
+
+        try {
+            const result = await deleteNotificationAction(key);
+
+            if (result.success) {
+                const updatedNotifications = { ...notifications };
+                delete updatedNotifications[key];
+
+                setNotifications(updatedNotifications);
+
+                if (Object.keys(updatedNotifications).length === 0) {
+                    setReadAll(true);
+                }
+            } else {
+                console.error("Failed to delete notification:", result.message);
+            }
+        } catch (error) {
+            console.error("Error deleting notification:", error);
+        }
+    };
+
+    // New function to mark a notification as read
+    const markAsRead = async (key: string) => {
+        if (!notifications || notifications[key].read) return;
+
+        try {
+            const result = await markNotificationAsRead(key);
+
+            if (result.success) {
+                const updatedNotifications = { ...notifications };
+                updatedNotifications[key].read = true;
+
+                setNotifications(updatedNotifications);
+
+                // Check if all notifications are now read
+                const allRead = Object.values(updatedNotifications).every(notif => notif.read);
+                if (allRead) {
+                    setReadAll(true);
+                }
+            }
+        } catch (error) {
+            console.error("Error marking notification as read:", error);
+        }
+    };
+
     // Improved icon rendering with proper TypeScript support
     const renderIcon = (iconName: string) => {
         // Try to find the icon component by name
@@ -124,12 +179,13 @@ export default function NotificationNav() {
             Award: LucideIcons.Award,
             Star: LucideIcons.Star,
             Trash: LucideIcons.Trash,
+            Trash2: LucideIcons.Trash2,
             // Add more icons as needed
         };
 
-        // Get the icon component or use Bell as fallback
+        // Get the icon component or use Bell as fallback, with increased size
         const IconComponent = iconMap[iconName] || LucideIcons.Bell;
-        return <IconComponent className="w-5 h-5 mr-2" />;
+        return <IconComponent className="w-6 h-6 mr-3" />;
     };
 
     return (
@@ -160,12 +216,22 @@ export default function NotificationNav() {
                         {notifications && Object.keys(notifications).length > 0 ? (
                             Object.entries(notifications).map(([key, notification]) => (
                                 <div key={key}
-                                    className={`p-3 flex items-center ${notification.read ? 'text-gray-400' : 'text-white font-medium'} hover:bg-neutral-700 rounded-md transition-colors`}>
-                                    {notification.icon && renderIcon(notification.icon)}
-                                    <span>{notification.content}</span>
-                                    {!notification.read && (
-                                        <div className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></div>
-                                    )}
+                                    className={`p-3 flex items-center justify-between ${notification.read ? 'text-gray-400' : 'text-white font-medium'} hover:bg-neutral-700 rounded-md transition-colors group cursor-pointer`}
+                                    onClick={() => markAsRead(key)}>
+                                    <div className="flex items-center flex-1">
+                                        {notification.icon && renderIcon(notification.icon)}
+                                        <span className="flex-1">{notification.content}</span>
+                                        {!notification.read && (
+                                            <div className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        )}
+                                    </div>
+                                    <button
+                                        onClick={(e) => deleteNotification(key, e)}
+                                        className="text-neutral-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        aria-label="Delete notification"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             ))
                         ) : (

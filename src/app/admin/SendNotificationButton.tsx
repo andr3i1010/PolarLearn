@@ -4,7 +4,6 @@ import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import Button1 from "@/components/button/Button1"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -91,6 +90,7 @@ export default function SendNotificationButton({ userId, userName }: SendNotific
                                     <SelectItem value="User">Gebruiker</SelectItem>
                                     <SelectItem value="Award">Award</SelectItem>
                                     <SelectItem value="Star">Ster</SelectItem>
+                                    <SelectItem value="Trash">Prullenbak</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
