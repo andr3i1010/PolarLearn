@@ -6,6 +6,8 @@
 // ik heb dit al gebrobeerd te doen, maar dat is verschrikkelijk mislukt.
 // const wastedHours = 4
 // Met vriendelijke groeten, andrei1010
+
+// todo: herschrijf dit
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -31,7 +33,7 @@ import { createListAction } from "@/serverActions/createList";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation"; // Add router import
 import Link from "next/link";
-import { icons, subjectEmojiMap, getSubjectIcon, getSubjectName } from "@/components/icons"; // Import icons from a centralized location
+import { krijgTaalVaken, krijgVak, subjectEmojiMap } from "@/components/icons"; // Import icons from a centralized location
 
 type Pair = {
   id: number;
@@ -95,25 +97,39 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isEditMode = !!listToEdit;
 
-  // Fix the type issue with language entries
   const languageEntries: [ReactNode, string][] = Object.entries(subjectEmojiMap)
-    .filter(([key]) => ["FR", "EN", "DE", "NL"].includes(key))
+    .filter(([key]) => krijgTaalVaken().map(vak => vak.afkorting).includes(key))
     .map(([key, value]): [ReactNode, string] => [value, key]);
 
   useEffect(() => {
     const defaultDutchDisplay = (
       <div className="flex items-center gap-2">
-        <Image src={icons.NL} alt="Nederlands" width={20} height={20} />
-        <p>Nederlands</p>
+        <Image src={krijgVak("NL").icon} alt="Nederlands" width={20} height={20} />
+        <p>{krijgVak("NL").naam}</p>
       </div>
     );
     if (vanDropdownRef.current) {
-      vanDropdownRef.current.setValue("NL", defaultDutchDisplay);
+      if (selectedSubject && krijgTaalVaken().map(vak => vak.afkorting).includes(selectedSubject.id)) {
+        const langDisplay = (
+          <div className="flex items-center gap-2">
+            <Image src={krijgVak(krijgVak(selectedSubject.id).van.afkorting).icon} alt={krijgVak(krijgVak(selectedSubject.id).van.afkorting).naam} width={20} height={20} />
+            <p>{krijgVak(krijgVak(selectedSubject.id).van.afkorting).naam}</p>
+          </div>
+        );
+        vanDropdownRef.current.setValue(krijgVak(selectedSubject.id).van.afkorting, langDisplay);
+      } else {
+        vanDropdownRef.current.setValue("NL", defaultDutchDisplay);
+      }
     }
     if (naarDropdownRef.current) {
-      if (selectedSubject && ["FR", "EN", "DE", "NL"].includes(selectedSubject.id)) {
-        // Lock "naar" dropdown to the chosen subject language.
-        naarDropdownRef.current.setValue(selectedSubject.id, selectedSubject.display);
+      if (selectedSubject && krijgTaalVaken().map(vak => vak.afkorting).includes(selectedSubject.id)) {
+        const langDisplay = (
+          <div className="flex items-center gap-2">
+            <Image src={krijgVak(krijgVak(selectedSubject.id).naar.afkorting).icon} alt={krijgVak(krijgVak(selectedSubject.id).naar.afkorting).naam} width={20} height={20} />
+            <p>{krijgVak(krijgVak(selectedSubject.id).naar.afkorting).naam}</p>
+          </div>
+        );
+        naarDropdownRef.current.setValue(krijgVak(selectedSubject.id).naar.afkorting, langDisplay);
       } else {
         naarDropdownRef.current.setValue("NL", defaultDutchDisplay);
       }
@@ -130,7 +146,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
     // On load, default both language dropdowns to Dutch.
     const defaultDutchDisplay = (
       <div className="flex items-center gap-2">
-        <Image src={icons.NL} alt="Nederlands" width={20} height={20} />
+        <Image src={krijgVak("NL").icon} alt="Nederlands" width={20} height={20} />
         <p>Nederlands</p>
       </div>
     );
@@ -156,12 +172,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
       // Set subject
       if (listToEdit.subject) {
-        const subjectIcon = getSubjectIcon(listToEdit.subject);
+        const subjectIcon = krijgVak(listToEdit.subject).icon;
         if (subjectIcon) {
           const subjectDisplay = (
             <div className="flex items-center gap-2">
               <Image src={subjectIcon} alt={`${listToEdit.subject} icon`} width={20} height={20} />
-              <p>{getSubjectName(listToEdit.subject)}</p>
+              <p>{krijgVak(listToEdit.subject).naam}</p>
             </div>
           );
 
@@ -189,12 +205,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
       // Set language selections
       if (listToEdit.lang_from && vanDropdownRef.current) {
         const langFrom = listToEdit.lang_from;
-        const fromIcon = getSubjectIcon(langFrom);
+        const fromIcon = krijgVak(langFrom).icon;
         if (fromIcon) {
           const display = (
             <div className="flex items-center gap-2">
-              <Image src={fromIcon} alt={getSubjectName(langFrom)} width={20} height={20} />
-              <p>{getSubjectName(langFrom)}</p>
+              <Image src={fromIcon} alt={krijgVak(langFrom).naam} width={20} height={20} />
+              <p>{krijgVak(langFrom).naam}</p>
             </div>
           );
           vanDropdownRef.current.setValue(langFrom, display);
@@ -203,12 +219,12 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
       if (listToEdit.lang_to && naarDropdownRef.current) {
         const langTo = listToEdit.lang_to;
-        const toIcon = getSubjectIcon(langTo);
+        const toIcon = krijgVak(langTo).icon;
         if (toIcon) {
           const display = (
             <div className="flex items-center gap-2">
-              <Image src={toIcon} alt={getSubjectName(langTo)} width={20} height={20} />
-              <p>{getSubjectName(langTo)}</p>
+              <Image src={toIcon} alt={krijgVak(langTo).naam} width={20} height={20} />
+              <p>{krijgVak(langTo).naam}</p>
             </div>
           );
           naarDropdownRef.current.setValue(langTo, display);
@@ -252,14 +268,18 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
   // New async function to handle the translation
   const getTranslation = async (word: string, language: string | undefined): Promise<string> => {
-    if (language && word && ["DE", "FR", "EN"].includes(language)) {
-      try {
-        const res = await fetch(`/api/translate?text=${encodeURIComponent(word)}&to=${language}`);
-        const data = await res.json();
-        return data.translation || '';
-      } catch (error) {
-        console.error("Translation error", error);
-        return '';
+    if (language && word && krijgTaalVaken().some(vak => vak.afkorting === language)) {
+      const fromLang = vanDropdownRef.current?.getSelectedItem();
+      const toLang = naarDropdownRef.current?.getSelectedItem();
+      if (toLang === language && fromLang != toLang) {
+        try {
+          const res = await fetch(`/api/translate?text=${encodeURIComponent(word)}&to=${language}`);
+          const data = await res.json();
+          return data.translation || '';
+        } catch (error) {
+          console.error("Translation error", error);
+          return '';
+        }
       }
     }
     return '';
@@ -287,7 +307,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   };
 
   // Add constant to check if the selected subject is a language
-  const isLanguage = selectedLanguage && ["FR", "EN", "DE"].includes(selectedLanguage);
+  const isLanguage = selectedLanguage && krijgTaalVaken().map(vak => vak.afkorting).includes(selectedLanguage);
 
   // Function to autosave the list - simplified for reliability
   const autosaveList = async () => {
@@ -560,7 +580,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 width={200}
                 dropdownMatrix={languageEntries}
                 selectorMode={true}
-                disabled={selectedSubject && ["FR", "EN", "DE", "NL"].includes(selectedSubject.id)}
               />
             </div>
           </div>
@@ -603,7 +622,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                               onBlur={() => { if (selectedInput !== 'translationButton') { setSelectedPairId(null); setSelectedInput(null); } }}
                               className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pr-4 text-xl"
                               type="text"
-                              placeholder={isLanguage ? "Woord in het Nederlands" : "Begrip"}
+                              placeholder={isLanguage ? "Woord in het " + (krijgVak(vanDropdownRef.current?.getSelectedItem() || "NL")?.naam || "") : "Begrip"}
                             />
                             <input
                               value={pair["2"]}
