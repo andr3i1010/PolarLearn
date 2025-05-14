@@ -95,9 +95,8 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isEditMode = !!listToEdit;
 
-  // Fix the type issue with language entries
   const languageEntries: [ReactNode, string][] = Object.entries(subjectEmojiMap)
-    .filter(([key]) => ["FR", "EN", "DE", "NL"].includes(key))
+    .filter(([key]) => ["FR", "EN", "DE", "NL", "LA", "GR"].includes(key))
     .map(([key, value]): [ReactNode, string] => [value, key]);
 
   useEffect(() => {
@@ -252,7 +251,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
 
   // New async function to handle the translation
   const getTranslation = async (word: string, language: string | undefined): Promise<string> => {
-    if (language && word && ["DE", "FR", "EN"].includes(language)) {
+    if (language && word && ["DE", "FR", "EN", "GR", "LA"].includes(language)) {
       try {
         const res = await fetch(`/api/translate?text=${encodeURIComponent(word)}&to=${language}`);
         const data = await res.json();
@@ -287,7 +286,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   };
 
   // Add constant to check if the selected subject is a language
-  const isLanguage = selectedLanguage && ["FR", "EN", "DE"].includes(selectedLanguage);
+  const isLanguage = selectedLanguage && ["FR", "EN", "DE", "LA", "GR"].includes(selectedLanguage);
 
   // Function to autosave the list - simplified for reliability
   const autosaveList = async () => {
@@ -560,7 +559,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 width={200}
                 dropdownMatrix={languageEntries}
                 selectorMode={true}
-                disabled={selectedSubject && ["FR", "EN", "DE", "NL"].includes(selectedSubject.id)}
+                disabled={selectedSubject && ["FR", "EN", "DE", "NL", "LA", "GR"].includes(selectedSubject.id)}
               />
             </div>
           </div>
