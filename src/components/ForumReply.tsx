@@ -27,10 +27,9 @@ function ForumReply({ postId, userId, buttonText = "Beantwoorden" }: ForumReplyP
     setIsSubmitting(true)
 
     try {
-      await createReply(postId, content)
+      await createReply(postId, content, userId)
       setContent("")
       setOpen(false)
-      sendNotificationToUser(userId, "Iemand heeft op een van je vragen geantwoord!")
       router.refresh()
     } catch (error) {
       toast.error("Er is iets misgegaan bij het versturen van je reactie: " + error)
