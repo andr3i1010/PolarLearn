@@ -7,13 +7,16 @@ import Button1 from "@/components/button/Button1"
 import { createReply } from "@/actions/forum"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
+import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
+
 
 interface ForumReplyProps {
   postId: string
   buttonText?: string
+  userId: string
 }
 
-function ForumReply({ postId, buttonText = "Beantwoorden" }: ForumReplyProps) {
+function ForumReply({ postId, userId, buttonText = "Beantwoorden" }: ForumReplyProps) {
   const [open, setOpen] = useState(false)
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -27,7 +30,8 @@ function ForumReply({ postId, buttonText = "Beantwoorden" }: ForumReplyProps) {
       await createReply(postId, content)
       setContent("")
       setOpen(false)
-      router.refresh() // UPDATED: Refresh page using Next router
+      sendNotificationToUser(userId, "Iemand heeft op een van je vragen geantwoord!")
+      router.refresh()
     } catch (error) {
       toast.error("Er is iets misgegaan bij het versturen van je reactie: " + error)
     } finally {

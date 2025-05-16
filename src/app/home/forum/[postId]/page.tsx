@@ -309,7 +309,7 @@ export default async function Page({
       </div>
 
       <div className="mt-6">
-        <ForumReply postId={post.post_id} />
+        <ForumReply postId={post.post_id} userId={post.creator} />
       </div>
 
       {totalReplies > 0 && (
