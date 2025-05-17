@@ -17,10 +17,27 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
         // socket.send("iets");
       });
       socket.addEventListener("error", (err) => {
-        console.error("WS error:", err);
+        console.error("WebSocket error:", err);
+        // reconnect to the socket immediately after an error, 3 attempts max
+        let attempts = 0;
+        const reconnect = () => {
+          if (attempts < 3) {
+            attempts++;
+            console.log(`Reconnecting... Attempt ${attempts}`);
+            const newSocket = new WebSocket(wsUrl);
+            newSocket.addEventListener("open", () => {
+              console.log("Reconnected to WebSocket");
+              setWs(newSocket);
+            });
+            newSocket.addEventListener("error", reconnect);
+          } else {
+            console.error("Max reconnection attempts reached");
+          }
+        }
+        reconnect();
       });
       socket.addEventListener("close", () => {
-        console.log("WS connection closed");
+        console.log("WebSocket connection closed");
       });
 
       setWs(socket);

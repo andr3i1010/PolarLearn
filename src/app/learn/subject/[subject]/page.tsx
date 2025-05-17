@@ -21,6 +21,7 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
         (await cookies()).get("polarlearn.session-id")?.value as string
     );
     const currentUserName = currentUser?.name;
+    const currentUserRole = currentUser?.role;
 
     // Get subject name and icon
     const subjectName = getSubjectName(subject);
@@ -184,8 +185,8 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
                                             <CreatorLink creator={list.creator} />
                                         </div>
 
-                                        {/* Action buttons for list owner */}
-                                        {list.creator === currentUserName && (
+                                        {/* Action buttons for list owner or admin */}
+                                        {(list.creator === currentUserName || currentUserRole === "admin") && (
                                             <div className="flex items-center gap-2">
                                                 <Link
                                                     href={`/learn/editlist/${list.list_id}`}
@@ -197,7 +198,7 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
                                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
                                                     <DeleteListButton
                                                         listId={String(list.list_id)}
-                                                        isCreator={list.creator === currentUserName}
+                                                        isCreator={true}
                                                     />
                                                 </div>
                                             </div>
@@ -253,21 +254,23 @@ export default async function Page({ params }: { params: Promise<{ subject: stri
                                             <CreatorLink creator={list.creator} />
                                         </div>
 
-                                        <div className="flex items-center gap-2">
-                                            <Link
-                                                href={`/learn/editlist/${list.list_id}`}
-                                                className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                                                title="Lijst bewerken"
-                                            >
-                                                <PencilIcon className="h-5 w-5 text-white" />
-                                            </Link>
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                                                <DeleteListButton
-                                                    listId={String(list.list_id)}
-                                                    isCreator={true}
-                                                />
+                                        {(list.creator === currentUserName || currentUserRole === "admin") && (
+                                            <div className="flex items-center gap-2">
+                                                <Link
+                                                    href={`/learn/editlist/${list.list_id}`}
+                                                    className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                                                    title="Lijst bewerken"
+                                                >
+                                                    <PencilIcon className="h-5 w-5 text-white" />
+                                                </Link>
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                                                    <DeleteListButton
+                                                        listId={String(list.list_id)}
+                                                        isCreator={true}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
