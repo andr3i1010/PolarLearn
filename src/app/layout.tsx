@@ -113,7 +113,7 @@ export default async function RootLayout({
 
   return (
     <ViewTransitions>
-      <html lang="en" className={`${geistSans.className} antialiased`}>
+      <html lang="nl" className={`${geistSans.className} antialiased`}>
         <Head>
           <link rel="icon" href="/favicon.png" />
           <link rel="apple-touch-icon" href="/icon-192x192.png" />
