@@ -75,7 +75,7 @@ export async function createSession(userid: string) {
   });
 }
 
-export async function createCookie(sessionId: string, sessionExp: Date) {
+export async function createCookie(sessionId: string, sessionExp: Date, cookieName: string = "polarlearn.session-id") {
   // console.debug("createCookie: Creating cookie for session", sessionId);
   const payload = JSON.stringify({
     sessionId,
@@ -96,7 +96,7 @@ export async function createCookie(sessionId: string, sessionExp: Date) {
     sameSite: 'lax' as const, // Type-safe declaration
   };
 
-  (await cookies()).set("polarlearn.session-id", jwe, cookieOptions);
+  (await cookies()).set(cookieName, jwe, cookieOptions);
   // console.debug("createCookie: Cookie set for session", sessionId);
 }
 

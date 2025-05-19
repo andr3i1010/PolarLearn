@@ -7,6 +7,8 @@ import ToastProvider from "@/components/toast/toast";
 import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
 import SessionWrapper from "@/components/SessionWrapper";
+import ImpersonationCheck from "@/components/ImpersonationCheck";
+import ImpersonationStyles from "@/components/ImpersonationStyles";
 import React from "react";
 import { ViewTransitions } from "next-view-transitions";
 
@@ -147,8 +149,14 @@ export default async function RootLayout({
                   </p>
                 </div>
               </div> */}
-                <TopNavBar />
-                {children}
+                <>
+                  <ImpersonationCheck />
+                  <ImpersonationStyles />
+                  <TopNavBar />
+                  <div>
+                    {children}
+                  </div>
+                </>
                 {footerContent}
               </WSProvider>
             </ToastProvider>

@@ -47,6 +47,8 @@ export async function resetLostStreak() {
                 }
             });
 
+            console.log(`Streak reset for user ${session.id}: No activity today or yesterday`);
+
             return {
                 success: true,
                 message: "Streak gereset omdat je een dag hebt gemist.",

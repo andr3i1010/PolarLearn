@@ -184,8 +184,19 @@ export default function StreakNavbarThing() {
 
                     // Check if user has activity for today (done or frozen)
                     const today = new Date().toISOString().split('T')[0];
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
                     const todayActivity = data.weekActivity.find((day: { date: string, status: string }) => day.date === today);
-                    setActiveStreak(todayActivity?.status === 'done' || todayActivity?.status === 'frozen');
+                    const yesterdayActivity = data.weekActivity.find((day: { date: string, status: string }) => day.date === yesterdayStr);
+
+                    const hasTodayActivity = todayActivity?.status === 'done' || todayActivity?.status === 'frozen';
+                    const hasYesterdayActivity = yesterdayActivity?.status === 'done' || yesterdayActivity?.status === 'frozen';
+
+                    // Active streak only if practicing today OR practiced yesterday and have streak
+                    const activeStreakStatus = hasTodayActivity || (hasYesterdayActivity && data.streak > 0);
+                    setActiveStreak(activeStreakStatus);
 
                     setLoading(false);
                 }

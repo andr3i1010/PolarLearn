@@ -129,15 +129,17 @@ export async function getAllStreakData() {
         dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
         const dayBeforeYesterdayStr = dayBeforeYesterday.toISOString().split('T')[0];
 
-        // Check if we have activity from yesterday or a freeze was used
+        // Today's date in YYYY-MM-DD format
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        // Check if we have activity from today or yesterday
+        const hasActivityToday = streakDataObj[todayStr] === 'done' || streakDataObj[todayStr] === 'frozen';
         const hadYesterdayActivity = streakDataObj[yesterdayStr] === 'done' || streakDataObj[yesterdayStr] === 'frozen';
         const hadDayBeforeYesterdayActivity = streakDataObj[dayBeforeYesterdayStr] === 'done' || streakDataObj[dayBeforeYesterdayStr] === 'frozen';
 
-        // Today's date in YYYY-MM-DD format
-        const todayStr = new Date().toISOString().split('T')[0];
-        const hasActivityToday = streakDataObj[todayStr] === 'done' || streakDataObj[todayStr] === 'frozen';
-
-        // If user hasn't practiced today and didn't practice yesterday, reset streak
+        // Streak should be reset only if:
+        // 1. User has a streak count > 0
+        // 2. User has no activity today AND had no activity yesterday
         if (!hasActivityToday && !hadYesterdayActivity && finalStreakCount > 0) {
             // User missed a day - reset streak
             // We don't actually update the database here, just what we return
