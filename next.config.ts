@@ -60,7 +60,7 @@ const config = process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_
     widenClientFileUpload: true,
 
     // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-    tunnelRoute: "/monitoring",
+    tunnelRoute: "/error-report",
 
     // Automatically tree-shake Sentry logger statements to reduce bundle size
     disableLogger: true,
