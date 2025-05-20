@@ -34,6 +34,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation"; // Add router import
 import Link from "next/link";
 import { krijgTaalVaken, krijgVak, subjectEmojiMap } from "@/components/icons"; // Import icons from a centralized location
+import { Input } from "../ui/input";
 
 type Pair = {
   id: number;
@@ -555,7 +556,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
               }}
             />
           </div>
-          <input
+          <Input
             value={listName}
             onChange={(e) => setListName(e.target.value)}
             className="mt-16 bg-neutral-800 text-white h-12 w-full rounded-lg text-center text-xl"
@@ -615,7 +616,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                           <span className="text-white mr-2 text-xl">{index + 1}</span>
 
                           <div className="flex flex-col md:flex-row items-center gap-2 w-full">
-                            <input
+                            <Input
                               value={pair["1"]}
                               onChange={(e) => handleWordChange(pair.id, e.target.value)}
                               onFocus={() => { setSelectedPairId(pair.id); setSelectedInput('word'); }}
@@ -624,7 +625,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                               type="text"
                               placeholder={isLanguage ? "Woord in het " + (krijgVak(vanDropdownRef.current?.getSelectedItem() || "NL")?.naam || "") : "Begrip"}
                             />
-                            <input
+                            <Input
                               value={pair["2"]}
                               onChange={(e) => handleSecondInputChange(pair.id, e.target.value)}
                               onFocus={() => {
