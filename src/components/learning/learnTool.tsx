@@ -363,6 +363,26 @@ const LearnTool = ({
     }
   }, [locked]);
 
+  // Allow keyboard interactions for gedachten overlay
+  useEffect(() => {
+    if (showGedachtenOverlay) {
+      // Allow keyboard events specifically for the gedachten overlay
+      // This creates a separate effect that doesn't interfere with the locked effect
+      const handleGedachtenKeyDown = (e: KeyboardEvent) => {
+        // Allow key events for the Yes/No buttons but protect against unwanted key events
+        if (!['Tab', 'Enter', ' '].includes(e.key)) {
+          e.preventDefault();
+        }
+      };
+
+      window.addEventListener('keydown', handleGedachtenKeyDown, false);
+
+      return () => {
+        window.removeEventListener('keydown', handleGedachtenKeyDown, false);
+      };
+    }
+  }, [showGedachtenOverlay]);
+
   // Add an effect to update streak when the list is completed
   useEffect(() => {
     // Only run when the list changes from not-completed to completed
@@ -483,7 +503,7 @@ const LearnTool = ({
 
   // Renamed from handleAntwoordControlerenGedachten
   const handleSelfAssessment = useCallback((isAntwoordCorrect: boolean) => {
-    if (!lijstData.length || locked) return;
+    if (!lijstData.length) return;
 
     // Dismiss the overlay first
     setShowGedachtenOverlay(false);
@@ -509,7 +529,7 @@ const LearnTool = ({
         setLijstData([...rest, huidigeVraag]);
       }, 50); // Short delay
     }
-  }, [lijstData, shuffleArray, onCorrectAnswer, onWrongAnswer, updateProgress, locked]);
+  }, [lijstData, shuffleArray, onCorrectAnswer, onWrongAnswer, updateProgress]);
 
   const handleAntwoordmultikeuze = useCallback((isAntwoordCorrect: boolean) => {
     if (!lijstData.length || isAnswering || locked) return;
