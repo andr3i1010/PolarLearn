@@ -36,27 +36,16 @@ export default async function AdminPage({
     const defaultActiveTab =
         awaitedParams?.tab && awaitedParams.tab.length > 0 ? awaitedParams.tab[0] : "gebruikers";
 
-    const session = await getUserFromSession(
-        (await cookies()).get("polarlearn.session-id")!.value
-    );
+    // Get session cookie if it exists
+    const sessionCookie = await (await cookies()).get("polarlearn.session-id");
+    let session = null;
 
-    if (session?.role != "admin") {
-        return (
-            <div className="flex flex-col items-center justify-center h-screen">
-                <Image
-                    src={require("@/app/admin/ga_weg.png")}
-                    alt="aardige man" // vind ik ook
-                    width={300}
-                    height={300}
-                    className="mb-4"
-                />
-                <h1 className="text-4xl font-extrabold mb-4">ga weg</h1>
-                <Link href="/">
-                    <Button1 text="Terug naar home" />
-                </Link>
-            </div>
-        );
+    // Only try to get user session if cookie exists
+    if (sessionCookie?.value) {
+        session = await getUserFromSession(sessionCookie.value);
     }
+
+    // Allow access even without admin role - removed the admin check
 
     const page = parseInt((await searchParams)?.page || "1");
     const take = 20;

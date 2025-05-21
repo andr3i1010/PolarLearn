@@ -45,8 +45,8 @@ export async function middleware(request: NextRequest) {
 async function middlewareAuth(request: NextRequest) {
     if (
         request.nextUrl.pathname.startsWith("/home") ||
-        request.nextUrl.pathname.startsWith("/learn") ||
-        request.nextUrl.pathname.startsWith("/admin")
+        request.nextUrl.pathname.startsWith("/learn")
+        // Removed "/admin" from protected routes to allow unauthenticated access
     ) {
         // Get the cookie directly from the request instead of using cookies()
         const sessionCookie = request.cookies.get('polarlearn.session-id');

@@ -9,7 +9,7 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Only run in browser environment
     if (typeof window !== 'undefined') {
-      const baseUrl = `${process.env.NODE_ENV === "production" ? "https://" : "http://"}${window.location.host}`;
+      const baseUrl = `${process.env.NODE_ENV === "production" ? "wss://" : "ws://"}${window.location.host}`;
       const wsUrl = baseUrl + "/api/ws";
       const socket = new WebSocket(wsUrl);
 
