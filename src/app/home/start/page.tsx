@@ -277,7 +277,7 @@ export default async function Start() {
 
                       {/* Action buttons for list owner */}
                       <div className="flex items-center gap-2">
-                        {list.creator === currentUserName && (
+                        {(list.creator === currentUserName || list.creator === currentUser?.id || currentUserRole === "admin") && (
                           <Link
                             href={`/learn/editlist/${list.list_id}`}
                             className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
@@ -286,11 +286,11 @@ export default async function Start() {
                             <PencilIcon className="h-5 w-5 text-white" />
                           </Link>
                         )}
-                        {(list.creator === currentUserName || currentUserRole === "admin") && (
+                        {(list.creator === currentUserName || list.creator === currentUser?.id || currentUserRole === "admin") && (
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
                             <DeleteListButton
                               listId={list.list_id}
-                              isCreator={(list.creator === currentUserName || currentUserRole === "admin")}
+                              isCreator={true}
                             />
                           </div>
                         )}

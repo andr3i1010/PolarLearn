@@ -9,6 +9,8 @@ import { cookies } from "next/headers";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
+import ListActionButtons from "@/components/learning/ListActionButtons";
+import UserListButtons from "@/components/learning/UserListButtons";
 import CreatorLink from "@/components/links/CreatorLink";
 import { addToRecentLists } from "@/utils/actions/updateRecentLists";
 import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
@@ -86,8 +88,16 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
 
     // Check if current user is the creator to show edit button
     const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
-    const isCreator = listData?.creator === currentUser?.name || currentUser?.role === "admin";
+    // Check both name and id to ensure we match the creator correctly
+    const isCreator = (listData?.creator === currentUser?.name ||
+        listData?.creator === currentUser?.id ||
+        currentUser?.role === "admin");
     const isUnpublished = listData?.published === false;
+
+    // For debugging - remove in production
+    console.log('CurrentUser:', currentUser?.id, currentUser?.name);
+    console.log('ListCreator:', listData?.creator);
+    console.log('IsCreator:', isCreator);
 
     // Use the top-level subject field from the practice model
     const subject = listData?.subject || 'general';
@@ -285,24 +295,8 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                         )}
                     </h1>
 
-                    {/* Creator actions */}
-                    {isCreator && (
-                        <div className="flex items-center gap-3">
-                            {/* Edit button */}
-                            <Link
-                                href={`/learn/editlist/${id}`}
-                                className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                                title="Lijst bewerken"
-                            >
-                                <PencilIcon className="h-6 w-6 text-white" />
-                            </Link>
-
-                            {/* Delete button */}
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                                <DeleteListButton listId={id} isCreator={isCreator} />
-                            </div>
-                        </div>
-                    )}
+                    {/* Creator actions - using client component that verifies ownership */}
+                    <UserListButtons listId={id} creatorId={listData?.creator || ""} />
                 </div>
                 <div className="h-4" />
                 <div className="flex flex-col gap-4">

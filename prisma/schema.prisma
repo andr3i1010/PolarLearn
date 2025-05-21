@@ -30,6 +30,8 @@ model User {
   githubOAuthID  String?  @unique
   googleOAuthID  String?  @unique
 
+  forumPoints    Int      @default(0)
+
   list_data      Json?
   role           String?
   loginAllowed   Boolean?

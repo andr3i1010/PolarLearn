@@ -8,8 +8,9 @@
 // Met vriendelijke groeten, andrei1010
 
 // todo: herschrijf dit
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { Import } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -35,6 +36,16 @@ import { useRouter } from "next/navigation"; // Add router import
 import Link from "next/link";
 import { krijgTaalVaken, krijgVak, subjectEmojiMap } from "@/components/icons"; // Import icons from a centralized location
 import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 type Pair = {
   id: number;
@@ -66,7 +77,7 @@ function SortableItem({
     transform: CSS.Transform.toString(transform),
     transition,
     position: "relative",
-    zIndex: isDragging ? 1000 : 300, // lowered z-index when dragging
+    zIndex: isDragging ? 50 : 10, // significantly lowered z-index to prevent overlap with alerts
   };
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
@@ -97,6 +108,8 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   const [hasChanges, setHasChanges] = useState(false);
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isEditMode = !!listToEdit;
+  const [importText, setImportText] = useState<string>("");
+  const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
 
   const languageEntries: [ReactNode, string][] = Object.entries(subjectEmojiMap)
     .filter(([key]) => krijgTaalVaken().map(vak => vak.afkorting).includes(key))
@@ -504,6 +517,51 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
     };
   }
 
+  // Function to handle imported list data
+  // Make sure handleImport is properly bound and doesn't lose context
+  const handleImport = useCallback(() => {
+    console.log("Import function called with text:", importText);
+    try {
+      if (!importText.trim()) {
+        console.log("Import text is empty");
+        toast.error("Voer een lijst in om te importeren");
+        return;
+      }
+
+      // Parse the input text - expecting format like "word : translation" or "word | translation" or "word - translation"
+      const lines = importText.split('\n').filter(line => line.trim() !== '');
+      const separator = /[:|;,\t-]/; // Accept multiple separator options
+
+      const newPairs = lines.map((line, index) => {
+        const parts = line.split(separator);
+        return {
+          id: nextId + index,
+          "1": parts[0]?.trim() || '',
+          "2": parts[1]?.trim() || ''
+        };
+      }).filter(pair => pair["1"] !== '' || pair["2"] !== '');
+
+      if (newPairs.length === 0) {
+        toast.error("Geen geldige items gevonden in de geïmporteerde tekst");
+        return;
+      }
+
+      // Add the new pairs to the existing ones
+      setPairs([...pairs, ...newPairs]);
+      setNextId(nextId + newPairs.length);
+      markHasChanges();
+
+      // Close the dialog and reset the input
+      setImportDialogOpen(false);
+      setImportText('');
+
+      toast.success(`${newPairs.length} items succesvol geïmporteerd`);
+    } catch (error) {
+      console.error("Import error:", error);
+      toast.error("Er is een fout opgetreden bij het importeren van de lijst");
+    }
+  }, [importText, nextId, pairs, setPairs, setNextId, markHasChanges, setImportDialogOpen, setImportText, toast]);
+
   return (
     <div className="mx-2 overflow-clip">
       <div className="mx-2">
@@ -542,7 +600,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
             <span className="text-gray-400">Alle wijzigingen worden automatisch opgeslagen</span>
           )}
         </div>
-        <form className="relative z-[1000]">
+        <form className="relative z-[50]">
           <div className="flex flex-row gap-4">
             <Dropdown
               ref={dropdownRef}
@@ -556,13 +614,140 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
               }}
             />
           </div>
-          <Input
-            value={listName}
-            onChange={(e) => setListName(e.target.value)}
-            className="mt-16 bg-neutral-800 text-white h-12 w-full rounded-lg text-center text-xl"
-            type="text"
-            placeholder="Lijstnaam komt hier"
-          />
+          <div className="mt-16 flex items-center gap-3">
+            <Input
+              value={listName}
+              onChange={(e) => setListName(e.target.value)}
+              className="bg-neutral-800 text-white h-12 w-full rounded-lg text-center text-xl"
+              type="text"
+              placeholder="Lijstnaam komt hier"
+            />
+            <Dialog
+              open={importDialogOpen}
+              onOpenChange={(open) => {
+                console.log("Dialog open state changing to:", open);
+                setImportDialogOpen(open);
+              }}
+            >
+              <DialogTrigger asChild>
+                <button
+                  className="flex items-center justify-center h-12 w-12 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full transition-all border-2 border-neutral-700 hover:border-neutral-600 hover:scale-110"
+                  title="Lijst importeren"
+                >
+                  <Import size={20} />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Importeer een lijst</DialogTitle>
+                  <DialogDescription>
+                    Plak hier je geïmporteerde lijst. Ondersteunde formaten:
+                    <br />- Elk item op één regel: "woord : vertaling" (ook met , - ; of tabs)
+                    <br />- Afwisselende regels: woord en vertaling op aparte regels
+                    <br />Titels en headers worden niet apart verwerkt.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-4">
+                  <Textarea
+                    value={importText}
+                    onChange={(e) => setImportText(e.target.value)}
+                    placeholder="Format 1 (met scheidingsteken):&#10;woord1 : vertaling1&#10;woord2 : vertaling2&#10;&#10;Format 2 (afwisselende regels):&#10;le dos&#10;de rug&#10;le bras&#10;de arm"
+                    className="resize-none h-40 bg-neutral-800 text-white"
+                  />
+                </div>
+                <div className="flex justify-end mt-4 gap-2">
+                  <Button1
+                    text="Annuleren"
+                    onClick={() => setImportDialogOpen(false)}
+                  />
+                  <Button1
+                    text="Importeren"
+                    onClick={() => {
+                      console.log("Import button clicked");
+
+                      // Execute import function
+                      try {
+                        if (!importText.trim()) {
+                          console.log("Import text is empty");
+                          toast.error("Voer een lijst in om te importeren");
+                          return;
+                        }
+
+                        // Split text into lines and filter out empty lines
+                        let lines = importText.split('\n').filter(line => line.trim() !== '');
+                        console.log("Original lines:", lines);
+
+                        // Define separator - only use patterns that separate words from translations
+                        const separator = /[:|;,\t-]/;
+
+                        let newPairs: { id: number; "1": string; "2": string }[] = [];
+
+                        // First, check if any lines have separators
+                        const linesWithSeparators = lines.filter(line => line.match(separator));
+
+                        // Determine format based on whether any lines have separators
+                        const isAlternatingFormat = linesWithSeparators.length === 0 && lines.length >= 2;
+
+                        console.log("Detected alternating lines format:", isAlternatingFormat);
+
+                        if (isAlternatingFormat) {
+                          // Force even number of lines by dropping the last line if odd
+                          const adjustedLines = lines.length % 2 !== 0 ? lines.slice(0, -1) : lines;
+
+                          // Process as alternating lines (term followed by translation)
+                          for (let i = 0; i < adjustedLines.length; i += 2) {
+                            if (i + 1 < adjustedLines.length) {
+                              newPairs.push({
+                                id: nextId + i / 2,
+                                "1": adjustedLines[i].trim(),
+                                "2": adjustedLines[i + 1].trim()
+                              });
+                            }
+                          }
+                        } else {
+                          // Process as standard format with separators
+                          lines.forEach((line, index) => {
+                            const parts = line.split(separator);
+                            if (parts.length >= 2 && parts[0].trim()) {
+                              newPairs.push({
+                                id: nextId + index,
+                                "1": parts[0].trim(),
+                                "2": parts.slice(1).join(' ').trim() || ''
+                              });
+                            }
+                          });
+                        }
+
+                        // Filter out any pairs with empty fields
+                        newPairs = newPairs.filter(pair => pair["1"] !== '' && pair["2"] !== '');
+
+                        console.log("Created pairs:", newPairs);
+
+                        if (newPairs.length === 0) {
+                          toast.error("Geen geldige items gevonden in de geïmporteerde tekst");
+                          return;
+                        }
+
+                        setPairs(prev => [...prev, ...newPairs]);
+                        setNextId(prev => prev + newPairs.length);
+                        markHasChanges();
+
+                        setImportDialogOpen(false);
+                        setImportText('');
+
+                        toast.success(`${newPairs.length} items succesvol geïmporteerd`);
+                      } catch (error) {
+                        console.error("Import error:", error);
+                        toast.error("Er is een fout opgetreden bij het importeren van de lijst");
+                      }
+                    }}
+                    icon={<Import size={16} />}
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
           <div className="mt-4 flex justify-center gap-4">
             <div className="w-1/2 z-0 md:ml-52">
               <Dropdown
@@ -605,7 +790,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                  style={{ zIndex: 1000 }} // lowered z-index
+                  style={{ zIndex: 10 }} // significantly lowered z-index to prevent overlap with alerts
                 >
                   <SortableItem id={pair.id}>
                     {({ dragListeners }) => (
