@@ -1,12 +1,9 @@
-export const dynamic = "force-dynamic";
-
 import Tabs, { TabItem } from "@/components/Tabs";
 import { prisma } from "@/utils/prisma";
 import Image from "next/image";
 import Link from "next/link";
 import Jdenticon from "@/components/Jdenticon";
 import { getUserFromSession } from "@/utils/auth/auth";
-import Button1 from "@/components/button/Button1";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import BanButton from "./banButton";
 import { cookies } from "next/headers";
@@ -15,6 +12,7 @@ import { getSubjectIcon } from "@/components/icons";
 import DeleteUserButton from "./DeleteUserButton";
 import ResetPasswordButton from "./ResetPasswordButton";
 import ImpersonateUserButton from "./ImpersonateUserButton";
+import JweDecoderWrapper from "./JweDecoderWrapper";
 
 import {
     Pagination,
@@ -24,6 +22,8 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import dynamic from "next/dynamic";
+import React from "react";
 
 export default async function AdminPage({
     params,
@@ -415,6 +415,17 @@ export default async function AdminPage({
             label: "Groepen",
             content: renderGroupList(groupList, totalGroupPages, page),
         },
+        {
+            id: "jwe",
+            label: "JWE decodeerder",
+            content: (
+                <>
+                    <div className="mt-6">
+                        <JweDecoderWrapper />
+                    </div>
+                </>
+            )
+        }
     ];
 
     // Determine the base route dynamically

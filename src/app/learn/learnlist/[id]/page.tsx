@@ -1,11 +1,11 @@
 import construction from '@/app/img/construction.gif';
 import Button1 from '@/components/button/Button1';
 import Image from 'next/image';
-import LearnToolHeader from "@/components/navbar/learntToolHeader";
-import { prisma } from "@/utils/prisma";
-import { addToRecentLists } from "@/utils/actions/updateRecentLists";
-import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
-import LearnToolWithProgress from "@/components/learning/LearnToolWithProgress"; // Import the component
+// import LearnToolHeader from "@/components/navbar/learntToolHeader";
+// import { prisma } from "@/utils/prisma";
+// import { addToRecentLists } from "@/utils/actions/updateRecentLists";
+// import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
+// import LearnToolWithProgress from "@/components/learning/LearnToolWithProgress"; // Import the component
 
 export default async function Page({
     params,
