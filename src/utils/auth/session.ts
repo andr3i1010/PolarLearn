@@ -5,9 +5,17 @@ import { CompactEncrypt, compactDecrypt } from "jose";
 import crypto from 'crypto';
 import { headers } from "next/headers";
 
-const headersList = await headers();
-const isHttps = headersList.get('x-forwarded-proto') === 'https' ||
-  process.env.NODE_ENV === 'production';
+// Function to check if the request is using HTTPS
+async function isSecureContext(): Promise<boolean> {
+  try {
+    const headersList = await headers();
+    return headersList.get('x-forwarded-proto') === 'https' ||
+      process.env.NODE_ENV === 'production';
+  } catch (error) {
+    // Default to production check if headers aren't available
+    return process.env.NODE_ENV === 'production';
+  }
+}
 
 // Function to set up TTL index for session expiration
 async function setupSessionTTLIndex() {
@@ -147,10 +155,10 @@ export async function isLoggedIn() {
     if (!session) {
       console.error("isLoggedIn: Session not found in DB for sessionId", sessionId);
       
-      await (await cookies()).set('polarlearn.session-id', '', {
+      (await cookies()).set('polarlearn.session-id', '', {
         expires: new Date(0),
         path: '/',
-        secure: isHttps,
+        secure: await isSecureContext(),
         httpOnly: true,
         sameSite: 'lax' as const,
       });
