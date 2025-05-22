@@ -3,6 +3,11 @@ import { cookies } from "next/headers";
 import { prisma } from "../prisma";
 import { CompactEncrypt, compactDecrypt } from "jose";
 import crypto from 'crypto';
+import { headers } from "next/headers";
+
+const headersList = await headers();
+const isHttps = headersList.get('x-forwarded-proto') === 'https' ||
+  process.env.NODE_ENV === 'production';
 
 // Function to set up TTL index for session expiration
 async function setupSessionTTLIndex() {
@@ -141,12 +146,13 @@ export async function isLoggedIn() {
 
     if (!session) {
       console.error("isLoggedIn: Session not found in DB for sessionId", sessionId);
+      
       await (await cookies()).set('polarlearn.session-id', '', {
         expires: new Date(0),
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: isHttps,
         httpOnly: true,
-        sameSite: 'lax' as const, // Fix type issue
+        sameSite: 'lax' as const,
       });
       return false;
     }
