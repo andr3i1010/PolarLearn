@@ -14,10 +14,10 @@ import Button1 from "../button/Button1";
 export default async function Footer() {
   const git = await gitInfo();
   const gitInfoData =
-    git !== "error"
+    git !== "error" && git !== null
       ? {
-        gitCommit: git.split("@")[0],
-        gitBranch: git.split("@")[1],
+        gitCommit: git.includes("@") ? git.split("@")[0] : git,
+        gitBranch: git.includes("@") ? git.split("@")[1] : "stable",
       }
       : null;
   const user = await getUserFromSession(
@@ -39,7 +39,9 @@ export default async function Footer() {
                 icon={faCodeCommit as IconProp}
                 className="size-5"
               />
-              <p>{`${gitInfoData!.gitCommit}@${gitInfoData!.gitBranch}`}</p>
+              <p>{gitInfoData
+                ? `${gitInfoData.gitCommit}${gitInfoData.gitBranch ? `@${gitInfoData.gitBranch}` : ''}`
+                : 'Unknown version'}</p>
             </div>
             <p>PolarLearn versie: {pkg.version}</p>
             {process.env.NODE_ENV === "development" && user && (
