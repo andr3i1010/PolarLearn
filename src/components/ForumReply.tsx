@@ -27,9 +27,10 @@ function ForumReply({ postId, buttonText = "Beantwoorden" }: ForumReplyProps) {
       await createReply(postId, content)
       setContent("")
       setOpen(false)
-      router.refresh() // UPDATED: Refresh page using Next router
+      toast.success("Je antwoord is succesvol geplaatst! Hiermee heb je 10 punten verdiend.")
+      router.refresh()
     } catch (error) {
-      toast.error("Er is iets misgegaan bij het versturen van je reactie: " + error)
+      toast.error("Er is iets misgegaan bij het versturen van je antwoord: " + error)
     } finally {
       setIsSubmitting(false)
     }

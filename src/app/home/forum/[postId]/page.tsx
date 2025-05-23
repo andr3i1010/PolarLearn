@@ -10,7 +10,6 @@ import MarkdownRenderer from "@/components/md";
 import { cookies } from "next/headers";
 import CreatorLink from "@/components/links/CreatorLink";
 import ForumHome from "../page";
-import { Key } from "react";
 import { getUserNameById } from "@/serverActions/getUserName";
 import EditPostBtn from "./editPostBtn";
 import { icons, getSubjectName } from "@/components/icons";
