@@ -71,16 +71,24 @@ export async function createPostServer(
       };
     }
 
+    // Generate a unique post ID
+    const postId = crypto.randomUUID();
+
+    // Ensure we have a valid string key for the votes_data object
+    const userName = user.name as string;
+
     // Create the post in the database
     const post = await prisma.forum.create({
       data: {
-        post_id: crypto.randomUUID(),
+        post_id: postId,
         type: "thread",
         title: validatedData.title as string,
         content: validatedData.content as string,
         subject: validatedData.subject as string,
         category: validatedData.category as string,
         creator: user.id,
+        votes: 1, // Start with 1 upvote (self-upvote)
+        votes_data: { users: { [userName]: "up" } }, // Add creator's upvote
         createdAt: new Date(),
         updatedAt: new Date(),
       },

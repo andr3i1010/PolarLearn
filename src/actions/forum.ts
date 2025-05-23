@@ -33,19 +33,41 @@ export async function createReply(postId: string, content: string) {
     throw new Error("Original post not found");
   }
 
-  // Create the reply
+  // Create the reply with auto self-upvote
+  const replyId = uuidv4();
+
+  // Ensure we have a valid string key for the votes_data object
+  const userName = session.name as string;
+
   const reply = await prisma.forum.create({
     data: {
-      post_id: uuidv4(),
+      post_id: replyId,
       type: "reply",
       replyTo: postId,
       title: `Re: ${originalPost.title}`,
       subject: originalPost.subject,
       content: content,
       creator: session.id,
-      votes: 0,
-      votes_data: { users: {} },
+      votes: 1, // Start with 1 upvote (self-upvote)
+      votes_data: { users: { [userName]: "up" } }, // Add creator's upvote
     },
+  });
+
+  // A more direct approach that bypasses the null issue
+  // First, fetch the current user with all their data
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.id }
+  });
+
+  // Calculate new points value - either start at 10 or add 10 to current value
+  const newPointsValue = currentUser?.forumPoints === null || currentUser?.forumPoints === undefined
+    ? 10
+    : Number(currentUser.forumPoints) + 10;
+
+  // Directly set the value instead of using increment to bypass null handling issues
+  await prisma.user.update({
+    where: { id: session.id },
+    data: { forumPoints: newPointsValue }
   });
 
   return reply;
@@ -217,6 +239,99 @@ export async function updatePost(
     return {
       success: false,
       error: "Er is een fout opgetreden bij het bewerken van je post.",
+    };
+  }
+}
+
+// Define the return type for reply updates
+type UpdateReplyResult =
+  | { success: true; postId: string }
+  | { success: false; error: string };
+
+export async function updateReply(
+  postId: string,
+  content: string
+): Promise<UpdateReplyResult> {
+  try {
+    // Validate the content
+    if (!content || content.trim().length === 0) {
+      return {
+        success: false,
+        error: "Reactie-inhoud is verplicht.",
+      };
+    }
+
+    if (content.length > 5000) {
+      return {
+        success: false,
+        error: "Inhoud mag maximaal 5000 tekens bevatten.",
+      };
+    }
+
+    // Get the current user
+    const user = await getUserFromSession(
+      (await cookies()).get("polarlearn.session-id")?.value as string
+    );
+
+    if (!user || !user.id) {
+      return {
+        success: false,
+        error: "Je moet ingelogd zijn om een reactie te bewerken.",
+      };
+    }
+
+    // Fetch the reply to ensure the user is the creator
+    const existingReply = await prisma.forum.findUnique({
+      where: { post_id: postId },
+    });
+
+    if (!existingReply) {
+      return {
+        success: false,
+        error: "Reactie niet gevonden.",
+      };
+    }
+
+    // Check if it's actually a reply
+    if (existingReply.type !== "reply") {
+      return {
+        success: false,
+        error: "Dit is geen reactie maar een hoofdpost.",
+      };
+    }
+
+    // Check if the user has permission to edit this reply
+    if (existingReply.creator !== user.id && user.role !== "admin") {
+      return {
+        success: false,
+        error: "Je kunt alleen je eigen reacties bewerken.",
+      };
+    }
+
+    // Update the reply in the database
+    await prisma.forum.update({
+      where: { post_id: postId },
+      data: {
+        content: content,
+        updatedAt: new Date(),
+      },
+    });
+
+    // If we have the parent post ID, revalidate its page to show the updated content
+    if (existingReply.replyTo) {
+      revalidatePath(`/home/forum/${existingReply.replyTo}`);
+    }
+
+    return {
+      success: true,
+      postId: postId,
+    };
+  } catch (error) {
+    console.error("Error updating forum reply:", error);
+
+    return {
+      success: false,
+      error: "Er is een fout opgetreden bij het bewerken van je reactie.",
     };
   }
 }
