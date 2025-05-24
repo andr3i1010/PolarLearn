@@ -13,7 +13,7 @@ interface ClientCreatorLinkProps {
 export default function ClientCreatorLink({ creator }: ClientCreatorLinkProps) {
     return (
         <Link
-            href={`/home/users/${creator}`}
+            href={`/home/viewuser/${creator}`}
             className="hover:text-blue-400 text-white hover:underline transition-colors"
         >
             {creator}

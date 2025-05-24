@@ -10,6 +10,7 @@ import ClientCreatorLink from "@/components/ClientCreatorLink";
 import MarkdownRenderer from "@/components/md";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getReplies } from "./getReplies";
+import EditReplyButton from "./editReplyBtn";
 
 interface VoteData {
     users: Record<string, "up" | "down" | null>;
@@ -151,15 +152,33 @@ export default function ForumRepliesList({
                                         <ClientCreatorLink
                                             creator={replyCreator?.name || reply.creator}
                                         />
-                                        <p className="text-sm text-gray-400">{replyTime}</p>
+                                        <div className="text-sm text-gray-400 flex flex-wrap gap-2">
+                                            <span>{replyTime}</span>
+                                            {reply.updatedAt && reply.createdAt &&
+                                                new Date(reply.updatedAt).getTime() - new Date(reply.createdAt).getTime() > 1000 && (
+                                                    <span>
+                                                        • Bewerkt
+                                                    </span>
+                                                )
+                                            }
+                                            {replyCreator?.forumPoints !== undefined && (
+                                                <span className="text-sm text-gray-400">• {replyCreator.forumPoints} {replyCreator.forumPoints === 1 ? 'punt' : 'punten'}</span>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {isReplyCreator && reply.post_id && (
-                                            <DeletePostButton
-                                                postId={String(reply.post_id)}
-                                                isCreator={true}
-                                                isMainPost={false}
-                                            />
+                                            <>
+                                                <EditReplyButton
+                                                    postId={String(reply.post_id)}
+                                                    isCreator={true}
+                                                />
+                                                <DeletePostButton
+                                                    postId={String(reply.post_id)}
+                                                    isCreator={true}
+                                                    isMainPost={false}
+                                                />
+                                            </>
                                         )}
                                         <VoteButtons
                                             postId={String(reply.post_id)}

@@ -13,6 +13,11 @@ export async function banUserPlatform(userId: string, banReason: string) {
                 banReason: banReason
             }
         })
+        await prisma.session.deleteMany({
+            where: {
+                userId: userId
+            }
+        })
     } catch (error) {
         console.error(error)
     }

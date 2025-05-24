@@ -7,6 +7,8 @@ import ToastProvider from "@/components/toast/toast";
 import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
 import SessionWrapper from "@/components/SessionWrapper";
+import ImpersonationCheck from "@/components/ImpersonationCheck";
+import ImpersonationStyles from "@/components/ImpersonationStyles";
 import React from "react";
 import { ViewTransitions } from "next-view-transitions";
 
@@ -113,7 +115,7 @@ export default async function RootLayout({
 
   return (
     <ViewTransitions>
-      <html lang="en" className={`${geistSans.className} antialiased`}>
+      <html lang="nl" className={`${geistSans.className} antialiased`}>
         <Head>
           <link rel="icon" href="/favicon.png" />
           <link rel="apple-touch-icon" href="/icon-192x192.png" />
@@ -147,8 +149,14 @@ export default async function RootLayout({
                   </p>
                 </div>
               </div> */}
-                <TopNavBar />
-                {children}
+                <>
+                  <ImpersonationCheck />
+                  <ImpersonationStyles />
+                  <TopNavBar />
+                  <div>
+                    {children}
+                  </div>
+                </>
                 {footerContent}
               </WSProvider>
             </ToastProvider>

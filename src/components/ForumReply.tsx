@@ -30,9 +30,10 @@ function ForumReply({ postId, userId, buttonText = "Beantwoorden" }: ForumReplyP
       await createReply(postId, content, userId)
       setContent("")
       setOpen(false)
+      toast.success("Je antwoord is succesvol geplaatst! Hiermee heb je 10 punten verdiend.")
       router.refresh()
     } catch (error) {
-      toast.error("Er is iets misgegaan bij het versturen van je reactie: " + error)
+      toast.error("Er is iets misgegaan bij het versturen van je antwoord: " + error)
     } finally {
       setIsSubmitting(false)
     }

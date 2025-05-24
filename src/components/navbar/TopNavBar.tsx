@@ -197,7 +197,7 @@ const MobileMenu = memo(
         if (!isOpen) return null;
 
         return (
-            <div className="fixed inset-0 bg-neutral-900 z-[101] p-4 overflow-y-auto">
+            <div className="fixed inset-0 bg-neutral-900 z-[90] p-4 overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                     <Link href="/">
                         <Image src={pl500} alt="PolarLearn Logo" height={50} width={50} />
@@ -391,7 +391,7 @@ export const TopNavBar = memo(function TopNavBar() {
 
     return (
         <>
-            <nav className="fixed top-0 min-w-full shadow-md start-0 max-w-screen-xl z-[100] flex flex-wrap justify-between h-16 bg-neutral-900/70 backdrop-blur-sm items-center fade-in font-[family-name:var(--font-geist-sans)] font-bold">
+            <nav className="fixed top-0 min-w-full shadow-md start-0 max-w-screen-xl z-[50] flex flex-wrap justify-between h-16 bg-neutral-900/70 backdrop-blur-sm items-center fade-in font-[family-name:var(--font-geist-sans)] font-bold">
                 <div className="flex items-center space-x-4 w-full transition-all duration-300 ease-in-out px-2">
                     <a href="/">
                         <Image
@@ -451,6 +451,11 @@ export const TopNavBar = memo(function TopNavBar() {
         .dropdown-right > div.absolute {
           right: 6px !important;
           top: -24px !important;
+        }
+        
+        /* Ensure smooth transition when impersonation banner appears/disappears */
+        nav.fixed {
+          transition: top 0.3s ease;
         }
       `}</style>
         </>

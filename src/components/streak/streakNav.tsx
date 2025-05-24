@@ -9,7 +9,7 @@ import {
 import { Check, Flame, Snowflake, X } from "lucide-react"
 
 import { getAllStreakData } from "./streakData"
-import { updateDailyStreak } from "./updateStreak"
+import { resetLostStreak } from "./resetLostStreak"
 import { ColorRing } from "react-loader-spinner"
 
 // Create a cache to prevent redundant requests
@@ -33,6 +33,7 @@ export default function StreakNavbarThing() {
     const [freezeCnt, setFreezeCnt] = useState(0)
     const [loading, setLoading] = useState(true)
     const [weekActivity, setWeekActivity] = useState<Array<{ date: string, status: string }>>([])
+    const [activeStreak, setActiveStreak] = useState(false)
 
     // Function to load fresh streak data
     const refreshData = useCallback(async () => {
@@ -54,6 +55,23 @@ export default function StreakNavbarThing() {
             setStreakCnt(data.streak);
             setFreezeCnt(data.freezes);
             setWeekActivity(data.weekActivity);
+
+            // Check if user has activity for today (done or frozen)
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+            const todayActivity = data.weekActivity.find((day: { date: string, status: string }) => day.date === today);
+            const yesterdayActivity = data.weekActivity.find((day: { date: string, status: string }) => day.date === yesterdayStr);
+
+            const hasTodayActivity = todayActivity?.status === 'done' || todayActivity?.status === 'frozen';
+            const hasYesterdayActivity = yesterdayActivity?.status === 'done' || yesterdayActivity?.status === 'frozen';
+
+            // Active streak only if practicing today OR practiced yesterday and have streak
+            const activeStreakStatus = hasTodayActivity || (hasYesterdayActivity && data.streak > 0);
+            setActiveStreak(activeStreakStatus);
+
             setLoading(false);
         } catch (error) {
             console.error("Error refreshing streak data:", error);
@@ -76,6 +94,9 @@ export default function StreakNavbarThing() {
 
         const loadData = async () => {
             try {
+                // Check if the streak should be reset due to missed days
+                await resetLostStreak();
+
                 // We no longer update streak automatically - this will happen when a list is completed
                 // await updateDailyStreak();
 
@@ -87,6 +108,23 @@ export default function StreakNavbarThing() {
                         setStreakCnt(dataCache.data.streak);
                         setFreezeCnt(dataCache.data.freezes);
                         setWeekActivity(dataCache.data.weekActivity);
+
+                        // Check if user has activity for today (done or frozen)
+                        const today = new Date().toISOString().split('T')[0];
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                        const todayActivity = dataCache.data.weekActivity.find((day: { date: string, status: string }) => day.date === today);
+                        const yesterdayActivity = dataCache.data.weekActivity.find((day: { date: string, status: string }) => day.date === yesterdayStr);
+
+                        const hasTodayActivity = todayActivity?.status === 'done' || todayActivity?.status === 'frozen';
+                        const hasYesterdayActivity = yesterdayActivity?.status === 'done' || yesterdayActivity?.status === 'frozen';
+
+                        // Active streak only if practicing today OR practiced yesterday and have streak
+                        const activeStreakStatus = hasTodayActivity || (hasYesterdayActivity && dataCache.data.streak > 0);
+                        setActiveStreak(activeStreakStatus);
+
                         setLoading(false);
                     }
                     return;
@@ -100,6 +138,23 @@ export default function StreakNavbarThing() {
                             setStreakCnt(dataCache.data.streak);
                             setFreezeCnt(dataCache.data.freezes);
                             setWeekActivity(dataCache.data.weekActivity);
+
+                            // Check if user has activity for today (done or frozen)
+                            const today = new Date().toISOString().split('T')[0];
+                            const yesterday = new Date();
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                            const todayActivity = dataCache.data.weekActivity.find((day: { date: string, status: string }) => day.date === today);
+                            const yesterdayActivity = dataCache.data.weekActivity.find((day: { date: string, status: string }) => day.date === yesterdayStr);
+
+                            const hasTodayActivity = todayActivity?.status === 'done' || todayActivity?.status === 'frozen';
+                            const hasYesterdayActivity = yesterdayActivity?.status === 'done' || yesterdayActivity?.status === 'frozen';
+
+                            // Active streak only if practicing today OR practiced yesterday and have streak
+                            const activeStreakStatus = hasTodayActivity || (hasYesterdayActivity && dataCache.data.streak > 0);
+                            setActiveStreak(activeStreakStatus);
+
                             setLoading(false);
                             clearInterval(checkInterval);
                         }
@@ -126,6 +181,23 @@ export default function StreakNavbarThing() {
                     setStreakCnt(data.streak);
                     setFreezeCnt(data.freezes);
                     setWeekActivity(data.weekActivity);
+
+                    // Check if user has activity for today (done or frozen)
+                    const today = new Date().toISOString().split('T')[0];
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                    const todayActivity = data.weekActivity.find((day: { date: string, status: string }) => day.date === today);
+                    const yesterdayActivity = data.weekActivity.find((day: { date: string, status: string }) => day.date === yesterdayStr);
+
+                    const hasTodayActivity = todayActivity?.status === 'done' || todayActivity?.status === 'frozen';
+                    const hasYesterdayActivity = yesterdayActivity?.status === 'done' || yesterdayActivity?.status === 'frozen';
+
+                    // Active streak only if practicing today OR practiced yesterday and have streak
+                    const activeStreakStatus = hasTodayActivity || (hasYesterdayActivity && data.streak > 0);
+                    setActiveStreak(activeStreakStatus);
+
                     setLoading(false);
                 }
             } catch (error) {
@@ -166,8 +238,8 @@ export default function StreakNavbarThing() {
     return (
         <Popover>
             <PopoverTrigger>
-                <div className="bg-neutral-800 text-white rounded-lg flex items-center justify-center min-w-20 min-h-10 hover:bg-neutral-700 transition-colors">
-                    <Flame className={`mr-1 ${streakCnt >= 1 ? "text-orange-400" : "text-white"}`} />
+                <div className="bg-neutral-800 text-white rounded-lg flex items-center justify-center min-w-40 min-h-10 hover:bg-neutral-700 transition-colors px-2">
+                    <Flame className={`mr-1 ${(streakCnt > 0 && activeStreak) ? "text-orange-400" : "text-white"}`} />
                     {loading ? (
                         <ColorRing
                             visible={true}
@@ -183,7 +255,7 @@ export default function StreakNavbarThing() {
             <PopoverContent className={`w-80 bg-neutral-800 z-110 drop-shadow-2xl min-h-40 flex flex-col space-y-3 text-white justify-center`}>
                 <div className="flex flex-row space-x-3">
                     <div className="flex flex-col items-center justify-center h-min-10 hover:bg-neutral-700 drop-shadow-2xl rounded-lg w-full transition-all gap-y-3 text-white border-neutral-700 border-1 py-3">
-                        <Flame className={`${streakCnt >= 1 ? "text-orange-400" : "text-white"}`} />
+                        <Flame className={`${(streakCnt > 0 && activeStreak) ? "text-orange-400" : "text-white"}`} />
                         {loading ? (
                             <ColorRing
                                 visible={true}

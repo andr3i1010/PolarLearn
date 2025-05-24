@@ -3,6 +3,19 @@ import { cookies } from "next/headers";
 import { prisma } from "../prisma";
 import { CompactEncrypt, compactDecrypt } from "jose";
 import crypto from 'crypto';
+import { headers } from "next/headers";
+
+// Function to check if the request is using HTTPS
+async function isSecureContext(): Promise<boolean> {
+  try {
+    const headersList = await headers();
+    return headersList.get('x-forwarded-proto') === 'https' ||
+      process.env.NODE_ENV === 'production';
+  } catch (error) {
+    // Default to production check if headers aren't available
+    return process.env.NODE_ENV === 'production';
+  }
+}
 
 // Function to set up TTL index for session expiration
 async function setupSessionTTLIndex() {
@@ -75,7 +88,7 @@ export async function createSession(userid: string) {
   });
 }
 
-export async function createCookie(sessionId: string, sessionExp: Date) {
+export async function createCookie(sessionId: string, sessionExp: Date, cookieName: string = "polarlearn.session-id") {
   // console.debug("createCookie: Creating cookie for session", sessionId);
   const payload = JSON.stringify({
     sessionId,
@@ -96,7 +109,7 @@ export async function createCookie(sessionId: string, sessionExp: Date) {
     sameSite: 'lax' as const, // Type-safe declaration
   };
 
-  (await cookies()).set("polarlearn.session-id", jwe, cookieOptions);
+  (await cookies()).set(cookieName, jwe, cookieOptions);
   // console.debug("createCookie: Cookie set for session", sessionId);
 }
 
@@ -141,12 +154,13 @@ export async function isLoggedIn() {
 
     if (!session) {
       console.error("isLoggedIn: Session not found in DB for sessionId", sessionId);
-      await (await cookies()).set('polarlearn.session-id', '', {
+      
+      (await cookies()).set('polarlearn.session-id', '', {
         expires: new Date(0),
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: await isSecureContext(),
         httpOnly: true,
-        sameSite: 'lax' as const, // Fix type issue
+        sameSite: 'lax' as const,
       });
       return false;
     }

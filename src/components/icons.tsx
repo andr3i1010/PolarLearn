@@ -1,5 +1,4 @@
-// Dit is een verzameling van de leericonen die worden gebruikt in de app
-
+// Dit is een verzameling van de vakken en icons die worden gebruikt op de website
 import Image from "next/image"
 import { memo } from "react"
 
@@ -19,164 +18,185 @@ import gs_img from '@/app/img/history.svg'
 import bi_img from '@/app/img/bio.svg'
 import ak_img from '@/app/img/geography.svg'
 import la_img from '@/app/img/oude_taal1.svg'
+import mu_img from '@/app/img/muziek.svg'
+import ot_img from '@/app/img/anders.svg'
+import gl_img from '@/app/img/gl.svg'
 import gr_img from '@/app/img/oude_taal2.svg'
 
 
-export const icons = {
-    NSK: nsk_img,
-    WI: wis_img,
-    EN: eng_img,
-    FR: fr_img,
-    DE: de_img,
-    NL: nl_img,
-    NE: nl_img,
-    GS: gs_img,
-    BI: bi_img,
-    AK: ak_img,
-    GR: gr_img,
-    LA: la_img
-} as const
+// als je een vak wil toevoegen voeg die toe aan vakken verder hoef je niks te doen!!
 
-export const subjectEmojiMap: Record<string, React.ReactNode> = {
-    "NL": (
-        <span className="flex items-center">
-            <Image src={nl_img} alt={"nederlands plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Nederlands
-        </span>
-    ),
-    "DE": (
-        <span className="flex items-center">
-            <Image src={de_img} alt={"duits plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Duits
-        </span>
-    ),
-    "FR": (
-        <span className="flex items-center">
-            <Image src={fr_img} alt={"frans plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Frans
-        </span>
-    ),
-    "EN": (
-        <span className="flex items-center">
-            <Image src={eng_img} alt={"engels plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Engels
-        </span>
-    ),
-    "WI": (
-        <span className="flex items-center">
-            <Image src={wis_img} alt={"wiskunde plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Wiskunde
-        </span>
-    ),
-    "NSK": (
-        <span className="flex items-center">
-            <Image src={nsk_img} alt={"nask plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            NaSk
-        </span>
-    ),
-    "GS": (
-        <span className="flex items-center">
-            <Image src={gs_img} alt={"geschiedenis plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Geschiedenis
-        </span>
-    ),
-    "BI": (
-        <span className="flex items-center">
-            <Image src={bi_img} alt={"biologie plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Biologie
-        </span>
-    ),
-    "AK": (
-        <span className="flex items-center">
-            <Image src={ak_img} alt={"aardrijkskunde plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Aardrijkskunde
-        </span>
-    ),
-    "LA": (
-        <span className="flex items-center">
-            <Image src={la_img} alt={"Latijn plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Latijn
-        </span>
-    ),
-    "GR": (
-        <span className="flex items-center">
-            <Image src={gr_img} alt={"Grieks plaatje"} width={20} height={20} />
-            <div className="w-2" />
-            Grieks
-        </span>
-    ),
-} as const;
+interface taal {
+    afkorting: string;
+    naam: string;
+    icon: any;
+}
 
-// Function to get the appropriate icon for each subject
-export const getSubjectIcon = (subjectCode: string) => {
-    switch (subjectCode) {
-        case "NL":
-            return nl_img;
-        case "FR":
-            return fr_img;
-        case "EN":
-            return eng_img;
-        case "DE":
-            return de_img;
-        case "WI":
-            return wis_img;
-        case "NSK":
-            return nsk_img;
-        case "AK":
-            return ak_img;
-        case "GS":
-            return gs_img;
-        case "BI":
-            return bi_img;
-        case "LA":
-            return la_img;
-        case "GR":
-            return gr_img;
-        default:
-            return null;
+interface vak {
+    afkorting: string;
+    naam: string;
+    icon: any;
+    istaal: boolean;
+    van: taal;
+    naar: taal;
+}
+
+export const Vakken: vak[] = [
+    {
+        afkorting: "EN",
+        naam: "Engels",
+        icon: eng_img,
+        istaal: true,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "EN", naam: "Engels", icon: eng_img }
+    },
+    {
+        afkorting: "FR",
+        naam: "Frans",
+        icon: fr_img,
+        istaal: true,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "FR", naam: "Frans", icon: fr_img }
+    },
+    {
+        afkorting: "DE",
+        naam: "Duits",
+        icon: de_img,
+        istaal: true,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "DE", naam: "Duits", icon: de_img }
+    },
+    {
+        afkorting: "NL",
+        naam: "Nederlands",
+        icon: nl_img,
+        istaal: true,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "LA",
+        naam: "Latijn",
+        icon: la_img,
+        istaal: true,
+        van: { afkorting: "LA", naam: "Latijn", icon: la_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "GR",
+        naam: "Grieks",
+        icon: gr_img,
+        istaal: true,
+        van: { afkorting: "GR", naam: "Grieks", icon: gr_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "WI",
+        naam: "Wiskunde",
+        icon: wis_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "NSK",
+        naam: "NaSk",
+        icon: nsk_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "BI",
+        naam: "Biologie",
+        icon: bi_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "AK",
+        naam: "Aardrijkskunde",
+        icon: ak_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "GS",
+        naam: "Geschiedenis",
+        icon: gs_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "MU",
+        naam: "Muziek",
+        icon: mu_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "OT",
+        naam: "Anders",
+        icon: ot_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "GL",
+        naam: "Godsdienst / Levensbeschouwing",
+        icon: gl_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
     }
+];
+
+// hierna komen lijsten die info halen van vakken
+export const krijgVak = (subjectCode: string): vak => {
+    return Vakken.find(v => v.afkorting === subjectCode) ?? {
+        afkorting: "??",
+        naam: "Onbekend",
+        icon: nl_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    };
+};
+export const krijgTaalVaken = (): vak[] => {
+    return Vakken.filter(vak => vak.istaal) ?? {
+        afkorting: "??",
+        naam: "Onbekend",
+        icon: nl_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    };
+};
+export const subjectEmojiMap: Record<string, React.ReactNode> = Object.fromEntries(
+    Vakken.map(vak => [
+        vak.afkorting,
+        <span key={vak.afkorting} className="flex items-center">
+            <Image src={vak.icon} alt={`${vak.naam.toLowerCase()} plaatje`} width={20} height={20} />
+            <div className="w-2" />
+            {vak.naam}
+        </span>
+    ])
+);
+// deze lijsten moet je eig niet gebruiken
+
+export const getSubjectIcon = (subjectCode: string) => {
+    const vak = Vakken.find(v => v.afkorting === subjectCode);
+    return vak?.icon ?? null;
 };
 
-// Function to get the full subject name
 export const getSubjectName = (subjectCode: string) => {
-    switch (subjectCode) {
-        case "NL":
-            return "Nederlands";
-        case "NE":
-            return "Nederlands";
-        case "FR":
-            return "Frans";
-        case "EN":
-            return "Engels";
-        case "DE":
-            return "Duits";
-        case "WI":
-            return "Wiskunde";
-        case "NSK":
-            return "NaSk";
-        case "AK":
-            return "Aardrijkskunde";
-        case "GS":
-            return "Geschiedenis";
-        case "BI":
-            return "Biologie";
-        case "LA":
-            return "Latijn";
-        case "GR":
-            return "Grieks";
-        default:
-            return subjectCode;
-    }
+    const vak = Vakken.find(v => v.afkorting === subjectCode);
+    return vak?.naam ?? subjectCode;
 };
 const SubjectLabel = memo(({ icon, alt, label }: { icon: any; alt: string; label: string }) => (
     <div className="flex items-center">
@@ -184,55 +204,11 @@ const SubjectLabel = memo(({ icon, alt, label }: { icon: any; alt: string; label
         <span>{label}</span>
     </div>
 ));
-export const defaultItems: ComboboxItem[] = [
-    {
-        value: "WI",
-        label: <SubjectLabel icon={icons.WI} alt="wiskunde" label="Wiskunde" />,
-        searchText: "Wiskunde",
-    },
-    {
-        value: "NSK",
-        label: <SubjectLabel icon={icons.NSK} alt="nask" label="NaSk" />,
-        searchText: "NaSk",
-    },
-    {
-        value: "NE",
-        label: <SubjectLabel icon={icons.NL} alt="nederlands" label="Nederlands" />,
-        searchText: "Nederlands",
-    },
-    {
-        value: "EN",
-        label: <SubjectLabel icon={icons.EN} alt="engels" label="Engels" />,
-        searchText: "Engels",
-    },
-    {
-        value: "FR",
-        label: <SubjectLabel icon={icons.FR} alt="frans" label="Frans" />,
-        searchText: "Frans",
-    },
-    {
-        value: "DE",
-        label: <SubjectLabel icon={icons.DE} alt="duits" label="Duits" />,
-        searchText: "Duits",
-    },
-    {
-        value: "AK",
-        label: <SubjectLabel icon={icons.AK} alt="aardrijkskunde" label="Aardrijkskunde" />,
-        searchText: "Aardrijkskunde",
-    },
-    {
-        value: "GS",
-        label: <SubjectLabel icon={icons.GS} alt="geschiedenis" label="Geschiedenis" />,
-        searchText: "Geschiedenis",
-    },
-    {
-        value: "LA",
-        label: <SubjectLabel icon={icons.LA} alt="Latijn" label="Latijn" />,
-        searchText: "Latijn",
-    },
-    {
-        value: "GR",
-        label: <SubjectLabel icon={icons.GR} alt="Grieks" label="Grieks" />,
-        searchText: "Grieks",
-    }
-];
+export const defaultItems: ComboboxItem[] = Vakken.map(vak => ({
+    value: vak.afkorting,
+    label: <SubjectLabel icon={vak.icon} alt={vak.naam.toLowerCase()} label={vak.naam} />,
+    searchText: vak.naam,
+}));
+export const icons = Object.fromEntries(
+    Vakken.map(vak => [vak.afkorting, vak.icon])
+) as Record<string, any>;

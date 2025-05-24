@@ -145,7 +145,7 @@ const StreakCelebration = memo(({ streak, isNewStreak }: {
         </div>
 
         <p className="text-center text-gray-300">
-          Je bent goed bezig! Blijf elke dag leren om je streak te behouden.
+          Je bent goed bezig! Blijf elke dag leren om je reeks te behouden.
         </p>
       </div>
     </div>
@@ -198,14 +198,12 @@ const FreezeUsed = memo(({ streak }: { streak: number }) => {
 });
 
 // Memoize the multi-choice button component
-const MultiChoiceButton = memo(({
-  onClick, isCorrect, optionNumber, text, disabled
-}: {
-  onClick: () => void,
-  isCorrect: boolean,
-  optionNumber: number,
-  text: string,
-  disabled: boolean
+const MultiChoiceButton = memo(({ onClick, isCorrect, optionNumber, text, disabled }: {
+  onClick: () => void;
+  isCorrect: boolean;
+  optionNumber: number;
+  text: string;
+  disabled: boolean;
 }) => {
   const needsClamp = text.length > 40;
   return (
@@ -240,7 +238,34 @@ const MultiChoiceButton = memo(({
 const getHint = (answer: string): string => {
   if (!answer || answer.length === 0) return '';
 
-  return answer.split(' ').map(word => {
+  // Make a working copy to avoid modifying original
+  let workingAnswer = answer;
+
+  // Handle parenthesized content - either show it as optional or remove it
+  // based on the existing logic in handleAntwoordControleren
+  if (answer.includes("(") && answer.includes(")")) {
+    // Show parenthesized content as optional in hint
+    workingAnswer = workingAnswer.replace(/\(([^)]+)\)/g, '($1)');
+  }
+
+  // Check if the answer has multiple options (separated by slash or "of")
+  if (workingAnswer.includes("/") || workingAnswer.includes(" of ")) {
+    const parts = workingAnswer.split(/\s*(?:of|\/)\s*/);
+
+    // Generate a hint for each alternative answer
+    const hints = parts.map(part => {
+      return part.trim().split(' ').map(word => {
+        if (word.length === 0) return '';
+        return word.charAt(0) + '_'.repeat(word.length - 1);
+      }).join(' ');
+    });
+
+    // Join the hints with the same separator that was in the original answer
+    return workingAnswer.includes("/") ? hints.join(' / ') : hints.join(' of ');
+  }
+
+  // Original behavior for single answers
+  return workingAnswer.split(' ').map(word => {
     if (word.length === 0) return '';
     return word.charAt(0) + '_'.repeat(word.length - 1);
   }).join(' ');
@@ -295,6 +320,7 @@ const LearnTool = ({
   const [streakStarted, setStreakStarted] = useState(false);
   const [freezeAwarded, setFreezeAwarded] = useState(false);
   const [freezeUsed, setFreezeUsed] = useState(false);
+  const [locked, setLocked] = useState(false);
 
   // Use an effect to clear the input field when the current question changes
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
@@ -306,6 +332,56 @@ const LearnTool = ({
       setUserInput("");
     }
   }, [lijstData]);
+
+  // Sync the locked state with overlay visibility
+  useEffect(() => {
+    const anyOverlayVisible = toonAntwoord || showCorrect || showGedachtenOverlay;
+    setLocked(anyOverlayVisible);
+  }, [toonAntwoord, showCorrect, showGedachtenOverlay]);
+
+  // Handle focus and keyboard events when locked
+  useEffect(() => {
+    if (locked) {
+      // Remove focus from any active element
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+
+      // Disable keyboard event handling while locked
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // Prevent default actions for keyboard events
+        e.preventDefault();
+        e.stopPropagation();
+      };
+
+      // Add a global event listener with capture phase
+      window.addEventListener('keydown', handleKeyDown, true);
+
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown, true);
+      };
+    }
+  }, [locked]);
+
+  // Allow keyboard interactions for gedachten overlay
+  useEffect(() => {
+    if (showGedachtenOverlay) {
+      // Allow keyboard events specifically for the gedachten overlay
+      // This creates a separate effect that doesn't interfere with the locked effect
+      const handleGedachtenKeyDown = (e: KeyboardEvent) => {
+        // Allow key events for the Yes/No buttons but protect against unwanted key events
+        if (!['Tab', 'Enter', ' '].includes(e.key)) {
+          e.preventDefault();
+        }
+      };
+
+      window.addEventListener('keydown', handleGedachtenKeyDown, false);
+
+      return () => {
+        window.removeEventListener('keydown', handleGedachtenKeyDown, false);
+      };
+    }
+  }, [showGedachtenOverlay]);
 
   // Add an effect to update streak when the list is completed
   useEffect(() => {
@@ -373,9 +449,8 @@ const LearnTool = ({
   }, [lijstData]);
 
   const handleAntwoordControleren = useCallback(() => {
-
-    // als er geen input is stop
-    if (!lijstData.length || userInput.trim() === "") return;
+    // Don't process if locked (overlay is showing) or no input
+    if (locked || !lijstData.length || userInput.trim() === "") return;
 
     const [huidigeVraag, ...rest] = lijstData;
     let huidigAntwoordZonderSpecialeTekens = verwijderSpecialeTekens(huidigeVraag.antwoord);
@@ -424,7 +499,7 @@ const LearnTool = ({
         setUserInput(""); // Clear input after wrong answer too
       }, 3500); // Increased from 2000 to 3500ms for incorrect answers
     }
-  }, [lijstData, userInput, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress]);
+  }, [lijstData, userInput, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress, locked]);
 
   // Renamed from handleAntwoordControlerenGedachten
   const handleSelfAssessment = useCallback((isAntwoordCorrect: boolean) => {
@@ -457,7 +532,7 @@ const LearnTool = ({
   }, [lijstData, shuffleArray, onCorrectAnswer, onWrongAnswer, updateProgress]);
 
   const handleAntwoordmultikeuze = useCallback((isAntwoordCorrect: boolean) => {
-    if (!lijstData.length || isAnswering) return;
+    if (!lijstData.length || isAnswering || locked) return;
     setIsAnswering(true);
     const [huidigeVraag, ...rest] = lijstData;
     if (isAntwoordCorrect) {
@@ -480,13 +555,13 @@ const LearnTool = ({
         setIsAnswering(false);
       }, 3500); // Increased from 2000 to 3500ms for incorrect answers
     }
-  }, [lijstData, isAnswering, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress]);
+  }, [lijstData, isAnswering, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress, locked]);
 
   // Handle showing the answer in gedachten mode
   const handleShowGedachtenAnswer = useCallback(() => {
-    if (!lijstData.length) return;
+    if (!lijstData.length || locked) return;
     setShowGedachtenOverlay(true);
-  }, [lijstData]);
+  }, [lijstData, locked]);
 
   // Use useMemo for derived calculations
   const getOptionText = useCallback((buttonNumber: number, correctAnswer: string): string => {
@@ -516,7 +591,14 @@ const LearnTool = ({
   }, [randomNumber, lijstDataOud]);
 
   return (
-    <div className='bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-[60vh] rounded-lg flex flex-col justify-center overflow-hidden p-4'>
+    <div className="bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-[60vh] rounded-lg flex flex-col justify-center overflow-hidden p-4">
+      {/* Add a subtle grayed-out overlay when locked */}
+      {locked && (
+        <div
+          className="absolute inset-0 bg-neutral-800 opacity-40 z-40 pointer-events-none"
+          aria-hidden="true"
+        />
+      )}
       {initialMappedData.length === 0 ? (
         <div className="text-center text-white p-4">
           Lijst niet gevonden
@@ -565,17 +647,23 @@ const LearnTool = ({
               <Input
                 type="text"
                 value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
+                onChange={(e) => !locked && setUserInput(e.target.value)}
                 placeholder="Type je antwoord hier..."
-                className="w-full"
+                className={`w-full ${locked ? 'cursor-not-allowed opacity-70' : ''}`}
+                disabled={locked}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === 'Enter' && !locked) {
                     handleAntwoordControleren();
                   }
                 }}
               />
               <div className="flex gap-2 mt-4">
-                <Button1 onClick={handleAntwoordControleren} text="Controleren" className="flex-1" />
+                <Button1
+                  onClick={!locked ? handleAntwoordControleren : undefined}
+                  text="Controleren"
+                  className={`flex-1 ${locked ? 'opacity-70' : ''}`}
+                  disabled={locked}
+                />
               </div>
             </div>
           )}
@@ -585,11 +673,11 @@ const LearnTool = ({
               {Array.from({ length: 4 }).map((_, index) => (
                 <div key={index} className="h-auto min-h-[80px]">
                   <MultiChoiceButton
-                    onClick={() => handleAntwoordmultikeuze(randomNumber === index + 1)}
+                    onClick={() => !locked && handleAntwoordmultikeuze(randomNumber === index + 1)}
                     isCorrect={randomNumber === index + 1}
                     optionNumber={index + 1}
                     text={getOptionText(index + 1, lijstData[0]?.antwoord || "")}
-                    disabled={isAnswering}
+                    disabled={isAnswering || locked}
                   />
                 </div>
               ))}
@@ -599,18 +687,20 @@ const LearnTool = ({
           {mode === "gedachten" && (
             <div className="flex gap-2 mt-4 w-full max-w-md">
               <Button1
-                onClick={handleShowGedachtenAnswer}
+                onClick={!locked ? handleShowGedachtenAnswer : undefined}
                 text="Toon Antwoord"
-                className="flex-1"
+                className={`flex-1 ${locked ? 'opacity-70' : ''}`}
+                disabled={locked}
               />
             </div>
           )}
           {mode === "learn" && (
             <div className="flex gap-2 mt-4 w-full max-w-md">
               <Button1
-                onClick={handleShowGedachtenAnswer} // Re-use the same handler as gedachten
+                onClick={!locked ? handleShowGedachtenAnswer : undefined} // Re-use the same handler as gedachten
                 text="Toon Antwoord"
-                className="flex-1"
+                className={`flex-1 ${locked ? 'opacity-70' : ''}`}
+                disabled={locked}
               />
             </div>
           )}
@@ -623,17 +713,23 @@ const LearnTool = ({
               <Input
                 type="text"
                 value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
+                onChange={(e) => !locked && setUserInput(e.target.value)}
                 placeholder="Type je antwoord hier..."
-                className="w-full"
+                className={`w-full ${locked ? 'cursor-not-allowed opacity-70' : ''}`}
+                disabled={locked}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === 'Enter' && !locked) {
                     handleAntwoordControleren();
                   }
                 }}
               />
               <div className="flex gap-2 mt-4">
-                <Button1 onClick={handleAntwoordControleren} text="Controleren" className="flex-1" />
+                <Button1
+                  onClick={!locked ? handleAntwoordControleren : undefined}
+                  text="Controleren"
+                  className={`flex-1 ${locked ? 'opacity-70' : ''}`}
+                  disabled={locked}
+                />
               </div>
             </div>
           )}

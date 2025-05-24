@@ -205,13 +205,13 @@ export default function Home() {
                             <ReviewCard stars={5} author='luna' comment="Mijn cijfers waren eerst heel slecht, maar sinds ik PolarLearn gebruik zijn ze super hoog!" />
                             <ReviewCard stars={2.5} author='waterliefhebber' comment="Te weinig water" />
                             <ReviewCard stars={5} author='-Mohammed-' comment="Het forum is echt veel beter en fijner! Ik hoop dat iedereen naar PolarLearn gaat! Bij StudyGo haalde ik vijfen en vieren, maar nu ik PolarLearn gebruik, haal ik achten en negenen!" smalltext={true} />
-
+                            <ReviewCard stars={5} author='klokmeister' comment='De beste leerprogramma van ze allemaal' />
                         </div>
                     </Marquee>
                 </div>
                 <hr className="flex-grow border-neutral-600 m-3" />
 
-                <div className='h-20' />
+                <div className='h-60' />
 
                 {/* ✨ Scoll magie ✨ */}
                 <div className="my-12">

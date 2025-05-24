@@ -58,10 +58,10 @@ async function getRecentLists() {
         // Only include the list ID condition if we have IDs
         ...(combinedListIds.length > 0
           ? [
-              {
-                list_id: { in: combinedListIds },
-              },
-            ]
+            {
+              list_id: { in: combinedListIds },
+            },
+          ]
           : []),
         // Check for creator being either username or user ID
         { creator: user.name as string },
@@ -152,6 +152,7 @@ export default async function Start() {
     (await cookies()).get("polarlearn.session-id")?.value as string
   );
   const currentUserName = currentUser?.name;
+  const currentUserRole = currentUser?.role;
 
   // Extract the subject emoji map for reuse
 
@@ -263,9 +264,8 @@ export default async function Start() {
                         <div className="flex items-center pr-2">
                           {Array.isArray(list.data) && list.data.length === 1
                             ? "1 woord"
-                            : `${
-                                Array.isArray(list.data) ? list.data.length : 0
-                              } woorden`}
+                            : `${Array.isArray(list.data) ? list.data.length : 0
+                            } woorden`}
                         </div>
                       </Link>
 
@@ -277,7 +277,7 @@ export default async function Start() {
 
                       {/* Action buttons for list owner */}
                       <div className="flex items-center gap-2">
-                        {list.creator === currentUserName && (
+                        {(list.creator === currentUserName || list.creator === currentUser?.id || currentUserRole === "admin") && (
                           <Link
                             href={`/learn/editlist/${list.list_id}`}
                             className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
@@ -286,11 +286,11 @@ export default async function Start() {
                             <PencilIcon className="h-5 w-5 text-white" />
                           </Link>
                         )}
-                        {list.creator === currentUserName && (
+                        {(list.creator === currentUserName || list.creator === currentUser?.id || currentUserRole === "admin") && (
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
                             <DeleteListButton
                               listId={list.list_id}
-                              isCreator={list.creator === currentUserName}
+                              isCreator={true}
                             />
                           </div>
                         )}

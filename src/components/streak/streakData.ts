@@ -74,9 +74,10 @@ export async function getAllStreakData() {
         let streakCount = user.streakCount;
         let freezeCount = user.freezeCount;
         let streakData = user.streakData;
+        let lastActivity = user.lastActivity;
 
         // If the session user doesn't include complete data, then fetch only what's missing
-        if (streakCount === undefined || freezeCount === undefined || streakData === undefined) {
+        if (streakCount === undefined || freezeCount === undefined || streakData === undefined || lastActivity === undefined) {
             // Only fetch what we're missing
             const userData = await prisma.user.findFirst({
                 where: {
@@ -85,7 +86,8 @@ export async function getAllStreakData() {
                 select: {
                     streakCount: streakCount === undefined,
                     freezeCount: freezeCount === undefined,
-                    streakData: streakData === undefined
+                    streakData: streakData === undefined,
+                    lastActivity: lastActivity === undefined
                 }
             });
 
@@ -93,6 +95,7 @@ export async function getAllStreakData() {
                 streakCount = streakCount ?? userData.streakCount;
                 freezeCount = freezeCount ?? userData.freezeCount;
                 streakData = streakData ?? userData.streakData;
+                lastActivity = lastActivity ?? userData.lastActivity;
             }
         }
 
@@ -113,8 +116,39 @@ export async function getAllStreakData() {
             return { date, status };
         });
 
+        // Check if streak should be reset due to missed days
+        let finalStreakCount = streakCount || 0;
+
+        // Get yesterday's date
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        // Get day before yesterday's date (to check for freezes)
+        const dayBeforeYesterday = new Date();
+        dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
+        const dayBeforeYesterdayStr = dayBeforeYesterday.toISOString().split('T')[0];
+
+        // Today's date in YYYY-MM-DD format
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        // Check if we have activity from today or yesterday
+        const hasActivityToday = streakDataObj[todayStr] === 'done' || streakDataObj[todayStr] === 'frozen';
+        const hadYesterdayActivity = streakDataObj[yesterdayStr] === 'done' || streakDataObj[yesterdayStr] === 'frozen';
+        const hadDayBeforeYesterdayActivity = streakDataObj[dayBeforeYesterdayStr] === 'done' || streakDataObj[dayBeforeYesterdayStr] === 'frozen';
+
+        // Streak should be reset only if:
+        // 1. User has a streak count > 0
+        // 2. User has no activity today AND had no activity yesterday
+        if (!hasActivityToday && !hadYesterdayActivity && finalStreakCount > 0) {
+            // User missed a day - reset streak
+            // We don't actually update the database here, just what we return
+            // Next time updateDailyStreak is called, it will properly reset
+            finalStreakCount = 0;
+        }
+
         return {
-            streak: streakCount || 0,
+            streak: finalStreakCount,
             freezes: freezeCount || 0,
             weekActivity
         };
