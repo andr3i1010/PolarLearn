@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "prepare": "yes | next-ws patch",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma db push"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
