@@ -58,3 +58,4 @@ Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) te g
 
 join de discord: [discord](https://discord.gg/TdYzXDzqSB)
 Je kan bijdragen aan PolarLearn door de code te downloaden en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een feature request hebt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie CONTRIBUTING.md voor meer informatie.
+
