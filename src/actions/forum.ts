@@ -48,7 +48,7 @@ export async function createReply(postId: string, content: string, userId: strin
       votes_data: { users: {} },
     },
   });
-  sendNotificationToUser(userId, session.name + " heeft op je vraag '" + originalPost.title + "' geantwoord!")
+  await sendNotificationToUser(userId, session.name + " heeft op je vraag '" + originalPost.title + "' geantwoord!")
 
   return reply;
 }
