@@ -7,8 +7,9 @@ import { cookies } from "next/headers";
 import { formSchema } from "@/app/home/forum/formSchema";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
 
-export async function createReply(postId: string, content: string) {
+export async function createReply(postId: string, content: string, userId: string) {
   const session = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")!.value
   );
@@ -52,21 +53,23 @@ export async function createReply(postId: string, content: string) {
       votes_data: { users: { [userName]: "up" } }, // Add creator's upvote
     },
   });
+  await sendNotificationToUser(userId, session.name + " heeft op je vraag '" + originalPost.title + "' geantwoord!")
 
-  // Fetch only the user's forumPoints so TS knows it exists
+  // A more direct approach that bypasses the null issue
+  // First, fetch the current user with all their data
   const currentUser = await prisma.user.findUnique({
-    where: { id: session.id },
-    select: { forumPoints: true },
+    where: { id: session.id }
   });
 
-  // Treat missing user or undefined points as 0, then add 10
-  const currentPoints = currentUser?.forumPoints ?? 0;
-  const newPointsValue = currentPoints + 10;
+  // Calculate new points value - either start at 10 or add 10 to current value
+  const newPointsValue = currentUser?.forumPoints === null || currentUser?.forumPoints === undefined
+    ? 10
+    : Number(currentUser.forumPoints) + 10;
 
   // Directly set the value instead of using increment to bypass null handling issues
   await prisma.user.update({
     where: { id: session.id },
-    data: { forumPoints: newPointsValue },
+    data: { forumPoints: newPointsValue }
   });
 
   return reply;
