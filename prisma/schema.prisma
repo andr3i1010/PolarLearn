@@ -50,7 +50,7 @@ model User {
    * }
    * }
    */
-
+  forumPoints  Int       @default(0)
   streakCount  Int       @default(0)
   lastActivity DateTime?
   streakData   Json? // key: YYYY-MM-DD, value: "done" | "frozen"
