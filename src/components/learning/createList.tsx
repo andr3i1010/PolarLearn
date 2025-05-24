@@ -7,7 +7,6 @@
 // const wastedHours = 4
 // Met vriendelijke groeten, andrei1010
 
-// todo: herschrijf dit
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Import } from "lucide-react";
@@ -517,30 +516,52 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
     };
   }
 
-  // Function to handle imported list data
-  // Make sure handleImport is properly bound and doesn't lose context
   const handleImport = useCallback(() => {
-    console.log("Import function called with text:", importText);
     try {
       if (!importText.trim()) {
-        console.log("Import text is empty");
         toast.error("Voer een lijst in om te importeren");
         return;
       }
 
-      // Parse the input text - expecting format like "word : translation" or "word | translation" or "word - translation"
+      // Split de regels van de tekst
       const lines = importText.split('\n').filter(line => line.trim() !== '');
-      const separator = /[:|;,\t-]/; // Accept multiple separator options
+      const separator = ":"; // NOTE: hier kan regex komen maar ik kan dat niet
 
-      const newPairs = lines.map((line, index) => {
-        const parts = line.split(separator);
-        return {
-          id: nextId + index,
-          "1": parts[0]?.trim() || '',
-          "2": parts[1]?.trim() || ''
-        };
-      }).filter(pair => pair["1"] !== '' || pair["2"] !== '');
+      // hier gaan we naar schrijven
+      let newPairs: Pair[] = [];
 
+      if (lines.length === 0) {
+        toast.error("De geïmporteerde tekst bevat geen geldige regels");
+        return;
+      }
+      if (lines[0].includes(separator)) {
+        newPairs = lines.map((line, index) => {
+          const parts = line.split(separator);
+          return {
+            id: nextId + index,
+            "1": parts[0]?.trim() || '',
+            "2": parts[1]?.trim() || ''
+          };
+        }).filter(pair => pair["1"] !== '' || pair["2"] !== '');
+      } else {
+        let vragen: string[] = [];
+        let antwoorden: string[] = [];
+
+        lines.forEach((line, index) => {
+          if (index % 2 === 0) {
+            vragen.push(line.trim());
+          } else {
+            antwoorden.push(line.trim());
+          }
+        });
+        newPairs = vragen.map((vraag, index) => {
+          return {
+            id: nextId + index,
+            "1": vraag,
+            "2": antwoorden[index] || '' // If no answer is provided, set it to an empty string
+          };
+        }).filter(pair => pair["1"] !== '' || pair["2"] !== '');
+      }
       if (newPairs.length === 0) {
         toast.error("Geen geldige items gevonden in de geïmporteerde tekst");
         return;
@@ -625,7 +646,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
             <Dialog
               open={importDialogOpen}
               onOpenChange={(open) => {
-                console.log("Dialog open state changing to:", open);
                 setImportDialogOpen(open);
               }}
             >
@@ -642,7 +662,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                   <DialogTitle>Importeer een lijst</DialogTitle>
                   <DialogDescription>
                     Plak hier je geïmporteerde lijst. Ondersteunde formaten:
-                    <br />- Elk item op één regel: "woord : vertaling" (ook met , - ; of tabs)
+                    <br />- Elk item op één regel: "woord : vertaling"
                     <br />- Afwisselende regels: woord en vertaling op aparte regels
                     <br />Titels en headers worden niet apart verwerkt.
                   </DialogDescription>
@@ -664,82 +684,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                     text="Importeren"
                     onClick={() => {
                       console.log("Import button clicked");
-
-                      // Execute import function
-                      try {
-                        if (!importText.trim()) {
-                          console.log("Import text is empty");
-                          toast.error("Voer een lijst in om te importeren");
-                          return;
-                        }
-
-                        // Split text into lines and filter out empty lines
-                        let lines = importText.split('\n').filter(line => line.trim() !== '');
-                        console.log("Original lines:", lines);
-
-                        // Define separator - only use patterns that separate words from translations
-                        const separator = /[:|;,\t-]/;
-
-                        let newPairs: { id: number; "1": string; "2": string }[] = [];
-
-                        // First, check if any lines have separators
-                        const linesWithSeparators = lines.filter(line => line.match(separator));
-
-                        // Determine format based on whether any lines have separators
-                        const isAlternatingFormat = linesWithSeparators.length === 0 && lines.length >= 2;
-
-                        console.log("Detected alternating lines format:", isAlternatingFormat);
-
-                        if (isAlternatingFormat) {
-                          // Force even number of lines by dropping the last line if odd
-                          const adjustedLines = lines.length % 2 !== 0 ? lines.slice(0, -1) : lines;
-
-                          // Process as alternating lines (term followed by translation)
-                          for (let i = 0; i < adjustedLines.length; i += 2) {
-                            if (i + 1 < adjustedLines.length) {
-                              newPairs.push({
-                                id: nextId + i / 2,
-                                "1": adjustedLines[i].trim(),
-                                "2": adjustedLines[i + 1].trim()
-                              });
-                            }
-                          }
-                        } else {
-                          // Process as standard format with separators
-                          lines.forEach((line, index) => {
-                            const parts = line.split(separator);
-                            if (parts.length >= 2 && parts[0].trim()) {
-                              newPairs.push({
-                                id: nextId + index,
-                                "1": parts[0].trim(),
-                                "2": parts.slice(1).join(' ').trim() || ''
-                              });
-                            }
-                          });
-                        }
-
-                        // Filter out any pairs with empty fields
-                        newPairs = newPairs.filter(pair => pair["1"] !== '' && pair["2"] !== '');
-
-                        console.log("Created pairs:", newPairs);
-
-                        if (newPairs.length === 0) {
-                          toast.error("Geen geldige items gevonden in de geïmporteerde tekst");
-                          return;
-                        }
-
-                        setPairs(prev => [...prev, ...newPairs]);
-                        setNextId(prev => prev + newPairs.length);
-                        markHasChanges();
-
-                        setImportDialogOpen(false);
-                        setImportText('');
-
-                        toast.success(`${newPairs.length} items succesvol geïmporteerd`);
-                      } catch (error) {
-                        console.error("Import error:", error);
-                        toast.error("Er is een fout opgetreden bij het importeren van de lijst");
-                      }
+                      handleImport()
                     }}
                     icon={<Import size={16} />}
                   />
