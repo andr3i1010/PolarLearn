@@ -85,13 +85,14 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
             await addToRecentSubjects(listData.subject);
         }
     }
-
-    // Check if current user is the creator to show edit button
+    
     const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
-    // Check both name and id to ensure we match the creator correctly
-    const isCreator = (listData?.creator === currentUser?.name ||
-        listData?.creator === currentUser?.id ||
-        currentUser?.role === "admin");
+
+    const creatorId = String(listData?.creator ?? "");
+    const currentUserId = String(currentUser?.id ?? "");
+    const currentUserName = String(currentUser?.name ?? "");
+
+    const isCreator = [currentUserId, currentUserName].includes(creatorId) || currentUser?.role === "admin";
     const isUnpublished = listData?.published === false;
 
     // For debugging - remove in production
