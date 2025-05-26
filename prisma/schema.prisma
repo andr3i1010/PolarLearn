@@ -2,35 +2,35 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
- 
+
 generator client {
   provider = "prisma-client-js"
 }
 
 model config {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  key       String @unique
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  key       String   @unique
   value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
- 
+
 model User {
-  id             String   @id @map("_id") @db.String
-  name           String?  @unique
-  email          String?  @unique
-  emailVerified  DateTime?
-  image          String?
-  password       String
-  salt           String
+  id            String    @id @map("_id") @db.String
+  name          String?   @unique
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String
+  salt          String
 
-  inGroups      Json?
-  ownGroups     Json?
+  inGroups  Json?
+  ownGroups Json?
 
-  githubOAuthID  String?  @unique
-  googleOAuthID  String?  @unique
+  githubOAuthID String? @unique
+  googleOAuthID String? @unique
 
-  forumPoints    Int      @default(0)
+  forumPoints Int @default(0)
 
   list_data      Json?
   role           String?
@@ -40,28 +40,42 @@ model User {
   forumBanReason String?
   forumBanEnd    DateTime?
 
-  streakCount    Int      @default(0)
-  lastActivity   DateTime?
-  streakData     Json?    // key: YYYY-MM-DD, value: "done" | "frozen"
-  freezeCount    Int      @default(0)
+  streakCount  Int       @default(0)
+  lastActivity DateTime?
+  streakData   Json? // key: YYYY-MM-DD, value: "done" | "frozen"
+  freezeCount  Int       @default(0)
 
-  scheduledDeletion DateTime?  // TTL index for account deletion
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-}
- 
-model Session {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  sessionID    String   @unique
-  userId       String   @db.String
-  expires      DateTime
- 
+  scheduledDeletion DateTime? // TTL index for account deletion
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Bot {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  image      String?
+  name       String
+  creatorId  String   @unique @db.String
+  key        String   @unique @default(uuid())
+  token      String   @unique
+  limit      Int      @default(100) // Number of requests per day
+  createdAt  DateTime @default(now())
+  resetToken DateTime @default(now()) // Date when the limit resets
+  resetLimit DateTime @default(now()) // Date when the limit resets
+}
+
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionID String   @unique
+  userId    String   @db.String
+  expires   DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model practice {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   list_id   String
   name      String
   mode      String
@@ -76,19 +90,19 @@ model practice {
 }
 
 model forum {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  post_id   String  @db.String @unique
-  type      String
-  replyTo   String?
-  title     String
-  subject   String?
-  content   String
-  category  String? 
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  post_id  String  @unique @db.String
+  type     String
+  replyTo  String?
+  title    String
+  subject  String?
+  content  String
+  category String?
 
-  creator   String   @db.String
+  creator String @db.String
 
-  locked    Boolean  @default(false)
-  votes     Int      @db.Int @default(0)
+  locked     Boolean @default(false)
+  votes      Int     @default(0) @db.Int
   votes_data Json?
 
   createdAt DateTime @default(now())
@@ -96,7 +110,7 @@ model forum {
 }
 
 model group {
-  id                  String @id @default(auto()) @map("_id") @db.ObjectId
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
   groupId             String   @unique
   name                String
   description         String?
@@ -104,12 +118,12 @@ model group {
   toBeApproved        Json?
   everyoneCanAddLists Boolean? @default(true)
 
-  creator             String   @db.String
-  members             Json?
-  admins              String[]
+  creator String   @db.String
+  members Json?
+  admins  String[]
 
-  listsAdded          Json?
+  listsAdded Json?
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

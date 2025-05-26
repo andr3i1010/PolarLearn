@@ -1,6 +1,6 @@
 "use client"
 
-import { User, Settings, Bell, Shield } from "lucide-react"
+import { User, Settings, Bell, Shield, Bug } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {

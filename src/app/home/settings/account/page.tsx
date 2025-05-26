@@ -14,7 +14,10 @@ import {
     updateUserProfile,
     updateUserPassword,
     initiateAccountDeletion,
-    getUserPreferences
+    getUserPreferences,
+    getUserBotAccount,
+    createUserBotAccount,
+    deleteUserBotAccount
 } from '@/serverActions/accountSettings'
 import { cancelAccountDeletion } from '@/serverActions/cancelDeletion'
 
@@ -30,12 +33,22 @@ export default function AccountSettings() {
         email: '',
         scheduledDeletion: null
     })
+    const [botAccount, setBotAccount] = useState<{ name: string | null, key: string | null }>({ name: '', key: '' })
     const [isLoading, setIsLoading] = useState(true)
     const [showCurrentPassword, setShowCurrentPassword] = useState(false)
     const [showNewPassword, setShowNewPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [deleteLoading, setDeleteLoading] = useState(false)
+    const [deleteApiAgentOpen, setDeleteApiAgentOpen] = useState(false)
+    // Create state for managing the create bot dialog
+    const [createBotDialogOpen, setCreateBotDialogOpen] = useState(false);
+    const [createBotLoading, setCreateBotLoading] = useState(false);
+    const [botName, setBotName] = useState("");
+    // State for API key dialog
+    const [showApiKeyDialogOpen, setShowApiKeyDialogOpen] = useState(false);
+    const [apiKey, setApiKey] = useState<string | null>(null);
+    const [apiKeyLoading, setApiKeyLoading] = useState(false);
 
     // Load user data
     useEffect(() => {
@@ -44,6 +57,10 @@ export default function AccountSettings() {
                 const data = await getUserPreferences()
                 if (data) {
                     setUserData(data)
+                }
+                const APIdata = await getUserBotAccount()
+                if (APIdata) {
+                    setBotAccount(APIdata)
                 }
             } catch (error) {
                 console.error("Failed to load user data:", error)
@@ -251,6 +268,166 @@ export default function AccountSettings() {
                     </CardFooter>
                 </form>
             </Card>
+            <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
+                <CardHeader>
+                    <CardTitle>API instellingen</CardTitle>
+                    <CardDescription className="text-neutral-400">
+                        Beheer je API instellingen. Je kunt hier een bot voor de API account aanmaken of verwijderen.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {botAccount.name ? (
+                        <>
+                            <div className="space-y-2">
+                                <Label htmlFor="botAccount">Bot naam</Label>
+                                <Input
+                                    id="botAccount"
+                                    name="botAccount"
+                                    placeholder="Je bot account naam"
+                                    defaultValue={botAccount.name || ''}
+                                    className="bg-neutral-700 border-neutral-600 text-white"
+                                    readOnly
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="apiKey">API key</Label>
+                                <Input
+                                    id="apiKey"
+                                    name="apiKey"
+                                    placeholder="Je API key"
+                                    defaultValue={botAccount.key || ''}
+                                    className="bg-neutral-700 border-neutral-600 text-white"
+                                    readOnly
+                                />
+                            </div>
+                            <Button1
+                                text="Bot verwijderen"
+                                onClick={() => {
+                                    setDeleteApiAgentOpen(true)
+                                }}
+                            />
+                        </>
+                    ) : (
+                        <div className="space-y-4">
+                            <p className="text-neutral-400">Je hebt nog geen bot account. Maak een bot account aan om de API te kunnen gebruiken.</p>
+                            <Button1
+                                text="Bot account aanmaken"
+                                onClick={async () => {
+                                    try {
+
+
+                                        // Open the dialog
+                                        setCreateBotDialogOpen(true);
+                                    } catch (error) {
+                                        console.error("Error opening bot creation dialog:", error);
+                                        toast.error('Er is een fout opgetreden.');
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+            < Dialog open={createBotDialogOpen} onOpenChange={setCreateBotDialogOpen} >
+                <DialogContent className="bg-neutral-800 text-white border-neutral-700">
+                    <DialogHeader>
+                        <DialogTitle>Bot Account Aanmaken</DialogTitle>
+                        <DialogDescription className="text-neutral-400">
+                            Maak een bot account aan om de API te kunnen gebruiken.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4 space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="botName">Bot Naam</Label>
+                            <Input
+                                id="botName"
+                                value={botName}
+                                onChange={(e) => setBotName(e.target.value)}
+                                placeholder="Geef je bot een naam"
+                                className="bg-neutral-700 border-neutral-600 text-white"
+                            />
+                        </div>
+
+                        <div className="bg-blue-900/30 border border-blue-700 rounded-md p-3">
+                            <p className="text-sm text-blue-300">
+                                Een bot account geeft je toegang tot onze API. Je krijgt een unieke API sleutel die je kunt gebruiken om programmatisch toegang te krijgen tot onze diensten.
+                            </p>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="flex flex-row gap-2 justify-end">
+                        <Button1
+                            text="Annuleren"
+                            onClick={() => setCreateBotDialogOpen(false)}
+                        />
+                        <Button1
+                            text={createBotLoading ? "Bezig..." : "Bot Aanmaken"}
+                            disabled={!botName.trim() || createBotLoading}
+                            onClick={async () => {
+                                setCreateBotLoading(true);
+                                try {
+                                    const result = await createUserBotAccount(botName.trim());
+                                    if (result.success && result.botAccount) {
+                                        toast.success(result.message || "Bot account succesvol aangemaakt!");
+                                        setBotAccount({ name: botName.trim(), key: result.botAccount.key });
+                                        setCreateBotDialogOpen(false);
+                                    } else {
+                                        toast.error(result.message || "Kon bot account niet aanmaken.");
+                                    }
+                                } catch (error) {
+                                    console.error("Error creating bot account:", error);
+                                    toast.error('Er is een fout opgetreden bij het aanmaken van je bot account.');
+                                } finally {
+                                    setCreateBotLoading(false);
+                                }
+                            }}
+                        />
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog >
+
+            <Dialog open={deleteApiAgentOpen} onOpenChange={setDeleteApiAgentOpen}>
+                <DialogContent className="bg-neutral-800 text-white border-neutral-700">
+                    <DialogHeader>
+                        <DialogTitle className="text-red-400">API key verwijderen</DialogTitle>
+                        <DialogDescription className="text-neutral-400">
+                            Weet je zeker dat je je API key wilt verwijderen?
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4">
+                        <p className="text-white">
+                            als je deze actie uitvoert, wordt de API-sleutel permanent verwijderd.
+                        </p>
+                    </div>
+
+                    <DialogFooter className="flex flex-row gap-2 justify-end">
+                        <Button1
+                            text="Annuleren"
+                            onClick={() => setDeleteApiAgentOpen(false)}
+                        />
+                        <Button1
+                            text="Bot verwijderen"
+                            onClick={async () => {
+                                try {
+                                    const result = await deleteUserBotAccount();
+                                    if (result.success) {
+                                        toast.success(result.message);
+                                        setDeleteApiAgentOpen(false);
+                                        // Update UI or state as needed
+                                    } else {
+                                        toast.error(result.message);
+                                    }
+                                } catch (error) {
+                                    console.error("Error deleting bot account:", error);
+                                    toast.error('Er is een fout opgetreden bij het verwijderen van je bot account.');
+                                }
+                            }}
+                        />
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
                 <CardHeader>
@@ -267,16 +444,18 @@ export default function AccountSettings() {
                                     <h3 className="text-yellow-400 font-medium mb-2">Account verwijdering gepland</h3>
                                     <p className="text-sm mb-3">
                                         Je account is gepland om verwijderd te worden op {" "}
-                                        <span className="font-semibold">{new Date(userData.scheduledDeletion).toLocaleDateString('nl-NL', {
-                                            day: 'numeric',
-                                            month: 'long',
-                                            year: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}</span>
+                                        <span className="font-semibold">
+                                            {userData.scheduledDeletion ? new Date(userData.scheduledDeletion).toLocaleDateString('nl-NL', {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) : 'Onbekende datum'}
+                                        </span>
                                     </p>
                                     <Button1
-                                        text="Verwijdering annuleren"
+                                        text="Annuleer verwijdering"
                                         onClick={async () => {
                                             try {
                                                 const result = await cancelAccountDeletion();
@@ -387,6 +566,6 @@ export default function AccountSettings() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     )
 }
