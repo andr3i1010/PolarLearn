@@ -13,6 +13,7 @@ import DeleteListButton from "@/components/learning/DeleteListButton";
 import construction from "@/app/img/construction.gif";
 
 import { getSubjectIcon, getSubjectName } from "@/components/icons";
+import ConstructionImg from "@/components/constructionImg";
 // Add an interface for list data structure
 interface ListData {
   created_lists?: string[] | null;
@@ -165,13 +166,7 @@ export default async function Page({ params }: PageProps) {
       label: "Groepen",
       content: (
         <div>
-          {/* Groups content will go here */}
-          <Image
-            src={construction}
-            alt="under construction!"
-            width={500}
-            height={100}
-          />
+          <ConstructionImg/>
         </div>
       ),
     },
@@ -181,12 +176,7 @@ export default async function Page({ params }: PageProps) {
       content: (
         <div>
           {/* Achievements content will go here */}
-          <Image
-            src={construction}
-            alt="under construction!"
-            width={500}
-            height={100}
-          />
+          <ConstructionImg/>
         </div>
       ),
     },
