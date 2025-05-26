@@ -11,20 +11,24 @@ export async function GET(request: Request) {
     }
     const bot = await prisma.bot.findUnique({
         where: { key: key },
+        select: { id: true, key: true },
     });
 
     if (!bot) {
         return NextResponse.json({ error: 'Bot not found' }, { status: 404 });
     }
     if (bot) {
-        bot.token = uuidv4();
+        const token = uuidv4();
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + 1);
-        await prisma.bot.update({
+        const updatedBot = await prisma.bot.update({
             where: { key: key },
-            data: { token: bot.token, resetToken: expiresAt },
+            data: { token: token, resetToken: expiresAt },
+            select: { token: true, resetToken: true },
         });
+
+        return NextResponse.json({ token: updatedBot.token, expiresAt: updatedBot.resetToken }, { status: 200 });
     }
 
-    return NextResponse.json({ token: bot.token, expiresAt: bot.resetToken }, { status: 200 });
+    return NextResponse.json({ error: 'Failed to update bot' }, { status: 500 });
 }
