@@ -69,8 +69,8 @@ function DeletePostButton({
             <DialogTitle>Bevestig verwijdering</DialogTitle>
             <DialogDescription>
               {isMainPost
-                ? "Weet je zeker dat je deze post wilt verwijderen? Alle reacties zullen ook worden verwijderd."
-                : "Weet je zeker dat je dit antwoord wilt verwijderen?"
+                ? "Weet je zeker dat je deze post wilt verwijderen? Alle reacties zullen ook worden verwijderd. Je verliest 10 forumpunten als je je eigen post verwijdert."
+                : "Weet je zeker dat je dit antwoord wilt verwijderen? Je verliest 10 forumpunten als je je eigen antwoord verwijdert."
               }
             </DialogDescription>
           </DialogHeader>

@@ -28,6 +28,19 @@ export async function getPosts(tab: TabType, skip: number, take: number) {
             orderBy: { createdAt: "desc" },
             skip,
             take,
+            select: {
+              post_id: true,
+              title: true,
+              content: true,
+              creator: true,
+              createdAt: true,
+              subject: true,
+              category: true,
+              votes: true,
+              pinned: true,
+              type: true,
+              votes_data: true,
+            }
           }),
           prisma.forum.count({
             where: { type: "thread" },
@@ -56,6 +69,19 @@ export async function getPosts(tab: TabType, skip: number, take: number) {
             orderBy: { createdAt: "desc" },
             skip,
             take,
+            select: {
+              post_id: true,
+              title: true,
+              content: true,
+              creator: true,
+              createdAt: true,
+              subject: true,
+              category: true,
+              votes: true,
+              pinned: true,
+              type: true,
+              votes_data: true,
+            }
           }),
           prisma.forum.count({
             where: {

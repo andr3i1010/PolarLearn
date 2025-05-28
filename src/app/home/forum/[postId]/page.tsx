@@ -6,6 +6,7 @@ import VoteButtons from "@/components/VoteButtons";
 import { getUserFromSession } from "@/utils/auth/auth";
 import ForumReply from "@/components/ForumReply";
 import DeletePostButton from "@/components/DeletePostButton";
+import PinPostButton from "@/components/PinPostButton";
 import MarkdownRenderer from "@/components/md";
 import { cookies } from "next/headers";
 import CreatorLink from "@/components/links/CreatorLink";
@@ -65,6 +66,9 @@ export default async function Page({
   if (!post) {
     return <div>Post not found</div>;
   }
+
+  // Check if user is admin
+  const isAdmin = session?.role === "admin";
 
   // Check if post creator is a UUID and get the proper display name if needed
   let jdenticonPostValue = post.creator;
@@ -273,20 +277,31 @@ export default async function Page({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {isPostCreator && (
-              <div>
-                <EditPostBtn
+            <div className="flex gap-2">
+              {/* Edit and Delete buttons for post creator */}
+              {isPostCreator && (
+                <>
+                  <EditPostBtn
+                    postId={post.post_id}
+                    isCreator={true}
+                    isMainPost={true}
+                  />
+                  <DeletePostButton
+                    postId={post.post_id}
+                    isCreator={true}
+                    isMainPost={true}
+                  />
+                </>
+              )}
+              {/* Pin button for admin */}
+              {isAdmin && (
+                <PinPostButton
                   postId={post.post_id}
-                  isCreator={true}
-                  isMainPost={true}
+                  isAdmin={isAdmin}
+                  initialPinned={post.pinned || false}
                 />
-                <DeletePostButton
-                  postId={post.post_id}
-                  isCreator={true}
-                  isMainPost={true}
-                />
-              </div>
-            )}
+              )}
+            </div>
             <VoteButtons
               postId={post.post_id}
               initialVotes={post.votes}

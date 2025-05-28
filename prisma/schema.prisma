@@ -88,6 +88,7 @@ model forum {
   creator   String   @db.String
 
   locked    Boolean  @default(false)
+  pinned    Boolean  @default(false)
   votes     Int      @db.Int @default(0)
   votes_data Json?
 

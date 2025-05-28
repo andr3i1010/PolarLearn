@@ -12,6 +12,7 @@ import {
   Megaphone,
   MessageCircle,
   MessageCircleQuestion,
+  Pin,
 } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getPosts } from "./getPosts";
@@ -82,6 +83,15 @@ export default function ForumPostList({
     );
   }
 
+  // Sort posts to ensure pinned posts are at the top
+  const sortedPosts = [...posts].sort((a, b) => {
+    // First sort by pinned status (pinned posts first)
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    // Then by date (newest first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   return (
     <div className="rounded-md overflow-hidden">
       <InfiniteScroll
@@ -97,7 +107,7 @@ export default function ForumPostList({
         style={{ overflow: "visible" }}
       >
         <div className="border border-neutral-700 rounded-md overflow-hidden bg-neutral-800">
-          {posts.map((post) => {
+          {sortedPosts.map((post) => {
             const creatorId =
               typeof post.creator === "string"
                 ? post.creator
@@ -148,7 +158,8 @@ export default function ForumPostList({
                   className="block"
                 >
                   <div
-                    className={`border-b border-neutral-700 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-start sm:items-center cursor-pointer`}
+                    className={`border-b border-neutral-700 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-start sm:items-center cursor-pointer ${post.pinned ? "bg-green-900/10" : ""
+                      }`}
                   >
                     <div className="mr-4 flex-shrink-0">
                       {user?.image ? (
@@ -168,6 +179,18 @@ export default function ForumPostList({
                     </div>
                     <div className="flex flex-col flex-1 min-w-0">
                       <div className="text-xs text-gray-400 mb-1 flex flex-wrap items-center gap-1">
+                        {post.pinned && (
+                          <>
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-green-500 flex items-center gap-1"
+                            >
+                              <Pin size={12} />
+                              Vastgezet
+                            </Badge>
+                            <span className="mx-1.5">•</span>
+                          </>
+                        )}
                         {post.category && (
                           <>
                             <Badge

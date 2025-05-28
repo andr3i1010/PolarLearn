@@ -106,6 +106,60 @@ export async function deletePost(postId: string) {
     }
   }
 
+  // If user is deleting their own post (not an admin deleting someone else's post)
+  const isUserDeletingOwnPost = post.creator === session.id || post.creator === session.name;
+
+  // If user is deleting their own post, subtract 10 forum points
+  if (isUserDeletingOwnPost) {
+    try {
+      // Find the user to update their points
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: session.id },
+            { name: session.name }
+          ]
+        },
+        select: {
+          id: true,
+          forumPoints: true
+        }
+      });
+
+      if (user) {
+        // Check if forumPoints is null or undefined
+        if (user.forumPoints === null || user.forumPoints === undefined) {
+          // Initialize with -10
+          await prisma.user.update({
+            where: {
+              id: user.id
+            },
+            data: {
+              forumPoints: -10
+            }
+          });
+          console.log(`Initialized forumPoints for user ${user.id} with -10 (penalty for deleting own post)`);
+        } else {
+          // Subtract 10 points from existing points
+          await prisma.user.update({
+            where: {
+              id: user.id
+            },
+            data: {
+              forumPoints: {
+                decrement: 10
+              }
+            }
+          });
+          console.log(`Subtracted 10 points from user ${user.id} for deleting their own post`);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating forum points for post deletion:", error);
+      // Continue with deletion even if point update fails
+    }
+  }
+
   // If it's a main post, also delete all replies
   if (post.type !== "reply") {
     await prisma.forum.deleteMany({
