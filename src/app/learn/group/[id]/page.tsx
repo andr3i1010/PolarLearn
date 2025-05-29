@@ -15,6 +15,7 @@ import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
 import JoinGroupButton from "@/components/groups/JoinGroupButton";
+import LeaveGroupButton from "@/components/groups/LeaveGroupButton"; // Added import
 
 import { getSubjectIcon } from "@/components/icons"
 import DeleteListButton from "@/components/learning/DeleteListButton";
@@ -356,6 +357,10 @@ export default async function Page({
               groupId={id}
               requiresApproval={groupData?.requiresApproval === true}
             />
+          )}
+          {/* Add leave button for members (not creators) */}
+          {currentUser && isMember && !isCreator && (
+            <LeaveGroupButton groupId={id} />
           )}
         </div>
         <p className="pl-20">{groupData?.description}</p>

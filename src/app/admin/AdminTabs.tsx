@@ -40,7 +40,8 @@ export default function AdminTabs({
     userMapById: initialUserMapById,
     defaultActiveTab,
     currentUserId,
-}: AdminTabsProps) {
+    renderContent = true, // Added for layout usage
+}: AdminTabsProps & { renderContent?: boolean }) { // Added for layout usage
     // Users tab state
     const [usersData, setUsersData] = useState(initialUsersData);
     const [usersHasMore, setUsersHasMore] = useState(initialUsersData.length < initialUsersTotal);
@@ -512,6 +513,7 @@ export default function AdminTabs({
                 defaultActiveTab={defaultActiveTab}
                 withRoutes={true}
                 baseRoute={baseRoute}
+                renderContent={renderContent} // Pass down renderContent
             />
         </div>
     );

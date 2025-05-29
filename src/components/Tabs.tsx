@@ -15,6 +15,7 @@ interface TabsProps {
     withRoutes?: boolean;
     baseRoute?: string;
     currentQuery?: string;
+    renderContent?: boolean; // New prop
 }
 
 // Memoized Tab component for individual tabs
@@ -55,7 +56,8 @@ const Tabs = ({
     defaultActiveTab,
     withRoutes = false,
     baseRoute = "",
-    currentQuery
+    currentQuery,
+    renderContent = true, // Default to true
 }: TabsProps) => {
     const router = useRouter();
     const pathname = usePathname();
@@ -121,12 +123,13 @@ const Tabs = ({
 
     // Initial setup on mount
     useEffect(() => {
-        if (isFirstMount.current) {
-            setTimeout(() => {
+        if (isFirstMount.current && tabsContainerRef.current) {
+            const animationFrameId = requestAnimationFrame(() => {
                 storeAllTabPositions();
-                positionIndicator(activeTabId, false);
+                positionIndicator(activeTabId, false); // Position without animation
                 isFirstMount.current = false;
-            }, 50);
+            });
+            return () => cancelAnimationFrame(animationFrameId); // Cleanup on unmount
         }
     }, [activeTabId, positionIndicator, storeAllTabPositions]);
 
@@ -261,7 +264,7 @@ const Tabs = ({
                     }}
                 />
             </div>
-            {activeTab && <TabContent content={activeTab.content} />}
+            {renderContent && activeTab && <TabContent content={activeTab.content} />}
         </>
     );
 };
