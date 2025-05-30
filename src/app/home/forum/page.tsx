@@ -116,7 +116,7 @@ export default async function ForumHome({
 
 ---
 
-Welkom op ons forum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt, of gewoon chatten.
+Welkom op ons (leer)forum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt, of gewoon chatten.
 
 ### 🔍 Zoeken naar antwoorden
 
@@ -136,22 +136,23 @@ Zo kunnen anderen makkelijker de juiste vragen vinden.
 Help anderen door antwoorden te geven op vragen.<br />
 Zorg ervoor dat je uitleg helder en behulpzaam is.
 
-### ⭐ Punten verdienen
-
+⭐ Punten verdienen
 Je verdient punten door actief bij te dragen:
+✅ Een goedgekeurd antwoord geven: +50 punten (nog niet geïmplementeerd)
+👍 Een upvote ontvangen op jouw antwoord of post: +1 punt
+👎 Een downvote ontvanegn op jouw antwoord of post: -1 punt
+❓ Een vraag stellen: +0 punten
+🗣️ Antwoord geven op een vraag: +10 punten
 
-* ✅ Een goedgekeurd antwoord geven: **+50** punten!
-* 👍 Een upvote ontvangen op jouw antwoord: +1 punt
-* ❓ Een vraag stellen: +10 punten
-
-Met punten verdien je prestaties die je als titel in kan stellen onder je naam! En het ziet er gewoon cool uit.
+Met punten verdien je prestaties die je als titel in kan stellen onder je naam (nog niet geïmplementeerd)! En het ziet er gewoon cool uit.
 
 ### 🚨 Moderatie
 
 Alleen vragen die ongepast, spam of beledigend zijn, worden verwijderd.
 
-In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan!
+In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan, en er zullen geen tutors zijn die alles verwijderen!
 
+Meerdere keren een verwijderde post kan leiden tot een (permanente) verbanning. Dit kan ook meteen gebeuren als je iets heel ongepast zegt.
 ---
 
 Veel leerplezier! 🚀
