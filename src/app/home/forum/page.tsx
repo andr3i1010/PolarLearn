@@ -128,8 +128,18 @@ Dit bespaart tijd en helpt om dubbele vragen te voorkomen.
 Heb je een vraag? Plaats deze in de juiste categorie en wees zo duidelijk mogelijk.<br />
 Hoe specifieker je vraag, hoe sneller en beter de antwoorden zullen zijn!
 
-Bij het stellen van een vraag kun je labels toevoegen om aan te geven of je vraag over school gaat of niet.<br />
+Bij het stellen van een vraag kun je categoriën toevoegen om aan te geven of je vraag over school gaat of niet.<br />
 Zo kunnen anderen makkelijker de juiste vragen vinden.
+
+De categoriën zijn:
+* School gerelateerd
+   Gebruik dit voor vragen over een school vak zoals wat de oplossing is, hoe iets werkt. etc.
+* Niet school-gerelateerd
+   Gebruik dit voor alles wat je maar wilt, zoals games, huisdieren, etc. Alles mag behalve ongepaste dingen
+* Hulp
+   Gebruik dit als je wilt weten hoe iets werkt in PolarLearn
+
+* Er is ook nog een andere categorie, aankondiging, dit is alleen voor admins en hier worden dingen aangekondigd zoals nieuwe functies.
 
 ### 💬 Antwoorden geven
 
