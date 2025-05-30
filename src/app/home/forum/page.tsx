@@ -128,7 +128,7 @@ Dit bespaart tijd en helpt om dubbele vragen te voorkomen.
 Heb je een vraag? Plaats deze in de juiste categorie en wees zo duidelijk mogelijk.<br />
 Hoe specifieker je vraag, hoe sneller en beter de antwoorden zullen zijn!
 
-Bij het stellen van een vraag kun je categoriën toevoegen om aan te geven of je vraag over school gaat of niet.<br />
+Bij het stellen van een vraag kun je categorieën toevoegen om aan te geven of je vraag over school gaat of niet.<br />
 Zo kunnen anderen makkelijker de juiste vragen vinden.
 
 De categoriën zijn:
