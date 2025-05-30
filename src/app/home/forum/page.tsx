@@ -112,7 +112,7 @@ export default async function ForumHome({
       content: (
         <MarkdownRenderer
           content={`
-## Hoe werkt het forum?
+# Hoe werkt het forum?
 
 ---
 
@@ -132,14 +132,19 @@ Bij het stellen van een vraag kun je categoriën toevoegen om aan te geven of je
 Zo kunnen anderen makkelijker de juiste vragen vinden.
 
 De categoriën zijn:
-* School gerelateerd
+* 🟦 School gerelateerd
+   
    Gebruik dit voor vragen over een school vak zoals wat de oplossing is, hoe iets werkt. etc.
-* Niet school-gerelateerd
-   Gebruik dit voor alles wat je maar wilt, zoals games, huisdieren, etc. Alles mag behalve ongepaste dingen
-* Hulp
-   Gebruik dit als je wilt weten hoe iets werkt in PolarLearn
+* 🟩 Niet school-gerelateerd
+   
+   Gebruik dit voor alles wat je maar wilt, zoals games, huisdieren, etc. Alles mag behalve ongepaste dingen.
+* 🟨 Hulp
+   
+   Gebruik dit als je wilt weten hoe iets werkt in PolarLearn.
+* 🟥 Aankondiging
+   
+   Dit is een speciale categorie, administrators kunnen met deze categorie een nieuwe functie of iets anders in PolarLearn aankondigen.
 
-* Er is ook nog een andere categorie, aankondiging, dit is alleen voor admins en hier worden dingen aangekondigd zoals nieuwe functies.
 
 ### 💬 Antwoorden geven
 
@@ -147,6 +152,7 @@ Help anderen door antwoorden te geven op vragen.<br />
 Zorg ervoor dat je uitleg helder en behulpzaam is.
 
 ⭐ **Punten verdienen**
+
 Je verdient punten door actief bij te dragen:
 * ✅ Een goedgekeurd antwoord geven: +50 punten (nog niet geïmplementeerd)
 * 👍 Een upvote ontvangen op jouw antwoord of post: +1 punt
@@ -162,7 +168,7 @@ Alleen vragen die ongepast, spam of beledigend zijn, worden verwijderd.
 
 In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan, en er zullen geen tutors zijn die alles verwijderen!
 
-Meerdere keren een verwijderde post kan leiden tot een (permanente) verbanning. Dit kan ook meteen gebeuren als je iets heel ongepast zegt.
+### Meerdere keren een verwijderde post kan leiden tot een (permanente) verbanning. Dit kan ook meteen gebeuren als je iets heel ongepast zegt.
 ---
 
 Veel leerplezier! 🚀
