@@ -112,11 +112,11 @@ export default async function ForumHome({
       content: (
         <MarkdownRenderer
           content={`
-## Hoe werkt het forum?
+# Hoe werkt het forum?
 
 ---
 
-Welkom op ons forum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt, of gewoon chatten.
+Welkom op ons (leer)forum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt, of gewoon chatten.
 
 ### 🔍 Zoeken naar antwoorden
 
@@ -128,30 +128,47 @@ Dit bespaart tijd en helpt om dubbele vragen te voorkomen.
 Heb je een vraag? Plaats deze in de juiste categorie en wees zo duidelijk mogelijk.<br />
 Hoe specifieker je vraag, hoe sneller en beter de antwoorden zullen zijn!
 
-Bij het stellen van een vraag kun je labels toevoegen om aan te geven of je vraag over school gaat of niet.<br />
+Bij het stellen van een vraag kun je categorieën toevoegen om aan te geven of je vraag over school gaat of niet.<br />
 Zo kunnen anderen makkelijker de juiste vragen vinden.
+
+De categoriën zijn:
+* 🟦 School gerelateerd
+   
+   Gebruik dit voor vragen over een school vak zoals wat de oplossing is, hoe iets werkt. etc.
+* 🟩 Niet school-gerelateerd
+   
+   Gebruik dit voor alles wat je maar wilt, zoals games, huisdieren, etc. Alles mag behalve ongepaste dingen.
+* 🟨 Hulp
+   
+   Gebruik dit als je wilt weten hoe iets werkt in PolarLearn.
+* 🟥 Aankondiging
+   
+   Dit is een speciale categorie, administrators kunnen met deze categorie een nieuwe functie of iets anders in PolarLearn aankondigen.
+
 
 ### 💬 Antwoorden geven
 
 Help anderen door antwoorden te geven op vragen.<br />
 Zorg ervoor dat je uitleg helder en behulpzaam is.
 
-### ⭐ Punten verdienen
+⭐ **Punten verdienen**
 
 Je verdient punten door actief bij te dragen:
+* ✅ Een goedgekeurd antwoord geven: +50 punten (nog niet geïmplementeerd)
+* 👍 Een upvote ontvangen op jouw antwoord of post: +1 punt
+* 👎 Een downvote ontvangen op jouw antwoord of post: -1 punt
+* ❓ Een vraag stellen: +0 punten
+* 🗣️ Antwoord geven op een vraag: +10 punten
 
-* ✅ Een goedgekeurd antwoord geven: **+50** punten!
-* 👍 Een upvote ontvangen op jouw antwoord: +1 punt
-* ❓ Een vraag stellen: +10 punten
-
-Met punten verdien je prestaties die je als titel in kan stellen onder je naam! En het ziet er gewoon cool uit.
+Met punten verdien je prestaties die je als titel in kan stellen onder je naam (nog niet geïmplementeerd)! En het ziet er gewoon cool uit.
 
 ### 🚨 Moderatie
 
 Alleen vragen die ongepast, spam of beledigend zijn, worden verwijderd.
 
-In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan!
+In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan, en er zullen geen tutors zijn die alles verwijderen!
 
+### Meerdere keren een verwijderde post kan leiden tot een (permanente) verbanning. Dit kan ook meteen gebeuren als je iets heel ongepast zegt.
 ---
 
 Veel leerplezier! 🚀
