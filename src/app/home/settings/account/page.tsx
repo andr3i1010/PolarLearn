@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { Loader2, Eye, EyeOff } from "lucide-react"
+import { Loader2, Eye, EyeOff, AlertTriangle, Trash } from "lucide-react"
 import { toast } from 'react-toastify'
 import Button1 from "@/components/button/Button1"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
@@ -254,7 +252,10 @@ export default function AccountSettings() {
 
             <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
                 <CardHeader>
-                    <CardTitle className="text-red-400">Gevaarlijke acties</CardTitle>
+                    <CardTitle className="text-red-500 flex flex-row items-center">
+                        <AlertTriangle className="text-red-500 mr-2 h-6 w-6 flex-shrink-0 mt-1" />
+                        Gevaarlijke zone
+                    </CardTitle>
                     <CardDescription className="text-neutral-400">
                         Deze acties kunnen niet ongedaan gemaakt worden. Wees voorzichtig!
                     </CardDescription>
@@ -308,6 +309,7 @@ export default function AccountSettings() {
                                 <Button1
                                     text="Account verwijderen"
                                     onClick={() => setDeleteDialogOpen(true)}
+                                    icon={<Trash className='text-red-500'/>}
                                 />
                             </>
                         )}

@@ -317,7 +317,6 @@ export default async function Page({
         </div>
       ),
     },
-    // Add a settings tab that's only visible to admins and creators
     ...(isAdmin || isCreator || currentUser?.role === "admin" ? [{
       id: "settings",
       label: "Instellingen",

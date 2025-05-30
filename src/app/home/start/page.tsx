@@ -214,7 +214,10 @@ export default async function Start() {
               Recente Lijsten:
             </h1>
             <div className="ml-auto mr-5">
-              <PlusBtn redir="/learn/createlist" />
+              <PlusBtn
+                redir="/learn/createlist"
+                title={"Nieuwe lijst maken"}
+              />
             </div>
           </div>
           <div className="h-4" />

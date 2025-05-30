@@ -14,6 +14,7 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog";
+import Button1 from "../button/Button1";
 
 interface DeleteGroupButtonProps {
     groupId: string;
@@ -47,14 +48,11 @@ export default function DeleteGroupButton({ groupId }: DeleteGroupButtonProps) {
 
     return (
         <>
-            <Button
-                variant="destructive"
-                className="bg-red-700 hover:bg-red-800 text-white"
+            <Button1
                 onClick={() => setIsConfirmOpen(true)}
-            >
-                <Trash className="mr-2 h-4 w-4" />
-                Groep verwijderen
-            </Button>
+                icon={<Trash className="mr-2 h-4 w-4" />}
+                text="Groep verwijderen"
+            />
 
             <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
                 <DialogContent className="bg-neutral-900 border-neutral-700 text-white z-[110]">

@@ -6,17 +6,22 @@ type ActionFunction = (() => void) | (() => Promise<any>);
 
 export default function PlusBtn({
     redir,
-    action
+    action,
+    title
 }: {
     redir?: string,
-    action?: ActionFunction
+    action?: ActionFunction,
+    title?: string
 }) {
     const [isPending, startTransition] = useTransition();
 
     if (redir) {
         return (
             <Link href={redir}>
-                <div className="bg-neutral-700 w-min h-min rounded-full flex justify-center hover:bg-neutral-600 transition-all">
+                <div
+                    className="bg-neutral-700 w-min h-min rounded-full flex justify-center hover:bg-neutral-600 transition-all"
+                    title={title}
+                >
                     <svg
                         width="40px"
                         height="40px"
@@ -34,7 +39,7 @@ export default function PlusBtn({
                         <g id="SVGRepo_iconCarrier">
                             <path
                                 d="M6 12H18M12 6V18"
-                                stroke="#000000"
+                                stroke="#FFFFFF"
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
