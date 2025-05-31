@@ -8,13 +8,15 @@ interface CreatorLinkClientProps {
     jdenticonValue: string;
     color?: string;
     setJdenticonValue?: (value: string) => void;
+    userId?: string; // Add userId for UUID-based navigation
 }
 
 export default function CreatorLinkClient({
     displayName,
     jdenticonValue,
     color,
-    setJdenticonValue
+    setJdenticonValue,
+    userId
 }: CreatorLinkClientProps) {
     const router = useRouter();
 
@@ -28,7 +30,9 @@ export default function CreatorLinkClient({
     const handleCreatorClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        router.push(`/home/viewuser/${displayName}`);
+        // Use userId for navigation if available, otherwise fall back to displayName
+        const navigationTarget = userId ? userId : displayName;
+        router.push(`/home/viewuser/${navigationTarget}`);
     };
 
     return (

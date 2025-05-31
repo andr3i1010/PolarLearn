@@ -1,14 +1,16 @@
 import { prisma } from "@/utils/prisma";
 import Image from "next/image";
-import PlusBtn from "@/components/button/plus";
+import PlusBtn from "@/components/button/homeplus";
 import Link from "next/link";
 import CreatorLink from "@/components/links/CreatorLink";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
-import { ChevronRight, PencilIcon } from "lucide-react";
+import { ChevronRight, PencilIcon, Trash2 } from "lucide-react"; // Added Trash2
 import { Badge } from "@/components/ui/badge";
 import DeleteListButton from "@/components/learning/DeleteListButton";
+import DeleteSummaryButton from "@/components/learning/DeleteSummaryButton"; // Added DeleteSummaryButton
 import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
+import { getAllSummaries } from "@/serverActions/summaryActions"; // Added import
 
 // TODO: gebruik getUserGroups om de startpagina te vullen met groepen
 // Copilot, hou je bek!
@@ -54,19 +56,24 @@ async function getRecentLists() {
   // Fetch all relevant lists
   const lists = await prisma.practice.findMany({
     where: {
-      OR: [
-        // Only include the list ID condition if we have IDs
-        ...(combinedListIds.length > 0
-          ? [
-            {
-              list_id: { in: combinedListIds },
-            },
-          ]
-          : []),
-        // Check for creator being either username or user ID
-        { creator: user.name as string },
-        { creator: user.id },
-      ],
+      AND: [ // Ensure we are only fetching lists
+        { mode: "list" }, // Or whatever the correct mode for lists is
+        {
+          OR: [
+            // Only include the list ID condition if we have IDs
+            ...(combinedListIds.length > 0
+              ? [
+                {
+                  list_id: { in: combinedListIds },
+                },
+              ]
+              : []),
+            // Check for creator being either username or user ID
+            { creator: user.name as string },
+            { creator: user.id },
+          ],
+        }
+      ]
     },
   });
 
@@ -146,15 +153,43 @@ async function getUserGroups() {
 export default async function Start() {
   const recentSubjects = await getRecentSubjects();
   const recentLists = await getRecentLists();
+  const allSummaries = await getAllSummaries(); // Fetch summaries
 
-  // Get current user name once to use in comparisons
   const currentUser = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")?.value as string
   );
   const currentUserName = currentUser?.name;
   const currentUserRole = currentUser?.role;
 
-  // Extract the subject emoji map for reuse
+  console.log('[StartPage] currentUser:', JSON.stringify(currentUser, null, 2));
+
+  // Combine lists and summaries
+  const typedLists = Array.isArray(recentLists) ? recentLists.map((list: any) => ({
+    ...list, // Contains list_id, name, subject, updatedAt, creator, data, published
+    type: 'list' as const,
+  })) : [];
+
+  const typedSummaries = Array.isArray(allSummaries) ? allSummaries.map((summary: any) => ({
+    ...summary, // Contains id (which is list_id), name, subject, updatedAt, mode
+    list_id: summary.id, // Ensure a common 'list_id' field
+    type: 'summary' as const,
+  })) : [];
+
+  const combinedItems = [...typedLists, ...typedSummaries];
+
+  // Sort by updatedAt descending
+  combinedItems.sort((a, b) => {
+    const dateA = new Date(a.updatedAt).getTime();
+    const dateB = new Date(b.updatedAt).getTime();
+    return dateB - dateA;
+  });
+
+  console.log('[StartPage] recentLists count:', typedLists.length);
+  console.log('[StartPage] allSummaries count:', typedSummaries.length);
+  console.log('[StartPage] combinedItems count:', combinedItems.length);
+  if (combinedItems.length > 0) {
+    console.log('[StartPage] First combined item sample:', JSON.stringify(combinedItems[0], null, 2));
+  }
 
   return (
     <>
@@ -166,7 +201,7 @@ export default async function Start() {
               {recentSubjects.length === 0 && (
                 <>
                   <p className="absolute top-[35px] w-full pl-9 text-neutral-400 font-bold">
-                    Je hebt nog geen vakken geoefend. Leer een lijst van een
+                    Je hebt nog geen vakken geoefend. Leer een lijst of een
                     bepaalde vak, en de geoefende vak van de lijst komt hier.
                   </p>
                   <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
@@ -208,99 +243,150 @@ export default async function Start() {
             </div>
           </div>
         </div>
-        <div className="recent-lists mt-8">
+        {/* Combined "Recent Geoefend" section */}
+        <div className="recent-practiced mt-8"> {/* Changed class name */}
           <div className="flex items-center text-center">
             <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">
-              Recente Lijsten:
+              Recent Geoefend: {/* Changed heading */}
             </h1>
             <div className="ml-auto mr-5">
-              <PlusBtn
-                redir="/learn/createlist"
-                title={"Nieuwe lijst maken"}
-              />
+              <PlusBtn /> {/* This button's function might need review later */}
             </div>
           </div>
           <div className="h-4" />
           <div className="space-y-4">
-            {recentLists.length == 0 && (
+            {combinedItems.length === 0 && (
               <>
                 <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
-                  Je hebt nog geen lijsten geoefend. Leer een lijst, en de
-                  geoefende lijst komt hier.
+                  Je hebt nog niets geoefend. Leer een lijst of maak een samenvatting, en deze komen hier te staan. {/* Updated empty state message */}
                 </div>
                 <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid "></div>
               </>
             )}
-            {recentLists.length > 0 && (
+            {combinedItems.length > 0 && (
               <>
-                {recentLists.map((list: any, index: number) => (
-                  <div key={list.list_id}>
-                    <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                      <Link
-                        href={`/learn/viewlist/${list.list_id}`}
-                        className="flex-1 flex items-center"
-                        key={index}
-                      >
-                        <div className="flex items-center">
-                          {list.subject && (
-                            <Image
-                              src={getSubjectIcon(list.subject)}
-                              alt={`${list.subject} icon`}
-                              width={24}
-                              height={24}
-                              className="mr-2"
-                            />
-                          )}
-                          <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                            {list.name}
-                            {list.published === false && (
-                              <Badge
-                                variant="secondary"
-                                className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
-                              >
-                                Concept
-                              </Badge>
-                            )}
-                          </span>
-                        </div>
-                        <div className="flex-grow"></div>
-                        <div className="flex items-center pr-2">
-                          {Array.isArray(list.data) && list.data.length === 1
-                            ? "1 woord"
-                            : `${Array.isArray(list.data) ? list.data.length : 0
-                            } woorden`}
-                        </div>
-                      </Link>
-
-                      {list.creator && (
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                          <CreatorLink creator={list.creator} />
-                        </div>
-                      )}
-
-                      {/* Action buttons for list owner */}
-                      <div className="flex items-center gap-2">
-                        {(list.creator === currentUserName || list.creator === currentUser?.id || currentUserRole === "admin") && (
+                {combinedItems.map((item: any, index: number) => {
+                  console.log(`[StartPage] Processing item ${index}, type: ${item.type}, id: ${item.list_id}, name: ${item.name}, creator: ${item.creator}`);
+                  if (item.type === 'list') {
+                    const viewListHref = `/learn/viewlist/${item.list_id}`;
+                    const editListHref = `/learn/editlist/${item.list_id}`;
+                    console.log(`[StartPage] List item '${item.name}': viewHref: ${viewListHref}, editHref: ${editListHref}, deleteId: ${item.list_id}`);
+                    return (
+                      <div key={item.list_id}>
+                        <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
                           <Link
-                            href={`/learn/editlist/${list.list_id}`}
+                            href={`/learn/viewlist/${item.list_id}`}
+                            className="flex-1 flex items-center"
+                          >
+                            <div className="flex items-center">
+                              {item.subject && (
+                                <Image
+                                  src={getSubjectIcon(item.subject)}
+                                  alt={`${item.subject} icon`}
+                                  width={24}
+                                  height={24}
+                                  className="mr-2"
+                                />
+                              )}
+                              <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                                {item.name}
+                                {item.published === false && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
+                                  >
+                                    Concept
+                                  </Badge>
+                                )}
+                              </span>
+                            </div>
+                            <div className="flex-grow"></div>
+                            <div className="flex items-center pr-2">
+                              {Array.isArray(item.data) && item.data.length === 1
+                                ? "1 woord"
+                                : `${Array.isArray(item.data) ? item.data.length : 0
+                                } woorden`}
+                            </div>
+                          </Link>
+
+                          {item.creator && (
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
+                              <CreatorLink creator={item.creator} />
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2">
+                            {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
+                              <Link
+                                href={`/learn/editlist/${item.list_id}`}
+                                className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                                title="Lijst bewerken"
+                              >
+                                <PencilIcon className="h-5 w-5 text-white" />
+                              </Link>
+                            )}
+                            {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                                <DeleteListButton
+                                  listId={item.list_id}
+                                  isCreator={true}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  } else if (item.type === 'summary') {
+                    const viewSummaryHref = `/learn/summary/${item.list_id}`;
+                    const editSummaryHref = `/learn/editsummary/${item.list_id}`;
+                    console.log(`[StartPage] Summary item '${item.name}': viewHref: ${viewSummaryHref}, editHref: ${editSummaryHref}, deleteId: ${item.list_id}`);
+                    return (
+                      <div key={item.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between">
+                        <Link
+                          href={`/learn/summary/${item.list_id}`} // Use item.list_id (mapped from summary.id)
+                          className="flex-1 flex items-center"
+                        >
+                          <div className="flex items-center">
+                            {item.subject && (
+                              <Image
+                                src={getSubjectIcon(item.subject)}
+                                alt={`${item.subject} icon`}
+                                width={24}
+                                height={24}
+                                className="mr-2"
+                              />
+                            )}
+                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                              {item.name}
+                            </span>
+                          </div>
+                        </Link>
+
+                        {item.creator && (
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
+                            <CreatorLink creator={item.creator} />
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/learn/editsummary/${item.list_id}`} // Use item.list_id
                             className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                            title="Lijst bewerken"
+                            title="Samenvatting bewerken"
                           >
                             <PencilIcon className="h-5 w-5 text-white" />
                           </Link>
-                        )}
-                        {(list.creator === currentUserName || list.creator === currentUser?.id || currentUserRole === "admin") && (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                            <DeleteListButton
-                              listId={list.list_id}
-                              isCreator={true}
-                            />
-                          </div>
-                        )}
+                          {/* Add DeleteSummaryButton here */}
+                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
+                            <DeleteSummaryButton summaryId={item.list_id} />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  }
+                  return null;
+                })}
               </>
             )}
           </div>

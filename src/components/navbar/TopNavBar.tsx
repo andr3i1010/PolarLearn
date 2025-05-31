@@ -198,12 +198,18 @@ const MobileMenu = memo(
         return (
             <div className="fixed inset-0 bg-neutral-900 z-[90] p-4 overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <Link href="/">
+                    <Link href="/" className="flex-shrink-0">
                         <Image src={pl500} alt="PolarLearn Logo" height={50} width={50} />
                     </Link>
+                    {/* Modified middle container for StreakNavbarThing */}
+                    <div className="px-2 items-center"> {/* This div handles shrinking and clipping */}
+                        <div className="w-min h-full">
+                            <StreakNavbarThing />
+                        </div>
+                    </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full hover:bg-neutral-800"
+                        className="p-2 rounded-full hover:bg-neutral-800 flex-shrink-0"
                     >
                         <X size={24} />
                     </button>
@@ -318,7 +324,7 @@ export const TopNavBar = memo(function TopNavBar() {
 
     // Use useMemo for display conditions to prevent recalculations on every render
     const displayConditions = useMemo(() => {
-        const showOnViewList = pathname.startsWith('/learn/viewlist');
+        const showOnViewList = pathname.startsWith('/learn/viewlist') || pathname.startsWith('/learn/summary');
         const showOnSubjects = pathname.startsWith('/learn/subject') || pathname === "/learn/subjects";
         const hideOnCreateList = pathname === "/home/createlist";
         const showOnHomeRoutes = pathname === "/" || pathname.startsWith("/home");

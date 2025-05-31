@@ -80,7 +80,7 @@ export default function UsersTabContent({
                                 className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all"
                             >
                                 <Link
-                                    href={`/home/viewuser/${user.name}`}
+                                    href={`/home/viewuser/${user.id}`}
                                     className="inline-block w-full md:w-7/12" // Adjusted width for responsiveness
                                 >
                                     <div className="flex items-center cursor-pointer">
