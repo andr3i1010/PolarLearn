@@ -5,10 +5,11 @@
   "private": false,
   "scripts": {
     "dev": " next dev --turbopack",
-    "build": "next build",
+    "build": "rm -rf .next/; next build #; pnpm obfuscate-build",
     "start": "next start",
     "prepare": "yes | next-ws patch",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "obfuscate-build": "next-css-obfuscator"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

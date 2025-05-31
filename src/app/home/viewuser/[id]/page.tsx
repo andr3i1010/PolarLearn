@@ -33,14 +33,17 @@ interface PracticeList {
 
 interface PageProps {
   params: Promise<{
-    name: string;
+    id: string; // Changed from 'name' to 'id' to handle both UUIDs and names
     selectedTab?: string;
   }>;
 }
 
+// UUID validation regex pattern
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default async function Page({ params }: PageProps) {
   // Await the Promise to get the actual params
-  const { name, selectedTab } = await params;
+  const { id, selectedTab } = await params;
 
   // Get current user for checking if they own the lists
   const currentUser = await getUserFromSession(
@@ -48,11 +51,23 @@ export default async function Page({ params }: PageProps) {
   );
   const currentUserName = currentUser?.name;
 
-  const user = await prisma.user.findFirst({
-    where: {
-      name: name,
-    },
-  });
+  // Check if the id parameter is a UUID or a username
+  let user;
+  if (UUID_REGEX.test(id)) {
+    // If it's a UUID, find user by ID
+    user = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  } else {
+    // If it's not a UUID, treat it as a username (for backward compatibility)
+    user = await prisma.user.findFirst({
+      where: {
+        name: id,
+      },
+    });
+  }
 
   if (!user) {
     return (
@@ -166,7 +181,7 @@ export default async function Page({ params }: PageProps) {
       label: "Groepen",
       content: (
         <div>
-          <ConstructionImg/>
+          <ConstructionImg />
         </div>
       ),
     },
@@ -176,7 +191,7 @@ export default async function Page({ params }: PageProps) {
       content: (
         <div>
           {/* Achievements content will go here */}
-          <ConstructionImg/>
+          <ConstructionImg />
         </div>
       ),
     },
@@ -214,7 +229,7 @@ export default async function Page({ params }: PageProps) {
           tabs={tabs}
           defaultActiveTab={selectedTab || "lists"}
           withRoutes={true}
-          baseRoute={`/home/viewuser/${name}`} // Use params.name directly since we know it exists
+          baseRoute={`/home/viewuser/${id}`} // Use params.id (which can be UUID or name)
         />
       </div>
       <div className="h-4" />

@@ -27,9 +27,9 @@ import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
 import ak_img from '@/app/img/geography.svg';
 import ckv_img from '@/app/img/ckv.svg';
-import logo from '@/app/img/pl-500.svg';
+import logo from '@/app/img/pl-500.svg'; // Added back logo import
 
-import down from '@/app/img/down.svg';
+import down from '@/app/img/down.svg'; // Added back down import
 import shield from '@/app/img/secure-icon-marketing.svg';
 import banner from '@/../public/banner.png';
 

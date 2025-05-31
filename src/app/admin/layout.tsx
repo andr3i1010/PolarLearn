@@ -20,11 +20,10 @@ export default async function AdminLayout({
             ? params.tab[0]
             : "gebruikers";
 
-    const session = await getUserFromSession(
-        (await cookies()).get("polarlearn.session-id")!.value
-    );
+    const sessionCookie = (await cookies()).get("polarlearn.session-id");
+    const session = sessionCookie ? await getUserFromSession(sessionCookie.value) : null;
 
-    if (session?.role !== "admin") {
+    if (session?.role !== "admin" || !session) {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
                 <Image
@@ -35,8 +34,8 @@ export default async function AdminLayout({
                     className="mb-4"
                 />
                 <h1 className="text-4xl font-extrabold mb-4">ga weg</h1>
-                <p>Hoe kom je hier?</p>
-                <Link href="/">
+                <p>Hoe ben je hier gekomen?</p>
+                <Link href="/home/start">
                     <Button1 text="Terug naar home" />
                 </Link>
             </div>

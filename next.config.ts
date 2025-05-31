@@ -38,6 +38,9 @@ const nextConfig: NextConfig = {
     nodeMiddleware: true,
     ppr: 'incremental'
   },
+  compiler: {
+    removeConsole: true
+  },
   productionBrowserSourceMaps: true
 };
 

@@ -166,7 +166,7 @@ export default function AdminTabs({
                                     className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all"
                                 >
                                     <Link
-                                        href={`/home/viewuser/${user.name}`}
+                                        href={`/home/viewuser/${user.id}`}
                                         className="inline-block w-7/11"
                                     >
                                         <div className="flex items-center cursor-pointer">

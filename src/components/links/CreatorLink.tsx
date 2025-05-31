@@ -1,4 +1,4 @@
-import { getUserNameById } from '@/serverActions/getUserName';
+import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
 import CreatorLinkClient from './CreatorLinkClient';
 
 interface CreatorLinkProps {
@@ -21,17 +21,31 @@ export default async function CreatorLink({
 }: CreatorLinkProps) {
   let displayName = prefetchedName || creator;
   let jdenticonValue = prefetchedJdenticonValue || creator;
+  let userId: string | null = null;
 
-  // If we don't have a prefetched name and creator is a UUID, fetch it server-side
-  if (!prefetchedName && creator && UUID_REGEX.test(creator)) {
+  // If creator is a UUID, fetch the name and use the UUID for navigation
+  if (UUID_REGEX.test(creator)) {
+    if (!prefetchedName) {
+      try {
+        const userInfo = await getUserNameById(creator);
+        if (userInfo.name) {
+          displayName = userInfo.name;
+          jdenticonValue = userInfo.jdenticonValue || creator;
+        }
+      } catch (err) {
+        console.error("Error fetching user name on server:", err);
+      }
+    }
+    userId = creator; // Use the UUID for navigation
+  } else {
+    // If creator is a name, get the UUID for navigation
     try {
-      const userInfo = await getUserNameById(creator);
-      if (userInfo.name) {
-        displayName = userInfo.name;
-        jdenticonValue = userInfo.jdenticonValue || creator;
+      const userInfo = await getUserIdByName(creator);
+      if (userInfo.id) {
+        userId = userInfo.id;
       }
     } catch (err) {
-      console.error("Error fetching user name on server:", err);
+      console.error("Error fetching user ID on server:", err);
     }
   }
 
@@ -41,6 +55,7 @@ export default async function CreatorLink({
       jdenticonValue={jdenticonValue}
       color={color}
       setJdenticonValue={setJdenticonValue}
+      userId={userId || undefined}
     />
   );
 }
