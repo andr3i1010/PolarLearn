@@ -63,4 +63,4 @@ Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) te g
 
 # Hoe kan je bijdragen aan PolarLearn?
 
-Als je wilt bijdragen aan PolarLearn en kan programmeren in TS met Nextjs, kan je het best in de [Discord](https://discord.gg/TdYzXDzqSB) vragen hoe je kan helpen.
+Als je wilt bijdragen aan PolarLearn en kan programmeren in TS met Nextjs, kan je het best in de [Discord](https://discord.gg/TdYzXDzqSB) vragen hoe je kan helpen. lees ook de [CONTRIBUTING.md](https://github.com/polarnl/PolarLearn/blob/stable/CONTRIBUTING.md)
