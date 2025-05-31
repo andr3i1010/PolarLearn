@@ -159,7 +159,7 @@ Je verdient punten door actief bij te dragen:
 * 👎 Een downvote ontvangen op jouw antwoord of post: -1 punt
 * ❓ Een vraag stellen: +0 punten
 * 🗣️ Antwoord geven op een vraag: +10 punten
-* 🗑️ Een vraag of antwoord verwijderen: -10 punten (Dit is gedaan om te voorkomen dat je antwoorden kan spammen en onrechtvaardig punten krijgt)
+* 🗑️ Een antwoord verwijderen: -10 punten (Dit is gedaan om te voorkomen dat je antwoorden kan spammen en onrechtvaardig punten krijgt)
 
 Met punten verdien je prestaties die je als titel in kan stellen onder je naam (nog niet geïmplementeerd)! En het ziet er gewoon cool uit.
 
