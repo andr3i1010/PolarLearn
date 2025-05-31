@@ -359,6 +359,14 @@ export default async function Start() {
                             )}
                             <span className="text-lg whitespace-normal break-words max-w-[40ch]">
                               {item.name}
+                              {item.published === false && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
+                                >
+                                  Concept
+                                </Badge>
+                              )}
                             </span>
                           </div>
                         </Link>

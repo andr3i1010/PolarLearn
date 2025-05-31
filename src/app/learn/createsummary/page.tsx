@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState, useRef, ReactNode, useEffect, useCallback } from "react";
 import Dropdown, { DropdownHandle } from "@/components/button/DropdownBtn";
 import { defaultItems } from "@/components/icons";
-import { saveSummary } from "@/serverActions/summaryActions";
+import { saveSummary, publishSummary } from "@/serverActions/summaryActions";
 import { toast } from "react-toastify";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { Input } from "@/components/ui/input"; // Added Input import
@@ -26,9 +26,9 @@ export default function Page() {
     const subjectEntries: [React.ReactNode, string][] = defaultItems.map(item => [item.label, item.value]);
 
     const handleAutosave = useCallback(async (currentContent: string, currentName: string, currentSubjectId?: string) => { // Added currentName
-        if (!currentSubjectId) {
-            // Don\'t autosave if no subject is selected yet, unless there\'s already an autosaved ID
-            if (!autosavedSummaryId) return;
+        // Don't autosave if there's no meaningful content
+        if (!currentContent.trim() && !currentName.trim() && !currentSubjectId) {
+            return;
         }
         if (isSaving) return; // Prevent multiple saves at once
 
@@ -62,7 +62,7 @@ export default function Page() {
         if (debouncedSaveTimeoutRef.current) {
             clearTimeout(debouncedSaveTimeoutRef.current);
         }
-        if (selectedSubject?.id) { // Only start autosaving if a subject is selected
+        if (selectedSubject?.id || summaryName.trim() || summaryContent.trim()) { // Autosave when there's any content
             debouncedSaveTimeoutRef.current = setTimeout(() => {
                 handleAutosave(summaryContent, summaryName, selectedSubject?.id); // Pass summaryName
             }, 1500); // Autosave after 1.5 seconds of inactivity
@@ -73,41 +73,50 @@ export default function Page() {
                 clearTimeout(debouncedSaveTimeoutRef.current);
             }
         };
-    }, [summaryContent, selectedSubject, handleAutosave]);
+    }, [summaryContent, summaryName, selectedSubject, handleAutosave]);
 
-    const handleManualSave = async () => {
+    const handlePublish = async () => {
         if (!selectedSubject?.id) {
-            toast.error("Selecteer een vak voordat je opslaat.");
+            toast.error("Selecteer een vak voordat je publiceert.");
             return;
         }
         if (!summaryContent.trim()) {
-            toast.error("Schrijf wat inhoud voor je samenvatting voordat je opslaat.");
+            toast.error("Schrijf wat inhoud voor je samenvatting voordat je publiceert.");
             return;
         }
+        if (!summaryName.trim()) {
+            toast.error("Geef je samenvatting een naam voordat je publiceert.");
+            return;
+        }
+
         setIsSaving(true);
         try {
-            const result = await saveSummary({
+            // First save the summary as concept if not already saved
+            const saveResult = await saveSummary({
                 id: autosavedSummaryId,
-                name: summaryName, // Added name
+                name: summaryName,
                 subjectId: selectedSubject.id,
                 content: summaryContent,
             });
 
-            if (result.id) {
-                setAutosavedSummaryId(result.id);
-                if (result.lastSaved) {
-                    setLastSaved(new Date(result.lastSaved));
+            if (saveResult.id) {
+                // Then publish it
+                const publishResult = await publishSummary({
+                    id: saveResult.id,
+                });
+
+                if (publishResult.id) {
+                    toast.success(publishResult.message || "Samenvatting gepubliceerd!");
+                    router.push(`/learn/summary/${publishResult.id}`);
+                } else if (publishResult.error) {
+                    toast.error(publishResult.error);
                 }
-                toast.success(result.message || "Samenvatting opgeslagen!");
-                router.push(`/learn/summary/${result.id}`)
-            } else if (result.error) {
-                toast.error(result.error);
-            } else {
-                toast.error("Er is een onbekende fout opgetreden bij het opslaan.");
+            } else if (saveResult.error) {
+                toast.error(saveResult.error);
             }
         } catch (error) {
-            toast.error("Kon samenvatting niet opslaan.");
-            console.error("Manual save error:", error);
+            toast.error("Kon samenvatting niet publiceren.");
+            console.error("Publish error:", error);
         } finally {
             setIsSaving(false);
         }
@@ -150,8 +159,8 @@ export default function Page() {
                     selectorMode={true}
                     onChange={(selectedItem) => {
                         setSelectedSubject(selectedItem);
-                        // Trigger an autosave immediately when subject changes if content exists
-                        if (summaryContent.trim()) {
+                        // Trigger an autosave immediately when subject changes if any content exists
+                        if (summaryContent.trim() || summaryName.trim()) {
                             handleAutosave(summaryContent, summaryName, selectedItem.id); // Pass summaryName
                         }
                     }}
@@ -167,11 +176,17 @@ export default function Page() {
             <div className="mt-2 flex justify-between items-center">
                 <div> {/* Container for left-side texts */}
                     <p className="text-gray-400 text-sm">
-                        Schrijf je samenvatting in het tekstvak boven, Markdown wordt ondersteund.
+                        Schrijf je samenvatting in het tekstvak boven, Markdown wordt ondersteund. Je werk wordt automatisch opgeslagen als concept.
                     </p>
                     {/* Old status line removed from here */}
                 </div>
-                <Button1 onClick={handleManualSave} disabled={isSaving || !selectedSubject?.id || !summaryContent.trim()} text={"Opslaan"} />
+                <div className="flex gap-2">
+                    <Button1
+                        onClick={handlePublish}
+                        disabled={isSaving || !selectedSubject?.id || !summaryContent.trim() || !summaryName.trim()}
+                        text={"Publiceren"}
+                    />
+                </div>
             </div>
         </div>
     )

@@ -79,16 +79,32 @@ export default async function Page({ params }: PageProps) {
     );
   }
 
-  // Fetch only published lists created by this user
+  // Check if the current user is viewing their own profile
+  const isOwnProfile = currentUser?.id === user.id;
+
+  // Fetch lists created by this user (published for others, all for own profile)
   const rawLists = await prisma.practice.findMany({
     where: {
       creator: user.id as string,
-      published: true, // Only show published lists
+      published: isOwnProfile ? undefined : true, // Show all if own profile, only published for others
+      mode: "list"
     },
     orderBy: {
       createdAt: "desc", // Sort by newest first
     },
   });
+
+  const summaries = await prisma.practice.findMany({
+    where: {
+      creator: user.id as string,
+      published: isOwnProfile ? undefined : true, // Show all if own profile, only published for others
+      mode: "summary"
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  })
+  console.log(summaries)
 
   const createdLists: PracticeList[] = rawLists.map((list) => ({
     list_id: list.list_id as string,
@@ -132,6 +148,11 @@ export default async function Page({ params }: PageProps) {
                         <span className="text-lg whitespace-normal break-words max-w-[40ch]">
                           {list.name}
                         </span>
+                        {!list.published && (
+                          <span className="ml-2 inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">
+                            Concept
+                          </span>
+                        )}
                       </div>
                       <div className="flex-grow"></div>
                       <div className="flex items-center pr-2">
@@ -175,6 +196,75 @@ export default async function Page({ params }: PageProps) {
           )}
         </div>
       ),
+    },
+    {
+      id: "summaries",
+      label: "Samenvattingen",
+      content: (
+        <div className="mt-4">
+          {summaries.length > 0 ? (
+            <div className="space-y-4">
+              {summaries.map((summary) => (
+                <div key={summary.list_id}>
+                  <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer mb-4">
+                    <Link
+                      href={`/learn/summary/${summary.list_id}`}
+                      className="flex-1 flex items-center"
+                    >
+                      <div className="flex items-center">
+                        {summary.subject && (
+                          <Image
+                            src={getSubjectIcon(summary.subject) || ""}
+                            alt={`${getSubjectName(summary.subject)} icoon`}
+                            width={24}
+                            height={24}
+                            className="mr-2"
+                          />
+                        )}
+                        <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                          {summary.name}
+                        </span>
+                        {!summary.published && (
+                          <span className="ml-2 inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">
+                            Concept
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
+                      <CreatorLink creator={summary.creator} />
+                    </div>
+
+                    {/* Action buttons for summary owner */}
+                    {(summary.creator === currentUserName || currentUser?.role === "admin") && (
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/learn/editsummary/${summary.list_id}`}
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                          title="Samenvatting bewerken"
+                        >
+                          <PencilIcon className="h-5 w-5 text-white" />
+                        </Link>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                          <DeleteListButton
+                            listId={summary.list_id}
+                            isCreator={summary.creator === currentUserName || currentUser?.role === "admin"}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
+              Geen samenvattingen gevonden
+            </div>
+          )}
+        </div>
+      )
     },
     {
       id: "groups",

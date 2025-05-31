@@ -214,6 +214,7 @@ export async function getAllSummaries(): Promise<Array<{ id: string | null; name
                 updatedAt: true,
                 mode: true,
                 creator: true,
+                published: true, // Add published field
             }
         });
         // Map list_id to id for consistency with how start/page.tsx expects it

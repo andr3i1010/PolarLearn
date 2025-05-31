@@ -208,6 +208,7 @@ export default function Page() {
                 setIsPublished(true);
                 setLastSaved(result.lastSaved ? new Date(result.lastSaved) : lastSaved); // Update lastSaved if available
                 toast.success(result.message || "Samenvatting succesvol gepubliceerd!");
+                router.push(`/learn/summary/${result.id}`)
             } else {
                 toast.error(result.error || "Kon samenvatting niet publiceren.");
             }
