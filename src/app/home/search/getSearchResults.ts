@@ -4,7 +4,7 @@ import { prisma } from "@/utils/prisma";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
 
-type SearchTabType = "lists" | "forum" | "groups";
+type SearchTabType = "lists" | "forum" | "groups" | "summaries";
 
 export async function getSearchResults(query: string, tab: SearchTabType, skip: number, take: number) {
     const session = await getUserFromSession(
@@ -17,7 +17,7 @@ export async function getSearchResults(query: string, tab: SearchTabType, skip: 
     // Escape regex special characters in the query
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    let results = [];
+    let results: any[] = [];
     let total = 0;
 
     try {
@@ -28,6 +28,7 @@ export async function getSearchResults(query: string, tab: SearchTabType, skip: 
                     prisma.practice.findMany({
                         where: {
                             published: true,
+                            mode: "list",
                             OR: [
                                 { name: { contains: escapedQuery, mode: 'insensitive' } },
                                 { subject: { contains: escapedQuery, mode: 'insensitive' } },
@@ -117,6 +118,34 @@ export async function getSearchResults(query: string, tab: SearchTabType, skip: 
                     }),
                 ]);
                 break;
+            case "summaries":
+                [results, total] = await Promise.all([
+                    prisma.practice.findMany({
+                        where: {
+                            published: true,
+                            mode: "summary",
+                            OR: [
+                                { name: { contains: escapedQuery, mode: 'insensitive' } },
+                                { subject: { contains: escapedQuery, mode: 'insensitive' } },
+                                { creator: { contains: escapedQuery, mode: 'insensitive' } },
+                            ],
+                        },
+                        select: { list_id: true, name: true, subject: true, creator: true, data: true },
+                        orderBy: { createdAt: 'desc' },
+                        skip,
+                        take,
+                    }),
+                    prisma.practice.count({
+                        where: {
+                            published: true,
+                            OR: [
+                                { name: { contains: escapedQuery, mode: 'insensitive' } },
+                                { subject: { contains: escapedQuery, mode: 'insensitive' } },
+                                { creator: { contains: escapedQuery, mode: 'insensitive' } },
+                            ],
+                        },
+                    }),
+                ]);
         }
 
         // If no results were found, return early
@@ -133,19 +162,11 @@ export async function getSearchResults(query: string, tab: SearchTabType, skip: 
         // Extract creator IDs from the results
         let creatorIds: string[] = [];
 
-        if (tab === "lists" || tab === "forum") {
-            creatorIds = [
-                ...new Set(
-                    results.filter((item: any) => "creator" in item).map((item: any) => item.creator)
-                ),
-            ];
-        } else if (tab === "groups") {
-            creatorIds = [
-                ...new Set(
-                    results.filter((item: any) => "creator" in item).map((item: any) => item.creator)
-                ),
-            ];
-        }
+        creatorIds = [
+            ...new Set(
+            results.filter((item: any) => "creator" in item).map((item: any) => item.creator)
+            ),
+        ];
 
         // Fetch user info for creators
         const users = await prisma.user.findMany({
