@@ -1,47 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 import DeleteListButton from "./DeleteListButton";
 
 interface UserListButtonsProps {
     listId: string;
-    creatorId: string;
+    isCreator: boolean;
 }
 
-export default function UserListButtons({ listId, creatorId }: UserListButtonsProps) {
-    const [isVisible, setIsVisible] = useState(false);
-    const [userId, setUserId] = useState<string | null>(null);
-
-    // Fetch current user ID from client-side for comparison
-    useEffect(() => {
-        async function fetchUserInfo() {
-            try {
-                // Use fetch instead of direct import to avoid SSR issues
-                const response = await fetch('/api/auth/user');
-                const data = await response.json();
-
-                if (data && data.id) {
-                    setUserId(data.id);
-
-                    // Show buttons if user is creator
-                    if (data.id === creatorId || data.name === creatorId || data.role === 'admin') {
-                        console.log('Showing buttons - User matches creator or is admin', data.id, creatorId);
-                        setIsVisible(true);
-                    } else {
-                        console.log('Not showing buttons - User is not creator', data.id, creatorId);
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching user info:", error);
-            }
-        }
-
-        fetchUserInfo();
-    }, [creatorId]);
-
-    if (!isVisible) {
+export default function UserListButtons({ listId, isCreator }: UserListButtonsProps) {
+    if (!isCreator) {
         return null;
     }
 

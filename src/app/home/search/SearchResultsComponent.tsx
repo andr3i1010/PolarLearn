@@ -7,6 +7,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import SearchListsTab from "./SearchListsTab";
 import SearchForumTab from "./SearchForumTab";
 import SearchGroupsTab from "./SearchGroupsTab";
+import SearchSummaryTab from "./SearchSummaryTab";
 
 // Update props to accept the full objects (make params optional)
 interface SearchResultsProps {
@@ -51,6 +52,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
     const lists = await prisma.practice.findMany({
         where: {
             published: true,
+            mode: "list",
             OR: [
                 { name: { contains: escapedQuery, mode: 'insensitive' } },
                 { subject: { contains: escapedQuery, mode: 'insensitive' } },
@@ -65,6 +67,31 @@ export default async function SearchResultsComponent({ searchParams, params }: S
     const listsCount = await prisma.practice.count({
         where: {
             published: true,
+            mode: "list",
+            OR: [
+                { name: { contains: escapedQuery, mode: 'insensitive' } },
+                { subject: { contains: escapedQuery, mode: 'insensitive' } },
+                { creator: { contains: escapedQuery, mode: 'insensitive' } },
+            ],
+        },
+    });
+
+    const summaries = await prisma.practice.findMany({
+        where: {
+            published: true,
+            mode: "summary",
+            OR: [
+                { name: { contains: escapedQuery, mode: 'insensitive' } },
+                { subject: { contains: escapedQuery, mode: 'insensitive' } },
+                { creator: { contains: escapedQuery, mode: 'insensitive' } },
+            ],
+        },
+    })
+
+    const summariesCount = await prisma.practice.count({
+        where: {
+            published: true,
+            mode: "summary",
             OR: [
                 { name: { contains: escapedQuery, mode: 'insensitive' } },
                 { subject: { contains: escapedQuery, mode: 'insensitive' } },
@@ -180,6 +207,23 @@ export default async function SearchResultsComponent({ searchParams, params }: S
                     />
                 </div>
             ),
+        },
+        {
+            id: "summaries",
+            label: `Samenvattingen (${summariesCount})`,
+            content: (
+                <div className="mt-4">
+                    <SearchSummaryTab
+                        query={query}
+                        initialSummaries={summaries}
+                        initialTotal={summaries.length} // Use length for summaries
+                        initialUserMapById={userMapById}
+                        initialUserMapByName={userMapByName}
+                        currentUserName={currentUserName ?? null}
+                        currentUserRole={currentUserRole ?? null}
+                    />
+                </div>
+            )
         },
         {
             id: 'forum',

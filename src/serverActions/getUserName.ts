@@ -9,7 +9,7 @@ export async function getUserNameById(id: string): Promise<{ name: string | null
 
         const user = await prisma.user.findUnique({
             where: { id },
-            select: { 
+            select: {
                 name: true,
                 // Include any other fields you might want to use
                 image: true
@@ -21,12 +21,39 @@ export async function getUserNameById(id: string): Promise<{ name: string | null
         }
 
         // Return the name for display and the stable value for Jdenticon
-        return { 
-            name: user.name, 
+        return {
+            name: user.name,
             jdenticonValue: user.name // Use the username for the Jdenticon value
         };
     } catch (error) {
         console.error('Error fetching user name:', error);
         return { name: null, jdenticonValue: id };
+    }
+}
+
+// New server action to get user ID by name for UUID-based navigation
+export async function getUserIdByName(name: string): Promise<{ id: string | null, name: string | null }> {
+    try {
+        if (!name) return { id: null, name: null };
+
+        const user = await prisma.user.findUnique({
+            where: { name },
+            select: {
+                id: true,
+                name: true
+            }
+        });
+
+        if (!user) {
+            return { id: null, name: null };
+        }
+
+        return {
+            id: user.id,
+            name: user.name
+        };
+    } catch (error) {
+        console.error('Error fetching user ID by name:', error);
+        return { id: null, name: null };
     }
 }

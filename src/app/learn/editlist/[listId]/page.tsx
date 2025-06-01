@@ -47,12 +47,13 @@ export default async function EditListPage({
     }
 
     // Check if the current user is the creator of the list or an admin
-    if (listFromDb.creator !== currentUser?.name) {
-        if (currentUser?.role !== "admin") {
+    // Check both name and id to handle both legacy username-based and new ID-based creator fields
+    const isCreator = (listFromDb.creator === currentUser?.name || listFromDb.creator === currentUser?.id);
+    const isAdmin = currentUser?.role === "admin";
 
-            // Redirect to view page if user doesn't have permission to edit
-            redirect(`/learn/viewlist/${listId}`);
-        }
+    if (!isCreator && !isAdmin) {
+        // Redirect to view page if user doesn't have permission to edit
+        redirect(`/learn/viewlist/${listId}`);
     }
 
     // Convert the list data to the expected format

@@ -295,8 +295,8 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                         )}
                     </h1>
 
-                    {/* Creator actions - using client component that verifies ownership */}
-                    <UserListButtons listId={id} creatorId={listData?.creator || ""} />
+                    {/* Creator actions - pass isCreator boolean from server-side permission check */}
+                    <UserListButtons listId={id} isCreator={isCreator} />
                 </div>
                 <div className="h-4" />
                 <div className="flex flex-col gap-4">
