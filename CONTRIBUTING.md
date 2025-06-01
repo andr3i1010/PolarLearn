@@ -1,10 +1,10 @@
 # Bijdragen aan PolarLearn
 
-We vinden het zeer fijn dat je wil bijdragen aan PolarLearn! Helaas moet je om te kunnen helpen goed zijn in programmeren met TypeScript en Next.js. Als je dit niet kan of wil doen voor PolarLearn, kan je wel helpen door anderen erover te vertellen, ons een ster op GitHub te geven en problemen te rapporteren in de Discord. En wat regels over als je helpt!
+We vinden het zeer fijn dat je wilt bijdragen aan PolarLearn! Helaas moet je om te kunnen helpen goed zijn in programmeren met TypeScript en Next.js. Als je dit niet kunt of wilt doen voor PolarLearn, kan je wel helpen door anderen erover te vertellen, ons een ster op GitHub te geven en problemen te rapporteren in de Discord. Hier volgen wat regels voor als je helpt!
 
 ## AI
 
-We snappen dat AI een makkelijke snelle manier is om dingen te maken. Maar we vinden het belangerijk dat je goed vermeld als je een functie 'vibe code' omdat we willen code die zo gemaakt is extra word gecontroleerd dit kan je doen door aan het begin van de AI code `//AI CODE START` toe te voegen en aan het einde `//AI CODE END` toe te voegen. Iets is ge 'vibe code' als de code of aangepast is met AI of gemaakt is met AI. hier onder valt niet auto complete van AI of een simpele error fix bijv. een syntax error **dus niet** een bug die is opgelost met AI.
+We snappen dat AI een makkelijke, snelle manier is om dingen te maken. Maar we vinden het belangrijk dat je goed vermeldt als je een functie 'vibe code', omdat we willen dat code die zo gemaakt is extra wordt gecontroleerd. Dit kan je doen door aan het begin van de AI code `//AI CODE START` toe te voegen en aan het einde `//AI CODE END`. Iets is ge'vibe code' als de code óf aangepast is met AI óf gemaakt is met AI. Hieronder valt niet auto-complete van AI of een simpele error fix, bijvoorbeeld een syntax error (**dus niet** een bug die is opgelost met AI). Verder willen wij niet dat je met AI bugreports of feature requests maakt, zodat we zeker weten dat er geen bug requests zijn die gaan over bugs die er niet zijn. Hieronder valt niet het verbeteren van taal of spelling in een bug report door aan een AI te vragen om het te verbeteren.
 
 ## Code stijl
 
@@ -13,12 +13,33 @@ Verder moet je altijd gebruik maken van `Button1` voor knoppen en voor andere co
 We gebruiken de volgende Tailwind kleuren in de code:
 
 - Voor de gradient, is er een sky-400 (#38bdf8) naar sky-100 (#e0f2fe).
-- De lichtere achtergrondskleur is neutral-700 (#404040), de donkerdere is neutral-800 (#262626)
+- De lichtere achtergrondkleur is neutral-700 (#404040), de donkerdere is neutral-800 (#262626)
 
 ## Gedragscode
 
-We verwachten dat je je vriendelijk en respectvol gedraagt tegenover andere bijdragers. We willen een positieve en inclusieve omgeving creëren voor iedereen die bijdraagt aan PolarLearn. Discriminatie, intimidatie of ander ongepast gedrag wordt niet getolereerd en je zal worden verwijderd uit het project en de website.
+We verwachten dat je je vriendelijk en respectvol gedraagt tegenover andere bijdragers. We willen een positieve en inclusieve omgeving creëren voor iedereen die bijdraagt aan PolarLearn. Discriminatie, intimidatie of ander ongepast gedrag wordt niet getolereerd en je zult worden verwijderd uit het project en de website.
 
 ## Bugs melden en verbeteringen voorstellen
 
-Als je een bug vindt of een verbetering wilt voorstellen, laat dit dan weten via Github issues of als je er toegang tot hebt op Plane. Gebruik hierbij de templates die we hier voor hebben gemaakt.
+Als je een bug vindt of een verbetering wilt voorstellen, laat dit dan weten via Github issues of als je er toegang toe hebt op Plane. Gebruik hierbij de templates die we hiervoor hebben gemaakt. Gebruik hierbij geen AI om de bug of feature request te maken; spelling en taal laten verbeteren is wel toegestaan.
+
+## Pull requests
+
+Submit graag pull requests via Github naar de `beta` branch.
+We gaan ervan uit dat je de code in pull requests hebt getest voordat je een pull request maakt.
+
+## Licentie
+
+Polarlearn is gelicenseerd onder de GNU General Public License v3.0. Dit betekent dat je de code mag gebruiken, aanpassen en verspreiden, zolang je de broncode beschikbaar stelt en dezelfde licentie gebruikt voor afgeleide werken. We waarderen het als je je wijzigingen terugstuurt naar het project, zodat anderen er ook gebruik van kunnen maken.
+
+## Contact
+
+Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via Discord. We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
+
+## Dank
+
+Bedankt voor je interesse in Polarlearn! We waarderen erg je enthousiasme en we kijken er naar uit om met je samen te werken!
+
+### verplichte shit om te voorkomen je je ons kan aanklaagen
+
+Wanneer je bijdraagt ​​aan dit project, moet je ermee akkoord gaan dat je 100% van de content hebt geschreven, dat je de benodigde rechten op de content hebt en dat de content die je bijdraagt ​​onder de projectlicentie mag worden verstrekt.
