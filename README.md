@@ -27,8 +27,33 @@
 
 - [x] Lijsten
 - [ ] Quizzen
-- [x] Forum
+- [x] Forum (Met punten)
+- [ ] Titels en Prestaties
+- [x] Reeksen en Bevriezers
 - [ ] LiveQuiz
+- [x] Toets
+- [x] Hints
+- [x] In Gedachten (Flashcards)
+- [x] Multikeuze
+- [x] 
+- [x] Groepen
+- [x] Beheerders/Leden in Groepen
+- [x] Openbaar/Prive instelling voor Groepen
+- [ ] Groepfoto aanpassen
+- [x] Groepbeschrijving
+- [ ] Chats in groepen
+- [ ] Vak en leerjaar gerelateerde groepen
+- [x] Samenvattingen
+- [ ] Profielen aanpassen (Bio, profielfoto, etc.)
+- [ ] Accountinstellingen
+- [ ] Meldingen
+- [ ] Mappen
+- [ ] Licht/Donker Thema
+- [ ] Pomodro Timer
+- [ ] Spaced Repetition
+- [ ] Importeren uit StudyGo
+
+Als je een suggestie hebt voor een nieuwe functie of er is een fout in het systeem, ga dan naar de [issue pagina vab GitHub](https://github.com/polarnl/PolarLearn/issues), en maak daar een nieuwe issue aan. Label hem correct en wees duidelijk en je funcite komt er misschien wel in. Je kan ook in de [discord chat](https://discord.gg/TdYzXDzqSB) praten en contact opnemen.
 
 ---
 
@@ -65,3 +90,24 @@ Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) te g
 join de discord: [discord](https://discord.gg/TdYzXDzqSB)
 Je kan bijdragen aan PolarLearn door de code te downloaden en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een feature request hebt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie CONTRIBUTING.md voor meer informatie.
 
+---
+
+# Vakken:
+Engels
+Frans
+Duits
+Nederlands
+Latijn
+Grieks
+Wiskunde
+NaSk
+Biologie
+Aardrijkskunde
+Geschiedenis
+Muziek
+Anders
+Godsdienst / Levensbeschouwing
+
+Er komen later nog meer bij
+
+Veel leer"plezier"!!!
