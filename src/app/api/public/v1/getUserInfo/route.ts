@@ -51,12 +51,12 @@ export async function GET(request: Request) {
     });
 
     // Boilerplate code eindigt hier
-    const userName = request.headers.get('UserName');
-    if (!userName) {
-        return NextResponse.json({ error: 'Geen gebruikersnaam opgegeven' }, { status: 400 });
+    const userId = request.headers.get('UserId');
+    if (!userId) {
+        return NextResponse.json({ error: 'Geen gebruikers-ID opgegeven' }, { status: 400 });
     }
     const user = await prisma.user.findUnique({
-        where: { name: userName },
+        where: { id: userId },
         select: {
             id: true,
             name: true,
