@@ -26,32 +26,30 @@
 ## Wat kan PolarLearn tot nu toe?
 
 - [x] Lijsten
-- [ ] Quizzen
 - [x] Forum (Met punten)
-- [ ] Titels en Prestaties
 - [x] Reeksen en Bevriezers
-- [ ] LiveQuiz
 - [x] Toets
 - [x] Hints
 - [x] In Gedachten (Flashcards)
 - [x] Multikeuze
-- [x] 
 - [x] Groepen
+- [x] Samenvattingen
 - [x] Beheerders/Leden in Groepen
 - [x] Openbaar/Prive instelling voor Groepen
-- [ ] Groepfoto aanpassen
 - [x] Groepbeschrijving
-- [ ] Chats in groepen
+- [ ] Groepfoto aanpassen
+- [ ] Licht/Donker Thema
+- [ ] Forums in groepen
 - [ ] Vak en leerjaar gerelateerde groepen
-- [x] Samenvattingen
+- [ ] Titels en Prestaties
 - [ ] Profielen aanpassen (Bio, profielfoto, etc.)
+- [ ] LiveQuiz
 - [ ] Accountinstellingen
 - [ ] Meldingen
+- [ ] Quizzen
 - [ ] Mappen
-- [ ] Licht/Donker Thema
-- [ ] Pomodro Timer
+- [ ] Pomodoro Timer
 - [ ] Spaced Repetition
-- [ ] Importeren uit StudyGo
 
 Als je een suggestie hebt voor een nieuwe functie of er is een fout in het systeem, ga dan naar de [issue pagina vab GitHub](https://github.com/polarnl/PolarLearn/issues), en maak daar een nieuwe issue aan. Label hem correct en wees duidelijk en je funcite komt er misschien wel in. Je kan ook in de [discord chat](https://discord.gg/TdYzXDzqSB) praten en contact opnemen.
 
