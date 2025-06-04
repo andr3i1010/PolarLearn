@@ -7,8 +7,9 @@ import { cookies } from "next/headers";
 import { formSchema } from "@/app/home/forum/formSchema";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
 
-export async function createReply(postId: string, content: string) {
+export async function createReply(postId: string, content: string, userId: string) {
   const session = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")!.value
   );
@@ -52,6 +53,7 @@ export async function createReply(postId: string, content: string) {
       votes_data: { users: { [userName]: "up" } }, // Add creator's upvote
     },
   });
+  await sendNotificationToUser(userId, session.name + " heeft op je vraag '" + originalPost.title + "' geantwoord!")
 
   // A more direct approach that bypasses the null issue
   // First, fetch the current user with all their data

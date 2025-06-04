@@ -7,13 +7,16 @@ import Button1 from "@/components/button/Button1"
 import { createReply } from "@/actions/forum"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
+import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
+
 
 interface ForumReplyProps {
   postId: string
   buttonText?: string
+  userId: string
 }
 
-function ForumReply({ postId, buttonText = "Beantwoorden" }: ForumReplyProps) {
+function ForumReply({ postId, userId, buttonText = "Beantwoorden" }: ForumReplyProps) {
   const [open, setOpen] = useState(false)
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -24,7 +27,7 @@ function ForumReply({ postId, buttonText = "Beantwoorden" }: ForumReplyProps) {
     setIsSubmitting(true)
 
     try {
-      await createReply(postId, content)
+      await createReply(postId, content, userId)
       setContent("")
       setOpen(false)
       toast.success("Je antwoord is succesvol geplaatst! Hiermee heb je 10 punten verdiend.")

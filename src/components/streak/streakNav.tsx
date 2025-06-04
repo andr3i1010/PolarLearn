@@ -246,7 +246,6 @@ export default function StreakNavbarThing() {
                             height="40"
                             width="40"
                             ariaLabel="color-ring-loading"
-                            wrapperStyle={{}}
                             wrapperClass="color-ring-wrapper"
                             colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                         />
@@ -263,7 +262,6 @@ export default function StreakNavbarThing() {
                                 height="40"
                                 width="40"
                                 ariaLabel="color-ring-loading"
-                                wrapperStyle={{}}
                                 wrapperClass="color-ring-wrapper"
                                 colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                             />
@@ -279,7 +277,6 @@ export default function StreakNavbarThing() {
                                 height="40"
                                 width="40"
                                 ariaLabel="color-ring-loading"
-                                wrapperStyle={{}}
                                 wrapperClass="color-ring-wrapper"
                                 colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                             />

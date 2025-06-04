@@ -120,7 +120,7 @@ importers:
         specifier: ^0.511.0
         version: 0.511.0(react@19.1.0)
       motion:
-        specifier: ^12.12.1
+        specifier: ^12.12.2
         version: 12.12.2(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next:
         specifier: 15.4.0-canary.23
@@ -183,7 +183,7 @@ importers:
         specifier: ^8.18.2
         version: 8.18.2
       zod:
-        specifier: ^3.25.23
+        specifier: ^3.25.28
         version: 3.25.28
     devDependencies:
       '@eslint/js':

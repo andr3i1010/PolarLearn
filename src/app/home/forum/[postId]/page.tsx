@@ -155,8 +155,9 @@ export default async function Page({
   // Check if current user is the post creator, using multiple checks
   const isPostCreator =
     currentUsername === post.creator ||
-    (postcreator?.name && currentUsername === postcreator.name) ||
-    session?.role === "admin";
+    (postcreator?.name && currentUsername === postcreator.name);
+
+  const isAdmin = session?.role === "admin";
 
   // Get user's current vote if logged in
   let userVote: "up" | "down" | null = null;
@@ -319,7 +320,7 @@ export default async function Page({
       </div>
 
       <div className="mt-6">
-        <ForumReply postId={post.post_id} />
+        <ForumReply postId={post.post_id} userId={post.creator} />
       </div>
 
       {totalReplies > 0 && (

@@ -17,6 +17,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { icons, getSubjectIcon, getSubjectName } from "@/components/icons";
 import { Users, ListTodo, School } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import SendNotificationButton from "./SendNotificationButton";
 
 interface AdminTabsProps {
     initialUsersData: any[];
@@ -265,6 +266,9 @@ export default function AdminTabs({
                                                     userId={user.id}
                                                     userName={user.name}
                                                 />
+                                            </div>
+                                            <div className="inline-block w-1/11 text-right">
+                                                <SendNotificationButton userId={user.id} userName={user.name} />
                                             </div>
                                         </>
                                     )}
