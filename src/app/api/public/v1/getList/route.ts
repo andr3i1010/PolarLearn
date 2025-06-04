@@ -50,17 +50,10 @@ export async function GET(request: Request) {
         data: { limit: bot.limit },
     });
 
-    let skip = Number(request.headers.get('skip'));
-    if (!skip) {
-        skip = 0
+    const id = request.headers.get('Authorization')
+    if (!id) {
+        return NextResponse.json({ error: 'er is geen lijst id gegeven', status: 400 });
     }
-
-
-    const forum = await prisma.forum.findMany({
-        where: { type: "thread" },
-        orderBy: { createdAt: "desc" },
-        skip,
-    })
-    console.log(forum)
-    return NextResponse.json({ staat: 'OK', forum }, { status: 200 });
+    const LijstItem = await prisma.practice.findFirst({ where: { list_id: id } });
+    return NextResponse.json({ LijstItem, status: 200 });
 }

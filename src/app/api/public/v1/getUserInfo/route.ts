@@ -4,7 +4,7 @@ import { prisma } from '@/utils/prisma';
 
 export async function GET(request: Request) {
     // Boilerplate code start hier
-    const key = request.headers.get('token');
+    const key = request.headers.get('Authorization');
 
     if (!key) {
         return NextResponse.json({ error: 'Geen token opgegeven' }, { status: 400 });

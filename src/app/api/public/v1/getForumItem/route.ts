@@ -4,7 +4,7 @@ import { prisma } from '@/utils/prisma';
 
 export async function GET(request: Request) {
     // Boilerplate code start hier
-    const key = request.headers.get('token');
+    const key = request.headers.get('Authorization');
 
     if (!key) {
         return NextResponse.json({ error: 'Geen token opgegeven' }, { status: 400 });
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     if (!id) {
         return NextResponse.json({ error: 'er is geen id gegeven', status: 400 });
     }
-    const forumItem = await prisma.forum.findUnique({where: { post_id: id}});
-    return NextResponse.json({forumItem,  status: 200 });
+    const forumItem = await prisma.forum.findUnique({ where: { post_id: id } });
+    return NextResponse.json({ forumItem, status: 200 });
 
 }
