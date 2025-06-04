@@ -54,6 +54,9 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'er is geen id gegeven', status: 400 });
     }
     const forumItem = await prisma.forum.findUnique({ where: { post_id: id } });
+    if (!forumItem) {
+        return NextResponse.json({ error: 'Forum item niet gevonden', status: 404 });
+    }
     return NextResponse.json({ forumItem, status: 200 });
 
 }
