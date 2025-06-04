@@ -25,10 +25,7 @@
 
 ## Wat kan PolarLearn tot nu toe?
 
-- [x] Lijsten
-- [ ] Quizzen
-- [x] Forum
-- [ ] LiveQuiz
+Check [Planning.md](Planning.md)
 
 ---
 
@@ -64,4 +61,6 @@ Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) te g
 
 join de discord: [discord](https://discord.gg/TdYzXDzqSB)
 Je kan bijdragen aan PolarLearn door de code te downloaden en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een feature request hebt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie CONTRIBUTING.md voor meer informatie.
+
+Als je een suggestie hebt voor een nieuwe functie of er is een fout in het systeem, ga dan naar de [issue pagina vab GitHub](https://github.com/polarnl/PolarLearn/issues), en maak daar een nieuwe issue aan. Label hem correct en wees duidelijk en je funcite komt er misschien wel in. Je kan ook in de [discord chat](https://discord.gg/TdYzXDzqSB) praten en contact opnemen.
 
