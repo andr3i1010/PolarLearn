@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getUserIdByName } from "@/serverActions/getUserName";
+import Link from "next/link";
 
 interface ClientCreatorLinkProps {
     creator: string;
@@ -37,17 +38,12 @@ export default function ClientCreatorLink({ creator }: ClientCreatorLinkProps) {
         }
     }, [creator]);
 
-    const handleClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-        window.location.href = `/home/viewuser/${navigationTarget}`;
-    };
-
     return (
-        <span
-            onClick={handleClick}
-            className="hover:text-blue-400 text-white hover:underline transition-colors cursor-pointer"
+        <Link
+            href={`/home/viewuser/${navigationTarget}`}
+            className="text-blue-400 hover:underline transition-colors cursor-pointer"
         >
             {creator}
-        </span>
+        </Link>
     );
 }
