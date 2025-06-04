@@ -4,21 +4,21 @@
 </div>
 
 <div align="center">
-    <img alt="Dynamic JSON Badge" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fandr3i1010%2FPolarLearn%2Frefs%2Fheads%2Fstable%2Fpackage.json&query=%24.version&label=Version">
-    <img alt="Dynamic JSON Badge" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2Fandr3i1010%2FPolarLearn%2Fbadge&query=%24.message&label=Lijnen%20van%20code%3A&color=%232add21">
-    <a href="https://github.com/polarnl/PolarLearn/blob/stable/LICENSE">
-      <img alt="GitHub License" src="https://img.shields.io/github/license/polarnl/PolarLearn">
-    </a>
-    <a href="https://github.com/polarnl/PolarLearn/commit">
-      <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/polarnl/polarlearn">
-    </a>
-    <a href="https://github.com/polarnl/PolarLearn/issues">
-      <img src="https://custom-icon-badges.demolab.com/github/issues-raw/polarnl/PolarLearn?logo=issue-opened&label=Issues" alt="Badge"></img>
-    </a>
-    <a href="https://prisma.io">
-      <img width="122" height="20" src="http://made-with.prisma.io/dark.svg" alt="Made with Prisma" />
-    </a>
-    <a href="https://ko-fi.com/P5P31BIVLA"><img src="https://ko-fi.com/img/githubbutton_sm.svg" width="122" height= "20"/></a>
+  <img alt="Dynamic JSON Badge" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fandr3i1010%2FPolarLearn%2Frefs%2Fheads%2Fstable%2Fpackage.json&query=%24.version&label=Version">
+  <img alt="Dynamic JSON Badge" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2Fandr3i1010%2FPolarLearn%2Fbadge&query=%24.message&label=Lijnen%20van%20code%3A&color=%232add21">
+  <a href="https://github.com/polarnl/PolarLearn/blob/stable/LICENSE">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/polarnl/PolarLearn">
+  </a>
+  <a href="https://github.com/polarnl/PolarLearn/commit">
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/polarnl/polarlearn">
+  </a>
+  <a href="https://github.com/polarnl/PolarLearn/issues">
+    <img src="https://custom-icon-badges.demolab.com/github/issues-raw/polarnl/PolarLearn?logo=issue-opened&label=Issues" alt="Badge"></img>
+  </a>
+  <a href="https://prisma.io">
+    <img width="122" height="20" src="http://made-with.prisma.io/dark.svg" alt="Made with Prisma" />
+  </a>
+  <a href="https://ko-fi.com/P5P31BIVLA"><img src="https://ko-fi.com/img/githubbutton_sm.svg" width="122" height= "20"/></a>
   <br/>
   PolarLearn is een compleet gratis en Open-Source alternatief voor StudyGo.
 </div>
@@ -26,6 +26,7 @@
 ## Wat kan PolarLearn tot nu toe?
 
 Check [Planning.md](Planning.md)
+
 
 ---
 
@@ -59,8 +60,11 @@ Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.tech) te g
 
 # Hoe kan je bijdragen aan PolarLearn?
 
+
 join de discord: [discord](https://discord.gg/TdYzXDzqSB)
 Je kan bijdragen aan PolarLearn door de code te downloaden en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een feature request hebt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie CONTRIBUTING.md voor meer informatie.
 
 Als je een suggestie hebt voor een nieuwe functie of er is een fout in het systeem, ga dan naar de [issue pagina vab GitHub](https://github.com/polarnl/PolarLearn/issues), en maak daar een nieuwe issue aan. Label hem correct en wees duidelijk en je funcite komt er misschien wel in. Je kan ook in de [discord chat](https://discord.gg/TdYzXDzqSB) praten en contact opnemen.
+
+Als je wilt bijdragen aan PolarLearn en kan programmeren in TS met Nextjs, kan je het best in de [Discord](https://discord.gg/TdYzXDzqSB) vragen hoe je kan helpen. lees ook de [CONTRIBUTING.md](https://github.com/polarnl/PolarLearn/blob/stable/CONTRIBUTING.md)
 
