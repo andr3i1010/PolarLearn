@@ -24,7 +24,7 @@ const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
 
     return (
         <div
-            className="relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95"
+            className="relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95 w-full"
             onClick={handleSearchClick}
         >
             <div className="rounded-4xl border-4 border-neutral-700 duration-300 hover:border-transparent">
@@ -291,7 +291,7 @@ const NavigationLinks = memo(
                 </div>
                 <div className="w-36" />
 
-                <div className="flex-grow mx-4 max-w pr-5">
+                <div className="flex-grow mx-4">
                     <SearchBar onExpand={onExpandSearch} />
                 </div>
                 <StreakNavbarThing />
@@ -445,7 +445,7 @@ export const TopNavBar = memo(function TopNavBar() {
             </nav>
 
             {/* Mobile menu */}
-            < MobileMenu
+            <MobileMenu
                 isOpen={isMobileMenuOpen}
                 onClose={() => setIsMobileMenuOpen(false)}
                 pathname={pathname}
