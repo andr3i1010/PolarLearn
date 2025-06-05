@@ -4,6 +4,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import Button1 from "../button/Button1";
 import { useEffect, useState } from "react";
 import {
@@ -188,11 +189,22 @@ export default function NotificationNav() {
         return <IconComponent className="w-6 h-6 mr-3" />;
     };
 
+    // Calculate unread notifications count
+    const unreadCount = notifications ? Object.values(notifications).filter(notif => !notif.read).length : 0;
+
     return (
         <Popover>
             <PopoverTrigger>
-                <div className="w-10 h-10 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full flex items-center transition-all justify-center">
-                    {!readAll ? <BellDot className="w-6 h-6" /> : <Bell className="w-6 h-6" />}
+                <div className="relative w-10 h-10 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full flex items-center transition-all justify-center">
+                    <Bell className="w-6 h-6" />
+                    {unreadCount > 0 && (
+                        <Badge
+                            variant="destructive"
+                            className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center rounded-full"
+                        >
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                        </Badge>
+                    )}
                 </div>
             </PopoverTrigger>
             <PopoverContent className="min-w-100 bg-neutral-800 z-110 drop-shadow-2xl min-h-40 flex flex-col space-y-3 text-white">

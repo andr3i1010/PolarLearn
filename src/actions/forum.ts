@@ -53,8 +53,11 @@ export async function createReply(postId: string, content: string, userId: strin
       votes_data: { users: { [userName]: "up" } }, // Add creator's upvote
     },
   });
-  await sendNotificationToUser(userId, session.name + " heeft op je vraag '" + originalPost.title + "' geantwoord!")
 
+  // Only send notification if the person replying is not the original poster
+  if (userId !== session.id && userId !== session.name) {
+    await sendNotificationToUser(userId, session.name + " heeft op je vraag '" + originalPost.title + "' geantwoord!")
+  }
   // A more direct approach that bypasses the null issue
   // First, fetch the current user with all their data
   const currentUser = await prisma.user.findUnique({

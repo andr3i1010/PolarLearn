@@ -51,7 +51,7 @@ export async function getAllNotifs() {
     }
 }
 
-export async function sendUserNotification(toUserId: string, content: string, icon: string = "MessageSquare") {
+export async function sendUserNotification(toUserId: string, content: string, icon: string = "MessageSquare", includeSenderName: boolean = true) {
     try {
         // Verify the current user is logged in
         const cookieStore = await cookies();
@@ -84,8 +84,8 @@ export async function sendUserNotification(toUserId: string, content: string, ic
         // Safely parse existing notifications
         const currentNotifications = safelyParseNotificationData(targetUser.notificationData);
 
-        // Add sender info to the message if not sending to self
-        const messagePrefix = currentUser.id !== toUserId
+        // Add sender info to the message if not sending to self and includeSenderName is true
+        const messagePrefix = (currentUser.id !== toUserId && includeSenderName)
             ? `${currentUser.name}: `
             : "";
 

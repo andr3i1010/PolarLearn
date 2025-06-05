@@ -157,8 +157,6 @@ export default async function Page({
     currentUsername === post.creator ||
     (postcreator?.name && currentUsername === postcreator.name);
 
-  const isAdmin = session?.role === "admin";
-
   // Get user's current vote if logged in
   let userVote: "up" | "down" | null = null;
 
@@ -289,10 +287,24 @@ export default async function Page({
                   />
                   <DeletePostButton
                     postId={post.post_id}
+                    title={post.title}
+                    creatorId={post.creator}
                     isCreator={true}
+                    isAdmin={isAdmin}
                     isMainPost={true}
                   />
                 </>
+              )}
+              {/* Admin delete button for posts not created by admin */}
+              {isAdmin && !isPostCreator && (
+                <DeletePostButton
+                  postId={post.post_id}
+                  title={post.title}
+                  creatorId={post.creator}
+                  isCreator={false}
+                  isAdmin={true}
+                  isMainPost={true}
+                />
               )}
               {/* Pin button for admin */}
               {isAdmin && (
@@ -330,6 +342,7 @@ export default async function Page({
           initialTotal={totalReplies}
           initialUserMap={userMap}
           currentUser={session}
+          mainPostTitle={post.title}
         />
       )}
     </div>

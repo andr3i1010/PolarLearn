@@ -252,8 +252,11 @@ export default function ForumPostList({
                   <div className="absolute top-4 right-4 z-10">
                     <DeletePostButton
                       postId={post.post_id}
-                      isCreator={true}
+                      isCreator={currentUserId === post.creator || currentUsername === post.creator}
                       isMainPost={!isReply}
+                      title={post.title}
+                      creatorId={post.creator}
+                      isAdmin={userRole === "admin"}
                     />
                   </div>
                 )}

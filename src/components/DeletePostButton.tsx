@@ -44,10 +44,20 @@ function DeletePostButton({
       // If admin is deleting someone else's post, send notification with reason
       if (requiresReason && creatorId) {
         try {
+          const postTitle = title || (isMainPost ? "je vraag" : "je antwoord")
+          let notificationMessage: string
+
+          if (isMainPost) {
+            notificationMessage = `Je vraag "${postTitle}" was verwijderd door een administrator, met reden: ${reason}`
+          } else {
+            notificationMessage = `Je antwoord op "${postTitle}" was verwijderd door een administrator, met reden: ${reason}`
+          }
+
           await sendUserNotification(
             creatorId,
-            `Je post "${title || 'Onbekende titel'}" is verwijderd door een beheerder. Reden: ${reason}`,
-            "Trash2"
+            notificationMessage,
+            "Trash2",
+            false  // Don't include sender name for admin deletion notifications
           )
         } catch (error) {
           console.error("Failed to send notification", error)
@@ -97,7 +107,7 @@ function DeletePostButton({
             <DialogTitle>Bevestig verwijdering</DialogTitle>
             <DialogDescription>
               {isMainPost
-                ? "Weet je zeker dat je deze post wilt verwijderen? Alle reacties zullen ook worden verwijderd. Je verliest 10 forumpunten als je je eigen post verwijdert."
+                ? "Weet je zeker dat je deze vraag wilt verwijderen? Alle reacties zullen ook worden verwijderd. Je verliest 10 forumpunten als je je eigen post verwijdert."
                 : "Weet je zeker dat je dit antwoord wilt verwijderen? Je verliest 10 forumpunten als je je eigen antwoord verwijdert."
               }
             </DialogDescription>
