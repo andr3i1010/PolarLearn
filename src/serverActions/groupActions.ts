@@ -676,11 +676,98 @@ export async function joinGroup(groupId: string) {
                 data: { members: updatedMembers }
             });
 
+            // Update user's inGroups list
+            const user = await prisma.user.findUnique({
+                where: { id: session.id }
+            });
+
+            if (user) {
+                const inGroups = (user.inGroups as string[]) || [];
+                const updatedInGroups = [...new Set([...inGroups, groupId])];
+                await prisma.user.update({
+                    where: { id: session.id },
+                    data: { inGroups: updatedInGroups }
+                });
+            }
+            revalidatePath('/learn/groups');
+            revalidatePath('/home/start');
+
             return { success: true, message: "Je bent nu lid van deze groep" };
         }
     } catch (error) {
         console.error("Error joining group:", error);
         return { success: false, error: "Er is een fout opgetreden" };
+    }
+}
+
+// Leave a group
+export async function leaveGroup(groupId: string) {
+    try {
+        const session = await getUserFromSession(
+            (await cookies()).get("polarlearn.session-id")?.value as string
+        );
+
+        if (!session || !session.id) {
+            return { success: false, error: "Je moet ingelogd zijn om een groep te verlaten" };
+        }
+
+        const group = await prisma.group.findUnique({
+            where: { groupId },
+        });
+
+        if (!group) {
+            return { success: false, error: "Groep niet gevonden" };
+        }
+
+        // Check if user is the creator
+        if (group.creator === session.id) {
+            return { success: false, error: "De eigenaar kan de groep niet verlaten. Verwijder de groep of draag het eigendom over." };
+        }
+
+        const members = (group.members as string[]) || [];
+        const admins = (group.admins as string[]) || [];
+
+        // Check if user is a member
+        if (!members.includes(session.id)) {
+            return { success: false, error: "Je bent geen lid van deze groep" };
+        }
+
+        // Remove user from members
+        const updatedMembers = members.filter(id => id !== session.id);
+        // Remove user from admins if they were an admin
+        const updatedAdmins = admins.filter(id => id !== session.id);
+
+        await prisma.group.update({
+            where: { groupId },
+            data: {
+                members: updatedMembers,
+                admins: updatedAdmins,
+            },
+        });
+
+        // Update user's inGroups list
+        const user = await prisma.user.findUnique({
+            where: { id: session.id }
+        });
+
+        if (user) {
+            const inGroups = (user.inGroups as string[]) || [];
+            const updatedInGroups = inGroups.filter(id => id !== groupId);
+            await prisma.user.update({
+                where: { id: session.id },
+                data: { inGroups: updatedInGroups }
+            });
+        }
+
+        revalidatePath('/learn/groups');
+        revalidatePath(`/learn/group/${groupId}`);
+        revalidatePath('/home/start');
+
+        return { success: true, message: "Je hebt de groep verlaten" };
+
+    } catch (error) {
+        console.error("Error leaving group:", error);
+        return { success: false, error: "Er is een fout opgetreden bij het verlaten van de groep" };
     }
 }
 

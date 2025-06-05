@@ -101,23 +101,13 @@ export default function SettingsForm({
                 />
             </div>
 
-            <Button
+            <Button1
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-4 bg-sky-600 hover:bg-sky-700"
+                text={isSubmitting ? "Bezig met opslaan..." : "Opslaan"}
+                icon={isSubmitting ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
             >
-                {isSubmitting ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Opslaan...
-                    </>
-                ) : (
-                    <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Opslaan
-                    </>
-                )}
-            </Button>
+            </Button1>
         </form>
     );
 }

@@ -11,6 +11,7 @@ import ImpersonationCheck from "@/components/ImpersonationCheck";
 import ImpersonationStyles from "@/components/ImpersonationStyles";
 import React from "react";
 import { ViewTransitions } from "next-view-transitions";
+import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -158,6 +159,7 @@ export default async function RootLayout({
                   </div>
                 </>
                 {footerContent}
+                <AnalyticsProvider />
               </WSProvider>
             </ToastProvider>
           </SessionWrapper>

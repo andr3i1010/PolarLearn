@@ -1,4 +1,4 @@
-import { FlatCompat } from '@eslint/eslintrc'
+import { FlatCompat } from '@eslint/eslintrc/dist/eslintrc.cjs'
 import importPlugin from 'eslint-plugin-import'
 
 const compat = new FlatCompat({

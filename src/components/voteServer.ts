@@ -85,9 +85,9 @@ export default async function VoteServer(postId: string, direction: VoteDirectio
       },
     });
 
-    // Award or remove points for the post creator based on upvotes
+    // Award or remove points for the post creator based on votes
     // Only do this if it's not the creator voting on their own post
-    if (post.creator !== user && (direction === "up" || currentVote === "up")) {
+    if (post.creator !== user && (direction === "up" || direction === "down" || currentVote === "up" || currentVote === "down")) {
       try {
         // Find the user (post creator) to update their points
         const creator = await prisma.user.findFirst({
@@ -111,9 +111,15 @@ export default async function VoteServer(postId: string, direction: VoteDirectio
           if (direction === "up" && currentVote !== "up") {
             // New upvote or changed from downvote to upvote: +1 point
             pointsDelta = 1;
-          } else if (direction !== "up" && currentVote === "up") {
-            // Removed upvote or changed from upvote to downvote: -1 point
+          } else if (direction === "down" && currentVote !== "down") {
+            // New downvote or changed from upvote to downvote: -1 point
             pointsDelta = -1;
+          } else if (direction !== "up" && currentVote === "up") {
+            // Removed upvote or changed from upvote to null: -1 point
+            pointsDelta = -1;
+          } else if (direction !== "down" && currentVote === "down") {
+            // Removed downvote or changed from downvote to null: +1 point
+            pointsDelta = 1;
           }
 
           if (pointsDelta !== 0) {

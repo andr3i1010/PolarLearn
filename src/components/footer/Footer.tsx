@@ -111,7 +111,7 @@ export default async function Footer() {
               href="https://ko-fi.com/polarnl"
               target="_blank"
               rel="noopener noreferrer"
-              title="Ko-Fi"
+              title="Doneren via Ko-Fi"
               aria-label="Ko-Fi"
             >
               <Image src={kofi} width={30} height={30} alt={"kofi"} />

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useCallback } from "react";
-import PlusBtn from "@/components/button/plus";
+import PlusBtn from "@/components/button/homeplus";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -105,7 +105,37 @@ export function CreateGroupButton() {
     return (
         <>
             <div className="bg-neutral-700 rounded-full hover:bg-neutral-600 transition-all">
-                <PlusBtn action={handleClick} />
+                <button
+                    type="button"
+                    onClick={handleClick}
+                    className={`bg-neutral-700 w-min h-min rounded-full flex justify-center hover:bg-neutral-600 transition-all`}
+                    style={{ padding: 0, border: "none", background: "none" }}
+                >
+                    <svg
+                        width="40px"
+                        height="40px"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        style={{ margin: "auto", display: "block" }}
+                    >
+                        <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                        <g
+                            id="SVGRepo_tracerCarrier"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        ></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path
+                                d="M6 12H18M12 6V18"
+                                stroke="#000000"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            ></path>
+                        </g>
+                    </svg>
+                </button>
             </div>
 
             <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>

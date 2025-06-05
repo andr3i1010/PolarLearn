@@ -15,6 +15,7 @@ import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
 import JoinGroupButton from "@/components/groups/JoinGroupButton";
+import LeaveGroupButton from "@/components/groups/LeaveGroupButton"; // Added import
 
 import { getSubjectIcon } from "@/components/icons"
 import DeleteListButton from "@/components/learning/DeleteListButton";
@@ -57,6 +58,22 @@ export default async function Page({
       groupId: id
     }
   });
+
+  // Handle group not found
+  if (!groupData) {
+    return (
+      <div className="flex flex-col p-4 items-center justify-center text-center h-[calc(100vh-200px)]">
+        <AlertTriangle className="h-16 w-16 text-yellow-500 mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Groep niet gevonden</h1>
+        <p className="text-neutral-400 mb-6">
+          De groep die je zoekt bestaat niet of is mogelijk verwijderd.
+        </p>
+        <Link href="/learn/groups">
+          <Button1 text="Terug naar groepen" />
+        </Link>
+      </div>
+    );
+  }
 
   // Get current user with complete information
   const currentUser = await getUserFromSession((await cookies()).get('polarlearn.session-id')?.value as string);
@@ -300,7 +317,6 @@ export default async function Page({
         </div>
       ),
     },
-    // Add a settings tab that's only visible to admins and creators
     ...(isAdmin || isCreator || currentUser?.role === "admin" ? [{
       id: "settings",
       label: "Instellingen",
@@ -357,20 +373,32 @@ export default async function Page({
               requiresApproval={groupData?.requiresApproval === true}
             />
           )}
+          {/* Add leave button for members (not creators) */}
+          {currentUser && isMember && !isCreator && (
+            <LeaveGroupButton groupId={id} />
+          )}
         </div>
         <p className="pl-20">{groupData?.description}</p>
       </section>
       <hr className="flex-grow border-neutral-600 mt-2" />
 
       {/* Add tabs component */}
-      <div className="mt-4">
-        <Tabs
-          tabs={tabs}
-          defaultActiveTab={tab || "lists"}
-          withRoutes={true}
-          baseRoute={`/learn/group/${id}`}
-        />
-      </div>
+      {!(groupData.requiresApproval && !isMember) ? (
+        <div className="mt-4">
+          <Tabs
+            tabs={tabs}
+            defaultActiveTab={tab || "lists"}
+            withRoutes={true}
+            baseRoute={`/learn/group/${id}`}
+          />
+        </div>
+      ) : (
+        <div className="mt-8 text-center text-neutral-400 bg-neutral-800 p-8 rounded-lg">
+          <h2 className="text-xl font-semibold mb-2">Toegang beperkt</h2>
+          <p>De inhoud van deze groep is alleen zichtbaar voor leden.</p>
+          <p>Je verzoek om lid te worden is in behandeling of je moet nog een verzoek indienen.</p>
+        </div>
+      )}
     </div>
   )
 }

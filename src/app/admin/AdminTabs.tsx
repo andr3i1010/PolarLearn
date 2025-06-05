@@ -41,7 +41,8 @@ export default function AdminTabs({
     userMapById: initialUserMapById,
     defaultActiveTab,
     currentUserId,
-}: AdminTabsProps) {
+    renderContent = true, // Added for layout usage
+}: AdminTabsProps & { renderContent?: boolean }) { // Added for layout usage
     // Users tab state
     const [usersData, setUsersData] = useState(initialUsersData);
     const [usersHasMore, setUsersHasMore] = useState(initialUsersData.length < initialUsersTotal);
@@ -166,7 +167,7 @@ export default function AdminTabs({
                                     className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all"
                                 >
                                     <Link
-                                        href={`/home/viewuser/${user.name}`}
+                                        href={`/home/viewuser/${user.id}`}
                                         className="inline-block w-7/11"
                                     >
                                         <div className="flex items-center cursor-pointer">
@@ -516,6 +517,7 @@ export default function AdminTabs({
                 defaultActiveTab={defaultActiveTab}
                 withRoutes={true}
                 baseRoute={baseRoute}
+                renderContent={renderContent} // Pass down renderContent
             />
         </div>
     );

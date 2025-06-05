@@ -96,9 +96,10 @@ function DeletePostButton({
           <DialogHeader>
             <DialogTitle>Bevestig verwijdering</DialogTitle>
             <DialogDescription>
-              {requiresReason
-                ? "Je staat op het punt om een post van iemand anders te verwijderen. Geef een reden op voor de verwijdering."
-                : "Weet je zeker dat je deze post wilt verwijderen?"}
+              {isMainPost
+                ? "Weet je zeker dat je deze post wilt verwijderen? Alle reacties zullen ook worden verwijderd. Je verliest 10 forumpunten als je je eigen post verwijdert."
+                : "Weet je zeker dat je dit antwoord wilt verwijderen? Je verliest 10 forumpunten als je je eigen antwoord verwijdert."
+              }
             </DialogDescription>
           </DialogHeader>
 

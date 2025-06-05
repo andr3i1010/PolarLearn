@@ -24,7 +24,20 @@ export async function createListAction(listData: {
 	}
 
 	try {
-		let result: { name: string; id: string; createdAt: Date; updatedAt: Date; list_id: string; mode: string; subject: string; lang_from: string; lang_to: string; data: JsonValue; creator: string; published: boolean; };
+		let result: {
+			name: string;
+			id: string;
+			createdAt: Date;
+			updatedAt: Date;
+			list_id: string;
+			mode: string;
+			subject: string;
+			lang_from: string | null; // Changed from string to string | null
+			lang_to: string | null;   // Changed from string to string | null
+			data: JsonValue;
+			creator: string;
+			published: boolean;
+		};
 		const isAutosave = listData.autosave === true;
 
 		// If listId is provided, update an existing list

@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
     } else {
         cspHeader = `
         default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' ${process.env.NEXT_PUBLIC_URL} https://*.cloudflare.com https://*.sentry.io;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' ${process.env.NEXT_PUBLIC_URL} https://*.cloudflare.com https://*.sentry.io https://*.google.com;
         worker-src 'self' blob:;
         style-src 'self' 'unsafe-inline';
         img-src 'self' blob: data: *;
@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
         base-uri 'self';
         form-action 'self';
         frame-ancestors 'none';
-        connect-src 'self' ${process.env.NEXT_PUBLIC_URL} https://*.cloudflare.com https://*.sentry.io *;
+        connect-src 'self' ${process.env.NEXT_PUBLIC_URL} https://*.cloudflare.com https://*.sentry.io https://*.google.com *;
         upgrade-insecure-requests;`
     }
     const contentSecurityPolicyHeaderValue = cspHeader
