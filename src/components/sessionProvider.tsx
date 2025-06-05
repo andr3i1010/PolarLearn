@@ -2,7 +2,6 @@
 
 import { useEffect, useState, createContext, useContext, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 
 interface SessionContextType {
     isAuthenticated: boolean;

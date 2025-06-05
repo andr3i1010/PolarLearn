@@ -195,7 +195,7 @@ Veel leerplezier! 🚀
 
   return (
     <>
-      <div className="py-6 pl-6">
+      <div className="py-6 px-6">
         <div className="flex items-center">
           <h1 className="text-4xl font-extrabold mb-4">Forum</h1>
           <div className="flex-grow"></div>
@@ -204,7 +204,6 @@ Veel leerplezier! 🚀
             banreason={user?.forumBanReason}
             banEnd={user?.forumBanEnd}
           />
-          <div className="w-4" />
         </div>
         <Tabs
           tabs={tabs}

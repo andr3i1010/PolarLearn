@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MoveLeft, Search, Menu, X } from "lucide-react";
 import Link from "next/link";
 import StreakNavbarThing from "../streak/streakNav";
+import NotificationNav from "../notification/notificiationNav";
 
 // SearchBar component
 const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
@@ -290,10 +291,11 @@ const NavigationLinks = memo(
                 </div>
                 <div className="w-36" />
 
-                <div className="flex-grow mx-4 max-w pr-5">
+                <div className="flex-grow mx-4">
                     <SearchBar onExpand={onExpandSearch} />
                 </div>
                 <StreakNavbarThing />
+                <NotificationNav/>
                 <div className="w-50" />
                 <div className="ml-auto relative block dropdown-right">
                     <DropdownBtn
@@ -443,7 +445,7 @@ export const TopNavBar = memo(function TopNavBar() {
             </nav>
 
             {/* Mobile menu */}
-            < MobileMenu
+            <MobileMenu
                 isOpen={isMobileMenuOpen}
                 onClose={() => setIsMobileMenuOpen(false)}
                 pathname={pathname}

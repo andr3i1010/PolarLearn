@@ -22,6 +22,7 @@ interface ForumRepliesListProps {
     initialTotal: number;
     initialUserMap: Record<string, any>;
     currentUser: any;
+    mainPostTitle: string;
 }
 
 export default function ForumRepliesList({
@@ -30,6 +31,7 @@ export default function ForumRepliesList({
     initialTotal,
     initialUserMap,
     currentUser,
+    mainPostTitle,
 }: ForumRepliesListProps) {
     const [replies, setReplies] = useState(initialReplies);
     const [hasMore, setHasMore] = useState(initialReplies.length < initialTotal);
@@ -92,6 +94,11 @@ export default function ForumRepliesList({
                             currentUsername === reply.creator ||
                             (replyCreator?.name && currentUsername === replyCreator.name) ||
                             currentUser?.role === "admin";
+
+                        // Check if current user is actually the creator (not just has delete permissions)
+                        const isActualReplyCreator =
+                            currentUsername === reply.creator ||
+                            (replyCreator?.name && currentUsername === replyCreator.name);
 
                         // Get user's vote on this reply
                         let replyUserVote: "up" | "down" | null = null;
@@ -171,12 +178,15 @@ export default function ForumRepliesList({
                                             <>
                                                 <EditReplyButton
                                                     postId={String(reply.post_id)}
-                                                    isCreator={true}
+                                                    isCreator={isActualReplyCreator}
                                                 />
                                                 <DeletePostButton
                                                     postId={String(reply.post_id)}
-                                                    isCreator={true}
+                                                    isCreator={isActualReplyCreator}
                                                     isMainPost={false}
+                                                    title={mainPostTitle}
+                                                    creatorId={reply.creator}
+                                                    isAdmin={currentUser?.role === "admin"}
                                                 />
                                             </>
                                         )}

@@ -8,8 +8,7 @@
     "build": "rm -rf .next/; next build #; pnpm obfuscate-build",
     "start": "next start",
     "prepare": "yes | next-ws patch",
-    "postinstall": "prisma generate",
-    "obfuscate-build": "next-css-obfuscator"
+    "postinstall": "prisma db push"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -49,7 +48,7 @@
     "jose": "^6.0.11",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.511.0",
-    "motion": "^12.12.1",
+    "motion": "^12.12.2",
     "next": "15.4.0-canary.23",
     "next-pwa": "^5.6.0",
     "next-view-transitions": "^0.3.4",
@@ -70,7 +69,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
     "ws": "^8.18.2",
-    "zod": "^3.25.23"
+    "zod": "^3.25.28"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
