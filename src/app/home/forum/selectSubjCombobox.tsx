@@ -19,7 +19,7 @@ interface ComboboxItem {
 // Convert existing frameworks to match the new format
 const convertedItems: ComboboxItem[] = defaultItems.map(item => ({
   ...item,
-  searchText: typeof item.label === 'string' ? item.label : '',
+  searchText: item.searchText || (typeof item.label === 'string' ? item.label : ''),
 }));
 
 interface ComboboxProps {

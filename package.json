@@ -5,7 +5,7 @@
   "private": false,
   "scripts": {
     "dev": " next dev --turbopack",
-    "build": "rm -rf .next/; next build #; pnpm obfuscate-build",
+    "build": "rm -rf .next/; next build",
     "start": "next start",
     "prepare": "yes | next-ws patch",
     "postinstall": "prisma db push"
@@ -36,6 +36,7 @@
     "@tailwindcss/postcss": "^4.1.7",
     "@tailwindcss/typography": "^0.5.16",
     "@types/d3": "^7.4.3",
+    "@types/js-cookie": "^3.0.6",
     "@types/ws": "^8.18.1",
     "argon2": "^0.43.0",
     "class-variance-authority": "^0.7.1",
@@ -46,6 +47,7 @@
     "import-in-the-middle": "^1.13.2",
     "jdenticon": "^3.3.0",
     "jose": "^6.0.11",
+    "js-cookie": "^3.0.5",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.511.0",
     "motion": "^12.12.2",
