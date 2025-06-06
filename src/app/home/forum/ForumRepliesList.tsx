@@ -179,6 +179,7 @@ export default function ForumRepliesList({
                                                 <EditReplyButton
                                                     postId={String(reply.post_id)}
                                                     isCreator={isActualReplyCreator}
+                                                    isAdmin={currentUser?.role === "admin"}
                                                 />
                                                 <DeletePostButton
                                                     postId={String(reply.post_id)}

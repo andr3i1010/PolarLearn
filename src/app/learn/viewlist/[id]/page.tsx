@@ -93,12 +93,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
         listData?.creator === currentUser?.id ||
         currentUser?.role === "admin");
     const isUnpublished = listData?.published === false;
-
-    // For debugging - remove in production
-    console.log('CurrentUser:', currentUser?.id, currentUser?.name);
-    console.log('ListCreator:', listData?.creator);
-    console.log('IsCreator:', isCreator);
-
+    
     // Use the top-level subject field from the practice model
     const subject = listData?.subject || 'general';
 

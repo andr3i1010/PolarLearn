@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSearchResults } from "./getSearchResults";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -22,6 +23,7 @@ export default function SearchGroupsTab({
     initialUserMapById,
     initialUserMapByName,
 }: SearchGroupsTabProps) {
+    const router = useRouter();
     const [groups, setGroups] = useState(initialGroups);
     const [hasMore, setHasMore] = useState(initialGroups.length < initialTotal);
     const [userMapById, setUserMapById] = useState(initialUserMapById);
@@ -81,41 +83,42 @@ export default function SearchGroupsTab({
                     const listCount = Array.isArray(group.listsAdded) ? group.listsAdded.length : 0;
 
                     return (
-                        <div key={group.groupId}>
-                            <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                                <Link href={`/learn/group/${group.groupId}`} className="flex-1 flex items-center">
-                                    <div className="flex items-center gap-3">
-                                        <Jdenticon value={group.name} size={40} />
-                                        <span className="text-lg whitespace-normal break-words max-w-[40ch] flex flex-row">
-                                            {group.name}
-                                            <div className="flex gap-2 mt-1 pl-2">
-                                                {group.requiresApproval ? (
-                                                    <Badge className="bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs">
-                                                        Goedkeyring nodig
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge className="bg-green-600/20 text-green-500 border border-green-600/50 text-xs">
-                                                        Open
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </span>
-                                    </div>
-                                    <div className="flex-grow"></div>
-                                    <div className="flex items-center pr-2">
-                                        <span className="text-sm text-neutral-400">
-                                            {memberCount} {memberCount === 1 ? "lid" : "leden"} •{" "}
-                                            {listCount} {listCount === 1 ? "lijst" : "lijsten"}
-                                        </span>
-                                    </div>
-                                </Link>
-
-                                {group.description && (
-                                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-[150px] text-center">
-                                        <p className="text-sm text-neutral-400 line-clamp-1">{group.description}</p>
-                                    </div>
-                                )}
+                        <div key={group.groupId} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                            <div
+                                className="flex-1 flex items-center cursor-pointer"
+                                onClick={() => router.push(`/learn/group/${group.groupId}`)}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Jdenticon value={group.name} size={40} />
+                                    <span className="text-lg whitespace-normal break-words max-w-[40ch] flex flex-row">
+                                        {group.name}
+                                        <div className="flex gap-2 mt-1 pl-2">
+                                            {group.requiresApproval ? (
+                                                <Badge className="bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs">
+                                                    Goedkeuring nodig
+                                                </Badge>
+                                            ) : (
+                                                <Badge className="bg-green-600/20 text-green-500 border border-green-600/50 text-xs">
+                                                    Open
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </span>
+                                </div>
+                                <div className="flex-grow"></div>
+                                <div className="flex items-center pr-2">
+                                    <span className="text-sm text-neutral-400">
+                                        {memberCount} {memberCount === 1 ? "lid" : "leden"} •{" "}
+                                        {listCount} {listCount === 1 ? "lijst" : "lijsten"}
+                                    </span>
+                                </div>
                             </div>
+
+                            {group.description && (
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-[150px] text-center pointer-events-none">
+                                    <p className="text-sm text-neutral-400 line-clamp-1">{group.description}</p>
+                                </div>
+                            )}
                         </div>
                     );
                 })}

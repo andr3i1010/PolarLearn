@@ -33,13 +33,11 @@ export async function getAllNotifs() {
         const sessionId = cookieStore.get("polarlearn.session-id")?.value;
 
         if (!sessionId) {
-            console.log("No session ID found, returning empty notifications");
             return {};
         }
 
         const user = await getUserFromSession(sessionId);
         if (!user) {
-            console.log("No user found for session, returning empty notifications");
             return {};
         }
 

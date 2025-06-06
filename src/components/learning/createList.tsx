@@ -683,7 +683,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                   <Button1
                     text="Importeren"
                     onClick={() => {
-                      console.log("Import button clicked");
                       handleImport()
                     }}
                     icon={<Import size={16} />}

@@ -277,34 +277,24 @@ export default async function Page({
           </div>
           <div className="flex items-center gap-2">
             <div className="flex gap-2">
-              {/* Edit and Delete buttons for post creator */}
-              {isPostCreator && (
+              {/* Edit and Delete buttons for post creator and admins */}
+              {(isPostCreator || isAdmin) && (
                 <>
                   <EditPostBtn
                     postId={post.post_id}
-                    isCreator={true}
+                    isCreator={isPostCreator}
                     isMainPost={true}
+                    isAdmin={isAdmin}
                   />
                   <DeletePostButton
                     postId={post.post_id}
                     title={post.title}
                     creatorId={post.creator}
-                    isCreator={true}
+                    isCreator={isPostCreator}
                     isAdmin={isAdmin}
                     isMainPost={true}
                   />
                 </>
-              )}
-              {/* Admin delete button for posts not created by admin */}
-              {isAdmin && !isPostCreator && (
-                <DeletePostButton
-                  postId={post.post_id}
-                  title={post.title}
-                  creatorId={post.creator}
-                  isCreator={false}
-                  isAdmin={true}
-                  isMainPost={true}
-                />
               )}
               {/* Pin button for admin */}
               {isAdmin && (

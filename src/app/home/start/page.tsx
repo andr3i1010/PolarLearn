@@ -161,8 +161,6 @@ export default async function Start() {
   const currentUserName = currentUser?.name;
   const currentUserRole = currentUser?.role;
 
-  console.log('[StartPage] currentUser:', JSON.stringify(currentUser, null, 2));
-
   // Combine lists and summaries
   const typedLists = Array.isArray(recentLists) ? recentLists.map((list: any) => ({
     ...list, // Contains list_id, name, subject, updatedAt, creator, data, published
@@ -183,13 +181,6 @@ export default async function Start() {
     const dateB = new Date(b.updatedAt).getTime();
     return dateB - dateA;
   });
-
-  console.log('[StartPage] recentLists count:', typedLists.length);
-  console.log('[StartPage] allSummaries count:', typedSummaries.length);
-  console.log('[StartPage] combinedItems count:', combinedItems.length);
-  if (combinedItems.length > 0) {
-    console.log('[StartPage] First combined item sample:', JSON.stringify(combinedItems[0], null, 2));
-  }
 
   return (
     <>
@@ -266,11 +257,7 @@ export default async function Start() {
             {combinedItems.length > 0 && (
               <>
                 {combinedItems.map((item: any, index: number) => {
-                  console.log(`[StartPage] Processing item ${index}, type: ${item.type}, id: ${item.list_id}, name: ${item.name}, creator: ${item.creator}`);
                   if (item.type === 'list') {
-                    const viewListHref = `/learn/viewlist/${item.list_id}`;
-                    const editListHref = `/learn/editlist/${item.list_id}`;
-                    console.log(`[StartPage] List item '${item.name}': viewHref: ${viewListHref}, editHref: ${editListHref}, deleteId: ${item.list_id}`);
                     return (
                       <div key={item.list_id}>
                         <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
@@ -338,9 +325,6 @@ export default async function Start() {
                       </div>
                     );
                   } else if (item.type === 'summary') {
-                    const viewSummaryHref = `/learn/summary/${item.list_id}`;
-                    const editSummaryHref = `/learn/editsummary/${item.list_id}`;
-                    console.log(`[StartPage] Summary item '${item.name}': viewHref: ${viewSummaryHref}, editHref: ${editSummaryHref}, deleteId: ${item.list_id}`);
                     return (
                       <div key={item.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between">
                         <Link

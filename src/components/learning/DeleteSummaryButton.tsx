@@ -27,7 +27,6 @@ export default function DeleteSummaryButton({ summaryId, customText }: DeleteSum
 
     const handleDelete = useCallback(async () => {
         setIsDeleting(true);
-        console.log('[DeleteSummaryButton] handleDelete called. summaryId:', summaryId, 'pathname:', pathname);
 
         if (!summaryId || typeof summaryId !== 'string' || summaryId.trim() === '') {
             toast.error('Ongeldig samenvatting ID voor verwijdering.');
@@ -41,20 +40,13 @@ export default function DeleteSummaryButton({ summaryId, customText }: DeleteSum
             const result = await deleteSummary(summaryId);
             if (result.success) {
                 toast.success(result.message || 'Samenvatting succesvol verwijderd!');
-                console.log('[DeleteSummaryButton] Deletion successful. Navigating...');
 
                 const onSummaryPage = pathname?.includes(`/learn/summary/${summaryId}`);
                 const onEditSummaryPage = pathname?.includes(`/learn/editsummary/${summaryId}`);
-                console.log(`[DeleteSummaryButton] Current pathname: ${pathname}`);
-                console.log(`[DeleteSummaryButton] summaryId: ${summaryId}`);
-                console.log(`[DeleteSummaryButton] Is on summary page? ${onSummaryPage}`);
-                console.log(`[DeleteSummaryButton] Is on edit summary page? ${onEditSummaryPage}`);
 
                 if (onSummaryPage || onEditSummaryPage) {
-                    console.log('[DeleteSummaryButton] Navigating to /home/start');
                     router.push('/home/start');
                 } else {
-                    console.log('[DeleteSummaryButton] Refreshing current page');
                     router.refresh();
                 }
             } else {
@@ -62,12 +54,10 @@ export default function DeleteSummaryButton({ summaryId, customText }: DeleteSum
                 console.error('[DeleteSummaryButton] Deletion failed:', result.error);
             }
         } catch (error) {
-            console.error('[DeleteSummaryButton] Error calling deleteSummary:', error);
             toast.error('Er is een onverwachte fout opgetreden.');
         } finally {
             setIsDeleting(false);
             setOpen(false);
-            console.log('[DeleteSummaryButton] handleDelete finished.');
         }
     }, [summaryId, router, pathname]);
 
@@ -77,7 +67,6 @@ export default function DeleteSummaryButton({ summaryId, customText }: DeleteSum
                 onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    console.log('[DeleteSummaryButton] Button clicked. summaryId:', summaryId);
                     setOpen(true);
                 }}
                 className="text-red-400 p-2 rounded-full z-10 flex items-center justify-center h-10 w-10 bg-neutral-700 hover:bg-neutral-600 transition-colors"

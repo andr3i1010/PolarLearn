@@ -20,7 +20,6 @@ export async function setupUserDeletionTTLIndex() {
         );
 
         if (ttlIndexExists) {
-            console.log("TTL index for user deletion already exists");
             return;
         }
 
@@ -35,7 +34,6 @@ export async function setupUserDeletionTTLIndex() {
                 }
             ]
         });
-        console.log("TTL index for user account deletion configured successfully");
     } catch (error) {
         console.error("Failed to set up TTL index for user deletion:", error);
     }
@@ -52,7 +50,6 @@ export async function getAccountDeletionDate(): Promise<Date> {
 
 // New function to ensure TTL index exists after Prisma schema push
 export async function ensureUserDeletionTTLIndex() {
-    console.log("Ensuring user deletion TTL index exists...");
     try {
         await setupUserDeletionTTLIndex();
         return true;
@@ -61,11 +58,3 @@ export async function ensureUserDeletionTTLIndex() {
         return false;
     }
 }
-
-// Ensure TTL index is set up on module load
-// This will run automatically when the application starts
-ensureUserDeletionTTLIndex().then(success => {
-    if (success) {
-        console.log("User deletion TTL index is ready");
-    }
-});

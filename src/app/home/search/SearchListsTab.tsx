@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { getSearchResults } from "./getSearchResults";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,6 +30,7 @@ export default function SearchListsTab({
     currentUserName,
     currentUserRole,
 }: SearchListsTabProps) {
+    const router = useRouter();
     const [lists, setLists] = useState(initialLists);
     const [hasMore, setHasMore] = useState(initialLists.length < initialTotal);
     const [userMapById, setUserMapById] = useState(initialUserMapById);
@@ -87,7 +89,10 @@ export default function SearchListsTab({
 
                     return (
                         <div key={list.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                            <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center">
+                            <div
+                                className="flex-1 flex items-center cursor-pointer"
+                                onClick={() => router.push(`/learn/viewlist/${list.list_id}`)}
+                            >
                                 <div className="flex items-center">
                                     {list.subject && (
                                         <Image
@@ -108,7 +113,7 @@ export default function SearchListsTab({
                                         ? "1 woord"
                                         : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
                                 </div>
-                            </Link>
+                            </div>
                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
                                 <ClientCreatorLink
                                     creator={user?.name || list.creator}
@@ -116,11 +121,12 @@ export default function SearchListsTab({
                                 />
                             </div>
                             {(list.creator === currentUserName || currentUserRole === "admin") && (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 relative z-10">
                                     <Link
                                         href={`/learn/editlist/${list.list_id}`}
                                         className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
                                         title="Lijst bewerken"
+                                        onClick={(e) => e.stopPropagation()}
                                     >
                                         <PencilIcon className="h-5 w-5 text-white" />
                                     </Link>

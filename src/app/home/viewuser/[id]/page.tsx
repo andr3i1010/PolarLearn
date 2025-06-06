@@ -104,7 +104,6 @@ export default async function Page({ params }: PageProps) {
       createdAt: "desc"
     }
   })
-  console.log(summaries)
 
   // Get user's groups data for the groups tab
   const userData = await prisma.user.findUnique({

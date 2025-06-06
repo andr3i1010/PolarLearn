@@ -143,7 +143,6 @@ export async function deletePost(postId: string) {
               forumPoints: -10
             }
           });
-          console.log(`Initialized forumPoints for user ${user.id} with -10 (penalty for deleting own post)`);
         } else {
           // Subtract 10 points from existing points
           await prisma.user.update({
@@ -156,7 +155,6 @@ export async function deletePost(postId: string) {
               }
             }
           });
-          console.log(`Subtracted 10 points from user ${user.id} for deleting their own post`);
         }
       }
     } catch (error) {

@@ -36,7 +36,6 @@ export default function DeleteListButton({
 
     // If we're not the creator and not explicitly passing isCreator=true, don't show button
     if (!isCreator) {
-        console.log("Not showing delete button for list:", listId);
         return null;
     }
 

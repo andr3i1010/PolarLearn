@@ -39,6 +39,7 @@ const replyFormSchema = z.object({
 interface EditReplyButtonProps {
     postId: string;
     isCreator: boolean;
+    isAdmin?: boolean;
 }
 
 // Memoized markdown preview component
@@ -77,6 +78,7 @@ const MarkdownPreview = memo(({ content }: { content: string }) => (
 function EditReplyButton({
     postId,
     isCreator,
+    isAdmin = false,
 }: EditReplyButtonProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -117,7 +119,7 @@ function EditReplyButton({
     // Extract content separately to avoid re-rendering the entire form
     const content = form.watch("content");
 
-    if (!isCreator) {
+    if (!isCreator && !isAdmin) {
         return null;
     }
 

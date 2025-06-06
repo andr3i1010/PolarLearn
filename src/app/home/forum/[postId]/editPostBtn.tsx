@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo, useEffect } from "react";
-import { deletePost, updatePost, getPost, checkIsAdmin } from "@/actions/forum";
+import { deletePost, updatePost, getPost } from "@/actions/forum";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -36,6 +36,7 @@ interface EditPostButtonProps {
   postId: string;
   isCreator: boolean;
   isMainPost?: boolean;
+  isAdmin?: boolean;
 }
 
 // Memoized markdown preview component
@@ -75,13 +76,13 @@ function EditPostButton({
   postId,
   isCreator,
   isMainPost = false,
+  isAdmin = false,
 }: EditPostButtonProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   // Initialize form with default empty values
@@ -120,22 +121,6 @@ function EditPostButton({
     }
   }, [postId, form]);
 
-  // Get user role from session when component mounts
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      try {
-        // Call server action to check if user is admin
-        const adminStatus = await checkIsAdmin();
-        setIsAdmin(adminStatus);
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-        setIsAdmin(false);
-      }
-    };
-
-    checkAdminStatus();
-  }, []);
-
   // Extract content separately to avoid re-rendering the entire form
   const content = form.watch("content");
 
@@ -144,7 +129,9 @@ function EditPostButton({
 
   // Simple strict comparison for school category
   const isSchoolCategory = selectedCategory === "school";
-  if (!isCreator) {
+
+  // Only show edit button if user is creator or admin
+  if (!isCreator && !isAdmin) {
     return null;
   }
 

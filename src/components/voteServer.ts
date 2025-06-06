@@ -134,7 +134,6 @@ export default async function VoteServer(postId: string, direction: VoteDirectio
                   forumPoints: pointsDelta // Start with the delta (1 or -1)
                 }
               });
-              console.log(`Initialized forumPoints for user ${creator.id} with value ${pointsDelta}`);
             } else {
               // Normal case: increment existing points
               await prisma.user.update({
