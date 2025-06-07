@@ -9,7 +9,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Import } from "lucide-react";
+import { GripVertical, Import, Plus, Trash2, X } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -45,6 +45,7 @@ import {
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog";
+import Tabs from "@/components/Tabs";
 
 type Pair = {
   id: number;
@@ -78,8 +79,16 @@ function SortableItem({
     position: "relative",
     zIndex: isDragging ? 50 : 10, // significantly lowered z-index to prevent overlap with alerts
   };
+
+  // Extract attributes and override tabIndex to prevent focus
+  const { tabIndex, ...restAttributes } = attributes;
+  const modifiedAttributes = {
+    ...restAttributes,
+    tabIndex: -1, // Override to prevent tab focus on sortable container
+  };
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <div ref={setNodeRef} style={style} {...modifiedAttributes}>
       {children({ dragListeners: listeners })}
     </div>
   );
@@ -109,6 +118,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
   const isEditMode = !!listToEdit;
   const [importText, setImportText] = useState<string>("");
   const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const languageEntries: [ReactNode, string][] = Object.entries(subjectEmojiMap)
     .filter(([key]) => krijgTaalVaken().map(vak => vak.afkorting).includes(key))
@@ -516,6 +526,140 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
     };
   }
 
+  const parseCsv = (csvContent: string): string[][] => {
+    const lines = csvContent.split('\n');
+    const result: string[][] = [];
+
+    for (const line of lines) {
+      if (line.trim() === '') continue;
+
+      const row: string[] = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            // Escaped quote
+            current += '"';
+            i++; // Skip next quote
+          } else {
+            // Toggle quotes
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // End of field
+          row.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+
+      // Add the last field
+      row.push(current.trim());
+
+      if (row.some(cell => cell !== '')) {
+        result.push(row);
+      }
+    }
+
+    return result;
+  };
+
+  const handleCsvImport = useCallback((csvContent: string) => {
+    try {
+      if (!csvContent.trim()) {
+        toast.error("CSV bestand is leeg");
+        return;
+      }
+
+      const csvData = parseCsv(csvContent);
+
+      if (csvData.length === 0) {
+        toast.error("Geen geldige data gevonden in het CSV bestand");
+        return;
+      }
+
+      const newPairs: Pair[] = csvData.map((row, index) => ({
+        id: nextId + index,
+        "1": row[0]?.trim() || '',
+        "2": row[1]?.trim() || ''
+      })).filter(pair => pair["1"] !== '' || pair["2"] !== '');
+
+      if (newPairs.length === 0) {
+        toast.error("Geen geldige items gevonden in het CSV bestand");
+        return;
+      }
+
+      // Add the new pairs to the existing ones
+      setPairs([...pairs, ...newPairs]);
+      setNextId(nextId + newPairs.length);
+      markHasChanges();
+
+      // Close the dialog and reset
+      setImportDialogOpen(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      toast.success(`${newPairs.length} items succesvol geïmporteerd uit CSV`);
+    } catch (error) {
+      console.error("CSV import error:", error);
+      toast.error("Er is een fout opgetreden bij het importeren van het CSV bestand");
+    }
+  }, [nextId, pairs, setPairs, setNextId, markHasChanges, setImportDialogOpen, toast]);
+
+  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      toast.error("Alleen CSV bestanden zijn toegestaan");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      handleCsvImport(content);
+    };
+    reader.onerror = () => {
+      toast.error("Fout bij het lezen van het bestand");
+    };
+    reader.readAsText(file);
+  }, [handleCsvImport, toast]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const files = Array.from(e.dataTransfer.files);
+    const csvFile = files.find(file => file.name.toLowerCase().endsWith('.csv'));
+
+    if (!csvFile) {
+      toast.error("Alleen CSV bestanden zijn toegestaan");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      handleCsvImport(content);
+    };
+    reader.onerror = () => {
+      toast.error("Fout bij het lezen van het bestand");
+    };
+    reader.readAsText(csvFile);
+  }, [handleCsvImport, toast]);
+
   const handleImport = useCallback(() => {
     try {
       if (!importText.trim()) {
@@ -591,21 +735,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
           href="/home/start"
           className="fixed top-4 right-4 z-[150] flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-colors hover:bg-neutral-600 drop-shadow-2xl"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M18 6L6 18M6 6l12 12"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <X />
         </Link>
 
         <div className="h-3" />
@@ -652,39 +782,98 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
               <DialogTrigger asChild>
                 <button
                   className="flex items-center justify-center h-12 w-12 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full transition-all border-2 border-neutral-700 hover:border-neutral-600 hover:scale-110"
-                  title="Lijst importeren"
+                  title="Lijst importeren (tekst of CSV)"
                 >
                   <Import size={20} />
                 </button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>Importeer een lijst</DialogTitle>
                   <DialogDescription>
-                    Plak hier je geïmporteerde lijst. Ondersteunde formaten:
-                    <br />- Elk item op één regel: "woord : vertaling"
-                    <br />- Afwisselende regels: woord en vertaling op aparte regels
-                    <br />Titels en headers worden niet apart verwerkt.
+                    Kies hoe je je lijst wilt importeren:
                   </DialogDescription>
                 </DialogHeader>
-                <div className="mt-4">
-                  <Textarea
-                    value={importText}
-                    onChange={(e) => setImportText(e.target.value)}
-                    placeholder="Format 1 (met scheidingsteken):&#10;woord1 : vertaling1&#10;woord2 : vertaling2&#10;&#10;Format 2 (afwisselende regels):&#10;le dos&#10;de rug&#10;le bras&#10;de arm"
-                    className="resize-none h-40 bg-neutral-800 text-white"
-                  />
-                </div>
+
+                <Tabs
+                  tabs={[
+                    {
+                      id: 'text',
+                      label: 'Tekst plakken',
+                      content: (
+                        <div className="mt-4">
+                          <p className="text-sm text-neutral-400 mb-3">
+                            Ondersteunde formaten:
+                            <br />• Elk item op één regel: "woord : vertaling"
+                            <br />• Afwisselende regels: woord en vertaling op aparte regels
+                          </p>
+                          <Textarea
+                            value={importText}
+                            onChange={(e) => setImportText(e.target.value)}
+                            placeholder="Format 1 (met scheidingsteken):&#10;woord1 : vertaling1&#10;woord2 : vertaling2&#10;&#10;Format 2 (afwisselende regels):&#10;le dos&#10;de rug&#10;le bras&#10;de arm"
+                            className="resize-none h-40 bg-neutral-800 text-white"
+                          />
+                        </div>
+                      )
+                    },
+                    {
+                      id: 'csv',
+                      label: 'CSV bestand',
+                      content: (
+                        <div className="mt-4">
+                          <p className="text-sm text-neutral-400 mb-3">
+                            Upload een CSV bestand met twee kolommen:
+                            <br />• Eerste kolom: woord/begrip
+                            <br />• Tweede kolom: vertaling/uitleg
+                            <br />• Geen headers vereist
+                          </p>
+                          <div
+                            className="border-2 border-dashed border-neutral-600 rounded-lg p-6 text-center hover:border-neutral-500 transition-colors"
+                            onDragOver={handleDragOver}
+                            onDrop={handleDrop}
+                          >
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept=".csv"
+                              onChange={handleFileUpload}
+                              className="hidden"
+                              id="csvFileInput"
+                            />
+                            <label
+                              htmlFor="csvFileInput"
+                              className="cursor-pointer flex flex-col items-center space-y-2"
+                            >
+                              <Import size={24} className="text-neutral-400" />
+                              <span className="text-sm text-neutral-300">
+                                Klik om CSV bestand te selecteren
+                              </span>
+                              <span className="text-xs text-neutral-500">
+                                of sleep bestand hierheen
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      )
+                    }
+                  ]}
+                  defaultActiveTab="text"
+                />
+
                 <div className="flex justify-end mt-4 gap-2">
                   <Button1
                     text="Annuleren"
-                    onClick={() => setImportDialogOpen(false)}
+                    onClick={() => {
+                      setImportDialogOpen(false);
+                      setImportText('');
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                      }
+                    }}
                   />
                   <Button1
                     text="Importeren"
-                    onClick={() => {
-                      handleImport()
-                    }}
+                    onClick={() => handleImport()}
                     icon={<Import size={16} />}
                   />
                 </div>
@@ -735,11 +924,13 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                   style={{ zIndex: 10 }} // significantly lowered z-index to prevent overlap with alerts
+                  tabIndex={-1}
                 >
                   <SortableItem id={pair.id}>
                     {({ dragListeners }) => (
                       <div
                         className="relative flex flex-col bg-neutral-800 shadow-lg rounded-lg transition-all p-4 cursor-default"
+                        tabIndex={-1}
                       >
                         <div className="flex flex-row items-center gap-2">
                           <span className="text-white mr-2 text-xl">{index + 1}</span>
@@ -753,6 +944,8 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                               className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pr-4 text-xl"
                               type="text"
                               placeholder={isLanguage ? "Woord in het " + (krijgVak(vanDropdownRef.current?.getSelectedItem() || "NL")?.naam || "") : "Begrip"}
+                              data-pair-id={pair.id}
+                              data-input-type="1"
                             />
                             <Input
                               value={pair["2"]}
@@ -767,9 +960,33 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                                   });
                                 }
                               }}
+                              onKeyDown={(e) => {
+                                // Check if Tab key is pressed and this is the last input of the last pair
+                                if (e.key === 'Tab' && !e.shiftKey) {
+                                  const isLastPair = index === pairs.length - 1;
+                                  if (isLastPair) {
+                                    e.preventDefault();
+                                    // Add new pair
+                                    const newPair = { id: nextId, "1": '', "2": '' };
+                                    setPairs([...pairs, newPair]);
+                                    setNextId(nextId + 1);
+                                    markHasChanges();
+
+                                    // Focus the first input of the new pair after it's rendered
+                                    setTimeout(() => {
+                                      const newPairInput = document.querySelector(`input[data-pair-id="${nextId}"][data-input-type="1"]`) as HTMLInputElement;
+                                      if (newPairInput) {
+                                        newPairInput.focus();
+                                      }
+                                    }, 0);
+                                  }
+                                }
+                              }}
                               className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
                               type="text"
                               placeholder={isLanguage ? "Vertaling" : "Uitleg van het begrip"}
+                              data-pair-id={pair.id}
+                              data-input-type="2"
                             />
                           </div>
                           <div className="flex flex-col md:flex-row items-center">
@@ -779,55 +996,26 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                               onMouseDown={(e) => (e.currentTarget.style.cursor = "grabbing")}
                               onMouseUp={(e) => (e.currentTarget.style.cursor = "grab")}
                               onMouseLeave={(e) => (e.currentTarget.style.cursor = "grab")}
+                              tabIndex={-1}
                             >
-                              <svg
-                                width="24"
-                                height="24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="flex-shrink-0"
-                              >
-                                <circle cx="5" cy="5" r="2" fill="white" />
-                                <circle cx="5" cy="12" r="2" fill="white" />
-                                <circle cx="5" cy="19" r="2" fill="white" />
-                                <circle cx="12" cy="5" r="2" fill="white" />
-                                <circle cx="12" cy="12" r="2" fill="white" />
-                                <circle cx="12" cy="19" r="2" fill="white" />
-                              </svg>
+                              <GripVertical />
                             </div>
                             <button
                               onClick={() => removePair(pair.id)}
                               className="ml-2 flex-none"
+                              tabIndex={-1}
                             >
-                              <svg
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"
-                                  stroke="#ffffff"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M10 11v6M14 11v6"
-                                  stroke="#ffffff"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
+                              <Trash2 />
                             </button>
                           </div>
                         </div>
                         {translations[pair.id] && selectedPairId === pair.id && selectedInput === 'secondInput' && (
-                          <div className="mt-2 border-t border-neutral-600 pt-2 flex justify-end">
+                          <div
+                            className="mt-2 border-t border-neutral-600 pt-2 flex justify-end"
+                          >
                             <Button1
                               text={translations[pair.id]}
+                              tabIndex={-1}
                               onClick={() => {
                                 setPairs(p => p.map(innerPair =>
                                   innerPair.id === pair.id ? { ...innerPair, "2": translations[pair.id] } : innerPair
@@ -851,29 +1039,7 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
                 onClick={addPair}
                 className="absolute inset-0 flex items-center justify-center gap-2 text-xl"
               >
-                <svg
-                  width="40px"
-                  height="40px"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path
-                      d="M6 12H18M12 6V18"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    ></path>
-                  </g>
-                </svg>
+                <Plus />
                 <span>Nieuw paar</span>
               </button>
             </div>
@@ -886,7 +1052,6 @@ export default function CreateListTool({ listToEdit }: { listToEdit?: ListToEdit
           text={isEditMode ? "Lijst publiceren" : "Lijst publiceren"}
           onClick={publishList}
         />
-        {/* Only keep the debug button if needed during development */}
         {process.env.NODE_ENV === 'development' && (
           <Button1
             text="Log Raw Data"
