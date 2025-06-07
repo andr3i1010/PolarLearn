@@ -8,7 +8,7 @@ We snappen dat AI een makkelijke, snelle manier is om dingen te maken. Maar we v
 
 ## Code stijl
 
-We hebben weinig regels over code stijl maar er is een sterke voorkeur voor het gebruik van Tailwind CSS en je mag ABSOLUUT geen inline CSS gebruiken (bijv: style={{borderRadius: 20}} of import 'style.css', ik denk wel dat je het snapt).
+We hebben weinig regels over code stijl maar er is een sterke voorkeur voor het gebruik van Tailwind CSS en je mag ABSOLUUT geen inline CSS gebruiken (bijv: style={{borderRadius: 20}} of import 'style.css').
 Verder moet je altijd gebruik maken van `Button1` voor knoppen en voor andere componenten bij voorkeur al bestaande componenten gebruiken.
 We gebruiken de volgende Tailwind kleuren in de code:
 
@@ -25,8 +25,9 @@ Als je een bug vindt of een verbetering wilt voorstellen, laat dit dan weten via
 
 ## Pull requests
 
-Submit graag pull requests via Github naar de `beta` branch.
+Submit graag pull requests via Github naar de `stable` branch, behalve als het gaat om een hele nieuwe functie waar we een aparte branch voor hebben, zoals notificaties etc.
 We gaan ervan uit dat je de code in pull requests hebt getest voordat je een pull request maakt.
+Schrijf in het commit-bericht alles wat er toegevoegs/gewijzigd is. 
 
 ## Licentie
 
@@ -34,12 +35,12 @@ Polarlearn is gelicenseerd onder de GNU General Public License v3.0. Dit beteken
 
 ## Contact
 
-Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via Discord. We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
+Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via [Discord]([url](https://discord.gg/TdYzXDzqSB)). We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
 
 ## Dank
 
 Bedankt voor je interesse in Polarlearn! We waarderen erg je enthousiasme en we kijken er naar uit om met je samen te werken!
 
-### verplichte shit om te voorkomen je je ons kan aanklaagen
+### Door iets in te sturen ga je hiermee akkoord:
 
 Wanneer je bijdraagt ​​aan dit project, moet je ermee akkoord gaan dat je 100% van de content hebt geschreven, dat je de benodigde rechten op de content hebt en dat de content die je bijdraagt ​​onder de projectlicentie mag worden verstrekt.
