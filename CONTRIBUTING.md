@@ -25,7 +25,7 @@ Als je een bug vindt of een verbetering wilt voorstellen, laat dit dan weten via
 
 ## Pull requests
 
-Submit graag pull requests via Github naar de `stable` branch, behalve als het gaat om een hele nieuwe functie waar we een aparte branch voor hebben, zoals notificaties etc.
+Submit graag pull requests via Github naar de `beta` branch, behalve als het gaat om een hele nieuwe functie waar we een aparte branch voor hebben, zoals notificaties etc.
 We gaan ervan uit dat je de code in pull requests hebt getest voordat je een pull request maakt.
 Schrijf in het commit-bericht alles wat er toegevoegs/gewijzigd is. 
 
