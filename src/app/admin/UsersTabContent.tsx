@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Jdenticon from "@/components/Jdenticon";
+import SendNotificationButton from "./SendNotificationButton";
 import BanButton from "./banButton";
 import DeleteUserButton from "./DeleteUserButton";
 import ResetPasswordButton from "./ResetPasswordButton";
@@ -81,7 +82,7 @@ export default function UsersTabContent({
                             >
                                 <Link
                                     href={`/home/viewuser/${user.id}`}
-                                    className="inline-block w-full md:w-7/12" // Adjusted width for responsiveness
+                                    className="inline-block w-full md:w-5/12" // Adjusted width for responsiveness
                                 >
                                     <div className="flex items-center cursor-pointer">
                                         <div className="mr-4 flex-shrink-0">
@@ -134,7 +135,7 @@ export default function UsersTabContent({
                                     </div>
                                 </Link>
                                 {user.role !== "admin" && (
-                                    <div className="flex flex-wrap gap-2 mt-2 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2 md:w-5/12 md:justify-end">
+                                    <div className="flex flex-wrap gap-2 mt-2 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2 md:w-7/12 md:justify-end">
                                         {!user.forumAllowed ? (
                                             <BanButton userId={user.id} text="Unban Forum" platform={false} unban={true} />
                                         ) : (
@@ -148,6 +149,7 @@ export default function UsersTabContent({
                                         <ResetPasswordButton userId={user.id} />
                                         <DeleteUserButton userId={user.id} />
                                         <ImpersonateUserButton userId={user.id} userName={user.name} />
+                                        <SendNotificationButton userId={user.id} userName={user.name} />
                                     </div>
                                 )}
                             </div>

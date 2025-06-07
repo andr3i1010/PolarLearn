@@ -81,7 +81,7 @@ export default function SendNotificationButton({ userId, userName }: SendNotific
                                 <SelectTrigger>
                                     <SelectValue placeholder="Kies een icoon" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent position="popper" sideOffset={5} className="z-[150] text-color-white">
                                     <SelectItem value="MessageSquare">Bericht</SelectItem>
                                     <SelectItem value="Bell">Bel</SelectItem>
                                     <SelectItem value="Info">Info</SelectItem>
