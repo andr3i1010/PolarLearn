@@ -14,9 +14,10 @@ import UserListButtons from "@/components/learning/UserListButtons";
 import CreatorLink from "@/components/links/CreatorLink";
 import { addToRecentLists } from "@/utils/actions/updateRecentLists";
 import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
+import { Metadata } from "next";
 
 import Image from "next/image";
-import { icons, getSubjectIcon, getSubjectName } from "@/components/icons";
+import { getSubjectIcon, getSubjectName } from "@/components/icons";
 import learn from '@/app/img/learn.svg';
 import test from '@/app/img/test.svg';
 import hints from '@/app/img/hint.svg';
@@ -53,6 +54,90 @@ function isWordPair(obj: any): obj is WordPair {
 // Helper function to check if array contains WordPair objects
 function isWordPairArray(arr: any[]): arr is WordPair[] {
     return arr.every(item => isWordPair(item));
+}
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+    const { id } = await params;
+
+    try {
+        const listData = await prisma.practice.findFirst({
+            where: {
+                list_id: id
+            },
+            select: {
+                name: true,
+                subject: true,
+                lang_from: true,
+                lang_to: true,
+                data: true,
+                creator: true
+            }
+        });
+
+        if (!listData) {
+            return {
+                title: "Lijst niet gevonden | PolarLearn",
+                description: "De gevraagde woordenlijst kon niet worden gevonden.",
+            };
+        }
+
+        // Get subject name for better display
+        const subjectName = listData.subject ? getSubjectName(listData.subject) : '';
+
+        // Count words in the list
+        let wordCount = 0;
+        if (listData.data) {
+            try {
+                let parsedData: any;
+                if (typeof listData.data === 'string') {
+                    parsedData = JSON.parse(listData.data);
+                } else {
+                    parsedData = listData.data;
+                }
+                if (Array.isArray(parsedData)) {
+                    wordCount = parsedData.length;
+                }
+            } catch (error) {
+                // If parsing fails, default to 0
+                wordCount = 0;
+            }
+        }
+
+        // Create a descriptive title
+        let title = listData.name;
+        if (subjectName) {
+            title += ` | ${subjectName}`;
+        }
+        title += " | PolarLearn";
+
+        // Create description with word count and subject info
+        let description = `Oefen met deze woordenlijst "${listData.name}"`;
+        if (wordCount > 0) {
+            description += ` met ${wordCount} ${wordCount === 1 ? 'woord' : 'woorden'}`;
+        }
+        if (listData.lang_from && listData.lang_to) {
+            const fromLang = getSubjectName(listData.lang_from);
+            const toLang = getSubjectName(listData.lang_to);
+            if (fromLang && toLang) {
+                description += ` (${fromLang} → ${toLang})`;
+            }
+        }
+        description += " op PolarLearn";
+
+        return {
+            title,
+            description: description.substring(0, 160), // Limit for SEO
+        };
+    } catch (error) {
+        return {
+            title: "PolarLearn Woordenlijsten",
+            description: "Oefen met woordenlijsten en verbeter je kennis op PolarLearn",
+        };
+    }
 }
 
 const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) => {
@@ -93,7 +178,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
         listData?.creator === currentUser?.id ||
         currentUser?.role === "admin");
     const isUnpublished = listData?.published === false;
-    
+
     // Use the top-level subject field from the practice model
     const subject = listData?.subject || 'general';
 

@@ -22,6 +22,7 @@ import {
   Megaphone,
 } from "lucide-react";
 import ForumRepliesList from "../ForumRepliesList";
+import { Metadata } from "next";
 
 // UUID validation regex pattern
 const UUID_REGEX =
@@ -30,6 +31,59 @@ const UUID_REGEX =
 // Define the structure for vote data
 interface VoteData {
   users: Record<string, "up" | "down" | null>;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ postId: string }>;
+}): Promise<Metadata> {
+  const { postId } = await params;
+
+  // If postId is actually a tab identifier, return default metadata
+  if (
+    ["questions", "my-questions", "my-answers", "how-the-forum-works"].includes(
+      postId
+    )
+  ) {
+    return {
+      title: "PolarLearn | Forum",
+      description: "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden"
+    };
+  }
+
+  try {
+    const post = await prisma.forum.findUnique({
+      where: {
+        post_id: postId,
+      },
+    });
+
+    if (!post) {
+      return {
+        title: "Post niet gevonden | PolarLearn Forum",
+        description: "De gevraagde forumpost kon niet worden gevonden.",
+      };
+    }
+
+    // Clean the content for description (remove markdown and limit length)
+    const cleanContent = post.content
+      .replace(/[#*`_~\[\]()]/g, "") // Remove markdown characters
+      .replace(/\n+/g, " ") // Replace newlines with spaces
+      .trim()
+      .substring(0, 160); // Limit to 160 characters for SEO
+
+    return {
+      title: `PolarLearn Forum | ${post.title}`,
+      description:
+        cleanContent || "Bekijk deze discussie op het PolarLearn forum",
+    };
+  } catch (error) {
+    return {
+      title: "PolarLearn | Forum",
+      description: "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden"
+    };
+  }
 }
 
 export default async function Page({

@@ -1,6 +1,10 @@
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-// This page now simply redirects to the default tab, as the layout handles the UI.
+export const metadata: Metadata = {
+    title: "PolarLearn | Admin",
+    description: "Beheer van alles en nog wat",
+}
 export default async function AdminPageRedirect() {
     redirect("/admin/gebruikers");
 }

@@ -8,6 +8,12 @@ import { getPosts } from "./getPosts";
 import ForumPostList from "./ForumPostList";
 import MarkdownRenderer from "@/components/md";
 import { cookies } from "next/headers";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "PolarLearn | Forum",
+  description: "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden"
+}
 
 export default async function ForumHome({
   searchParams,

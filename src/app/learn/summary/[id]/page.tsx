@@ -1,8 +1,65 @@
 import { prisma } from "@/utils/prisma"
-import { getSubjectIcon } from "@/components/icons"
+import { getSubjectIcon, getSubjectName } from "@/components/icons"
 import Image from "next/image"
 import MarkdownRenderer from "@/components/md"
 import CreatorLink from "@/components/links/CreatorLink"
+import { Metadata } from "next"
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+    const { id } = await params;
+
+    try {
+        const summary = await prisma.practice.findFirst({
+            where: {
+                mode: "summary",
+                list_id: id
+            },
+            select: {
+                name: true,
+                subject: true,
+                summaryContent: true,
+                creator: true
+            }
+        });
+
+        if (!summary) {
+            return {
+                title: "Samenvatting niet gevonden | PolarLearn",
+                description: "De gevraagde samenvatting kon niet worden gevonden.",
+            };
+        }        // Create title with the specified format
+        const title = `PolarLearn Samenvatting | ${summary.name}`;
+
+        // Create description from truncated summary content
+        let description = "Bekijk deze samenvatting op PolarLearn";
+        if (summary.summaryContent) {
+            // Clean the markdown content for description
+            const cleanContent = summary.summaryContent
+                .replace(/[#*`_~\[\]()]/g, '') // Remove markdown characters
+                .replace(/\n+/g, ' ') // Replace newlines with spaces
+                .trim();
+
+            if (cleanContent) {
+                // Use the cleaned content as description, truncated to fit SEO limits
+                description = cleanContent.substring(0, 160);
+            }
+        }
+
+        return {
+            title,
+            description, // Already truncated to 160 characters
+        };
+    } catch (error) {
+        return {
+            title: "PolarLearn Samenvattingen",
+            description: "Bestudeer samenvattingen en verbeter je kennis op PolarLearn",
+        };
+    }
+}
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params

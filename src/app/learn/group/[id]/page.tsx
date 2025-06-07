@@ -23,6 +23,7 @@ import AddListDialog from "@/components/groups/AddListDialog";
 import Button1 from "@/components/button/Button1";
 import PendingApprovals from "@/components/groups/PendingApprovals";
 import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
+import { Metadata } from "next";
 
 // Add this new function to fetch user details for members
 async function getGroupMembersDetails(memberIds: string[]) {
@@ -401,4 +402,42 @@ export default async function Page({
       )}
     </div>
   )
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string; tab?: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+
+  try {
+    const groupData = await prisma.group.findFirst({
+      where: {
+        groupId: id
+      }
+    });
+
+    if (!groupData) {
+      return {
+        title: "PolarLearn | Groep niet gevonden",
+        description: "De gevraagde groep kon niet worden gevonden.",
+      };
+    }
+
+    // Clean the description for metadata (limit length for SEO)
+    const cleanDescription = groupData.description
+      ? groupData.description.trim().substring(0, 160)
+      : "Bekijk deze groep op PolarLearn.";
+
+    return {
+      title: `PolarLearn Groepen | ${groupData.name}`,
+      description: cleanDescription,
+    };
+  } catch (error) {
+    return {
+      title: "PolarLearn | Groep",
+      description: "Een onbekende fout is opgetreden bij het ophalen van de groepsgegevens.",
+    };
+  }
 }
