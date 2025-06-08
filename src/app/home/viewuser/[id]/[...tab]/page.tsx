@@ -10,6 +10,9 @@ export default async function ViewUserRoute({
     const { id, tab } = await params;
     const selectedTab = tab?.[0] || 'lists'; // Default to 'lists' if no tab is provided
 
-    // Return the page component with the extracted parameters
-    return <ViewUserPage params={Promise.resolve({ id, selectedTab })} />;
+    // Return the page component with the extracted parameters, passing tab as searchParams
+    return <ViewUserPage
+        params={Promise.resolve({ id })}
+        searchParams={Promise.resolve({ tab: selectedTab })}
+    />;
 }

@@ -22,6 +22,7 @@ interface DropdownProps {
   onChange?: (selected: any) => void;
   disabled?: boolean;
   value?: string;
+  zIndex?: number;
 }
 
 export interface DropdownHandle {
@@ -30,7 +31,7 @@ export interface DropdownHandle {
 }
 
 const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
-  ({ text, dropdownMatrix, selectorMode, onChangeSelected, width, onSelect, onChange, disabled, value }, ref) => {
+  ({ text, dropdownMatrix, selectorMode, onChangeSelected, width, onSelect, onChange, disabled, value, zIndex }, ref) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [computedWidth, setComputedWidth] = useState<number>(0);
     const [dropdownHeight, setDropdownHeight] = useState<number>(0);
@@ -119,10 +120,10 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
 
     return (
       <div
-        className={`absolute z-50 ${disabled ? "pointer-events-none opacity-50" : ""}`}
+        className={`absolute [&>*]:z-${zIndex} ${disabled ? "pointer-events-none opacity-50" : ""}`}
       >
         <div
-          className="inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg"
+          className={`inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

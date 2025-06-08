@@ -258,23 +258,13 @@ export default async function SearchResultsComponent({ searchParams, params }: S
         },
     ];
 
-    // Base route for tabs (path only)
-    const baseRoute = `/home/search`;
+    // Determine which tab content to render based on the selected tab
+    const selectedTabContent = tabs.find(tab => tab.id === selectedTab)?.content;
 
-    // Render the results including Tabs
+    // Render just the content for the selected tab (tabs are now in layout)
     return (
         <>
-            <h1 className="text-2xl font-bold px-6 mb-4">
-                Zoekresultaten voor: <span className="text-sky-400">{query}</span>
-            </h1>
-            <div className="pl-4">
-                <Tabs
-                    tabs={tabs}
-                    defaultActiveTab={selectedTab} // Use extracted value
-                    withRoutes={true}
-                    baseRoute={baseRoute}
-                />
-            </div>
+            {selectedTabContent}
             <div className="h-4" />
         </>
     );
