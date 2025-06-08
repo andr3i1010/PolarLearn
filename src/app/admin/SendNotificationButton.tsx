@@ -91,6 +91,7 @@ export default function SendNotificationButton({ userId, userName }: SendNotific
                                     <SelectItem value="Award">Award</SelectItem>
                                     <SelectItem value="Star">Ster</SelectItem>
                                     <SelectItem value="Trash">Prullenbak</SelectItem>
+                                    <SelectItem value="ArrowBigUp">Upvote pijl</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

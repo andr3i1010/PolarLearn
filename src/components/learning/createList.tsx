@@ -136,7 +136,7 @@ export default function CreateListTool({
   const [autosavedListId, setAutosavedListId] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isEditMode = !!listToEdit;
+  const isEditMode = listToEdit;
   const [importText, setImportText] = useState<string>("");
   const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

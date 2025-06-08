@@ -4,6 +4,7 @@ import { prisma } from "@/utils/prisma"
 import { getUserFromSession } from "@/utils/auth/auth"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
+import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
 
 type VoteDirection = "up" | "down" | null
 
@@ -152,6 +153,74 @@ export default async function VoteServer(postId: string, direction: VoteDirectio
       } catch (error) {
         console.error("Error updating forum points:", error);
         // Don't fail the whole operation if points update fails
+      }
+    }
+
+    // Send notification to post creator for upvotes
+    // Only send if: 1) It's an upvote, 2) Not the creator voting on their own post, 3) It's a new upvote or change from downvote to upvote
+    if (post.creator !== user && direction === "up" && currentVote !== "up") {
+      try {
+        // Find the creator to get their ID for notification
+        const creator = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { id: post.creator },
+              { name: post.creator }
+            ]
+          },
+          select: {
+            id: true,
+            name: true
+          }
+        });
+
+        if (creator) {
+          // Get the voter's name for the notification
+          const voter = await prisma.user.findFirst({
+            where: {
+              name: user
+            },
+            select: {
+              name: true
+            }
+          });
+
+          const voterName = voter?.name || user;
+
+          // Determine if this is a question or answer and get the thread title
+          let threadTitle = post.title;
+          let isReply = post.replyTo ? true : false;
+          let postType = isReply ? "antwoord" : "vraag";
+
+          // If it's a reply, get the original post's title
+          if (post.replyTo) {
+            try {
+              const originalPost = await prisma.forum.findFirst({
+                where: {
+                  post_id: post.replyTo
+                },
+                select: {
+                  title: true
+                }
+              });
+              if (originalPost) {
+                threadTitle = originalPost.title;
+              }
+            } catch (error) {
+              console.error("Error fetching original post title:", error);
+              // Fall back to current post title if we can't get the original
+            }
+          }
+
+          await sendNotificationToUser(
+            creator.id,
+            `${voterName} heeft je ${postType} ${isReply ? "op" : ""} "${threadTitle}" geupvote!`,
+            "ArrowBigUp"
+          );
+        }
+      } catch (error) {
+        console.error("Error sending upvote notification:", error);
+        // Don't fail the whole operation if notification fails
       }
     }
 

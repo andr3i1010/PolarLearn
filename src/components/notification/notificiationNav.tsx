@@ -181,6 +181,9 @@ export default function NotificationNav() {
             Star: LucideIcons.Star,
             Trash: LucideIcons.Trash,
             Trash2: LucideIcons.Trash2,
+            ArrowBigUp: LucideIcons.ArrowBigUp,
+            ArrowUp: LucideIcons.ArrowUp,
+            TrendingUp: LucideIcons.TrendingUp,
             // Add more icons as needed
         };
 
