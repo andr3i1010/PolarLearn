@@ -1,12 +1,12 @@
 # Bijdragen aan PolarLearn
 
-We vinden het zeer fijn dat je wilt bijdragen aan PolarLearn! Helaas moet je om te kunnen helpen goed zijn in programmeren met TypeScript en Next.js. Als je dit niet kunt of wilt doen voor PolarLearn, kan je wel helpen door anderen erover te vertellen, ons een ster op GitHub te geven en problemen te rapporteren in de Discord. Hier volgen wat regels voor als je helpt!
+We vinden het zeer fijn dat je wilt bijdragen aan PolarLearn! Helaas moet je om te kunnen helpen goed zijn in programmeren met TypeScript, React en Next.js. Als je dit niet kunt of wilt doen voor PolarLearn, kan je wel helpen door anderen erover te vertellen, ons een ster op GitHub te geven en problemen te rapporteren in de [Discord](https://discord.gg/TdYzXDzqSB) of in de [Issues](https://github.com/polarnl/PolarLearn/issues). Hier volgen wat regels voor als je helpt!
 
 ## AI/Kunstmatige Intelligentie
 
 We snappen dat AI een makkelijke, snelle manier is om dingen te maken. Maar we vinden het belangrijk dat je goed vermeldt als je een functie 'vibe code', omdat we willen dat code die zo gemaakt is extra wordt gecontroleerd. Dit kan je doen door aan het begin van de AI code `// AI CODE START` toe te voegen en aan het einde `// AI CODE END`. Iets is ge'vibe code' als de code óf aangepast is met AI óf gemaakt is met AI. Hieronder valt niet auto-complete van AI of een simpele error fix, bijvoorbeeld een syntax error (**dus niet** een bug die is opgelost met AI). Verder willen wij niet dat je met AI bugreports of feature requests maakt, zodat we zeker weten dat er geen bug requests zijn die gaan over bugs die er niet zijn. Hieronder valt niet het verbeteren van taal of spelling in een bug report door aan een AI te vragen om het te verbeteren.
 
-## Code stijl
+## Codestijl
 
 We hebben weinig regels over code stijl maar er is een sterke voorkeur voor het gebruik van Tailwind CSS en je mag ABSOLUUT geen inline CSS gebruiken (bijv: style={{borderRadius: 20}} of import 'style.css').
 Verder moet je altijd gebruik maken van `Button1` voor knoppen en voor andere componenten bij voorkeur al bestaande componenten gebruiken.
@@ -35,7 +35,7 @@ Polarlearn is gelicenseerd onder de GNU General Public License v3.0. Dit beteken
 
 ## Contact
 
-Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via [Discord]([url](https://discord.gg/TdYzXDzqSB)). We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
+Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via [Discord](https://discord.gg/TdYzXDzqSB). We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
 
 ## Dank
 
