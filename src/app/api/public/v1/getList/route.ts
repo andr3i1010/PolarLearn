@@ -50,7 +50,7 @@ export async function GET(request: Request) {
         data: { limit: bot.limit },
     });
 
-    const id = request.headers.get('Authorization')
+    const id = request.headers.get('List')
     if (!id) {
         return NextResponse.json({ error: 'er is geen lijst id gegeven', status: 400 });
     }

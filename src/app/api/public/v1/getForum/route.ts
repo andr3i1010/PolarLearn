@@ -55,11 +55,11 @@ export async function GET(request: Request) {
         skip = 0
     }
 
-
     const forum = await prisma.forum.findMany({
         where: { type: "thread" },
         orderBy: { createdAt: "desc" },
         skip,
+        take: 10,
     })
     console.log(forum)
     return NextResponse.json({ staat: 'OK', forum }, { status: 200 });
