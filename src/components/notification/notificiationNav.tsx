@@ -229,26 +229,28 @@ export default function NotificationNav() {
                 ) : (
                     <div className="max-h-80 overflow-y-auto">
                         {notifications && Object.keys(notifications).length > 0 ? (
-                            Object.entries(notifications).map(([key, notification]) => (
-                                <div key={key}
-                                    className={`p-3 flex items-center justify-between ${notification.read ? 'text-gray-400' : 'text-white font-medium'} hover:bg-neutral-700 rounded-md transition-colors group cursor-pointer`}
-                                    onClick={() => markAsRead(key)}>
-                                    <div className="flex items-center flex-1">
-                                        {notification.icon && renderIcon(notification.icon)}
-                                        <span className="flex-1">{notification.content}</span>
-                                        {!notification.read && (
-                                            <div className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></div>
-                                        )}
+                            Object.entries(notifications)
+                                .sort(([a], [b]) => parseInt(b) - parseInt(a)) // Sort by timestamp key descending (newest first)
+                                .map(([key, notification]) => (
+                                    <div key={key}
+                                        className={`p-3 flex items-center justify-between ${notification.read ? 'text-gray-400' : 'text-white font-medium'} hover:bg-neutral-700 rounded-md transition-colors group cursor-pointer`}
+                                        onClick={() => markAsRead(key)}>
+                                        <div className="flex items-center flex-1">
+                                            {notification.icon && renderIcon(notification.icon)}
+                                            <span className="flex-1">{notification.content}</span>
+                                            {!notification.read && (
+                                                <div className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></div>
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={(e) => deleteNotification(key, e)}
+                                            className="text-neutral-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            aria-label="Delete notification"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={(e) => deleteNotification(key, e)}
-                                        className="text-neutral-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        aria-label="Delete notification"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            ))
+                                ))
                         ) : (
                             <div className="text-center py-2 text-neutral-500">Je hebt geen meldingen..</div>
                         )}

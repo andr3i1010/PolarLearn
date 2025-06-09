@@ -7,10 +7,8 @@ import Cookies from 'js-cookie';
 
 export function WSProvider({ children }: { children: React.ReactNode }) {
   const [ws, setWs] = useState<WebSocket | null>(null);
-  const path = usePathname();
 
   useEffect(() => {
-    // Only run in browser environment
     if (typeof window !== 'undefined') {
       const baseUrl = `${process.env.NODE_ENV === "production" ? "wss://" : "ws://"}${window.location.host}`;
       const wsUrl = baseUrl + "/api/ws";
@@ -20,24 +18,7 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
         const socket = new WebSocket(wsUrl);
 
         socket.addEventListener("open", () => {
-          console.log("WebSocket connected - authentication handled server-side");
-          attempts = 0; // Reset attempts on successful connection
-        });
-
-        socket.addEventListener("message", (event) => {
-          console.log("WebSocket message received:", event.data);
-          try {
-            const data = JSON.parse(event.data);
-            console.log("Parsed message data:", data);
-            if (data.type === "auth") {
-              console.log("Authentication status:", data.authenticated);
-              if (data.authenticated && data.user) {
-                console.log(`Authenticated as user: ${data.user.email}`);
-              }
-            }
-          } catch (error) {
-            console.error("Error parsing WebSocket message:", error);
-          }
+          attempts = 0;
         });
 
         socket.addEventListener("error", (err) => {

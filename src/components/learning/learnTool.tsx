@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, memo, useEffect } from 'react';
+import { useState, useCallback, useMemo, memo, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { AnimatePresence, motion } from "motion/react";
 import Image from 'next/image';
@@ -284,10 +284,43 @@ const LearnTool = ({
   onWrongAnswer?: () => void;
   onProgressUpdate?: (completed: number, total: number) => void;
 }) => {
-  // Use useCallback for this function since it's used in initialization
-  const shuffleArray = useCallback(<T,>(array: T[]): T[] =>
-    [...array].sort(() => Math.random() - 0.5),
-    []);
+  // Seeded random number generator for deterministic results
+  const seededRandom = useCallback((seed: number) => {
+    let x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }, []);
+
+  // Create a deterministic shuffle based on list content
+  const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
+    if (array.length === 0) return array;
+
+    // Create a seed based on the array content for deterministic results
+    let seed = 0;
+    for (let i = 0; i < array.length; i++) {
+      const item = array[i];
+      if (item && typeof item === 'object') {
+        // Type-safe property access
+        const str = ((item as any).vraag || (item as any)["1"] || "") +
+          ((item as any).antwoord || (item as any)["2"] || "");
+        for (let j = 0; j < str.length; j++) {
+          seed = ((seed << 5) - seed + str.charCodeAt(j)) & 0xffffffff;
+        }
+      } else {
+        const str = String(item || "");
+        for (let j = 0; j < str.length; j++) {
+          seed = ((seed << 5) - seed + str.charCodeAt(j)) & 0xffffffff;
+        }
+      }
+    }
+
+    // Use seeded random for deterministic shuffle
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(seededRandom(seed + i) * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [seededRandom]);
 
   // Use useMemo for initial data processing
   const initialMappedData = useMemo(() => {
@@ -303,12 +336,61 @@ const LearnTool = ({
       .filter(item => item.vraag && item.antwoord);
   }, [rawlistdata]);
 
-  const [lijstData, setLijstData] = useState(() => shuffleArray(initialMappedData));
-  const [lijstDataOud, setLijstDataOud] = useState(() => shuffleArray(initialMappedData));
+  // Initialize data with deterministic values to prevent hydration mismatch
+  const [lijstData, setLijstData] = useState<any[]>(() => {
+    if (!rawlistdata || !Array.isArray(rawlistdata) || rawlistdata.length === 0) {
+      return [];
+    }
+    // Use deterministic shuffling based on content
+    const mappedData = rawlistdata
+      .map(item => ({
+        vraag: item.vraag || item["1"] || "",
+        antwoord: item.antwoord || item["2"] || ""
+      }))
+      .filter(item => item.vraag && item.antwoord);
+
+    // Generate deterministic seed from content
+    let seed = 0;
+    for (const item of mappedData) {
+      const str = (item.vraag || "") + (item.antwoord || "");
+      for (let i = 0; i < str.length; i++) {
+        seed = ((seed << 5) - seed + str.charCodeAt(i)) & 0xffffffff;
+      }
+    }
+
+    // Deterministic shuffle using seeded random
+    const shuffled = [...mappedData];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      let x = Math.sin(seed + i) * 10000;
+      const random = x - Math.floor(x);
+      const j = Math.floor(random * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  });
+
+  const [lijstDataOud, setLijstDataOud] = useState<any[]>(() => lijstData);
   const [userInput, setUserInput] = useState("");
   const [toonAntwoord, setToonAntwoord] = useState(false);
   const [showCorrect, setShowCorrect] = useState(false);
-  const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() * 4) + 1);
+
+  // Initialize random number deterministically
+  const [randomNumber, setRandomNumber] = useState<number>(() => {
+    if (!rawlistdata || !Array.isArray(rawlistdata) || rawlistdata.length === 0) {
+      return 1;
+    }
+    let seed = 0;
+    for (const item of rawlistdata.slice(0, 5)) {
+      const str = ((item.vraag || item["1"]) || "") + ((item.antwoord || item["2"]) || "");
+      for (let i = 0; i < str.length; i++) {
+        seed = ((seed << 5) - seed + str.charCodeAt(i)) & 0xffffffff;
+      }
+    }
+    let x = Math.sin(seed) * 10000;
+    const random = x - Math.floor(x);
+    return Math.floor(random * 4) + 1;
+  });
+
   const [isAnswering, setIsAnswering] = useState(false);
   const [showGedachtenOverlay, setShowGedachtenOverlay] = useState(false);
   const [streakInfo, setStreakInfo] = useState<{ currentStreak: number; isNewStreak: boolean }>({
@@ -322,7 +404,27 @@ const LearnTool = ({
   const [freezeUsed, setFreezeUsed] = useState(false);
   const [locked, setLocked] = useState(false);
 
-  // Use an effect to clear the input field when the current question changes
+  // Generate deterministic random number for multiple choice
+  const generateRandomNumber = useCallback(() => {
+    // Use current question content as seed for consistency
+    let seed = 0;
+    if (lijstData.length > 0) {
+      const currentItem = lijstData[0];
+      const str = (currentItem?.vraag || "") + (currentItem?.antwoord || "");
+      for (let i = 0; i < str.length; i++) {
+        seed = ((seed << 5) - seed + str.charCodeAt(i)) & 0xffffffff;
+      }
+      // Add current list length to vary the seed when questions change
+      seed += lijstData.length;
+    }
+    return Math.floor(seededRandom(seed) * 4) + 1;
+  }, [lijstData, seededRandom]);
+
+  // Refs for input elements to enable autofocus
+  const toetsInputRef = useRef<HTMLInputElement>(null);
+  const hintsInputRef = useRef<HTMLInputElement>(null);
+
+  // Note: No longer needed with SSR-compatible initialization
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
 
   // Watch for changes in the current question and clear input when it changes
@@ -331,13 +433,31 @@ const LearnTool = ({
       setCurrentQuestion(lijstData[0]?.vraag || "");
       setUserInput("");
     }
-  }, [lijstData]);
+  }, [lijstData, currentQuestion]);
 
   // Sync the locked state with overlay visibility
   useEffect(() => {
     const anyOverlayVisible = toonAntwoord || showCorrect || showGedachtenOverlay;
     setLocked(anyOverlayVisible);
   }, [toonAntwoord, showCorrect, showGedachtenOverlay]);
+
+  // Autofocus input when unlocked or when question changes
+  useEffect(() => {
+    if (!locked && lijstData.length > 0) {
+      // Small delay to ensure the component is fully rendered
+      const timer = setTimeout(() => {
+        if (mode === "toets" && toetsInputRef.current) {
+          toetsInputRef.current.focus();
+        } else if (mode === "hints" && hintsInputRef.current) {
+          hintsInputRef.current.focus();
+        }
+      }, 50);
+
+      return () => clearTimeout(timer);
+    }
+  }, [locked, mode, lijstData.length, currentQuestion]);
+
+
 
   // Handle focus and keyboard events when locked
   useEffect(() => {
@@ -347,11 +467,44 @@ const LearnTool = ({
         document.activeElement.blur();
       }
 
-      // Disable keyboard event handling while locked
+      // Handle keyboard events while locked
       const handleKeyDown = (e: KeyboardEvent) => {
-        // Prevent default actions for keyboard events
-        e.preventDefault();
-        e.stopPropagation();
+        // Allow Enter key to dismiss overlays and immediately move to next question
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+
+          // Handle overlays in priority order and immediately progress
+          if (showGedachtenOverlay) {
+            // For gedachten overlay, Enter doesn't dismiss it as user needs to choose yes/no
+            return;
+          } else if (toonAntwoord) {
+            // Handle wrong answer overlay - immediately move question to end
+            setToonAntwoord(false);
+            if (lijstData.length > 0) {
+              const [huidigeVraag, ...rest] = lijstData;
+              setLijstData([...rest, huidigeVraag]);
+              setUserInput("");
+            }
+          } else if (showCorrect) {
+            // Handle correct answer overlay - immediately move to next question
+            setShowCorrect(false);
+            if (lijstData.length > 0) {
+              const [, ...rest] = lijstData;
+              setLijstData(shuffleArray(rest));
+              setUserInput("");
+              // For multiple choice, generate new random number
+              if (mode === "multikeuze") {
+                setRandomNumber(generateRandomNumber());
+                setIsAnswering(false);
+              }
+            }
+          }
+        } else {
+          // Prevent other keyboard actions
+          e.preventDefault();
+          e.stopPropagation();
+        }
       };
 
       // Add a global event listener with capture phase
@@ -361,7 +514,7 @@ const LearnTool = ({
         window.removeEventListener('keydown', handleKeyDown, true);
       };
     }
-  }, [locked]);
+  }, [locked, toonAntwoord, showCorrect, showGedachtenOverlay, lijstData, shuffleArray, setUserInput, mode, generateRandomNumber]);
 
   // Allow keyboard interactions for gedachten overlay
   useEffect(() => {
@@ -436,18 +589,6 @@ const LearnTool = ({
     }
   }, [lijstData.length, initialMappedData.length, onProgressUpdate]);
 
-  const antwoordFoutVolgende = useCallback(() => {
-    if (lijstData.length > 0) {
-      const [huidigeVraag, ...rest] = lijstData;
-      setLijstData([...rest, huidigeVraag]);
-      // Force clear the input field when moving to next question
-      setTimeout(() => {
-        setUserInput("");
-      }, 100);
-    }
-    setToonAntwoord(false);
-  }, [lijstData]);
-
   const handleAntwoordControleren = useCallback(() => {
     // Don't process if locked (overlay is showing) or no input
     if (locked || !lijstData.length || userInput.trim() === "") return;
@@ -479,27 +620,18 @@ const LearnTool = ({
       }
     }
 
-
-
     if (userInputCorrect) {
       setShowCorrect(true);
       if (onCorrectAnswer) onCorrectAnswer();
       updateProgress();
-      setTimeout(() => {
-        setShowCorrect(false);
-        setLijstData(shuffleArray(rest));
-        setUserInput("");
-      }, 2000);
+      // No timeout - let Enter key handle progression
     } else {
       setToonAntwoord(true);
       if (onWrongAnswer) onWrongAnswer();
       updateProgress();
-      setTimeout(() => {
-        antwoordFoutVolgende();
-        setUserInput(""); // Clear input after wrong answer too
-      }, 3500); // Increased from 2000 to 3500ms for incorrect answers
+      // No timeout - let Enter key handle progression
     }
-  }, [lijstData, userInput, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress, locked]);
+  }, [lijstData, userInput, onCorrectAnswer, onWrongAnswer, updateProgress, locked]);
 
   // Renamed from handleAntwoordControlerenGedachten
   const handleSelfAssessment = useCallback((isAntwoordCorrect: boolean) => {
@@ -534,28 +666,19 @@ const LearnTool = ({
   const handleAntwoordmultikeuze = useCallback((isAntwoordCorrect: boolean) => {
     if (!lijstData.length || isAnswering || locked) return;
     setIsAnswering(true);
-    const [huidigeVraag, ...rest] = lijstData;
+
     if (isAntwoordCorrect) {
       setShowCorrect(true);
       if (onCorrectAnswer) onCorrectAnswer();
       updateProgress();
-      setTimeout(() => {
-        setShowCorrect(false);
-        setLijstData(shuffleArray(rest));
-        setRandomNumber(Math.floor(Math.random() * 4) + 1);
-        setIsAnswering(false);
-      }, 2000);
+      // No timeout - let Enter key handle progression
     } else {
       setToonAntwoord(true);
       if (onWrongAnswer) onWrongAnswer();
       updateProgress();
-      setTimeout(() => {
-        antwoordFoutVolgende();
-        setRandomNumber(Math.floor(Math.random() * 4) + 1);
-        setIsAnswering(false);
-      }, 3500); // Increased from 2000 to 3500ms for incorrect answers
+      // No timeout - let Enter key handle progression
     }
-  }, [lijstData, isAnswering, shuffleArray, antwoordFoutVolgende, onCorrectAnswer, onWrongAnswer, updateProgress, locked]);
+  }, [lijstData, isAnswering, onCorrectAnswer, onWrongAnswer, updateProgress, locked]);
 
   // Handle showing the answer in gedachten mode
   const handleShowGedachtenAnswer = useCallback(() => {
@@ -573,22 +696,29 @@ const LearnTool = ({
       return "Optie";
     }
 
+    // Generate deterministic seed for wrong option selection
+    let seed = buttonNumber * 1000; // Base seed on button number
+    const str = correctAnswer;
+    for (let i = 0; i < str.length; i++) {
+      seed = ((seed << 5) - seed + str.charCodeAt(i)) & 0xffffffff;
+    }
+
     let attempts = 0;
     let randomAnswer = "";
 
     do {
       if (attempts > 10) {
-        const randomIndex = Math.floor(Math.random() * lijstDataOud.length);
+        const randomIndex = Math.floor(seededRandom(seed + attempts) * lijstDataOud.length);
         return lijstDataOud[randomIndex]?.antwoord || "Optie";
       }
 
       attempts++;
-      const randomIndex = Math.floor(Math.random() * lijstDataOud.length);
+      const randomIndex = Math.floor(seededRandom(seed + attempts) * lijstDataOud.length);
       randomAnswer = lijstDataOud[randomIndex]?.antwoord || "";
     } while (randomAnswer.toLowerCase() === correctAnswer.toLowerCase() || randomAnswer === "");
 
     return randomAnswer;
-  }, [randomNumber, lijstDataOud]);
+  }, [randomNumber, lijstDataOud, seededRandom]);
 
   return (
     <div className="bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-[60vh] rounded-lg flex flex-col justify-center overflow-hidden p-4">
@@ -629,13 +759,15 @@ const LearnTool = ({
           <div className='space-x-2 mt-4'>
             <Button1 onClick={() => {
               setLijstData(shuffleArray(initialMappedData));
+              // Generate new deterministic random number
+              setRandomNumber(generateRandomNumber());
               setListCompleted(false);
               setStreakUpdated(false);
               setStreakStarted(false);
               setFreezeAwarded(false);
               setFreezeUsed(false);
             }} text="Opnieuw beginnen" className="mt-4" />
-            <Button1 text={"Terug naar home "} redirectTo='/home/start' useClNav={true} />
+            <Button1 text={"Terug naar home"} redirectTo='/home/start' useClNav={true} />
           </div>
         </div>
       ) : lijstData.length > 0 ? (
@@ -645,6 +777,7 @@ const LearnTool = ({
           {mode === "toets" && (
             <div className="w-full max-w-md">
               <Input
+                ref={toetsInputRef}
                 type="text"
                 value={userInput}
                 onChange={(e) => !locked && setUserInput(e.target.value)}
@@ -711,6 +844,7 @@ const LearnTool = ({
                 <span className="font-extrabold break-words whitespace-pre-wrap">Hint: {getHint(lijstData[0]?.antwoord || "")}</span>
               </div>
               <Input
+                ref={hintsInputRef}
                 type="text"
                 value={userInput}
                 onChange={(e) => !locked && setUserInput(e.target.value)}
