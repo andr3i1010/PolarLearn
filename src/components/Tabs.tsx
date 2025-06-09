@@ -16,6 +16,7 @@ interface TabsProps {
     baseRoute?: string;
     currentQuery?: string;
     renderContent?: boolean; // New prop
+    onTabChange?: (tabId: string) => void; // Add callback for tab changes
 }
 
 // Memoized Tab component for individual tabs
@@ -58,6 +59,7 @@ const Tabs = ({
     baseRoute = "",
     currentQuery,
     renderContent = true, // Default to true
+    onTabChange, // Add the callback prop
 }: TabsProps) => {
     const router = useRouter();
     const pathname = usePathname();
@@ -215,6 +217,11 @@ const Tabs = ({
         setActiveTabId(tabId);
         positionIndicator(tabId, true);
 
+        // Call the callback if provided
+        if (onTabChange) {
+            onTabChange(tabId);
+        }
+
         if (withRoutes) {
             isNavigating.current = true;
             ignorePathChange.current = true;
@@ -233,7 +240,7 @@ const Tabs = ({
                 isNavigating.current = false;
             }, 50);
         }
-    }, [activeTabId, withRoutes, baseRoute, router, positionIndicator, searchParams, currentQuery]);
+    }, [activeTabId, withRoutes, baseRoute, router, positionIndicator, searchParams, currentQuery, onTabChange]);
 
     const activeTab = tabs.find(tab => tab.id === activeTabId);
 

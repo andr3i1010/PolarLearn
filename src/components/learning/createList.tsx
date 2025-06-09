@@ -141,6 +141,7 @@ export default function CreateListTool({
   const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [autotranslateEnabled, setAutotranslateEnabled] = useState<boolean>(false);
+  const [activeImportTab, setActiveImportTab] = useState<string>("text");
 
   const languageEntries: [ReactNode, string][] = Object.entries(subjectEmojiMap)
     .filter(([key]) =>
@@ -808,6 +809,7 @@ export default function CreateListTool({
 
         // Close the dialog and reset
         setImportDialogOpen(false);
+        setActiveImportTab("text"); // Reset to default tab
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -952,6 +954,7 @@ export default function CreateListTool({
       // Close the dialog and reset the input
       setImportDialogOpen(false);
       setImportText("");
+      setActiveImportTab("text"); // Reset to default tab
 
       toast.success(`${newPairs.length} items succesvol geïmporteerd`);
     } catch (error) {
@@ -998,8 +1001,8 @@ export default function CreateListTool({
             </span>
           )}
         </div>
-        <form className="relative z-[200]">
-          <div className="flex flex-row gap-4 z-[200]">
+        <form className="relative">
+          <div className="flex flex-row gap-4">
             <Dropdown
               ref={dropdownRef}
               text="Kies een vak"
@@ -1012,7 +1015,7 @@ export default function CreateListTool({
                 setSelectedSubject(selected);
                 setSelectedLanguage(selected.id);
               }}
-              zIndex={200}
+              zIndex={50}
             />
           </div>
           <div className="mt-16 flex items-center gap-3">
@@ -1107,8 +1110,19 @@ export default function CreateListTool({
                         </div>
                       ),
                     },
+                    {
+                      id: "sg",
+                      label: "StudyGo",
+                      content: (
+                        <div>
+                          <p className="text-xl font-bold">Helaas kunnen wij door copyright-gerelateerde redenen deze functie niet maken.</p>
+                          Hoewel, je kan op de print pagina van een lijst alles uit kopieren en dan het plakken in de tekstvan van de "Tekst plakken" tab.
+                        </div>
+                      )
+                    }
                   ]}
                   defaultActiveTab="text"
+                  onTabChange={(tabId) => setActiveImportTab(tabId)}
                 />
 
                 <div className="flex justify-end mt-4 gap-2">
@@ -1117,6 +1131,7 @@ export default function CreateListTool({
                     onClick={() => {
                       setImportDialogOpen(false);
                       setImportText("");
+                      setActiveImportTab("text"); // Reset to default tab
                       if (fileInputRef.current) {
                         fileInputRef.current.value = "";
                       }
@@ -1126,6 +1141,7 @@ export default function CreateListTool({
                     text="Importeren"
                     onClick={() => handleImport()}
                     icon={<Import size={16} />}
+                    disabled={activeImportTab === "sg"}
                   />
                 </div>
               </DialogContent>
@@ -1133,7 +1149,7 @@ export default function CreateListTool({
           </div>
 
           <div className="mt-4 flex justify-center gap-4">
-            <div className="w-1/2 z-[200] md:ml-52">
+            <div className="w-1/2 md:ml-52">
               <Dropdown
                 ref={vanDropdownRef}
                 text="Van.."
@@ -1141,15 +1157,17 @@ export default function CreateListTool({
                 dropdownMatrix={languageEntries}
                 selectorMode={true}
                 onChange={(selected) => setSelectedTaal(selected)}
+                zIndex={50}
               />
             </div>
-            <div className="w-1/2 md:pl-28 z-[200]">
+            <div className="w-1/2 md:pl-28">
               <Dropdown
                 ref={naarDropdownRef}
                 text="Naar.."
                 width={200}
                 dropdownMatrix={languageEntries}
                 selectorMode={true}
+                zIndex={50}
               />
             </div>
           </div>
