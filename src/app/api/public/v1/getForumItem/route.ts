@@ -20,12 +20,7 @@ export async function GET(request: Request) {
     if (bot.resetToken && bot.resetToken < new Date()) {
         return NextResponse.json({ error: 'Token is verlopen, vraag een nieuwe aan' }, { status: 401 });
     }
-    if (!bot) {
-        return NextResponse.json({ error: 'Bot niet gevonden of token ongeldig' }, { status: 404 });
-    }
-    if (bot.resetToken && bot.resetToken < new Date()) {
-        return NextResponse.json({ error: 'Token is verlopen, vraag een nieuwe aan' }, { status: 401 });
-    }
+// Removed redundant bot validity checks as they are already handled earlier in the function.
     // Set initial reset limit if it doesn't exist or has expired
     const currentTime = new Date();
     if (!bot.resetLimit || bot.resetLimit < currentTime) {
