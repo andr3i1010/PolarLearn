@@ -11,70 +11,73 @@ import ImpersonationCheck from "@/components/ImpersonationCheck";
 import ImpersonationStyles from "@/components/ImpersonationStyles";
 import React from "react";
 import { ViewTransitions } from "next-view-transitions";
+import { cookies } from "next/headers";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
-export const metadata: Metadata = {
-  title: "PolarLearn",
-  description:
-    "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door studenten.",
-  authors: [
-    { name: "andrei1010", url: "https://andrei1010.me" },
-    { name: "supersiem", url: "https://siemvk.nl/" },
-  ],
-  icons: [
-    {
-      url: `${process.env.NEXT_PUBLIC_URL}/icon.png`,
-      type: "image/png",
-      rel: "icon",
-    },
-  ],
-  keywords: [
-    "PolarLearn",
-    "Leerprogramma",
-    "StudyGo",
-    "leren",
-    "studeren",
-    "studie",
-    "school",
-    "studenten",
-    "gratis",
-    "open-source",
-  ],
-  creator: "andrei1010",
-  openGraph: {
-    type: "website",
-    locale: "nl_NL",
-    url: "https://polarlearn.tech",
-    title: "PolarLearn",
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const hasSG = cookieStore.has("SG");
+  return {
+    title: hasSG ? "Studygo" : "PolarLearn",
     description:
       "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door studenten.",
-    siteName: "PolarLearn",
-    images: [
+    authors: [
+      { name: "andrei1010", url: "https://andrei1010.me" },
+      { name: "supersiem", url: "https://siemvk.nl/" },
+    ],
+    icons: [
       {
-        url: `${process.env.NEXT_PUBLIC_URL}/banner.png`,
-        width: 1200,
-        height: 630,
-        alt: "PolarLearn banner dingo",
+        url: hasSG ? `${process.env.NEXT_PUBLIC_URL}/icon.png` : `${process.env.NEXT_PUBLIC_URL}/SG.png`,
+        type: "image/png",
+        rel: "icon",
       },
     ],
-  },
-  manifest: "/manifest.json",
-  applicationName: "PolarLearn",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "PolarLearn",
-  },
-  formatDetection: {
-    telephone: false,
-  },
-};
-
+    keywords: [
+      "PolarLearn",
+      "Leerprogramma",
+      "StudyGo",
+      "leren",
+      "studeren",
+      "studie",
+      "school",
+      "studenten",
+      "gratis",
+      "open-source",
+    ],
+    creator: "andrei1010",
+    openGraph: {
+      type: "website",
+      locale: "nl_NL",
+      url: "https://polarlearn.tech",
+      title: "PolarLearn",
+      description:
+        "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door studenten.",
+      siteName: "PolarLearn",
+      images: [
+        {
+          url: `${process.env.NEXT_PUBLIC_URL}/banner.png`,
+          width: 1200,
+          height: 630,
+          alt: "PolarLearn banner dingo",
+        },
+      ],
+    },
+    manifest: "/manifest.json",
+    applicationName: "PolarLearn",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black-translucent",
+      title: "PolarLearn",
+    },
+    formatDetection: {
+      telephone: false,
+    },
+  };
+}
 export const viewport = {
   themeColor: "#38bdf8",
   width: "device-width",
