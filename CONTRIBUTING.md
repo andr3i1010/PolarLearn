@@ -37,6 +37,10 @@ Polarlearn is gelicenseerd onder de GNU General Public License v3.0. Dit beteken
 
 Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via [Discord](https://discord.gg/TdYzXDzqSB). We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
 
+## Bij het project team komen
+
+Je wordt vanzelf uitgenodigd voor het projectteam als je actief bent in de [Discord](https://discord.gg/TdYzXDzqSB) en code toevoegt.
+
 ## Dank
 
 Bedankt voor je interesse in Polarlearn! We waarderen erg je enthousiasme en we kijken er naar uit om met je samen te werken!
