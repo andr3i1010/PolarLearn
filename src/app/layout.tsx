@@ -31,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ],
     icons: [
       {
-        url: hasSG ? `${process.env.NEXT_PUBLIC_URL}/icon.png` : `${process.env.NEXT_PUBLIC_URL}/SG.png`,
+        url: hasSG ? `${process.env.NEXT_PUBLIC_URL}/SG.png` : `${process.env.NEXT_PUBLIC_URL}/icon.png`,
         type: "image/png",
         rel: "icon",
       },
