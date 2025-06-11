@@ -14,14 +14,12 @@ export default function ForumHeaderTabs({ tabs, defaultTab, baseRoute, banned }:
     const pathname = usePathname() || "";
     const segments = pathname.split('/');
     const segment = segments[3] || ""; // after /home/forum
-
-    // Determine which tab to activate based on URL or fallback to default
-    const urlTab = tabs.some(tab => tab.id === segment) ? segment : defaultTab;
-    // Show header and tabs only on valid tab routes or root forum
-    const isTabRoute = urlTab !== undefined;
-    if (!isTabRoute) {
+    // Only render header on recognized tab routes or the root forum path
+    const allowedTabs = tabs.map(tab => tab.id);
+    if (segment !== "" && !allowedTabs.includes(segment)) {
         return null;
     }
+    const urlTab = segment || defaultTab;
 
     return (
         <>

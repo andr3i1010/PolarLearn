@@ -516,6 +516,41 @@ const LearnTool = ({
     }
   }, [locked, toonAntwoord, showCorrect, showGedachtenOverlay, lijstData, shuffleArray, setUserInput, mode, generateRandomNumber]);
 
+  // Auto-dismiss correct overlay after 1 second
+  useEffect(() => {
+    if (showCorrect) {
+      const timer = setTimeout(() => {
+        setShowCorrect(false);
+        if (lijstData.length > 0) {
+          const [, ...rest] = lijstData;
+          const nextList = shuffleArray(rest);
+          setLijstData(nextList);
+          setUserInput("");
+          if (mode === "multikeuze") {
+            setRandomNumber(generateRandomNumber());
+            setIsAnswering(false);
+          }
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [showCorrect, lijstData, shuffleArray, generateRandomNumber, mode]);
+
+  // Auto-dismiss incorrect overlay after 5 seconds
+  useEffect(() => {
+    if (toonAntwoord) {
+      const timer = setTimeout(() => {
+        setToonAntwoord(false);
+        if (lijstData.length > 0) {
+          const [current, ...rest] = lijstData;
+          setLijstData([...rest, current]);
+          setUserInput("");
+        }
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [toonAntwoord, lijstData]);
+
   // Allow keyboard interactions for gedachten overlay
   useEffect(() => {
     if (showGedachtenOverlay) {
