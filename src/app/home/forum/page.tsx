@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import Tabs, { TabItem } from "@/components/Tabs";
 import { prisma } from "@/utils/prisma";
 import ForumDialog from "./ForumDialog";
 import { getUserFromSession } from "@/utils/auth/auth";
@@ -47,7 +46,7 @@ export default async function ForumHome({
   );
 
   // Define tabs for the forum page
-  const tabs: TabItem[] = [
+  const tabs = [
     {
       id: "questions",
       label: "Alle vragen",
@@ -199,25 +198,10 @@ Veel leerplezier! 🚀
     baseRoute = "/home/forum";
   }
 
+  // Render only the active tab's content; header and tabs handled in layout
   return (
-    <>
-      <div className="py-6 px-6">
-        <div className="flex items-center">
-          <h1 className="text-4xl font-extrabold mb-4">Forum</h1>
-          <div className="flex-grow"></div>
-          <ForumDialog
-            banned={banned}
-            banreason={user?.forumBanReason}
-            banEnd={user?.forumBanEnd}
-          />
-        </div>
-        <Tabs
-          tabs={tabs}
-          defaultActiveTab={defaultActiveTab}
-          withRoutes={true}
-          baseRoute={baseRoute}
-        />
-      </div>
-    </>
+    <div className="px-6">
+      {tabs.find((tab) => tab.id === defaultActiveTab)?.content}
+    </div>
   );
 }

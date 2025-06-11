@@ -21,12 +21,33 @@ export async function getPosts(tab: TabType, skip: number, take: number) {
   try {
     switch (tab) {
       case "questions":
-        // Fetch current page posts and total count concurrently
-        [posts, total] = await Promise.all([
+        // Always fetch pinned threads and paginated non-pinned threads
+        const pinnedPosts = await prisma.forum.findMany({
+          where: { type: "thread", pinned: true },
+          orderBy: { createdAt: "desc" },
+          select: {
+            post_id: true,
+            title: true,
+            content: true,
+            creator: true,
+            createdAt: true,
+            subject: true,
+            category: true,
+            votes: true,
+            pinned: true,
+            type: true,
+            votes_data: true,
+          }
+        });
+        const pinnedCount = pinnedPosts.length;
+        // Calculate skip for non-pinned threads
+        const nonPinnedSkip = Math.max(0, skip - pinnedCount);
+        // Fetch paginated non-pinned threads and total thread count concurrently
+        const [nonPinnedPosts, totalThreads] = await Promise.all([
           prisma.forum.findMany({
-            where: { type: "thread" },
+            where: { type: "thread", pinned: false },
             orderBy: { createdAt: "desc" },
-            skip,
+            skip: nonPinnedSkip,
             take,
             select: {
               post_id: true,
@@ -42,10 +63,11 @@ export async function getPosts(tab: TabType, skip: number, take: number) {
               votes_data: true,
             }
           }),
-          prisma.forum.count({
-            where: { type: "thread" },
-          }),
+          prisma.forum.count({ where: { type: "thread" } }),
         ]);
+        // Combine pinned posts on the first page only
+        posts = skip === 0 ? [...pinnedPosts, ...nonPinnedPosts] : nonPinnedPosts;
+        total = totalThreads;
         break;
 
       case "my-questions":

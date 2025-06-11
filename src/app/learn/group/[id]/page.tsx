@@ -14,8 +14,6 @@ import { AlertTriangle } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
-import JoinGroupButton from "@/components/groups/JoinGroupButton";
-import LeaveGroupButton from "@/components/groups/LeaveGroupButton"; // Added import
 
 import { getSubjectIcon } from "@/components/icons"
 import DeleteListButton from "@/components/learning/DeleteListButton";
@@ -94,6 +92,7 @@ export default async function Page({
   const isCreator = groupData?.creator === currentUserId || groupData?.creator === currentUserName;
   const isAdmin = Array.isArray(groupData?.admins) ?
     groupData.admins.includes(currentUserId) : false;
+  const isPlatformAdmin = currentUser.role === 'admin';
 
   // Check membership based on either ID or name to handle different storage formats
   const isMember = members.includes(currentUserId) ||
@@ -112,7 +111,7 @@ export default async function Page({
 
   // Fetch pending approval requests
   let pendingRequests = [];
-  if (isAdmin || isCreator || currentUser?.role === "admin") {
+  if (isAdmin || isCreator || isPlatformAdmin) {
     const pendingResult = await getPendingApprovals(id);
     if (pendingResult.success && pendingResult.pendingApprovals) {
       pendingRequests = pendingResult.pendingApprovals;
@@ -221,7 +220,7 @@ export default async function Page({
       content: (
         <div className="mt-4 p-4">
           {/* Approval Requests Section - Only visible to admins */}
-          {(isAdmin || isCreator || currentUser?.role === "admin") && (
+          {(isAdmin || isCreator || isPlatformAdmin) && (
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-4 flex items-center">
                 Openstaande verzoeken
@@ -358,50 +357,20 @@ export default async function Page({
     }] : []),
   ];
 
-  return (
-    <div className="flex flex-col p-4">
-      <section className="flex flex-col">
-        <div className="flex flex-row space-x-2 items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Jdenticon value={groupData?.name as string} size={70} />
-            <h1 className="font-extrabold text-4xl">{groupData?.name}</h1>
-          </div>
-
-          {/* Add join button for non-members */}
-          {currentUser && !isMember && (
-            <JoinGroupButton
-              groupId={id}
-              requiresApproval={groupData?.requiresApproval === true}
-            />
-          )}
-          {/* Add leave button for members (not creators) */}
-          {currentUser && isMember && !isCreator && (
-            <LeaveGroupButton groupId={id} />
-          )}
-        </div>
-        <p className="pl-20">{groupData?.description}</p>
-      </section>
-      <hr className="flex-grow border-neutral-600 mt-2" />
-
-      {/* Add tabs component */}
-      {!(groupData.requiresApproval && !isMember) ? (
-        <div className="mt-4">
-          <Tabs
-            tabs={tabs}
-            defaultActiveTab={tab || "lists"}
-            withRoutes={true}
-            baseRoute={`/learn/group/${id}`}
-          />
-        </div>
-      ) : (
-        <div className="mt-8 text-center text-neutral-400 bg-neutral-800 p-8 rounded-lg">
-          <h2 className="text-xl font-semibold mb-2">Toegang beperkt</h2>
-          <p>De inhoud van deze groep is alleen zichtbaar voor leden.</p>
-          <p>Je verzoek om lid te worden is in behandeling of je moet nog een verzoek indienen.</p>
-        </div>
-      )}
-    </div>
-  )
+  // Render selected tab content
+  const currentTabId = tab || 'lists';
+  // Access control for restricted groups
+  if (groupData.requiresApproval && !isMember) {
+    return (
+      <div className="mt-8 text-center text-neutral-400 bg-neutral-800 p-8 rounded-lg">
+        <h2 className="text-xl font-semibold mb-2">Toegang beperkt</h2>
+        <p>De inhoud van deze groep is alleen zichtbaar voor leden.</p>
+        <p>Je verzoek om lid te worden is in behandeling of je moet nog een verzoek indienen.</p>
+      </div>
+    );
+  }
+  const selectedTab = tabs.find((t) => t.id === currentTabId);
+  return <div className="mt-4 p-4">{selectedTab?.content}</div>;
 }
 
 export async function generateMetadata({

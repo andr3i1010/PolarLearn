@@ -95,7 +95,7 @@ export default function ForumPostList({
   return (
     <div className="rounded-md overflow-hidden">
       <InfiniteScroll
-        dataLength={posts.length}
+        dataLength={sortedPosts.length}
         next={loadMorePosts}
         hasMore={hasMore}
         loader={
