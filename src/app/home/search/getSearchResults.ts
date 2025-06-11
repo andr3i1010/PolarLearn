@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 
 type SearchTabType = "lists" | "forum" | "groups" | "summaries";
 
-export async function getSearchResults(query: string, tab: SearchTabType, skip: number, take: number) {
+export async function getSearchResults(query: string, tab: SearchTabType, skip: number, take: number, category?: string) {
     const session = await getUserFromSession(
         (await cookies()).get("polarlearn.session-id")?.value as string
     );
@@ -59,6 +59,7 @@ export async function getSearchResults(query: string, tab: SearchTabType, skip: 
                     prisma.forum.findMany({
                         where: {
                             type: "thread",
+                            ...(category && { category }),
                             OR: [
                                 { title: { contains: escapedQuery, mode: 'insensitive' } },
                                 { content: { contains: escapedQuery, mode: 'insensitive' } },
@@ -74,6 +75,7 @@ export async function getSearchResults(query: string, tab: SearchTabType, skip: 
                     prisma.forum.count({
                         where: {
                             type: "thread",
+                            ...(category && { category }),
                             OR: [
                                 { title: { contains: escapedQuery, mode: 'insensitive' } },
                                 { content: { contains: escapedQuery, mode: 'insensitive' } },
@@ -164,7 +166,7 @@ export async function getSearchResults(query: string, tab: SearchTabType, skip: 
 
         creatorIds = [
             ...new Set(
-            results.filter((item: any) => "creator" in item).map((item: any) => item.creator)
+                results.filter((item: any) => "creator" in item).map((item: any) => item.creator)
             ),
         ];
 

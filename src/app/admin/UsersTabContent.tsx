@@ -134,24 +134,22 @@ export default function UsersTabContent({
                                         </div>
                                     </div>
                                 </Link>
-                                {user.role !== "admin" && (
-                                    <div className="flex flex-wrap gap-2 mt-2 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2 md:w-7/12 md:justify-end">
-                                        {!user.forumAllowed ? (
-                                            <BanButton userId={user.id} text="Unban Forum" platform={false} unban={true} />
-                                        ) : (
-                                            <BanButton userId={user.id} text="Ban Forum" platform={false} unban={false} />
-                                        )}
-                                        {!user.loginAllowed ? (
-                                            <BanButton userId={user.id} text="Unban Site" platform={true} unban={true} />
-                                        ) : (
-                                            <BanButton userId={user.id} text="Ban Site" platform={true} unban={false} />
-                                        )}
-                                        <ResetPasswordButton userId={user.id} />
-                                        <DeleteUserButton userId={user.id} />
-                                        <ImpersonateUserButton userId={user.id} userName={user.name} />
-                                        <SendNotificationButton userId={user.id} userName={user.name} />
-                                    </div>
-                                )}
+                                <div className="flex flex-wrap gap-2 mt-2 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2 md:w-7/12 md:justify-end">
+                                    {!user.forumAllowed ? (
+                                        <BanButton userId={user.id} text="Unban Forum" platform={false} unban={true} />
+                                    ) : (
+                                        <BanButton userId={user.id} text="Ban Forum" platform={false} unban={false} />
+                                    )}
+                                    {!user.loginAllowed ? (
+                                        <BanButton userId={user.id} text="Unban Site" platform={true} unban={true} />
+                                    ) : (
+                                        <BanButton userId={user.id} text="Ban Site" platform={true} unban={false} />
+                                    )}
+                                    <ResetPasswordButton userId={user.id} />
+                                    <DeleteUserButton userId={user.id} />
+                                    <ImpersonateUserButton userId={user.id} userName={user.name} />
+                                    <SendNotificationButton userId={user.id} userName={user.name} />
+                                </div>
                             </div>
                         ))}
                     </div>

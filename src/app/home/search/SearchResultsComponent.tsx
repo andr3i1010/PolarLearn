@@ -229,7 +229,7 @@ export default async function SearchResultsComponent({ searchParams, params }: S
             id: 'forum',
             label: `Forum (${forumCount})`,
             content: (
-                <div className="mt-4">
+                <div className="mt-4 mx-4">
                     <SearchForumTab
                         query={query}
                         initialPosts={forumPosts}

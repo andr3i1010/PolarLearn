@@ -4,6 +4,9 @@ import { createSession } from "@/utils/auth/session";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
+  const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
+    ? process.env.NEXT_PUBLIC_URL
+    : "http://localhost:3000";
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
 
@@ -15,7 +18,7 @@ export async function GET(request: Request) {
   const tokens = await getGoogleTokens(code);
   const idToken = tokens.id_token;
   if (!idToken) {
-    return new Response("No id_token", { status: 400 });
+    return new Response("geen id_token", { status: 400 });
   }
 
   const payloadBase64Url = idToken.split(".")[1];
@@ -27,7 +30,7 @@ export async function GET(request: Request) {
 
   if (!email) {
     return NextResponse.redirect(
-      new URL("/auth/sign-in?error=oautherror&provider=google", request.url),
+      new URL("/auth/sign-in?error=oautherror&provider=google", baseUrl),
       302
     );
   }
@@ -46,7 +49,7 @@ export async function GET(request: Request) {
 
   if (!user) {
     return NextResponse.redirect(
-      new URL("/auth/sign-in?error=usernotfound&provider=google", request.url),
+      new URL("/auth/sign-in?error=usernotfound&provider=google", baseUrl),
       302
     );
   }
@@ -58,10 +61,6 @@ export async function GET(request: Request) {
       data: { googleOAuthID: googleId },
     });
   }
-
-  const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
-    ? process.env.NEXT_PUBLIC_URL
-    : "http://localhost:3000";
 
   await createSession(user.id);
   return Response.redirect(

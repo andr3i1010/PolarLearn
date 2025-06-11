@@ -1,16 +1,21 @@
 "use client";
 
 import Tabs, { TabItem } from "@/components/Tabs";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
 export default function SearchTabsWrapper() {
     const searchParams = useSearchParams();
-    const query = searchParams.get('q')?.split('/')[0] || '';
+    const pathname = usePathname();
+    const router = useRouter();
+    // `?q=searchTerm`
+    const query = searchParams.get('q') || '';
 
-    // Extract current tab from URL
-    const fullQuery = searchParams.get('q') || '';
-    const parts = fullQuery.split('/');
-    const currentTab = parts.length > 1 ? parts[1] : 'lists';
+    // If there's no search input, don't render header or tabs
+    if (!query.trim()) return null;
+
+    // Derive current tab from the path: /home/search/<tab>
+    const segments = pathname.split('/');
+    const currentTab = segments[segments.length - 1] || 'lists';
 
     const tabsForNav: TabItem[] = [
         {
@@ -43,11 +48,12 @@ export default function SearchTabsWrapper() {
             <div className="pl-4">
                 <Tabs
                     tabs={tabsForNav}
-                    defaultActiveTab={currentTab}
-                    withRoutes={true}
-                    baseRoute="/home/search"
-                    currentQuery={query}
-                    renderContent={false} // Key: This instance won't render content directly
+                    defaultActiveTab={tabsForNav.some(tab => tab.id === currentTab) ? currentTab : 'lists'}
+                    renderContent={false}
+                    withRoutes={false}
+                    onTabChange={(tabId) => {
+                        router.push(`/home/search/${tabId}?q=${encodeURIComponent(query)}`);
+                    }}
                 />
             </div>
         </>
