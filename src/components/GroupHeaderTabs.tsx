@@ -62,7 +62,6 @@ export default function GroupHeaderTabs({
             </div>
             <div className="px-6">
                 <Tabs
-                    key={urlTab}
                     tabs={tabs}
                     defaultActiveTab={urlTab}
                     withRoutes={true}
