@@ -1,0 +1,25 @@
+- [x] Lijsten
+- [x] Forum (Met punten)
+- [x] Reeksen en Bevriezers
+- [x] Toets
+- [x] Hints
+- [x] In Gedachten (Flashcards)
+- [x] Multikeuze
+- [x] Groepen
+- [x] Samenvattingen
+- [x] Beheerders/Leden in Groepen
+- [x] Openbaar/Prive instelling voor Groepen
+- [x] Groepbeschrijving
+- [ ] Groepfoto aanpassen
+- [ ] Licht/Donker Thema
+- [ ] Forums in groepen
+- [ ] Vak en leerjaar gerelateerde groepen
+- [ ] Titels en Prestaties
+- [ ] Profielen aanpassen (Bio, profielfoto, etc.)
+- [ ] LiveQuiz
+- [ ] Accountinstellingen
+- [ ] Meldingen
+- [ ] Quizzen
+- [ ] Mappen
+- [ ] Pomodoro Timer
+- [ ] Spaced Repetition

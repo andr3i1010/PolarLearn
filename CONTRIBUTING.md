@@ -1,125 +1,50 @@
 # Bijdragen aan PolarLearn
 
-Allereerst, bedankt dat u de tijd heeft genomen om bij te dragen!
+We vinden het zeer fijn dat je wilt bijdragen aan PolarLearn! Helaas moet je om te kunnen helpen goed zijn in programmeren met TypeScript, React en Next.js. Als je dit niet kunt of wilt doen voor PolarLearn, kan je wel helpen door anderen erover te vertellen, ons een ster op GitHub te geven en problemen te rapporteren in de [Discord](https://discord.gg/TdYzXDzqSB) of in de [Issues](https://github.com/polarnl/PolarLearn/issues). Hier volgen wat regels voor als je helpt!
 
-Alle soorten bijdragen worden aangemoedigd en gewaardeerd. Zie de [Inhoudsopgave](#inhoudsopgave) voor verschillende manieren om te helpen en details over hoe dit project hiermee omgaat. Zorg ervoor dat u de relevante sectie leest voordat u uw bijdrage levert. Het zal het een stuk makkelijker maken voor ons, de beheerders, en de ervaring voor alle betrokkenen soepeler maken. De community kijkt uit naar uw bijdragen.
+## AI/Kunstmatige Intelligentie
 
-> En als u het project leuk vindt, maar gewoon geen tijd hebt om bij te dragen, is dat prima. Er zijn andere eenvoudige manieren om het project te steunen en je waardering te tonen, waar we ook erg blij mee zouden zijn:
-> - Star PolarLearn
-> - Verwijs naar dit project in de readme van je project
-> - Vermeld het project op lokale bijeenkomsten en vertel het aan je vrienden/collega's
+We snappen dat AI een makkelijke, snelle manier is om dingen te maken. Maar we vinden het belangrijk dat je goed vermeldt als je een functie 'vibe code', omdat we willen dat code die zo gemaakt is extra wordt gecontroleerd. Dit kan je doen door aan het begin van de AI code `// AI CODE START` toe te voegen en aan het einde `// AI CODE END`. Iets is ge'vibe code' als de code óf aangepast is met AI óf gemaakt is met AI. Hieronder valt niet auto-complete van AI of een simpele error fix, bijvoorbeeld een syntax error (**dus niet** een bug die is opgelost met AI). Verder willen wij niet dat je met AI bugreports of feature requests maakt, zodat we zeker weten dat er geen bug requests zijn die gaan over bugs die er niet zijn. Hieronder valt niet het verbeteren van taal of spelling in een bug report door aan een AI te vragen om het te verbeteren.
 
-## Inhoudsopgave
+## Codestijl
 
-- [Gedragscode](#gedragscode)
-- [Ik heb een vraag](#ik-heb-een-vraag)
-- [Ik wil bijdragen](#ik-wil-bijdragen)
-- [Bugs melden](#bugs-melden)
-- [Verbeteringen voorstellen](#verbeteringen-voorstellen)
-- [Je eerste codebijdrage](#je-eerste-codebijdrage)
-- [De documentatie verbeteren](#de-documentatie-verbeteren)
-- [Stijlgidsen](#stijlgidsen)
-- [Commit Berichten](#commit-berichten)
-- [Word lid van het projectteam](#word lid van het projectteam)
+We hebben weinig regels over code stijl maar er is een sterke voorkeur voor het gebruik van Tailwind CSS en je mag ABSOLUUT geen inline CSS gebruiken (bijv: style={{borderRadius: 20}} of import 'style.css').
+Verder moet je altijd gebruik maken van `Button1` voor knoppen en voor andere componenten bij voorkeur al bestaande componenten gebruiken.
+We gebruiken de volgende Tailwind kleuren in de code:
+
+- Voor de gradient, is er een sky-400 (#38bdf8) naar sky-100 (#e0f2fe).
+- De lichtere achtergrondkleur is neutral-700 (#404040), de donkerdere is neutral-800 (#262626)
 
 ## Gedragscode
 
-Dit project en iedereen die eraan deelneemt, vallen onder de
-[Polar Gedragscode](https://github.com/polarnl/PolarLearn/blob/stable/CODE_OF_CONDUCT.md).
-Door deel te nemen, wordt van u verwacht dat u zich aan deze code houdt. Meld onacceptabel gedrag aan `.andrei1010` op discord.
+We verwachten dat je je vriendelijk en respectvol gedraagt tegenover andere bijdragers. We willen een positieve en inclusieve omgeving creëren voor iedereen die bijdraagt aan PolarLearn. Discriminatie, intimidatie of ander ongepast gedrag wordt niet getolereerd en je zult worden verwijderd uit het project en de website.
 
-## Ik heb een vraag
+## Bugs melden en verbeteringen voorstellen
 
-> Als u een vraag wilt stellen, gaan we ervan uit dat u de beschikbare [Documentatie](https://github.com/polarnl/PolarLearn/wiki) hebt gelezen.
+Als je een bug vindt of een verbetering wilt voorstellen, laat dit dan weten via Github issues of als je er toegang toe hebt op Plane. Gebruik hierbij de templates die we hiervoor hebben gemaakt. Gebruik hierbij geen AI om de bug of feature request te maken; spelling en taal laten verbeteren is wel toegestaan.
 
-Voordat u een vraag stelt, kunt u het beste zoeken naar bestaande [Issues](https://github.com/polarnl/PolarLearn/issues) die u kunnen helpen. Als u een geschikt probleem hebt gevonden en nog steeds verduidelijking nodig hebt, kunt u uw vraag in dit probleem schrijven. Het is ook raadzaam om eerst op internet naar antwoorden te zoeken.
+## Pull requests
 
-Als u dan nog steeds de behoefte voelt om een ​​vraag te stellen en verduidelijking nodig hebt, raden we het volgende aan:
+Submit graag pull requests via Github naar de `beta` branch, behalve als het gaat om een hele nieuwe functie waar we een aparte branch voor hebben, zoals notificaties etc.
+We gaan ervan uit dat je de code in pull requests hebt getest voordat je een pull request maakt.
+Schrijf in het commit-bericht alles wat er toegevoegs/gewijzigd is. 
 
-- Open een [Issue](https://github.com/polarnl/PolarLearn/issues).
-- Geef zoveel mogelijk context over waar u tegenaan loopt.
-- Geef project- en platformversies (nodejs, npm, etc.), afhankelijk van wat relevant lijkt.
+## Licentie
 
-We zullen het probleem dan zo snel mogelijk oplossen.
+Polarlearn is gelicenseerd onder de GNU General Public License v3.0. Dit betekent dat je de code mag gebruiken, aanpassen en verspreiden, zolang je de broncode beschikbaar stelt en dezelfde licentie gebruikt voor afgeleide werken. We waarderen het als je je wijzigingen terugstuurt naar het project, zodat anderen er ook gebruik van kunnen maken.
 
-## Ik wil bijdragen
+## Contact
 
-> ### Juridische kennisgeving
-> Wanneer u bijdraagt ​​aan dit project, moet u ermee akkoord gaan dat u 100% van de content hebt geschreven, dat u de benodigde rechten op de content hebt en dat de content die u bijdraagt ​​onder de projectlicentie mag worden verstrekt.
+Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via [Discord](https://discord.gg/TdYzXDzqSB). We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
 
-### Bugs melden
+## Bij het project team komen
 
-#### Voordat u een bugrapport indient
+Je wordt vanzelf uitgenodigd voor het projectteam als je actief bent in de [Discord](https://discord.gg/TdYzXDzqSB) en code toevoegt.
 
-Een goed bugrapport mag er niet toe leiden dat anderen u moeten achtervolgen voor meer informatie. Daarom vragen we u om het zorgvuldig te onderzoeken, informatie te verzamelen en het probleem gedetailleerd te beschrijven in uw rapport. Voltooi de volgende stappen van tevoren om ons te helpen mogelijke bugs zo snel mogelijk op te lossen.
+## Dank
 
-- Zorg ervoor dat u de nieuwste versie gebruikt.
-- Bepaal of uw bug echt een bug is en geen fout van uw kant, bijvoorbeeld door het gebruik van incompatibele omgevingscomponenten/versies (zorg ervoor dat u de [documentatie](https://github.com/polarnl/PolarLearn/wiki) hebt gelezen). Als u op zoek bent naar ondersteuning, kunt u [dit gedeelte](#i-have-a-question)) raadplegen.
-- Om te zien of andere gebruikers hetzelfde probleem hebben ervaren (en mogelijk al hebben opgelost) als u, controleert u of er nog geen bugrapport voor uw bug of fout bestaat in de [bugtracker](issues?q=label%3Abug).
-- Zoek ook op internet (inclusief Stack Overflow) om te zien of gebruikers buiten de GitHub-community het probleem hebben besproken.
-- Verzamel informatie over de bug:
-- Stack trace (Traceback)
-- OS, platform en versie (Windows, Linux, macOS, x86, ARM)
-- Versie van de interpreter, compiler, SDK, runtime-omgeving, pakketbeheerder, afhankelijk van wat relevant lijkt.
-- Mogelijk uw invoer en de uitvoer
-- Kunt u het probleem betrouwbaar reproduceren? En kunt u het ook reproduceren met oudere versies?
+Bedankt voor je interesse in Polarlearn! We waarderen erg je enthousiasme en we kijken er naar uit om met je samen te werken!
 
-#### Hoe dien ik een goed bugrapport in?
+### Door iets in te sturen ga je hiermee akkoord:
 
-> U mag nooit beveiligingsgerelateerde problemen, kwetsbaarheden of bugs, inclusief gevoelige informatie, melden aan de issue tracker of elders in het openbaar. In plaats daarvan moeten gevoelige bugs per e-mail worden verzonden naar .andrei1010 op discord.
-
-We gebruiken GitHub-problemen om bugs en fouten bij te houden. Als u een probleem met het project tegenkomt:
-
-- Open een [Issue](https://github.com/polarnl/PolarLearn/issues). (Aangezien we op dit punt niet zeker kunnen zijn of het een bug is of niet, vragen we u om nog niet over een bug te praten en het probleem niet te labelen.)
-- Leg uit welk gedrag u zou verwachten en wat het daadwerkelijke gedrag is.
-- Geef zoveel mogelijk context en beschrijf de *reproductiestappen* die iemand anders kan volgen om het probleem zelf te reproduceren. Dit omvat meestal uw code. Voor goede bugrapporten moet u het probleem isoleren en een gereduceerde testcase maken.
-- Geef de informatie die u in de vorige sectie hebt verzameld.
-
-Zodra het is ingediend:
-
-- Het projectteam zal de issu dienovereenkomstig.
-- Een teamlid zal proberen het probleem te reproduceren met de stappen die u hebt opgegeven. Als er geen reproductiestappen zijn of geen duidelijke manier om het probleem te reproduceren, zal het team u om die stappen vragen en het probleem markeren als `needs-repro`. Bugs met de tag `needs-repro` worden niet aangepakt totdat ze zijn gereproduceerd.
-- Als het team het probleem kan reproduceren, wordt het gemarkeerd als `needs-fix`, evenals mogelijk andere tags (zoals `critical`), en wordt het probleem overgelaten aan [iemand die het kan implementeren](#your-first-code-contribution).
-
-### Verbeteringen voorstellen
-
-Deze sectie begeleidt u bij het indienen van een verbeteringsvoorstel voor CONTRIBUTING.md, **inclusief volledig nieuwe functies en kleine verbeteringen aan bestaande functionaliteit**. Door deze richtlijnen te volgen, kunnen beheerders en de community uw suggestie begrijpen en gerelateerde suggesties vinden.
-
-#### Voordat u een verbetering indient
-
-- Zorg ervoor dat u de nieuwste versie gebruikt.
-- Lees de [documentatie](https://github.com/polarnl/PolarLearn/wiki) zorgvuldig door en zoek uit of de functionaliteit al is behandeld, bijvoorbeeld door een individuele configuratie.
-- Voer een zoekopdracht uit om te zien of de verbetering al is voorgesteld. Als dat zo is, voeg dan een opmerking toe aan het bestaande probleem in plaats van een nieuw probleem te openen.
-- Zoek uit of je idee past bij de scope en doelstellingen van het project. Het is aan jou om een ​​sterk betoog te houden om de ontwikkelaars van het project te overtuigen van de voordelen van deze functie. Houd er rekening mee dat we functies willen die nuttig zijn voor de meerderheid van onze gebruikers en niet alleen voor een kleine subgroep. Als je je alleen richt op een minderheid van de gebruikers, overweeg dan om een ​​fork/add-on te schrijven.
-
-#### Hoe dien ik een goede verbeteringssuggestie in?
-
-Verbeteringssuggesties worden bijgehouden als [GitHub Issues](https://github.com/polarnl/PolarLearn/issues).
-
-- Gebruik een **duidelijke en beschrijvende titel** voor het probleem om de suggestie te identificeren.
-- Geef een **stapsgewijze beschrijving van de voorgestelde verbetering** in zoveel mogelijk details.
-- **Beschrijf het huidige gedrag** en **leg uit welk gedrag je in plaats daarvan verwachtte te zien** en waarom. Op dit punt kun je ook aangeven welke alternatieven niet voor jou werken.
-- Je kunt **screenshots en geanimeerde GIF's of video's** toevoegen die je helpen de stappen te demonstreren of het onderdeel aanwijzen waar de suggestie betrekking op heeft. Je kunt [deze tool](https://www.cockos.com/licecap/) gebruiken om GIF's op te nemen op macOS en Windows, en [deze tool](https://github.com/colinkeenan/silentcast) of [deze tool](https://github.com/GNOME/byzanz) op Linux.
-- **Leg uit waarom deze verbetering nuttig zou zijn** voor de meeste CONTRIBUTING.md-gebruikers. Je kunt ook wijzen op de andere projecten die het beter hebben opgelost en die als inspiratie kunnen dienen.
-
-### Uw eerste codebijdrage
-
-
-### De documentatie verbeteren
-Open een Pull Request met de verbeterde documentatie.
-
-## Stijlgidsen:
-- Gebruik al de bestaande componenten, die zijn te vinden in `src/components`.
-- Voor de gradient, is er een sky-400 (#38bdf8) naar sky-100 (#e0f2fe).
-- De lichtere achtergrondskleur is neutral-700 (#404040), de donkerdere is neutral-800 (#262626)
-
-### Commit-berichten
-De enige regels voor commits zijn:
- - Onderteken je commits (Kan via GPG, of iets anders.) Zolang er "Verified" staat, is het oke.
- - Schrijf in het commit-bericht alles wat er toegevoegs/gewijzigd is. 
-
-## Word lid van het projectteam
-Contacteer `.andrei1010` op discord
-
-## Toeschrijving
-Deze gids is gebaseerd op **contributing.md**. [Maak uw eigen](https://contributing.md/)!
+Wanneer je bijdraagt ​​aan dit project, moet je ermee akkoord gaan dat je 100% van de content hebt geschreven, dat je de benodigde rechten op de content hebt en dat de content die je bijdraagt ​​onder de projectlicentie mag worden verstrekt.
