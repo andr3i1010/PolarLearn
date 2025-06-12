@@ -33,7 +33,7 @@ export default function ForumHeaderTabs({ tabs, defaultTab, baseRoute, banned }:
             </div>
 
             {/* Tabs bar */}
-            <div className="border-b border-neutral-700 pl-6">
+            <div className="px-6">
                 <Tabs
                     tabs={tabs}
                     defaultActiveTab={urlTab}

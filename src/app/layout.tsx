@@ -124,7 +124,13 @@ export default async function RootLayout({
           <link rel="icon" href="/favicon.png" />
           <link rel="apple-touch-icon" href="/icon-192x192.png" />
         </Head>
-        <body className={`antialiased flex flex-col min-h-screen `}>
+        {/* <head>
+          <script
+            crossOrigin="anonymous"
+            src="//unpkg.com/react-scan/dist/auto.global.js"
+          />
+        </head> */}
+        <body className="antialiased flex flex-col min-h-screen">
           <noscript>
             <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
               <div className="flex flex-col items-center">

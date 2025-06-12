@@ -8,11 +8,11 @@ import { prisma } from "@/utils/prisma";
 
 interface GroupLayoutProps {
     children: ReactNode;
-    params: { id: string; tab?: string };
+    params: Promise<{ id: string; tab?: string }>;
 }
 
 export default async function GroupLayout({ children, params }: GroupLayoutProps) {
-    const { id, tab } = params;
+    const { id, tab } = await params;
     const session = await getUserFromSession(
         (await cookies()).get('polarlearn.session-id')?.value as string
     );

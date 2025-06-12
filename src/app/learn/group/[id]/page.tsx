@@ -139,7 +139,7 @@ export default async function Page({
           </div>
 
           {groupLists.length === 0 ? (
-            <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 rounded-lg h-20 text-center place-items-center grid">
+            <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
               {isMember
                 ? canAddLists
                   ? "Deze groep heeft nog geen lijsten. Voeg een lijst toe om te beginnen."
@@ -150,14 +150,12 @@ export default async function Page({
             <div className="space-y-4">
               {groupLists.map((list) => (
                 <div key={list.list_id}>
-                  <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 rounded-lg min-h-20 h-auto flex items-center justify-between">
-                    <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center">
+                  <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                    <Link href={`${list.mode === "list" ? `/learn/viewlist/${list.list_id}` : `/learn/summary/${list.list_id}`}`} className="flex-1 flex items-center">
                       <div className="flex items-center">
                         {list.subject && (
                           <Image
-                            src={
-                              getSubjectIcon(list.subject)
-                            }
+                            src={getSubjectIcon(list.subject)}
                             alt={`${list.subject} icon`}
                             width={24}
                             height={24}
@@ -175,12 +173,6 @@ export default async function Page({
                             </Badge>
                           )}
                         </span>
-                      </div>
-                      <div className="flex-grow"></div>
-                      <div className="flex items-center pr-2">
-                        {Array.isArray(list.data) && list.data.length === 1
-                          ? "1 woord"
-                          : `${Array.isArray(list.data) ? list.data.length : 0} woorden`}
                       </div>
                     </Link>
 

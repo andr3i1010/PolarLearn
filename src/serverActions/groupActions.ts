@@ -28,7 +28,8 @@ export async function getGroupLists(groupId: string) {
         const lists = await prisma.practice.findMany({
             where: {
                 list_id: { in: listIds }
-            }
+            },
+            orderBy: { createdAt: 'desc' }
         });
 
         return lists;
