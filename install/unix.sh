@@ -211,5 +211,7 @@ echo "  pnpm build"
 echo
 echo "🛑 Stop de database met:"
 echo "  sudo pkill mongod"
+echo "🟩 Of als je systemd gebruikt:"
+echo "  sudo systemctl stop mongod"
 echo
 echo "Veel succes! 🚀"
