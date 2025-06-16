@@ -8,7 +8,7 @@ We snappen dat AI een makkelijke, snelle manier is om dingen te maken. Maar we v
 
 ## Codestijl
 
-We hebben weinig regels over code stijl maar er is een sterke voorkeur voor het gebruik van Tailwind CSS en je mag ABSOLUUT geen inline CSS gebruiken (bijv: style={{borderRadius: 20}} of import 'style.css').
+We hebben weinig regels over code stijl maar er is een sterke voorkeur voor het gebruik van Tailwind CSS en je mag ABSOLUUT geen inline CSS gebruiken (bijv: style={{borderRadius: 20}} of import 'style.css'), tenzij het ECHT niet kan.
 Verder moet je altijd gebruik maken van `Button1` voor knoppen en voor andere componenten bij voorkeur al bestaande componenten gebruiken.
 We gebruiken de volgende Tailwind kleuren in de code:
 
