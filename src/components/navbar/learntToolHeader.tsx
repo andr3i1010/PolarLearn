@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
-import { X, ArrowLeft, Check, X as XIcon } from "lucide-react";
+import { X, ArrowLeft, Check, X as XIcon, Settings } from "lucide-react";
 import Link from "next/link";
 import Dropdown from "@/components/button/DropdownBtn";
 import Image from "next/image";
@@ -14,6 +14,7 @@ import test from "@/app/img/test.svg";
 import hints from "@/app/img/hint.svg";
 import mind from "@/app/img/mind.svg";
 import livequiz from "@/app/img/livequiz.svg";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
 
 interface LearnToolHeaderProps {
     listId: string;
@@ -143,14 +144,6 @@ const LearnToolHeader = ({
             <div className="w-full bg-neutral-800 p-3 flex items-center justify-between sticky top-0 z-100 border-b border-neutral-700">
                 {/* Left side: Method dropdown and back button */}
                 <div className="flex items-center gap-3">
-                    <div className="relative learn-dropdown hidden md:block">
-                        <Dropdown
-                            text={getMethodDisplayText()}
-                            dropdownMatrix={learningMethods}
-                            width={180}
-                        />
-                    </div>
-
                     <Link
                         href={`/learn/viewlist/${listId}`}
                         className="flex items-center bg-neutral-700 hover:bg-neutral-600 transition-colors px-3 py-1 rounded-md"
@@ -163,14 +156,35 @@ const LearnToolHeader = ({
                         {formatTime(seconds)}
                     </div>
                 </div>
+                <div className="learn-dropdown hidden md:block w-45 mx-5">
+                    <Dropdown
+                        text={getMethodDisplayText()}
+                        dropdownMatrix={learningMethods}
+                        width={180}
+                    />
+                </div>
 
-                {/* Middle: Progress bar */}
-                <div className="flex-grow mx-4 max-w-md">
+
+                <div className="flex-grow mr-4">
                     <Progress value={progress} className="h-3 [&>div]:bg-sky-400" />
                 </div>
 
-                {/* Right side: Score and close button */}
                 <div className="flex items-center gap-4">
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <button
+                                className="flex items-center justify-center h-8 w-8 bg-neutral-700 hover:bg-neutral-600 transition-colors rounded-full"
+                            >
+                                <Settings className="h-4 w-4" />
+                            </button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogTitle>Leerinstellingen</DialogTitle>
+                            <div className="p-4">
+                                <p>Settings content will go here</p>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                     <div className="flex items-center gap-3">
                         <span className="flex items-center text-green-500 bg-green-900/30 px-2 py-1 rounded-md">
                             <Check className="h-5 w-5 mr-1" />
@@ -184,7 +198,7 @@ const LearnToolHeader = ({
 
                     <Link
                         href="/home/start"
-                        className="flex items-center justify-center h-8 w-8 bg-neutral-700 hover:bg-neutral-600 transition-colors rounded-full md:block"
+                        className="flex items-center justify-center h-8 w-8 bg-neutral-700 hover:bg-neutral-600 transition-colors rounded-full"
                     >
                         <X className="h-5 w-5" />
                     </Link>
@@ -193,9 +207,10 @@ const LearnToolHeader = ({
 
             <style>{`
         .learn-dropdown > div.absolute {
+          position: fixed !important;
           left: 200px !important;
-          top: -24px !important;
-          z-index: 100;
+          top: 3px !important;
+          z-index: 150;
         }
       `}</style>
         </>

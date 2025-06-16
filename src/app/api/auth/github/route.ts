@@ -7,6 +7,10 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
 
+  const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
+    ? process.env.NEXT_PUBLIC_URL
+    : "http://localhost:3000";
+
   if (!code) {
     const url = await getGithubAuthUrl();
     return Response.redirect(url, 302);
@@ -28,7 +32,7 @@ export async function GET(request: Request) {
       githubProfile.email = email;
     } else {
       return NextResponse.redirect(
-        new URL("/auth/sign-in?error=oautherror&provider=github", request.url),
+        new URL("/auth/sign-in?error=oautherror&provider=github", baseUrl),
         302
       );
     }
@@ -48,7 +52,7 @@ export async function GET(request: Request) {
 
   if (!user) {
     return NextResponse.redirect(
-      new URL("/auth/sign-in?error=usernotfound&provider=github", request.url),
+      new URL("/auth/sign-in?error=usernotfound&provider=github", baseUrl),
       302
     );
   }
@@ -59,11 +63,6 @@ export async function GET(request: Request) {
       data: { githubOAuthID: String(githubProfile.id) },
     });
   }
-
-  const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
-    ? process.env.NEXT_PUBLIC_URL
-    : "http://localhost:3000";
-
   await createSession(user.id);
   return Response.redirect(
     new URL("/home/start", baseUrl),

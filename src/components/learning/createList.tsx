@@ -137,6 +137,10 @@ export default function CreateListTool({
   const [hasChanges, setHasChanges] = useState(false);
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const translationTimeoutRef = useRef<NodeJS.Timeout | null>(null); // NEW: Add timeout ref for translation debouncing
+  const reverseTranslationTimeoutRef = useRef<NodeJS.Timeout | null>(null); // NEW: Add timeout ref for reverse translation debouncing
+  const currentTranslationRequestRef = useRef<string | null>(null); // NEW: Track current translation request to prevent race conditions
+  const currentReverseTranslationRequestRef = useRef<string | null>(null); // NEW: Track current reverse translation request to prevent race conditions
   const [isTranslationButtonFocused, setIsTranslationButtonFocused] = useState(false);
   const isEditMode = listToEdit;
   const [importText, setImportText] = useState<string>("");
@@ -341,6 +345,21 @@ export default function CreateListTool({
     }
   }, [listToEdit]);
 
+  // Cleanup effect to clear translation timeouts when component unmounts
+  useEffect(() => {
+    return () => {
+      if (translationTimeoutRef.current) {
+        clearTimeout(translationTimeoutRef.current);
+      }
+      if (reverseTranslationTimeoutRef.current) {
+        clearTimeout(reverseTranslationTimeoutRef.current);
+      }
+      // Clear current request tracking
+      currentTranslationRequestRef.current = null;
+      currentReverseTranslationRequestRef.current = null;
+    };
+  }, []);
+
   const addPair = () => {
     setPairs([...pairs, { id: nextId, "1": "", "2": "" }]);
     setNextId(nextId + 1);
@@ -371,12 +390,25 @@ export default function CreateListTool({
     if (value.trim() && autotranslateEnabled) {
       setSelectedPairId(id);
       setSelectedInput("1");
+
+      // Clear any existing translation timeout to prevent multiple simultaneous requests
+      if (translationTimeoutRef.current) {
+        clearTimeout(translationTimeoutRef.current);
+      }
+
+      // Clear current request tracking since we're starting a new one
+      currentTranslationRequestRef.current = null;
+
       // Debounce the translation suggestion to avoid too many API calls
-      setTimeout(() => {
+      translationTimeoutRef.current = setTimeout(() => {
         handleAutotranslate(value.trim(), id);
       }, 500);
     } else {
       // Clear suggestions if input is empty or autotranslate is disabled
+      if (translationTimeoutRef.current) {
+        clearTimeout(translationTimeoutRef.current);
+      }
+      currentTranslationRequestRef.current = null;
       setSelectedPairId(null);
       setSelectedInput(null);
       setTranslations({});
@@ -393,52 +425,73 @@ export default function CreateListTool({
 
   // New async function to handle the translation
   const getTranslation = async (
-    word: string
-  ): Promise<string> => {
-    if (!word.trim()) return "";
+    word: string,
+    pairId: number
+  ): Promise<void> => {
+    if (!word.trim()) return;
 
     const fromLang = vanDropdownRef.current?.getSelectedItem();
     const toLang = naarDropdownRef.current?.getSelectedItem();
 
     // Only translate if both languages are set and different
     if (fromLang && toLang && fromLang !== toLang) {
+      // Create a unique request ID to track this specific translation request
+      const requestId = `manual-${pairId}-${word}-${fromLang}-${toLang}-${Date.now()}`;
+
       try {
         const res = await fetch(
           `/api/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
         );
         const data = await res.json();
-        return data.translation || "";
+        const translation = data.translation || "";
+
+        // Update the translation (this is for manual focus-triggered translations, so always update)
+        if (translation) {
+          setTranslations(prev => ({
+            ...prev,
+            [pairId]: translation,
+          }));
+        }
       } catch (error) {
         console.error("Translation error", error);
-        return "";
       }
     }
-    return "";
   };
 
   // New function to get reverse translation (for left input field)
   const getReverseTranslation = async (
-    word: string
-  ): Promise<string> => {
-    if (!word.trim()) return "";
+    word: string,
+    pairId: number
+  ): Promise<void> => {
+    if (!word.trim()) return;
 
     const fromLang = naarDropdownRef.current?.getSelectedItem();
     const toLang = vanDropdownRef.current?.getSelectedItem();
 
     // Only translate if both languages are set and different
     if (fromLang && toLang && fromLang !== toLang) {
+      // Create a unique request ID to track this specific reverse translation request
+      const requestId = `reverse-${pairId}-${word}-${fromLang}-${toLang}-${Date.now()}`;
+      currentReverseTranslationRequestRef.current = requestId;
+
       try {
         const res = await fetch(
           `/api/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
         );
         const data = await res.json();
-        return data.translation || "";
+        const translation = data.translation || "";
+
+        // Only update the translation if this is still the most recent request for this pair
+        if (currentReverseTranslationRequestRef.current === requestId && translation) {
+          setLeftInputTranslations(prev => ({
+            ...prev,
+            [pairId]: translation,
+          }));
+        }
       } catch (error) {
         console.error("Reverse translation error", error);
-        return "";
       }
     }
-    return "";
   };
 
   // New function to handle autotranslation when languages are different
@@ -453,6 +506,10 @@ export default function CreateListTool({
 
     // Only autotranslate if both languages are set and different
     if (fromLang && toLang && fromLang !== toLang) {
+      // Create a unique request ID to track this specific request
+      const requestId = `${pairId}-${word}-${fromLang}-${toLang}-${Date.now()}`;
+      currentTranslationRequestRef.current = requestId;
+
       try {
         const res = await fetch(
           `/api/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
@@ -460,9 +517,10 @@ export default function CreateListTool({
         const data = await res.json();
         const translation = data.translation || "";
 
-        if (translation) {
+        // Only update the translation if this is still the most recent request for this pair
+        if (currentTranslationRequestRef.current === requestId && translation) {
           // Store the translation as a suggestion instead of auto-filling
-          setTranslations({ [pairId]: translation });
+          setTranslations(prev => ({ ...prev, [pairId]: translation }));
         }
       } catch (error) {
         console.error("Autotranslation error", error);
@@ -1242,16 +1300,9 @@ export default function CreateListTool({
                                 setTimeout(() => {
                                   const trimmedWord = pair["2"].trim();
                                   if (trimmedWord.length > 0) {
-                                    getReverseTranslation(
-                                      pair["2"]
-                                    ).then((translatedText) => {
-                                      if (translatedText) {
-                                        setLeftInputTranslations((prev) => ({
-                                          ...prev,
-                                          [pair.id]: translatedText,
-                                        }));
-                                      }
-                                    });
+                                    // Clear any existing reverse translation request
+                                    currentReverseTranslationRequestRef.current = null;
+                                    getReverseTranslation(pair["2"], pair.id);
                                   }
                                 }, 50);
                               }}
@@ -1300,16 +1351,7 @@ export default function CreateListTool({
                                 setTimeout(() => {
                                   const trimmedWord = pair["1"].trim();
                                   if (trimmedWord.length > 0) {
-                                    getTranslation(
-                                      pair["1"]
-                                    ).then((translatedText) => {
-                                      if (translatedText) {
-                                        setTranslations((prev) => ({
-                                          ...prev,
-                                          [pair.id]: translatedText,
-                                        }));
-                                      }
-                                    });
+                                    getTranslation(pair["1"], pair.id);
                                   }
                                 }, 50);
                               }}
