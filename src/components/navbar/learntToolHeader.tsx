@@ -54,6 +54,10 @@ const LearnToolHeader = ({
             .padStart(2, "0")}`;
     };
 
+    // Check if this is a custom learning session
+    const isCustomMode = listId.startsWith('custom-');
+    const actualListId = isCustomMode ? listId.replace('custom-', '') : listId;
+
     // Define the learning methods for the dropdown
     const learningMethods: [React.ReactNode, string][] = [
         [
@@ -67,7 +71,7 @@ const LearnToolHeader = ({
                 />
                 <span className="font-medium">Leren</span>
             </div>,
-            `/learn/learnlist/${listId}`,
+            isCustomMode ? `/learn/custom/learn` : `/learn/learnlist/${listId}`,
         ],
         [
             <div key="toets" className="flex items-center">
@@ -80,7 +84,7 @@ const LearnToolHeader = ({
                 />
                 <span className="font-medium">Toets</span>
             </div>,
-            `/learn/test/${listId}`,
+            isCustomMode ? `/learn/custom/test` : `/learn/test/${listId}`,
         ],
         [
             <div key="hints" className="flex items-center">
@@ -93,7 +97,7 @@ const LearnToolHeader = ({
                 />
                 <span className="font-medium">Hints</span>
             </div>,
-            `/learn/hints/${listId}`,
+            isCustomMode ? `/learn/custom/hints` : `/learn/hints/${listId}`,
         ],
         [
             <div key="gedachten" className="flex items-center">
@@ -106,7 +110,7 @@ const LearnToolHeader = ({
                 />
                 <span className="font-medium">In gedachten</span>
             </div>,
-            `/learn/mind/${listId}`,
+            isCustomMode ? `/learn/custom/mind` : `/learn/mind/${listId}`,
         ],
         [
             <div key="multikeuze" className="flex items-center">
@@ -119,7 +123,7 @@ const LearnToolHeader = ({
                 />
                 <span className="font-medium">Multikeuze</span>
             </div>,
-            `/learn/multichoice/${listId}`,
+            isCustomMode ? `/learn/custom/multichoice` : `/learn/multichoice/${listId}`,
         ],
     ];
 
@@ -145,7 +149,7 @@ const LearnToolHeader = ({
                 {/* Left side: Method dropdown and back button */}
                 <div className="flex items-center gap-3">
                     <Link
-                        href={`/learn/viewlist/${listId}`}
+                        href={`/learn/viewlist/${actualListId}`}
                         className="flex items-center bg-neutral-700 hover:bg-neutral-600 transition-colors px-3 py-1 rounded-md"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" />

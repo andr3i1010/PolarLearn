@@ -1,15 +1,11 @@
 import { prisma } from "@/utils/prisma"
 import { NextPage } from 'next';
-import Link from "next/link";
 import Tabs, { TabItem } from "@/components/Tabs";
 import Dropdown from "@/components/button/DropdownBtn";
 import React from 'react';
-import { PencilIcon, Trash2 } from "lucide-react";
 import { cookies } from "next/headers";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
-import DeleteListButton from "@/components/learning/DeleteListButton";
-import ListActionButtons from "@/components/learning/ListActionButtons";
 import UserListButtons from "@/components/learning/UserListButtons";
 import CreatorLink from "@/components/links/CreatorLink";
 import { addToRecentLists } from "@/utils/actions/updateRecentLists";
@@ -25,6 +21,7 @@ import mind from '@/app/img/mind.svg';
 import livequiz from '@/app/img/livequiz.svg';
 
 import construction from '@/app/img/construction.gif';
+import ListTableComponent from "./listTableComponent";
 
 interface PageParams {
     params: {
@@ -275,67 +272,16 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                 <div className="mt-4">
                     {wordPairs.length > 0 ? (
                         <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-700 rounded-lg overflow-hidden">
-                                {/* Language header as part of the table */}
-                                {fromLanguage && toLanguage && (
-                                    <thead className="bg-neutral-800 border-b border-gray-700">
-                                        <tr>
-                                            <th className="px-6 py-3 w-1/2">
-                                                <div className="flex items-center justify-center">
-                                                    {fromLanguageIcon && (
-                                                        <Image
-                                                            src={fromLanguageIcon}
-                                                            alt={`${fromLanguage} icoon`}
-                                                            width={24}
-                                                            height={24}
-                                                            className="mr-2"
-                                                        />
-                                                    )}
-                                                    <span className="text-white text-xl font-bold">{fromLanguage}</span>
-                                                </div>
-                                            </th>
-                                            <th className="px-6 py-3 w-1/2">
-                                                <div className="flex items-center justify-center">
-                                                    {toLanguageIcon && (
-                                                        <Image
-                                                            src={toLanguageIcon}
-                                                            alt={`${toLanguage} icon`}
-                                                            width={24}
-                                                            height={24}
-                                                            className="mr-2"
-                                                        />
-                                                    )}
-                                                    <span className="text-white text-xl font-bold">{toLanguage}</span>
-                                                </div>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                )}
-                                <thead className="bg-gray-800">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-3 text-center text-xl font-medium text-gray-300 w-1/2">
-                                            {isLanguageSubject ? 'Origineel' : 'Term'}
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-center text-xl font-medium text-gray-300 w-1/2">
-                                            {isLanguageSubject ? 'Vertaling' : 'Definitie'}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-gray-800 divide-y divide-gray-800">
-                                    {wordPairs
-                                        .filter(pair =>
-                                            pair["1"] !== "" || pair["2"] !== "" // Only filter out completely empty pairs
-                                        )
-                                        .map((pair) => {
-                                            return (
-                                                <tr key={pair.id} className={pair.id % 2 === 0 ? 'bg-neutral-800' : 'bg-neutral-800'}>
-                                                    <td className="px-6 py-4 text-center font-bold text-xl text-white">{pair["1"]}</td>
-                                                    <td className="px-6 py-4 text-center font-bold text-xl text-white">{pair["2"]}</td>
-                                                </tr>
-                                            );
-                                        })}
-                                </tbody>
-                            </table>
+                            <ListTableComponent
+                                wordPairs={wordPairs}
+                                edit={false}
+                                fromLanguage={fromLanguage}
+                                toLanguage={toLanguage}
+                                fromLanguageIcon={fromLanguageIcon}
+                                toLanguageIcon={toLanguageIcon}
+                                isLanguageSubject={isLanguageSubject}
+                                listId={id}
+                            />
                         </div>
                     ) : (
                         <p className="text-gray-500 text-center">
@@ -391,6 +337,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                             text="Oefenen"
                             dropdownMatrix={practiceOptions}
                             width={180}
+                            zIndex={10}
                         />
                     </div>
                 </div>

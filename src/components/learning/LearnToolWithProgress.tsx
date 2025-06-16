@@ -9,13 +9,15 @@ interface LearnToolWithProgressProps {
     rawlistdata: any[];
     listId: string;
     currentMethod?: string;  // Make currentMethod optional
+    onComplete?: () => void;
 }
 
 export default function LearnToolWithProgress({
     mode,
     rawlistdata,
     listId,
-    currentMethod
+    currentMethod,
+    onComplete
 }: LearnToolWithProgressProps) {
     const [progress, setProgress] = useState(0);
     const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -52,6 +54,7 @@ export default function LearnToolWithProgress({
                     onCorrectAnswer={handleCorrectAnswer}
                     onWrongAnswer={handleWrongAnswer}
                     onProgressUpdate={handleProgressUpdate}
+                    onComplete={onComplete}
                 />
             </div>
         </div>

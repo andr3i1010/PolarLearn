@@ -276,13 +276,15 @@ const LearnTool = ({
   rawlistdata,
   onCorrectAnswer,
   onWrongAnswer,
-  onProgressUpdate
+  onProgressUpdate,
+  onComplete
 }: {
   mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze";
   rawlistdata: any[];
   onCorrectAnswer?: () => void;
   onWrongAnswer?: () => void;
   onProgressUpdate?: (completed: number, total: number) => void;
+  onComplete?: () => void;
 }) => {
   // Seeded random number generator for deterministic results
   const seededRandom = useCallback((seed: number) => {
@@ -576,6 +578,11 @@ const LearnTool = ({
     // Only run when the list changes from not-completed to completed
     if (initialMappedData.length > 0 && lijstData.length === 0 && !listCompleted) {
       setListCompleted(true);
+
+      // Call the completion callback if provided
+      if (onComplete) {
+        onComplete();
+      }
 
       const updateStreak = async () => {
         const result = await updateDailyStreak();
