@@ -776,6 +776,12 @@ const LearnTool = ({
                       const itemKey = getQuestionKey(item.vraag, item.antwoord);
                       return !isQuestionCompleteInLeren(itemKey);
                     });
+
+                    // Check if this was the last question - if so, mark as completed immediately
+                    if (filteredRest.length === 0) {
+                      setListCompleted(true);
+                    }
+
                     setLijstData(filteredRest);
                   } else {
                     // Move question to end to try again
@@ -808,6 +814,12 @@ const LearnTool = ({
                       const itemKey = getQuestionKey(item.vraag, item.antwoord);
                       return !isQuestionCompleteInLeren(itemKey);
                     });
+
+                    // Check if this was the last question - if so, mark as completed immediately
+                    if (filteredRest.length === 0) {
+                      setListCompleted(true);
+                    }
+
                     setLijstData(shuffleArray(filteredRest));
                   } else {
                     // For "leren" mode, always move the word to the end after each answer
@@ -815,6 +827,10 @@ const LearnTool = ({
                     setLijstData([...rest, huidigeVraag]);
                   }
                 } else {
+                  // Check if this was the last question in regular mode
+                  if (rest.length === 0) {
+                    setListCompleted(true);
+                  }
                   setLijstData(shuffleArray(rest));
                 }
                 setUserInput("");
@@ -882,6 +898,12 @@ const LearnTool = ({
                   const itemKey = getQuestionKey(item.vraag, item.antwoord);
                   return !isQuestionCompleteInLeren(itemKey);
                 });
+
+                // Check if this was the last question - if so, mark as completed immediately
+                if (filteredRest.length === 0) {
+                  setListCompleted(true);
+                }
+
                 setLijstData(shuffleArray(filteredRest));
               } else {
                 // For "leren" mode, always move the word to the end after each answer
@@ -889,6 +911,10 @@ const LearnTool = ({
                 setLijstData([...rest, huidigeVraag]);
               }
             } else {
+              // Check if this was the last question in regular mode
+              if (rest.length === 0) {
+                setListCompleted(true);
+              }
               const nextList = shuffleArray(rest);
               setLijstData(nextList);
             }
@@ -940,6 +966,12 @@ const LearnTool = ({
                   const itemKey = getQuestionKey(item.vraag, item.antwoord);
                   return !isQuestionCompleteInLeren(itemKey);
                 });
+
+                // Check if this was the last question - if so, mark as completed immediately
+                if (filteredRest.length === 0) {
+                  setListCompleted(true);
+                }
+
                 setLijstData(filteredRest);
               } else {
                 // Move question to end to try again
@@ -1047,6 +1079,20 @@ const LearnTool = ({
     lijstData.length,
     onComplete,
   ]);
+
+  // Detect when the session is completed and set the listCompleted flag
+  useEffect(() => {
+    const isCompleted = mode === "leren"
+      ? initialMappedData.length > 0 && initialMappedData.every((item) => {
+        const questionKey = getQuestionKey(item.vraag, item.antwoord);
+        return isQuestionCompleteInLeren(questionKey);
+      })
+      : lijstData.length === 0 && initialMappedData.length > 0;
+
+    if (isCompleted && !listCompleted) {
+      setListCompleted(true);
+    }
+  }, [mode, initialMappedData, lijstData.length, lerenCompleted, listCompleted, getQuestionKey, isQuestionCompleteInLeren]);
 
   // Call this when a question is processed (either right or wrong)
   const updateProgress = useCallback(() => {
@@ -1249,12 +1295,22 @@ const LearnTool = ({
                 const itemKey = getQuestionKey(item.vraag, item.antwoord);
                 return !isQuestionCompleteInLeren(itemKey);
               });
+
+              // Check if this was the last question - if so, mark as completed immediately
+              if (filteredRest.length === 0) {
+                setListCompleted(true);
+              }
+
               setLijstData(shuffleArray(filteredRest));
             } else {
               // Move question to end to continue with next step
               setLijstData([...rest, huidigeVraag]);
             }
           } else {
+            // Check if this was the last question in regular mode
+            if (rest.length === 0) {
+              setListCompleted(true);
+            }
             setLijstData(shuffleArray(rest));
           }
         }, 50); // Short delay
@@ -1397,13 +1453,14 @@ const LearnTool = ({
 
   // Scramble the questions after they have been generated
   useEffect(() => {
-    if (initialMappedData.length > 0 && lijstData.length === 0) {
+    if (initialMappedData.length > 0 && lijstData.length === 0 && !listCompleted) {
+      // Only restart if the list hasn't been explicitly completed
       // Additional scramble after initial data processing
       const scrambled = shuffleArray([...initialMappedData]);
       setLijstData(scrambled);
       setLijstDataOud(scrambled);
     }
-  }, [initialMappedData, lijstData.length, shuffleArray]);
+  }, [initialMappedData, lijstData.length, shuffleArray, listCompleted]);
 
   return (
     <div className="bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-[60vh] rounded-lg flex flex-col justify-center overflow-hidden p-4">
