@@ -34,8 +34,8 @@ model User {
   role           String?
   loginAllowed   Boolean?
   banReason      String?
-  forumAllowed   Boolean?
-  forumBanReason String?
+  forumAllowed   Boolean?  @default(false)
+  forumBanReason String?   @default("We hebben wat problemeen met iritanten mensen, daarom sturen we je een email die je moet bevestigen om toegang te krijgen tot het forum.")
   forumBanEnd    DateTime?
 
   notificationData Json?
@@ -56,10 +56,10 @@ model User {
   streakData   Json? // key: YYYY-MM-DD, value: "done" | "frozen"
   freezeCount  Int       @default(0)
 
-  scheduledDeletion DateTime?  // TTL index for account deletion
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  scheduledDeletion DateTime? // TTL index for account deletion
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Session {
@@ -73,22 +73,22 @@ model Session {
 }
 
 model practice {
-  id             String @id @default(auto()) @map("_id") @db.ObjectId
-  
-  list_id        String
-  name           String
-  mode           String
-  subject        String
-  lang_from      String?
-  lang_to        String?
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  list_id   String
+  name      String
+  mode      String
+  subject   String
+  lang_from String?
+  lang_to   String?
 
   data           Json?
   summaryContent String?
 
-  creator        String   @db.String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  published      Boolean
+  creator   String   @db.String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  published Boolean
 }
 
 model forum {
@@ -103,9 +103,9 @@ model forum {
 
   creator String @db.String
 
-  locked    Boolean  @default(false)
-  pinned    Boolean  @default(false)
-  votes     Int      @db.Int @default(0)
+  locked     Boolean @default(false)
+  pinned     Boolean @default(false)
+  votes      Int     @default(0) @db.Int
   votes_data Json?
 
   createdAt DateTime @default(now())
