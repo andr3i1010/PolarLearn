@@ -71,10 +71,10 @@ export default function ListTableComponent({
                 {select ? (
                     <div className="flex flex-wrap gap-2">
                         <Button1
-                            text="Leren"
-                            icon={<Image src={learn} alt="leren" width={16} height={16} />}
+                            text="Gemengd"
+                            icon={<Image src={learn} alt="gemengd leren" width={16} height={16} />}
                             disabled={!select || selectedPairs.length === 0}
-                            onClick={() => handleLearn('learn')}
+                            onClick={() => handleLearn('leren')}
                             wrapText={false}
                         />
                         <Button1

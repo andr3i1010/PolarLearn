@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import CustomLearnClient from "@/components/learning/CustomLearnClient";
 
 // Define valid learning modes
-type LearningMode = "toets" | "gedachten" | "hints" | "learn" | "multikeuze";
+type LearningMode = "toets" | "gedachten" | "hints" | "learn" | "multikeuze" | "leren";
 
 // Map route parameters to learning modes
 const modeMapping: Record<string, { mode: LearningMode; currentMethod: string }> = {
@@ -12,6 +12,7 @@ const modeMapping: Record<string, { mode: LearningMode; currentMethod: string }>
     "hints": { mode: "hints", currentMethod: "hints" },
     "mind": { mode: "gedachten", currentMethod: "gedachten" },
     "multichoice": { mode: "multikeuze", currentMethod: "multikeuze" },
+    "leren": { mode: "leren", currentMethod: "leren" },
 };
 
 export default async function CustomLearnPage({

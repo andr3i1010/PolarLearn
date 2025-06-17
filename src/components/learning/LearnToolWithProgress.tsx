@@ -5,7 +5,7 @@ import LearnTool from './learnTool';
 import LearnToolHeader from '../navbar/learntToolHeader';
 
 interface LearnToolWithProgressProps {
-    mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze";
+    mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze" | "leren";
     rawlistdata: any[];
     listId: string;
     currentMethod?: string;  // Make currentMethod optional

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import LearnToolWithProgress from "@/components/learning/LearnToolWithProgress";
 
 interface CustomLearnClientProps {
-    mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze";
+    mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze" | "leren";
     rawlistdata: any[];
     listId: string;
     currentMethod: string;
