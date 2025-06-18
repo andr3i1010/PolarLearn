@@ -1,6 +1,5 @@
 import Image from "next/image";
 import pl500 from "@/app/img/pl-500.svg";
-import SignUpForm from "./form";
 import ToastProvider from "../../../components/toast/toast";
 import { redirect } from 'next/navigation';
 import { getUserFromSession } from '@/utils/auth/auth';
@@ -33,9 +32,8 @@ export default async function SignUpPage() {
             <div className="w-full rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 bg-neutral-800 border-neutral-700">
               <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                 <h1 className="text-xl font-bold leading-tight tracking-tigh md:text-2xl text-white">
-                  Maak een account aan
+                  Je kan helaas momenteel geen account aanmaken.
                 </h1>
-                <SignUpForm />
               </div>
             </div>
           </div>
