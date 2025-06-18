@@ -9,6 +9,7 @@ import { MoveLeft, Search, Menu, X } from "lucide-react";
 import Link from "next/link";
 import StreakNavbarThing from "../streak/streakNav";
 import NotificationNav from "../notification/notificiationNav";
+import PlusBtn from "@/components/button/plusbutton";
 
 // SearchBar component
 const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
@@ -289,20 +290,20 @@ const NavigationLinks = memo(
                         dropdownMatrix={dropdownMatrixStart}
                     />
                 </div>
-                <div className="w-36" />
+                <div className="w-39" />
 
-                <div className="flex-grow mx-4">
+                <div className="w-70 mr-1">
                     <SearchBar onExpand={onExpandSearch} />
                 </div>
                 <StreakNavbarThing />
-                <NotificationNav/>
-                <div className="w-50" />
+                <NotificationNav />
+                <PlusBtn />
                 <div className="ml-auto relative block dropdown-right">
                     <DropdownBtn
                         selectorMode={false}
                         text={"Account"}
                         dropdownMatrix={[
-                            ["Accountinstellingen", "/home/settings"],
+                            ["Instellingen", "/home/settings"],
                             ["Uitloggen", "/auth/sign-out"],
                         ]}
                     />
@@ -455,7 +456,7 @@ export const TopNavBar = memo(function TopNavBar() {
             <div className="h-16" />
             <style jsx global>{`
         .dropdown-right > div.absolute {
-          right: 6px !important;
+          right: 5px !important;
           top: -24px !important;
         }
         

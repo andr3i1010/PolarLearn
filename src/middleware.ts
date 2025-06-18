@@ -63,29 +63,29 @@ async function middlewareAuth(request: NextRequest) {
     if (
         request.nextUrl.pathname.startsWith("/home") ||
         request.nextUrl.pathname.startsWith("/learn")
-        // Removed "/admin" from protected routes to allow unauthenticated access
     ) {
         // Get the cookie directly from the request instead of using cookies()
         const sessionCookie = request.cookies.get('polarlearn.session-id');
 
         if (!sessionCookie?.value) {
+            request.cookies.set('polarlearn.goto', request.nextUrl.pathname)
             return NextResponse.redirect(new URL('/auth/sign-in', request.url));
         }
 
         try {
-            // Decode the cookie to get the session ID
             const sessionId = await decodeCookie(sessionCookie.value);
 
             if (!sessionId) {
+                request.cookies.set('polarlearn.goto', request.nextUrl.pathname)
                 return NextResponse.redirect(new URL('/auth/sign-in', request.url));
             }
 
-            // Check if the session exists and is valid
             const session = await prisma.session.findUnique({
                 where: { sessionID: sessionId }
             });
 
             if (!session || session.expires < new Date()) {
+                request.cookies.set('polarlearn.goto', request.nextUrl.pathname)
                 return NextResponse.redirect(new URL('/auth/sign-in', request.url));
             }
 

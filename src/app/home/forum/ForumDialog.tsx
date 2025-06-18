@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { formSchema } from "./formSchema";
 import { createPostServer } from "./createPostServer";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
 import Tabs, { TabItem } from "@/components/Tabs";
 import { SelectCategoryCombobox } from "./selectCategoryCombobox";
@@ -198,6 +199,7 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
 
   // Initialize form with react-hook-form and zod validation
   const form = useForm<z.infer<typeof formSchema>>({
@@ -255,6 +257,9 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
 
       if (result.success) {
         toast.success("Post succesvol geplaatst!");
+        // Navigate to the newly created forum post first
+        router.push(`/home/forum/${result.postId}`);
+        // Then close dialog and reset form
         setOpen(false);
         form.reset();
       } else {
@@ -265,7 +270,7 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
     } finally {
       setIsSubmitting(false);
     }
-  }, [banned, banEnd, banreason, form]);
+  }, [banned, banEnd, banreason, form, router]);
 
   // Memoize handleOpenChange to prevent recreation on render
   const handleOpenChange = useCallback((isOpen: boolean) => {

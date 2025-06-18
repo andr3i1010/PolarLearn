@@ -1,6 +1,5 @@
 import { prisma } from "@/utils/prisma";
 import Image from "next/image";
-import PlusBtn from "@/components/button/homeplus";
 import Link from "next/link";
 import CreatorLink from "@/components/links/CreatorLink";
 import { getUserFromSession } from "@/utils/auth/auth";
@@ -241,7 +240,7 @@ export default async function Start() {
               Recent Geoefend: {/* Changed heading */}
             </h1>
             <div className="ml-auto mr-5">
-              <PlusBtn /> {/* This button's function might need review later */}
+              {/* <PlusBtn /> */}
             </div>
           </div>
           <div className="h-4" />

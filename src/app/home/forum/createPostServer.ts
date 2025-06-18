@@ -99,7 +99,7 @@ export async function createPostServer(
 
     return {
       success: true,
-      postId: post.id,
+      postId: post.post_id,
     };
   } catch (error) {
     console.error("Error creating forum post:", error);
