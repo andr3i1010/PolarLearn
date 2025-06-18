@@ -14,7 +14,7 @@ const metadata: Metadata = {
   description: 'Accountcreatiepagina van PolarLearn',
 }
 
-export default function SignUpForm() {
+function SignUpForm() {
   const [usernameError, setUsernameError] = useState("");
 
   const delay = (ms: number) => new Promise(
