@@ -106,7 +106,7 @@ export async function createListAction(listData: {
 						}
 					});
 
-					if (user && !user.loginAllowed) {
+					if (user && user.loginAllowed === false) {
 						redirect('/auth/sign-in');
 					}
 

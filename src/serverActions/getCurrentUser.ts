@@ -13,7 +13,7 @@ export async function getCurrentUser() {
 
         const user = await getUserFromSession(sessionCookie.value);
 
-        if (!user || !user.loginAllowed) {
+        if (!user || user.loginAllowed === false) {
             return null;
         }
 

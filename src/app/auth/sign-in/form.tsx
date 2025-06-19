@@ -30,10 +30,32 @@ function getCookie(cname: string) {
 export default function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
-
   useEffect(() => {
     const error = params.get("error");
     const provider = params.get("provider");
+
+    if (error === "banned") {
+      toast.error(
+        "Je account is verbannen wegens niet-toegestane activiteit. Deze actie kan niet ongedaan worden gemaakt.",
+        {
+          autoClose: 7000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (error === "session_expired") {
+      toast.info(
+        "Je sessie is verlopen. Log opnieuw in om verder te gaan.",
+        {
+          autoClose: 5000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      return;
+    }
+
     if (error && provider) {
       switch (error) {
         case "usernotfound":

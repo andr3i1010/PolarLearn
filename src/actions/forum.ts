@@ -9,6 +9,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
 
+
+
 export async function createReply(postId: string, content: string, userId: string) {
   const session = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")!.value
@@ -19,7 +21,7 @@ export async function createReply(postId: string, content: string, userId: strin
   }
 
   let gebruiker = await prisma.user.findFirst({ where: { id: session.id } });
-  if (!gebruiker || !gebruiker.loginAllowed || !gebruiker.forumAllowed) {
+  if (!gebruiker || gebruiker.loginAllowed === false || !gebruiker.forumAllowed) {
     throw new Error("je bent verbannen van PolarLearn");
   }
 
@@ -178,6 +180,16 @@ export async function deletePost(postId: string) {
       post_id: postId,
     },
   });
+
+  // Revalidate the forum pages to ensure proper refresh
+  revalidatePath("/home/forum");
+  if (post.replyTo) {
+    // If it was a reply, also revalidate the parent post page
+    revalidatePath(`/home/forum/${post.replyTo}`);
+  } else {
+    // If it was a main post, revalidate its specific page too
+    revalidatePath(`/home/forum/${postId}`);
+  }
 
   // If it was a main post, redirect to forum list
   // If it was a reply, we'll just refresh the page
