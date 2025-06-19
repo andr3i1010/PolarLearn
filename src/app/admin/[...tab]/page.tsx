@@ -5,12 +5,17 @@ import JweDecoderWrapper from "../JweDecoderWrapper";
 import UsersTabContent from "../UsersTabContent";
 import ListsTabContent from "../ListsTabContent";
 import GroupsTabContent from "../GroupsTabContent";
+import AlgemeenTabContent from "../AlgemeenTabContent";
 
 // Helper to fetch initial data for tabs that need it
 async function getInitialDataForTab(tabId: string, userMapById: Record<string, any>) {
     const take = 20;
     const skip = 0;
 
+    if (tabId === "algemeen") {
+        // No initial data needed for general settings
+        return {};
+    }
     if (tabId === "gebruikers") {
         const usersData = await prisma.user.findMany({
             orderBy: { createdAt: "desc" },
@@ -47,7 +52,7 @@ export default async function AdminTabPageByRoute({
     params: Promise<{ tab?: string[] }>; // Changed to Promise type
 }) {
     const params = await paramsPromise; // Resolve the Promise
-    const selectedTabId = params.tab?.[0] || 'gebruikers';
+    const selectedTabId = params.tab?.[0] || 'algemeen';
     const session = await getUserFromSession((await cookies()).get("polarlearn.session-id")!.value);
     const currentUserId = session?.id || null; // Ensure null if undefined
 
@@ -65,6 +70,9 @@ export default async function AdminTabPageByRoute({
 
     const tabData = await getInitialDataForTab(selectedTabId, userMapById);
 
+    if (selectedTabId === "algemeen") {
+        return <AlgemeenTabContent />;
+    }
     if (selectedTabId === "gebruikers") {
         return <UsersTabContent
             initialUsersData={(tabData as any).usersData}

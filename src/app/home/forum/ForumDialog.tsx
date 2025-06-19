@@ -194,7 +194,7 @@ const CategoryField = memo(({ control, isAdmin }: { control: any; isAdmin: boole
 });
 
 // ForumDialog component with memoization
-function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason: string | null | undefined; banEnd: Date | null | undefined }) {
+function ForumDialog({ banned, banreason, banEnd, forumDisabled }: { banned: boolean; banreason: string | null | undefined; banEnd: Date | null | undefined, forumDisabled: boolean }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -296,8 +296,12 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
       });
       return;
     }
+    if (forumDisabled) {
+      toast.error("Het forum is momenteel platformbreed uitgeschakeld.");
+      return;
+    }
     setOpen(true);
-  }, [banned, banEnd, banreason]);
+  }, [banned, banEnd, banreason, forumDisabled]);
 
   // Memoize form submission handler
   const handleFormSubmit = useCallback(() => {

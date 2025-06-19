@@ -8,9 +8,12 @@ interface ForumHeaderTabsProps {
     defaultTab: string;
     baseRoute: string;
     banned: boolean;
+    forumDisabled: boolean;
+    banReason?: string | null;
+    banEnd?: Date | null;
 }
 
-export default function ForumHeaderTabs({ tabs, defaultTab, baseRoute, banned }: ForumHeaderTabsProps) {
+export default function ForumHeaderTabs({ tabs, defaultTab, baseRoute, banned, forumDisabled, banReason, banEnd }: ForumHeaderTabsProps) {
     const pathname = usePathname() || "";
     const segments = pathname.split('/');
     const segment = segments[3] || ""; // after /home/forum
@@ -28,7 +31,7 @@ export default function ForumHeaderTabs({ tabs, defaultTab, baseRoute, banned }:
                 <div className="flex items-center">
                     <h1 className="text-4xl font-extrabold">Forum</h1>
                     <div className="flex-grow" />
-                    <ForumDialog banned={banned} banreason={undefined} banEnd={undefined} />
+                    <ForumDialog banned={banned} banreason={banReason} banEnd={banEnd} forumDisabled={forumDisabled} />
                 </div>
             </div>
 

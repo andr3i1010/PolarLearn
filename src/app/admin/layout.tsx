@@ -18,7 +18,7 @@ export default async function AdminLayout({
     const defaultActiveTab =
         params?.tab && params.tab.length > 0
             ? params.tab[0]
-            : "gebruikers";
+            : "algemeen";
 
     const sessionCookie = (await cookies()).get("polarlearn.session-id");
     const session = sessionCookie ? await getUserFromSession(sessionCookie.value) : null;
