@@ -22,8 +22,6 @@ export default function CustomLearnClient({
         document.cookie = 'fromLanguage=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
         document.cookie = 'toLanguage=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
         document.cookie = 'listId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-
-        console.log('Custom learning cookies cleared after completion');
     };
 
     // Also clear cookies if component unmounts (user navigates away)

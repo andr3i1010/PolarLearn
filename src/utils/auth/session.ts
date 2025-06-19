@@ -79,6 +79,16 @@ export async function createSession(userid: string) {
         // console.debug("createSession: Session created with ID", sessionID);
         await createCookie(sessionID, sessionExp);
         // console.debug("createSession: Cookie created for session", sessionID);
+
+        // Create nonce for the user after session creation
+        try {
+          const { createActionNonce } = await import("./nonce");
+          await createActionNonce(userid);
+        } catch (error) {
+          console.error("createSession: Error creating nonce", error);
+          // Don't fail session creation if nonce creation fails
+        }
+
         resolve(sessionID);
       })
       .catch((error: any) => {
@@ -154,7 +164,7 @@ export async function isLoggedIn() {
 
     if (!session) {
       console.error("isLoggedIn: Session not found in DB for sessionId", sessionId);
-      
+
       (await cookies()).set('polarlearn.session-id', '', {
         expires: new Date(0),
         path: '/',
@@ -217,11 +227,25 @@ export async function logOut() {
     // console.debug("logOut: Cookie deleted for session", sessionId);
 
     try {
-      await prisma.session.delete({
-        where: {
-          sessionID: sessionId,
-        },
+      const session = await prisma.session.findUnique({
+        where: { sessionID: sessionId }
       });
+
+      if (session) {
+        // Remove the user's nonce before deleting the session
+        try {
+          const { removeUserNonce } = await import("./nonce");
+          await removeUserNonce(session.userId);
+        } catch (error) {
+          console.error("logOut: Error removing nonce", error);
+        }
+
+        // Delete the session
+        await prisma.session.delete({
+          where: { sessionID: sessionId }
+        });
+      }
+
       // console.debug("logOut: Session record deleted for", sessionId);
     } catch (error) {
       console.error("logOut: Error deleting session record", error);
