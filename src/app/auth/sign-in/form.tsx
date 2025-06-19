@@ -31,10 +31,32 @@ function getCookie(cname: string) {
 export default function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
-
   useEffect(() => {
     const error = params.get("error");
     const provider = params.get("provider");
+
+    if (error === "banned") {
+      toast.error(
+        "Je account is verbannen wegens niet-toegestane activiteit. Deze actie kan niet ongedaan worden gemaakt.",
+        {
+          autoClose: 7000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (error === "session_expired") {
+      toast.info(
+        "Je sessie is verlopen. Log opnieuw in om verder te gaan.",
+        {
+          autoClose: 5000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      return;
+    }
+
     if (error && provider) {
       switch (error) {
         case "usernotfound":
@@ -81,19 +103,23 @@ export default function SignInForm() {
             const result = await signInCredentials(email, password);
             if (result === true) {
               router.push("/home/start");
-            } else {
-              if (typeof result === "string") {
-                switch (result) {
-                  case "invcreds":
-                    toast.error("Ongeldige inloggegevens");
-                    break;
-                  default:
-                    toast.error(`Je bent permanent verbannen van PolarLearn met reden: ${result || 'Niet gevonden in database'}. Deze actie kan niet ongedaan worden gemaakt.`);
-                    break;
-                }
-              } else {
-                toast.error("interne serverfout");
+            } else if (result === null || result === undefined) {
+              toast.error("interne serverfout - onverwacht login resultaat");
+              console.error("Login returned null/undefined result");
+            } else if (typeof result === "object" && result.banned) {
+              toast.error(`Je bent verbannen van PolarLearn met reden: ${result.message}. Als je denkt dat dit een fout was kan je de discord joinen (link in footer).`);
+            } else if (typeof result === "string") {
+              switch (result) {
+                case "invcreds":
+                  toast.error("Ongeldige inloggegevens");
+                  break;
+                default:
+                  toast.error(`Onverwachte fout: ${result}`);
+                  break;
               }
+            } else {
+              toast.error("interne serverfout");
+              console.error("Unexpected login result:", result, typeof result);
             }
           }}
         >

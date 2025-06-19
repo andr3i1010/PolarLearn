@@ -40,7 +40,7 @@ export default async function SignInPage() {
         return loginPage;
     }
     let user = await getUserFromSession(sessionCookie.value)
-    if (sessionCookie && user?.loginAllowed) {
+    if (sessionCookie && user && user.loginAllowed !== false) {
         return redirect('/home/start')
     } else {
         return loginPage;

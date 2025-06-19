@@ -4,11 +4,12 @@ import { prisma } from "../prisma";
 import { hashPassword } from "./user";
 import { createSession, decodeCookie } from "./session";
 import { cookies } from "next/headers";
+import { createActionNonce } from "./nonce";
 
 export async function signInCredentials(
   email: string,
   password: string
-): Promise<string | boolean> {
+): Promise<string | boolean | { banned: boolean; message: string }> {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
@@ -18,17 +19,36 @@ export async function signInCredentials(
       return "invcreds";
     }
 
-    if (!user.loginAllowed) return user.banReason as string;
+    if (user.loginAllowed === false) {
+      return {
+        banned: true,
+        message: user.banReason || "Geen reden opgegeven"
+      };
+    }
 
     const hashedPassword = await hashPassword(password, user.salt);
 
     if (user.password === hashedPassword) {
       await createSession(user.id);
+      // Create a nonce for the user after successful login
+      try {
+        await createActionNonce(user.id);
+      } catch (error) {
+        console.error("Error creating nonce during login:", error);
+        // Don't fail the login if nonce creation fails
+      }
       return true;
     } else return ("invcreds");
   } catch (error) {
-    console.error(error);
-    return error as string;
+    console.error("Error in signInCredentials:", error);
+    // Ensure we always return a string, never null/undefined
+    if (error && typeof error === 'string') {
+      return error;
+    } else if (error && error instanceof Error) {
+      return error.message || "interne serverfout";
+    } else {
+      return "interne serverfout";
+    }
   }
 }
 

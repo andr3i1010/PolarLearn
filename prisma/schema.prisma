@@ -130,3 +130,11 @@ model group {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model nonce {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  nonce     String   @unique
+  userId    String   @db.String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

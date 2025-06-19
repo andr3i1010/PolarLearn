@@ -50,7 +50,7 @@ export async function GET() {
             );
         }
 
-        if (!user.loginAllowed) {
+        if (user.loginAllowed === false) {
             return NextResponse.json(
                 { authenticated: false },
                 {
