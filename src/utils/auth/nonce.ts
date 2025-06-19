@@ -43,6 +43,7 @@ export async function createActionNonce(userId: string) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 48), 
     });
     return actionNonce;
 }
