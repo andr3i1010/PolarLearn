@@ -3,6 +3,7 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
 import ForumHeaderTabs from "@/components/ForumHeaderTabs";
 import { ReactNode } from "react";
+import { prisma } from "@/utils/prisma";
 
 interface ForumLayoutProps {
     children: ReactNode;
@@ -15,6 +16,8 @@ export default async function ForumLayout({ children, params }: ForumLayoutProps
         (await cookies()).get("polarlearn.session-id")!.value
     );
     const banned = !session?.forumAllowed;
+    const banReason = session?.forumBanReason;
+    const banEnd = session?.forumBanEnd;
     const baseRoute = "/home/forum";
     // Define forum tabs, restricting personal tabs to logged-in users
     const tabs = [
@@ -26,6 +29,9 @@ export default async function ForumLayout({ children, params }: ForumLayoutProps
         { id: "how-the-forum-works", label: "Hoe werkt het forum?", content: <></> },
     ];
 
+    const forumDisabled = await prisma.config.findFirst({
+        where: { key: 'forum_enabled' },
+    })
     return (
         <>
             {/* Header and tabs (client-side hide on non-tab routes) */}
@@ -34,6 +40,9 @@ export default async function ForumLayout({ children, params }: ForumLayoutProps
                 defaultTab={defaultTab}
                 baseRoute={baseRoute}
                 banned={banned}
+                forumDisabled={forumDisabled?.value === 'false'}
+                banReason={banReason}
+                banEnd={banEnd}
             />
 
             {/* Content area */}

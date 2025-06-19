@@ -15,9 +15,10 @@ import Tabs, { TabItem } from "@/components/Tabs";
 import { getAdminData } from "./getAdminData";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { icons, getSubjectIcon, getSubjectName } from "@/components/icons";
-import { Users, ListTodo, School } from "lucide-react";
+import { Users, ListTodo, School, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import SendNotificationButton from "./SendNotificationButton";
+import AlgemeenTabContent from "./AlgemeenTabContent";
 
 interface AdminTabsProps {
     initialUsersData: any[];
@@ -464,6 +465,16 @@ export default function AdminTabs({
     };
 
     const tabs: TabItem[] = [
+        {
+            id: "algemeen",
+            label: (
+                <div className="flex items-center gap-2">
+                    <Settings size={16} />
+                    <span>Algemeen</span>
+                </div>
+            ),
+            content: <AlgemeenTabContent />,
+        },
         {
             id: "gebruikers",
             label: (

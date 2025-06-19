@@ -1,14 +1,26 @@
 "use client";
 
 import Tabs, { TabItem } from "@/components/Tabs";
-import { Users, ListTodo, School } from "lucide-react";
+import { Users, ListTodo, School, Settings } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface AdminNavWrapperProps {
     defaultActiveTab: string;
 }
 
 export default function AdminNavWrapper({ defaultActiveTab }: AdminNavWrapperProps) {
+    const pathname = usePathname() || "";
+    const segments = pathname.split('/');
+    const segment = segments[2] || ""; // after /admin
+
+    // Get the current tab from URL, fallback to defaultActiveTab
+    const currentTab = segment || defaultActiveTab;
     const tabsForNav: TabItem[] = [
+        {
+            id: "algemeen",
+            label: <div className="flex items-center gap-2"><Settings size={16} /><span>Algemeen</span></div>,
+            content: <></>, // Dummy content, as renderContent will be false in Tabs
+        },
         {
             id: "gebruikers",
             label: <div className="flex items-center gap-2"><Users size={16} /><span>Gebruikers</span></div>,
@@ -34,7 +46,7 @@ export default function AdminNavWrapper({ defaultActiveTab }: AdminNavWrapperPro
     return (
         <Tabs
             tabs={tabsForNav}
-            defaultActiveTab={defaultActiveTab}
+            defaultActiveTab={currentTab}
             withRoutes={true}
             baseRoute="/admin"
             renderContent={false} // Key: This instance of Tabs won't render content directly

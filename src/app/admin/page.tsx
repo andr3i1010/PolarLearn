@@ -6,5 +6,5 @@ export const metadata: Metadata = {
     description: "Beheer van alles en nog wat",
 }
 export default async function AdminPageRedirect() {
-    redirect("/admin/gebruikers");
+    redirect("/admin/algemeen");
 }
