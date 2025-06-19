@@ -107,7 +107,7 @@ export default function SignInForm() {
               toast.error("interne serverfout - onverwacht login resultaat");
               console.error("Login returned null/undefined result");
             } else if (typeof result === "object" && result.banned) {
-              toast.error(`Je bent permanent verbannen van PolarLearn met reden: ${result.message}. Deze actie kan niet ongedaan worden gemaakt.`);
+              toast.error(`Je bent verbannen van PolarLearn met reden: ${result.message}. Als je denkt dat dit een fout was kan je de discord joinen (link in footer).`);
             } else if (typeof result === "string") {
               switch (result) {
                 case "invcreds":
