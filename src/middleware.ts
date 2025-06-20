@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { decodeCookie } from '@/utils/auth/session';
 import { prisma } from '@/utils/prisma';
 
-export async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest, response: NextResponse) {
     const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
     let cspHeader = '';
     if (process.env.DISABLE_CSP) {
@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Get response from auth middleware or create a new response
-    const resp = (await middlewareAuth(request)) ?? NextResponse.next({
+    const resp = (await middlewareAuth(request, response)) ?? NextResponse.next({
         request: {
             headers: requestHeaders,
         },
@@ -65,7 +65,7 @@ export async function middleware(request: NextRequest) {
     return resp;
 }
 
-async function middlewareAuth(request: NextRequest) {
+async function middlewareAuth(request: NextRequest, response: NextResponse) {
     if (
         request.nextUrl.pathname.startsWith("/home") ||
         request.nextUrl.pathname.startsWith("/learn")
@@ -74,16 +74,30 @@ async function middlewareAuth(request: NextRequest) {
         const sessionCookie = request.cookies.get('polarlearn.session-id');
 
         if (!sessionCookie?.value) {
-            request.cookies.set('polarlearn.goto', request.nextUrl.pathname)
-            return NextResponse.redirect(new URL('/auth/sign-in', request.url));
+            const response = NextResponse.redirect(new URL('/auth/sign-in', request.url));
+            response.cookies.set('polarlearn.goto', request.nextUrl.pathname, {
+                path: '/',
+                maxAge: 10 * 60, // 10 minutes
+                httpOnly: false, // Allow client-side access
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict'
+            });
+            return response;
         }
 
         try {
             const sessionId = await decodeCookie(sessionCookie.value);
 
             if (!sessionId) {
-                request.cookies.set('polarlearn.goto', request.nextUrl.pathname)
-                return NextResponse.redirect(new URL('/auth/sign-in', request.url));
+                const response = NextResponse.redirect(new URL('/auth/sign-in', request.url));
+                response.cookies.set('polarlearn.goto', request.nextUrl.pathname, {
+                    path: '/',
+                    maxAge: 10 * 60, // 10 minutes
+                    httpOnly: false, // Allow client-side access
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict'
+                });
+                return response;
             }
 
             const session = await prisma.session.findUnique({
@@ -91,8 +105,15 @@ async function middlewareAuth(request: NextRequest) {
             });
 
             if (!session || session.expires < new Date()) {
-                request.cookies.set('polarlearn.goto', request.nextUrl.pathname)
-                return NextResponse.redirect(new URL('/auth/sign-in', request.url));
+                const response = NextResponse.redirect(new URL('/auth/sign-in', request.url));
+                response.cookies.set('polarlearn.goto', request.nextUrl.pathname, {
+                    path: '/',
+                    maxAge: 10 * 60, // 10 minutes
+                    httpOnly: false, // Allow client-side access
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict'
+                });
+                return response;
             }
 
             // Session is valid, allow the request

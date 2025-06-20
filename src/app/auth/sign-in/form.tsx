@@ -11,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
 import { useState } from "react";
+import { getValidRedirectPath, clearRedirectCookie } from "@/utils/auth/redirect";
 
 function getCookie(cname: string) {
   let name = cname + "=";
@@ -43,6 +44,7 @@ export default function SignInForm() {
         }
       );
       router.replace("/auth/sign-in");
+      clearRedirectCookie();
       return;
     }
 
@@ -54,6 +56,7 @@ export default function SignInForm() {
         }
       );
       router.replace("/auth/sign-in");
+      clearRedirectCookie();
       return;
     }
 
@@ -74,7 +77,7 @@ export default function SignInForm() {
           toast.error("Er is een onbekende fout opgetreden");
           break;
       }
-      router.replace(getCookie('polarlearn.goto') || "/auth/sign-in");
+      router.replace(getValidRedirectPath(getCookie('polarlearn.goto')));
     }
   }, []);
 
@@ -102,7 +105,9 @@ export default function SignInForm() {
             const password = formData.get("password") as string;
             const result = await signInCredentials(email, password);
             if (result === true) {
-              router.push("/home/start");
+              const redirectPath = getValidRedirectPath(getCookie('polarlearn.goto'));
+              clearRedirectCookie();
+              router.push(redirectPath);
             } else if (result === null || result === undefined) {
               toast.error("interne serverfout - onverwacht login resultaat");
               console.error("Login returned null/undefined result");

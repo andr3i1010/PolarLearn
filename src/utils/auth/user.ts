@@ -3,12 +3,24 @@ import argon2 from "argon2";
 import { prisma } from "@/utils/prisma";
 import * as crypto from "crypto";
 import { revalidatePath } from "next/cache";
+import { transporter } from "../mail";
 
-// Define a return type interface for consistency
 interface PasswordActionResult {
   success: boolean;
   tempPassword?: string;
   error?: any;
+}
+
+export async function sendSignUpEmail(email: string, username: string): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    await transporter.verify()
+      .catch((err) => reject(err));
+    const mail = await transporter.sendMail({
+      from: `"PolarLearn" <noreply@polarlearn.tech>`,
+      to: email,
+      subject: `PolarLearn | Registratie voor ${username}`,
+    })
+  })
 }
 
 export async function hashPassword(

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next'
 import { getUserFromSession } from '@/utils/auth/auth';
 import { cookies } from 'next/headers';
+import { getValidRedirectPath } from '@/utils/auth/redirect';
 
 export const metadata: Metadata = {
     title: 'PolarLearn - Log in',
@@ -39,9 +40,15 @@ export default async function SignInPage() {
     if (!sessionCookie?.value) {
         return loginPage;
     }
-    let user = await getUserFromSession(sessionCookie.value)
+    let user = await getUserFromSession(sessionCookie.value);
     if (sessionCookie && user && user.loginAllowed !== false) {
-        return redirect('/home/start')
+        const gotoCookie = (await cookies()).get('polarlearn.goto');
+        const redirectPath = getValidRedirectPath(gotoCookie?.value);
+
+        // Clear the redirect cookie by setting it in the response
+        (await cookies()).delete('polarlearn.goto');
+
+        return redirect(redirectPath);
     } else {
         return loginPage;
     }
