@@ -2,6 +2,8 @@ import { getGithubAuthUrl, getGithubTokens, getGithubUser, getGithubUserEmails, 
 import { prisma } from "@/utils/prisma";
 import { createSession } from "@/utils/auth/session";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { getValidRedirectPath } from "@/utils/auth/redirect";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -62,10 +64,23 @@ export async function GET(request: Request) {
       where: { id: user.id },
       data: { githubOAuthID: String(githubProfile.id) },
     });
+  } await createSession(user.id);
+
+  // Create a nonce for the user after successful login
+  try {
+    const { createActionNonce } = await import('@/utils/auth/nonce');
+    await createActionNonce(user.id);
+  } catch (error) {
+    console.error("Error creating nonce during GitHub OAuth login:", error);
+    // Don't fail the login if nonce creation fails
   }
-  await createSession(user.id);
-  return Response.redirect(
-    new URL("/home/start", baseUrl),
-    302
-  );
+  // Check for redirect cookie and redirect accordingly
+  const gotoCookie = (await cookies()).get('polarlearn.goto');
+  const redirectPath = getValidRedirectPath(gotoCookie?.value);
+
+  // Create response with redirect and clear the goto cookie
+  const response = NextResponse.redirect(new URL(redirectPath, baseUrl), 302);
+  response.cookies.delete('polarlearn.goto');
+
+  return response;
 }

@@ -2,6 +2,8 @@ import { getGoogleAuthUrl, getGoogleTokens, scanGoogleEmails, mergeGoogleAccount
 import { prisma } from "@/utils/prisma";
 import { createSession } from "@/utils/auth/session";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { getValidRedirectPath } from "@/utils/auth/redirect";
 
 export async function GET(request: Request) {
   const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
@@ -60,11 +62,23 @@ export async function GET(request: Request) {
       where: { id: user.id },
       data: { googleOAuthID: googleId },
     });
-  }
+  } await createSession(user.id);
 
-  await createSession(user.id);
-  return Response.redirect(
-    new URL("/home/start", baseUrl),
-    302
-  );
+  // Create a nonce for the user after successful login
+  try {
+    const { createActionNonce } = await import('@/utils/auth/nonce');
+    await createActionNonce(user.id);
+  } catch (error) {
+    console.error("Error creating nonce during Google OAuth login:", error);
+    // Don't fail the login if nonce creation fails
+  }
+  // Check for redirect cookie and redirect accordingly
+  const gotoCookie = (await cookies()).get('polarlearn.goto');
+  const redirectPath = getValidRedirectPath(gotoCookie?.value);
+
+  // Create response with redirect and clear the goto cookie
+  const response = NextResponse.redirect(new URL(redirectPath, baseUrl), 302);
+  response.cookies.delete('polarlearn.goto');
+
+  return response;
 }
