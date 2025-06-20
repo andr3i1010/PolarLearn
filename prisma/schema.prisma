@@ -134,7 +134,7 @@ model group {
 model nonce {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   nonce     String   @unique
-  userId    String   @db.String @unique
+  userId    String   @db.String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

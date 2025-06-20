@@ -22,8 +22,17 @@ export async function validateActionNonce() {
         });
         throw new Error('Invalid action nonce');
     }
-    // Note: Don't delete the nonce here - it should persist for the session
-    // Only delete on logout or session expiry
+    // Nonce is valid, so we can delete it now to prevent reuse.
+    await prisma.nonce.delete({ where: { nonce: actionNonce } });
+
+    // Also, clean up any other old nonces for this user.
+    const fortyEightHoursAgo = new Date(Date.now() - 1000 * 60 * 60 * 48);
+    await prisma.nonce.deleteMany({
+        where: {
+            userId: user.id,
+            createdAt: { lt: fortyEightHoursAgo },
+        },
+    });
 }
 
 /**
@@ -32,8 +41,6 @@ export async function validateActionNonce() {
 export async function createActionNonce(userId: string) {
     // generate base64-encoded UUID
     const actionNonce = Buffer.from(crypto.randomUUID()).toString('base64');
-    // Remove old nonce for this user
-    await prisma.nonce.deleteMany({ where: { userId } });
     // Store new nonce
     await prisma.nonce.create({ data: { userId, nonce: actionNonce } });
     const cookieStore = await cookies();
@@ -43,7 +50,7 @@ export async function createActionNonce(userId: string) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 48), 
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 48),
     });
     return actionNonce;
 }
@@ -86,8 +93,28 @@ export async function getCurrentNonce(): Promise<string | null> {
  */
 export async function rotateUserNonce(userId: string): Promise<string | null> {
     try {
-        // Create a new nonce for the user (this will replace the old one)
-        const newNonce = await createActionNonce(userId);
+        // Create a new nonce for the user, but don't delete old ones in this session
+        const newNonce = Buffer.from(crypto.randomUUID()).toString('base64');
+        await prisma.nonce.create({ data: { userId, nonce: newNonce } });
+
+        const cookieStore = await cookies();
+        cookieStore.set('polarlearn.nonce.NIET_BEWERKEN!!', newNonce, {
+            path: '/',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 48),
+        });
+
+        // Cleanup nonces older than 48 hours for this user
+        const fortyEightHoursAgo = new Date(Date.now() - 1000 * 60 * 60 * 48);
+        await prisma.nonce.deleteMany({
+            where: {
+                userId,
+                createdAt: { lt: fortyEightHoursAgo },
+            },
+        });
+
         return newNonce;
     } catch (error) {
         console.error('Error rotating nonce:', error);
