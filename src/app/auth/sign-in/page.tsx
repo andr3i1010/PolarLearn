@@ -45,8 +45,8 @@ export default async function SignInPage() {
         const gotoCookie = (await cookies()).get('polarlearn.goto');
         const redirectPath = getValidRedirectPath(gotoCookie?.value);
 
-        // Clear the redirect cookie by setting it in the response
-        (await cookies()).delete('polarlearn.goto');
+        // No need to delete the cookie here, Next.js will handle it
+        // The cookie will be cleared when redirecting
 
         return redirect(redirectPath);
     } else {
