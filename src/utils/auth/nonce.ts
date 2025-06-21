@@ -4,6 +4,36 @@ import { prisma } from '../prisma';
 import { getUserFromSession } from './auth';
 import crypto from 'crypto';
 
+/**
+ * Clean up old nonces (24+ hours old) globally
+ * This helps prevent the nonce table from growing indefinitely
+ */
+async function cleanupOldNonces() {
+    try {
+        const twentyFourHoursAgo = new Date(Date.now() - 1000 * 60 * 60 * 24);
+        const result = await prisma.nonce.deleteMany({
+            where: {
+                createdAt: { lt: twentyFourHoursAgo },
+            },
+        });
+
+        if (result.count > 0) {
+            console.log(`Cleaned up ${result.count} old nonces`);
+        }
+    } catch (error) {
+        console.error('Error cleaning up old nonces:', error);
+        // Don't throw error as this is a background cleanup operation
+    }
+}
+
+/**
+ * Clean up old nonces globally (exported for potential scheduled jobs)
+ * Removes nonces older than 24 hours
+ */
+export async function cleanupAllOldNonces() {
+    return await cleanupOldNonces();
+}
+
 export async function validateActionNonce() {
     const user = await getUserFromSession();
     if (!user) {
@@ -15,30 +45,36 @@ export async function validateActionNonce() {
         redirect('/auth/sign-in');
     }
     const record = await prisma.nonce.findUnique({ where: { nonce: actionNonce } });
-    if (!record || record.userId !== user.id) {
+    if (!record) {
+        // Nonce not found - likely a replay attack with an old/used nonce
         await prisma.user.update({
             where: { id: user.id },
-            data: { loginAllowed: false, banReason: 'Invalid action nonce detected' },
+            data: { loginAllowed: false, banReason: 'Geautomatiseerde verbanning bij replay-aanval of noncewijziging' },
         });
-        throw new Error('Invalid action nonce');
+        throw new Error('Nonce replay attack detected');
+    }
+    if (record.userId !== user.id) {
+        // Nonce belongs to different user - potential session hijacking
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { loginAllowed: false, banReason: 'Geautomatiseerde verbanning bij replay-aanval of noncewijziging' },
+        });
+        throw new Error('Cross-user nonce attack detected');
     }
     // Nonce is valid, so we can delete it now to prevent reuse.
     await prisma.nonce.delete({ where: { nonce: actionNonce } });
 
-    // Also, clean up any other old nonces for this user.
-    const fortyEightHoursAgo = new Date(Date.now() - 1000 * 60 * 60 * 48);
-    await prisma.nonce.deleteMany({
-        where: {
-            userId: user.id,
-            createdAt: { lt: fortyEightHoursAgo },
-        },
-    });
+    // Clean up old nonces after successful validation
+    await cleanupOldNonces();
 }
 
 /**
  * Generates a new action nonce for the user, stores it in the database, and sets a cookie.
  */
 export async function createActionNonce(userId: string) {
+    // Clean up old nonces before creating new one
+    await cleanupOldNonces();
+
     // generate base64-encoded UUID
     const actionNonce = Buffer.from(crypto.randomUUID()).toString('base64');
     // Store new nonce
@@ -67,6 +103,9 @@ export async function removeUserNonce(userId: string) {
         const cookieStore = await cookies();
         cookieStore.delete('polarlearn.nonce.NIET_BEWERKEN!!');
 
+        // Clean up old nonces from all users on logout
+        await cleanupOldNonces();
+
     } catch (error) {
         console.error('Error removing nonce:', error);
         throw error;
@@ -93,7 +132,10 @@ export async function getCurrentNonce(): Promise<string | null> {
  */
 export async function rotateUserNonce(userId: string): Promise<string | null> {
     try {
-        // Create a new nonce for the user, but don't delete old ones in this session
+        // Clean up old nonces before creating new one
+        await cleanupOldNonces();
+
+        // Create a new nonce for the user
         const newNonce = Buffer.from(crypto.randomUUID()).toString('base64');
         await prisma.nonce.create({ data: { userId, nonce: newNonce } });
 
@@ -104,15 +146,6 @@ export async function rotateUserNonce(userId: string): Promise<string | null> {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             expires: new Date(Date.now() + 1000 * 60 * 60 * 48),
-        });
-
-        // Cleanup nonces older than 48 hours for this user
-        const fortyEightHoursAgo = new Date(Date.now() - 1000 * 60 * 60 * 48);
-        await prisma.nonce.deleteMany({
-            where: {
-                userId,
-                createdAt: { lt: fortyEightHoursAgo },
-            },
         });
 
         return newNonce;
@@ -141,5 +174,29 @@ export async function rotateCurrentUserNonce(): Promise<boolean> {
     } catch (error) {
         console.error('Error in rotateCurrentUserNonce:', error);
         return false;
+    }
+}
+
+/**
+ * Check if a user is banned and get ban reason
+ */
+export async function checkUserBanStatus(userId: string): Promise<{ banned: boolean; reason?: string }> {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { loginAllowed: true, banReason: true }
+        });
+
+        if (!user) {
+            return { banned: true, reason: 'User not found' };
+        }
+
+        return {
+            banned: !user.loginAllowed,
+            reason: user.banReason || undefined
+        };
+    } catch (error) {
+        console.error('Error checking user ban status:', error);
+        return { banned: true, reason: 'Error checking ban status' };
     }
 }
