@@ -161,13 +161,28 @@ async function handleServerActions(request: NextRequest) {
             const nonce = await prisma.nonce.findUnique({
                 where: { nonce: nonceCookie.value }
             }); if (!nonce) {
-                // Instead of immediately banning, clear session and redirect to sign-in
-                // This gives users a chance to re-authenticate rather than getting banned
                 try {
                     const sessionCookie = request.cookies.get('polarlearn.session-id');
                     if (sessionCookie?.value) {
                         const sessionId = await decodeCookie(sessionCookie.value);
                         if (sessionId) {
+                            // Get the session to find the user
+                            const session = await prisma.session.findUnique({
+                                where: { sessionID: sessionId }
+                            });
+
+                            if (session?.userId) {
+                                // Ban the user for nonce replay attack
+                                await prisma.user.update({
+                                    where: { id: session.userId },
+                                    data: {
+                                        loginAllowed: false,
+                                        banReason: 'Geautomatiseerde verbanning bij replay-aanval of noncewijziging'
+                                    }
+                                });
+                                console.warn(`User ${session.userId} banned for nonce replay attack`);
+                            }
+
                             // Clear session from database
                             await prisma.session.deleteMany({
                                 where: { sessionID: sessionId }
@@ -175,22 +190,28 @@ async function handleServerActions(request: NextRequest) {
                         }
                     }
                 } catch (err) {
-                    console.error('Error clearing session for invalid nonce:', err);
+                    console.error('Error banning user for nonce replay attack:', err);
                 }
 
-                // Redirect to sign-in to get fresh session and nonce
-                const response = NextResponse.redirect(new URL('/auth/sign-in?error=session_expired', request.url));
+                // Redirect to sign-in with security error
+                const response = NextResponse.redirect(new URL('/auth/sign-in?error=security_violation', request.url));
                 response.cookies.delete('polarlearn.session-id');
                 response.cookies.delete('polarlearn.nonce.NIET_BEWERKEN!!');
                 return response;
             }
 
-            // Nonce is valid - rotate it immediately for this server action
+            // Nonce is valid - delete it immediately to prevent reuse, then rotate
             try {
+                // Delete the used nonce immediately
+                await prisma.nonce.delete({
+                    where: { nonce: nonceCookie.value }
+                });
+
+                // Rotate to get a new nonce for the next request
                 const { rotateUserNonce } = await import('./utils/auth/nonce');
                 await rotateUserNonce(nonce.userId);
             } catch (error) {
-                console.error('Error rotating nonce:', error);
+                console.error('Error handling nonce rotation:', error);
                 // Don't fail the request if nonce rotation fails
             }
 
