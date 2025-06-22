@@ -1,6 +1,9 @@
-import SubjectPage from '../page';
+import SubjectTabPage from '../[...tab]/page';
 
-export default function TabPage({ params }: { params: Promise<{ subject: string; tab: string }> }) {
-    // Pass params to the main page component
-    return <SubjectPage params={Promise.resolve(params)} />;
+export default async function TabPage({ params }: { params: Promise<{ subject: string; tab: string }> }) {
+    // Transform the single tab param to match the [...tab] pattern
+    const { subject, tab } = await params;
+    const tabParams = { subject, tab: [tab] };
+
+    return <SubjectTabPage params={Promise.resolve(tabParams)} />;
 }
