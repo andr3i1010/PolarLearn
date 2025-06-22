@@ -2,8 +2,6 @@
 import { useEffect, useState, createContext, useContext } from "react";
 
 const WSContext = createContext<WebSocket | null>(null);
-import { usePathname } from "next/navigation";
-import Cookies from 'js-cookie';
 
 export function WSProvider({ children }: { children: React.ReactNode }) {
   const [ws, setWs] = useState<WebSocket | null>(null);
@@ -11,7 +9,7 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const baseUrl = `${process.env.NODE_ENV === "production" ? "wss://" : "ws://"}${window.location.host}`;
-      const wsUrl = baseUrl + "/api/ws";
+      const wsUrl = baseUrl + "/api/v1/ws";
       let attempts = 0;
 
       const createConnection = () => {

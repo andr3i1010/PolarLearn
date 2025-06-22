@@ -440,7 +440,7 @@ export default function CreateListTool({
 
       try {
         const res = await fetch(
-          `/api/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
+          `/api/v1/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
         );
         const data = await res.json();
         const translation = data.translation || "";
@@ -476,7 +476,7 @@ export default function CreateListTool({
 
       try {
         const res = await fetch(
-          `/api/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
+          `/api/v1/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
         );
         const data = await res.json();
         const translation = data.translation || "";

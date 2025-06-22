@@ -30,7 +30,7 @@ export default function SessionProvider({
 
     const checkSession = async () => {
         try {
-            const response = await fetch("/api/auth/check-session");
+            const response = await fetch("/api/v1/auth/check-session");
 
             if (response.status === 401) {
                 setIsAuthenticated(false);
