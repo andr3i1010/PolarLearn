@@ -228,7 +228,7 @@ async function handleServerActions(request: NextRequest) {
 
 function isServerAction(request: NextRequest): boolean {
     // First check: exclude auth routes entirely from server action detection
-    if (request.nextUrl.pathname.startsWith('/auth/')) {
+    if (request.nextUrl.pathname.startsWith('/auth/') || request.nextUrl.pathname.startsWith('/api/public')) {
         return false;
     }
 
