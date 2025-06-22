@@ -4,7 +4,6 @@ import { prisma } from "../prisma";
 import { hashPassword } from "./user";
 import { createSession, decodeCookie } from "./session";
 import { cookies } from "next/headers";
-import { createActionNonce } from "./nonce";
 
 export async function signInCredentials(
   email: string,
@@ -30,13 +29,6 @@ export async function signInCredentials(
 
     if (user.password === hashedPassword) {
       await createSession(user.id);
-      // Create a nonce for the user after successful login
-      try {
-        await createActionNonce(user.id);
-      } catch (error) {
-        console.error("Error creating nonce during login:", error);
-        // Don't fail the login if nonce creation fails
-      }
       return true;
     } else return ("invcreds");
   } catch (error) {

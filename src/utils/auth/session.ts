@@ -80,15 +80,6 @@ export async function createSession(userid: string) {
         await createCookie(sessionID, sessionExp);
         // console.debug("createSession: Cookie created for session", sessionID);
 
-        // Create nonce for the user after session creation
-        try {
-          const { createActionNonce } = await import("./nonce");
-          await createActionNonce(userid);
-        } catch (error) {
-          console.error("createSession: Error creating nonce", error);
-          // Don't fail session creation if nonce creation fails
-        }
-
         resolve(sessionID);
       })
       .catch((error: any) => {
@@ -232,14 +223,6 @@ export async function logOut() {
       });
 
       if (session) {
-        // Remove the user's nonce before deleting the session
-        try {
-          const { removeUserNonce } = await import("./nonce");
-          await removeUserNonce(session.userId);
-        } catch (error) {
-          console.error("logOut: Error removing nonce", error);
-        }
-
         // Delete the session
         await prisma.session.delete({
           where: { sessionID: sessionId }

@@ -64,16 +64,10 @@ export async function GET(request: Request) {
       where: { id: user.id },
       data: { githubOAuthID: String(githubProfile.id) },
     });
-  } await createSession(user.id);
-
-  // Create a nonce for the user after successful login
-  try {
-    const { createActionNonce } = await import('@/utils/auth/nonce');
-    await createActionNonce(user.id);
-  } catch (error) {
-    console.error("Error creating nonce during GitHub OAuth login:", error);
-    // Don't fail the login if nonce creation fails
   }
+
+  await createSession(user.id);
+
   // Check for redirect cookie and redirect accordingly
   const gotoCookie = (await cookies()).get('polarlearn.goto');
   const redirectPath = getValidRedirectPath(gotoCookie?.value);

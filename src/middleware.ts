@@ -4,7 +4,6 @@ import { decodeCookie } from '@/utils/auth/session';
 import { prisma } from '@/utils/prisma';
 
 export async function middleware(request: NextRequest, response: NextResponse) {
-    const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
     let cspHeader = '';
     if (process.env.DISABLE_CSP) {
         // Set an empty CSP header when disabled
@@ -28,7 +27,6 @@ export async function middleware(request: NextRequest, response: NextResponse) {
         .replace(/\s{2,}/g, ' ')
         .trim()
     const requestHeaders = new Headers(request.headers)
-    requestHeaders.set('x-nonce', nonce)
     // Get response from auth middleware or create a new response
     const resp = (await middlewareAuth(request, response)) ?? NextResponse.next({
         request: {
