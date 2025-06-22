@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Trash, Loader2 } from "lucide-react";
 import { deleteGroup } from "@/serverActions/groupActions";
 import { toast } from "react-toastify";
@@ -64,32 +63,18 @@ export default function DeleteGroupButton({ groupId }: DeleteGroupButtonProps) {
                     </DialogHeader>
 
                     <DialogFooter className="mt-4">
-                        <Button
-                            variant="outline"
+                        <Button1
+                            text="Annuleren"
                             onClick={() => setIsConfirmOpen(false)}
                             className="border-neutral-600 bg-neutral-800 text-white hover:bg-neutral-700"
                             disabled={isDeleting}
-                        >
-                            Annuleren
-                        </Button>
-                        <Button
-                            variant="destructive"
+                        />
+                        <Button1
                             onClick={handleDelete}
                             disabled={isDeleting}
-                            className="bg-red-700 hover:bg-red-800"
-                        >
-                            {isDeleting ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Verwijderen...
-                                </>
-                            ) : (
-                                <>
-                                    <Trash className="mr-2 h-4 w-4" />
-                                    Verwijderen
-                                </>
-                            )}
-                        </Button>
+                            text={isDeleting ? "Verwijderen..." : "Verwijderen"}
+                            icon={<Trash className="mr-2 h-4 w-4" />}
+                        />
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

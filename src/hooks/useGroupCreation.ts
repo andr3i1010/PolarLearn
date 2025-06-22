@@ -11,7 +11,6 @@ import { createGroupAction } from "@/app/learn/groups/createGroupServer";
 const groupFormSchema = z.object({
     name: z
         .string()
-        .min(3, "Groepsnaam moet minimaal 3 karakters bevatten")
         .max(30, "Groepsnaam mag maximaal 30 karakters bevatten"),
     description: z
         .string()

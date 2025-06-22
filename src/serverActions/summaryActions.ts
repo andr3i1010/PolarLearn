@@ -187,7 +187,7 @@ export async function getSummaryById(list_id: string): Promise<{
     }
 }
 
-export async function getAllSummaries(): Promise<Array<{ id: string | null; name: string; subject: string; updatedAt: Date; mode: string; creator: string | null; }> | { error: string }> {
+export async function getAllSummaries(): Promise<Array<{ id: string | null; name: string; subject: string; updatedAt: Date; mode: string; creator: string | null; published: boolean; }> | { error: string }> {
     try {
         const user = await getUserFromSession(
             (await cookies()).get("polarlearn.session-id")?.value as string
@@ -196,13 +196,42 @@ export async function getAllSummaries(): Promise<Array<{ id: string | null; name
             return { error: "Gebruiker niet geverifieerd." };
         }
 
+        // Get user's list data to find recent summaries
+        const account = await prisma.user.findUnique({
+            where: { id: user.id },
+        });
+
+        const listData = (account?.list_data as any) || {};
+
+        // Get recently practiced lists - this array contains the IDs in order of recency
+        const recentListIds = Array.isArray(listData.recent_lists)
+            ? listData.recent_lists.filter(Boolean)
+            : [];
+
+        // Get user-created lists
+        const createdListIds = Array.isArray(listData.created_lists)
+            ? listData.created_lists.filter(Boolean)
+            : [];
+
+        // Create combined list of IDs to fetch
+        const combinedListIds = [...recentListIds, ...createdListIds].filter(Boolean);
+
         const summaries = await prisma.practice.findMany({
             where: {
                 mode: "summary",
-                OR: [
-                    { creator: user.id },
-                    ...(user.name ? [{ creator: user.name }] : []),
-                ],
+                AND: [
+                    {
+                        OR: [
+                            // Include summaries from combined list IDs (recent + created)
+                            ...(combinedListIds.length > 0
+                                ? [{ list_id: { in: combinedListIds } }]
+                                : []),
+                            // Include summaries created by user (by name or ID)
+                            { creator: user.id },
+                            ...(user.name ? [{ creator: user.name }] : []),
+                        ],
+                    }
+                ]
             },
             orderBy: {
                 updatedAt: 'desc',
@@ -217,8 +246,43 @@ export async function getAllSummaries(): Promise<Array<{ id: string | null; name
                 published: true, // Add published field
             }
         });
+
+        // Create a map for quick lookup of the summary's position in recentListIds
+        interface RecentListPositions {
+            [listId: string]: number;
+        }
+
+        const recentListIdPositions: RecentListPositions = Object.fromEntries(
+            recentListIds.map((id: string, index: number) => [id, index])
+        );
+
+        // Sort summaries to prioritize recently viewed ones
+        const sortedSummaries = summaries.sort((a, b) => {
+            // First, check if both summaries are in recentListIds
+            const aInRecent = a.list_id && a.list_id in recentListIdPositions;
+            const bInRecent = b.list_id && b.list_id in recentListIdPositions;
+
+            if (aInRecent && bInRecent) {
+                // Both summaries are recently viewed, compare their positions in recentListIds
+                return (
+                    recentListIdPositions[a.list_id!] - recentListIdPositions[b.list_id!]
+                );
+            } else if (aInRecent) {
+                // Only a is recently viewed, so a comes first
+                return -1;
+            } else if (bInRecent) {
+                // Only b is recently viewed, so b comes first
+                return 1;
+            } else {
+                // Neither is recently viewed, fallback to updatedAt timestamp
+                return (
+                    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+                );
+            }
+        });
+
         // Map list_id to id for consistency with how start/page.tsx expects it
-        return summaries.filter(s => s.list_id !== null).map(s => ({ ...s, id: s.list_id }));
+        return sortedSummaries.filter(s => s.list_id !== null).map(s => ({ ...s, id: s.list_id }));
     } catch (error: any) {
         console.error("Error fetching all summaries:", error);
         return { error: `Kon samenvattingen niet ophalen: ${error.message || "Onbekende fout"}` };

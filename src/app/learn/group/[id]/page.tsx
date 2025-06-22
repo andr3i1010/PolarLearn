@@ -124,7 +124,7 @@ export default async function Page({
       id: "lists",
       label: "Lijsten",
       content: (
-        <div className="mt-4 p-4">
+        <div className="px-4">
 
           <div className="flex justify-between items-center mb-4">
             <div className="flex-grow" />
@@ -150,7 +150,7 @@ export default async function Page({
             <div className="space-y-4">
               {groupLists.map((list) => (
                 <div key={list.list_id}>
-                  <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
+                  <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
                     <Link href={`${list.mode === "list" ? `/learn/viewlist/${list.list_id}` : `/learn/summary/${list.list_id}`}`} className="flex-1 flex items-center">
                       <div className="flex items-center">
                         {list.subject && (
@@ -256,7 +256,7 @@ export default async function Page({
                 const isGroupCreator = groupData?.creator === memberId;
 
                 return (
-                  <div key={memberId} className="p-4 bg-neutral-800 hover:bg-neutral-700 transition-colors rounded-lg flex items-center justify-between">
+                  <Link href={`/home/viewuser/${memberId}`} key={memberId} className="p-4 bg-neutral-800 hover:bg-neutral-700 transition-colors rounded-lg flex items-center justify-between">
                     <div className="flex items-center">
                       <Jdenticon value={displayName} size={40} />
                       <div className="ml-4">
@@ -301,7 +301,7 @@ export default async function Page({
                         )}
                       </div>
                     )}
-                  </div>
+                  </Link>
                 );
               })}
             </div>

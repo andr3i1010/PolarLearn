@@ -258,78 +258,12 @@ export default async function Start() {
                 {combinedItems.map((item: any, index: number) => {
                   if (item.type === 'list') {
                     return (
-                      <div key={item.list_id}>
-                        <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                          <Link
-                            href={`/learn/viewlist/${item.list_id}`}
-                            className="flex-1 flex items-center"
-                          >
-                            <div className="flex items-center">
-                              {item.subject && (
-                                <Image
-                                  src={getSubjectIcon(item.subject)}
-                                  alt={`${item.subject} icon`}
-                                  width={24}
-                                  height={24}
-                                  className="mr-2"
-                                />
-                              )}
-                              <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                                {item.name}
-                                {item.published === false && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
-                                  >
-                                    Concept
-                                  </Badge>
-                                )}
-                              </span>
-                            </div>
-                            <div className="flex-grow"></div>
-                            <div className="flex items-center pr-2">
-                              {Array.isArray(item.data) && item.data.length === 1
-                                ? "1 woord"
-                                : `${Array.isArray(item.data) ? item.data.length : 0
-                                } woorden`}
-                            </div>
-                          </Link>
-
-                          {item.creator && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                              <CreatorLink creator={item.creator} />
-                            </div>
-                          )}
-
-                          <div className="flex items-center gap-2">
-                            {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
-                              <Link
-                                href={`/learn/editlist/${item.list_id}`}
-                                className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                                title="Lijst bewerken"
-                              >
-                                <PencilIcon className="h-5 w-5 text-white" />
-                              </Link>
-                            )}
-                            {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                                <DeleteListButton
-                                  listId={item.list_id}
-                                  isCreator={true}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  } else if (item.type === 'summary') {
-                    return (
                       <div key={item.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between">
                         <Link
-                          href={`/learn/summary/${item.list_id}`} // Use item.list_id (mapped from summary.id)
-                          className="flex-1 flex items-center"
-                        >
+                          href={`/learn/viewlist/${item.list_id}`}
+                          className="absolute inset-0 z-0"
+                        />
+                        <div className="flex-1 flex items-center relative z-10 pointer-events-none">
                           <div className="flex items-center">
                             {item.subject && (
                               <Image
@@ -352,23 +286,88 @@ export default async function Start() {
                               )}
                             </span>
                           </div>
-                        </Link>
+                          <div className="flex-grow"></div>
+                          <div className="flex items-center pr-2">
+                            {Array.isArray(item.data) && item.data.length === 1
+                              ? "1 woord"
+                              : `${Array.isArray(item.data) ? item.data.length : 0
+                              } woorden`}
+                          </div>
+                        </div>
 
                         {item.creator && (
-                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center z-10 pointer-events-none">
                             <CreatorLink creator={item.creator} />
                           </div>
                         )}
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 relative z-10">
+                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
+                            <Link
+                              href={`/learn/editlist/${item.list_id}`}
+                              className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                              title="Lijst bewerken"
+                            >
+                              <PencilIcon className="h-5 w-5 text-white" />
+                            </Link>
+                          )}
+                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                              <DeleteListButton
+                                listId={item.list_id}
+                                isCreator={true}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  } else if (item.type === 'summary') {
+                    return (
+                      <div key={item.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between">
+                        <Link
+                          href={`/learn/summary/${item.list_id}`}
+                          className="absolute inset-0 z-0"
+                        />
+                        <div className="flex-1 flex items-center relative z-10 pointer-events-none">
+                          <div className="flex items-center">
+                            {item.subject && (
+                              <Image
+                                src={getSubjectIcon(item.subject)}
+                                alt={`${item.subject} icon`}
+                                width={24}
+                                height={24}
+                                className="mr-2"
+                              />
+                            )}
+                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                              {item.name}
+                              {item.published === false && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
+                                >
+                                  Concept
+                                </Badge>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+
+                        {item.creator && (
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center z-10 pointer-events-none">
+                            <CreatorLink creator={item.creator} />
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 relative z-10">
                           <Link
-                            href={`/learn/editsummary/${item.list_id}`} // Use item.list_id
+                            href={`/learn/editsummary/${item.list_id}`}
                             className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
                             title="Samenvatting bewerken"
                           >
                             <PencilIcon className="h-5 w-5 text-white" />
                           </Link>
-                          {/* Add DeleteSummaryButton here */}
                           {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
                             <DeleteSummaryButton summaryId={item.list_id} />
                           )}
