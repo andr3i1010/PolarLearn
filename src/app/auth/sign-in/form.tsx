@@ -59,6 +59,31 @@ export default function SignInForm() {
       return;
     }
 
+
+    if (error === "banned") {
+      toast.error(
+        "Je account is verbannen wegens niet-toegestane activiteit. Deze actie kan niet ongedaan worden gemaakt.",
+        {
+          autoClose: 7000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      clearRedirectCookie();
+      return;
+    }
+
+    if (error === "session_expired") {
+      toast.info(
+        "Je sessie is verlopen. Log opnieuw in om verder te gaan.",
+        {
+          autoClose: 5000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      clearRedirectCookie();
+      return;
+    }
+
     if (error && provider) {
       switch (error) {
         case "usernotfound":
@@ -76,6 +101,7 @@ export default function SignInForm() {
           toast.error("Er is een onbekende fout opgetreden");
           break;
       }
+      router.replace(getValidRedirectPath(getCookie('polarlearn.goto')));
       router.replace(getValidRedirectPath(getCookie('polarlearn.goto')));
     }
   }, []);
