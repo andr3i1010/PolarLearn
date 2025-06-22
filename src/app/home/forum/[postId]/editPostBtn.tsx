@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo, useEffect } from "react";
-import { deletePost, updatePost, getPost } from "@/actions/forum";
+import { getPost } from "@/actions/forum";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -140,11 +140,20 @@ function EditPostButton({
 
     setIsDeleting(true);
     try {
-      const result = await deletePost(postId);
-      if (result.redirect) {
-        router.push(result.redirect);
+      const response = await fetch(`/api/v1/forum/delete?postId=${postId}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        if (result.isMainPost) {
+          router.push("/home/forum");
+        } else {
+          router.refresh();
+        }
       } else {
-        router.refresh();
+        throw new Error(result.error || "Failed to delete post");
       }
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -159,16 +168,26 @@ function EditPostButton({
 
       try {
         setIsSubmitting(true);
-        const result = await updatePost(postId, values);
 
-        if (result.success) {
+        const response = await fetch(`/api/v1/forum/edit?postId=${postId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
           toast.success("Post succesvol bijgewerkt!");
           setOpen(false);
           router.refresh();
         } else {
-          toast.error(result.error);
+          toast.error(result.error || "Er is een fout opgetreden");
         }
       } catch (error) {
+        console.error("Error updating post:", error);
         toast.error("Er is een fout opgetreden bij het bewerken van je post.");
       } finally {
         setIsSubmitting(false);

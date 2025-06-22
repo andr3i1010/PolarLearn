@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MessageSquare } from "lucide-react"
-import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
 
 interface SendNotificationButtonProps {
     userId: string
@@ -33,19 +32,29 @@ export default function SendNotificationButton({ userId, userName }: SendNotific
         setStatus(null);
 
         try {
-            const result = await sendNotificationToUser(userId, content, icon);
-            setStatus(result);
+            const response = await fetch("/api/v1/notifications", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userId, content, icon }),
+            });
 
-            if (result.success) {
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                setStatus({ success: true, message: result.message });
                 setTimeout(() => {
                     setOpen(false);
                     setContent("");
                     router.refresh();
                 }, 1500);
             } else {
+                setStatus({ success: false, message: result.error || "Er is iets misgegaan" });
                 setIsSending(false);
             }
         } catch (error) {
+            console.error("Error sending notification:", error);
             setStatus({ success: false, message: "Er is iets misgegaan" });
             setIsSending(false);
         }

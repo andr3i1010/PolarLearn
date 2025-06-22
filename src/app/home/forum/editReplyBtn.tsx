@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo, useEffect } from "react";
-import { updateReply, getPost } from "@/actions/forum";
+import { getPost } from "@/actions/forum";
 import { useRouter } from "next/navigation";
 import {
     Dialog,
@@ -129,16 +129,26 @@ function EditReplyButton({
 
             try {
                 setIsSubmitting(true);
-                const result = await updateReply(postId, values.content);
 
-                if (result.success) {
+                const response = await fetch(`/api/v1/forum/edit?postId=${postId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ content: values.content }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
                     toast.success("Antwoord succesvol bijgewerkt!");
                     setOpen(false);
                     router.refresh();
                 } else {
-                    toast.error(result.error);
+                    toast.error(result.error || "Er is een fout opgetreden");
                 }
             } catch (error) {
+                console.error("Error updating reply:", error);
                 toast.error("Er is een fout opgetreden bij het bewerken van je antwoord.");
             } finally {
                 setIsSubmitting(false);

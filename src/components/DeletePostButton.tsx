@@ -4,7 +4,6 @@ import { useState, useCallback, memo } from "react"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import Button1 from "@/components/button/Button1"
-import { deletePost } from "@/actions/forum"
 import { Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -39,39 +38,47 @@ function DeletePostButton({
   const handleDelete = useCallback(async () => {
     setIsDeleting(true)
     try {
-      await deletePost(postId)
+      const response = await fetch(`/api/v1/forum/delete?postId=${postId}`, {
+        method: "DELETE",
+      });
 
-      // If admin is deleting someone else's post, send notification with reason
-      if (requiresReason && creatorId) {
-        try {
-          const postTitle = title || (isMainPost ? "je vraag" : "je antwoord")
-          let notificationMessage: string
+      const result = await response.json();
 
-          if (isMainPost) {
-            notificationMessage = `Je vraag "${postTitle}" was verwijderd door een administrator, met reden: ${reason}`
-          } else {
-            notificationMessage = `Je antwoord op "${postTitle}" was verwijderd door een administrator, met reden: ${reason}`
+      if (response.ok && result.success) {
+        // If admin is deleting someone else's post, send notification with reason
+        if (requiresReason && creatorId) {
+          try {
+            const postTitle = title || (isMainPost ? "je vraag" : "je antwoord")
+            let notificationMessage: string
+
+            if (isMainPost) {
+              notificationMessage = `Je vraag "${postTitle}" was verwijderd door een administrator, met reden: ${reason}`
+            } else {
+              notificationMessage = `Je antwoord op "${postTitle}" was verwijderd door een administrator, met reden: ${reason}`
+            }
+
+            await sendUserNotification(
+              creatorId,
+              notificationMessage,
+              "Trash2",
+              false  // Don't include sender name for admin deletion notifications
+            )
+          } catch (error) {
+            console.error("Failed to send notification", error)
           }
-
-          await sendUserNotification(
-            creatorId,
-            notificationMessage,
-            "Trash2",
-            false  // Don't include sender name for admin deletion notifications
-          )
-        } catch (error) {
-          console.error("Failed to send notification", error)
         }
-      }
 
-      setIsDeleting(false)
-      setOpen(false)
+        setIsDeleting(false)
+        setOpen(false)
 
-      // If this is a main post, redirect to the forum, otherwise refresh
-      if (isMainPost) {
-        router.push("/home/forum")
+        // If this is a main post, redirect to the forum, otherwise refresh
+        if (result.isMainPost) {
+          router.push("/home/forum")
+        } else {
+          router.refresh()
+        }
       } else {
-        router.refresh()
+        throw new Error(result.error || "Failed to delete post")
       }
     } catch (error) {
       setIsDeleting(false)

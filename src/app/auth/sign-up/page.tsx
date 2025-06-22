@@ -2,6 +2,16 @@ import Image from "next/image";
 import pl500 from "@/app/img/pl-500.svg";
 import SignUpForm from "./form";
 import ToastProvider from "../../../components/toast/toast";
+import { redirect } from 'next/navigation';
+import { getUserFromSession } from '@/utils/auth/auth';
+import { cookies } from 'next/headers';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'PolarLearn - Account aanmaken',
+  description: 'Accountcreatiepagina van PolarLearn',
+}
+
 export default async function SignUpPage() {
   const signUpPage = (
     <>
@@ -34,10 +44,16 @@ export default async function SignUpPage() {
     </>
   );
 
-  //   if (await auth()) {
-  //     return redirect("/home/start");
-  //   } else {
-  //     return signUpPage;
-  //   }
-  return signUpPage;
+  // Check if user is already authenticated
+  const sessionCookie = (await cookies()).get('polarlearn.session-id');
+  if (!sessionCookie?.value) {
+    return signUpPage;
+  }
+
+  let user = await getUserFromSession(sessionCookie.value);
+  if (sessionCookie && user?.loginAllowed) {
+    return redirect('/home/start');
+  } else {
+    return signUpPage;
+  }
 }

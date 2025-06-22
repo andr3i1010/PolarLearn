@@ -10,8 +10,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { updateDailyStreak } from "@/components/streak/updateStreak";
-import { invalidateStreakCache } from "@/components/streak/streakClient";
 import dynamic from "next/dynamic";
 import {
   Dialog,
@@ -1044,27 +1042,41 @@ const LearnTool = ({
       }
 
       const updateStreak = async () => {
-        const result = await updateDailyStreak();
-        if (result.success) {
-          setStreakInfo({
-            currentStreak: result.currentStreak || 0,
-            isNewStreak: result.isNewStreak === true,
+        try {
+          const response = await fetch("/api/v1/streak/update", {
+            method: "POST",
           });
 
-          // Track if the streak was updated for potential UI changes
-          setStreakUpdated(result.streakUpdated === true);
+          const result = await response.json();
 
-          // Track if a freeze was awarded or used
-          setFreezeAwarded(result.freezeAwarded === true);
-          setFreezeUsed(result.freezeUsed === true);
+          if (response.ok && result.success) {
+            setStreakInfo({
+              currentStreak: result.currentStreak || 0,
+              isNewStreak: result.isNewStreak === true,
+            });
 
-          // Determine which screen to show first
-          if (result.streakUpdated && result.isNewStreak) {
-            setStreakStarted(true);
+            // Track if the streak was updated for potential UI changes
+            setStreakUpdated(result.streakUpdated === true);
+
+            // Track if a freeze was awarded or used
+            setFreezeAwarded(result.freezeAwarded === true);
+            setFreezeUsed(result.freezeUsed === true);
+
+            // Determine which screen to show first
+            if (result.streakUpdated && result.isNewStreak) {
+              setStreakStarted(true);
+            }
+
+            // Trigger a custom event to notify streak components of the update
+            if (typeof window !== 'undefined') {
+              const event = new CustomEvent('streak-data-updated');
+              window.dispatchEvent(event);
+            }
+          } else {
+            console.error("Failed to update streak:", result);
           }
-
-          // Invalidate the streak cache to update the UI
-          invalidateStreakCache();
+        } catch (error) {
+          console.error("Error updating streak:", error);
         }
       };
 

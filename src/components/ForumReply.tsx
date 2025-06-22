@@ -4,7 +4,6 @@ import { useState, useCallback, memo } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import Button1 from "@/components/button/Button1"
-import { createReply } from "@/actions/forum"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
 import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
@@ -27,17 +26,31 @@ function ForumReply({ postId, userId, buttonText = "Beantwoorden" }: ForumReplyP
     setIsSubmitting(true)
 
     try {
-      await createReply(postId, content, userId)
-      setContent("")
-      setOpen(false)
-      toast.success("Je antwoord is succesvol geplaatst! Hiermee heb je 10 punten verdiend.")
-      router.refresh()
+      const response = await fetch("/api/v1/forum/replies", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ postId, content, userId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setContent("")
+        setOpen(false)
+        toast.success("Je antwoord is succesvol geplaatst! Hiermee heb je 10 punten verdiend.")
+        router.refresh()
+      } else {
+        toast.error(result.error || "Er is een fout opgetreden")
+      }
     } catch (error) {
-      toast.error("Er is iets misgegaan bij het versturen van je antwoord: " + error)
+      console.error("Error creating reply:", error)
+      toast.error("Er is iets misgegaan bij het versturen van je antwoord")
     } finally {
       setIsSubmitting(false)
     }
-  }, [postId, content, router])
+  }, [postId, content, userId, router])
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);

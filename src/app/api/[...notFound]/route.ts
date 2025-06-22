@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Create the response handler without exporting it
 function createNotFoundResponse(req: NextRequest) {
     return NextResponse.json(
-        { error: 'Not Found', message: 'This API route does not exist.' },
+        { error: 'Not Found', message: 'Endpoint bestaat niet' },
         { status: 404 }
     )
 }

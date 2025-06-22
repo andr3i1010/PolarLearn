@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import GoogleLogin from "@/components/button/logInGoogle";
 import GithubLogin from "@/components/button/loginGithub";
 import Button1 from "@/components/button/Button1";
-import { signInCredentials } from "@/utils/auth/auth";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
 import { EyeOff } from "lucide-react";
@@ -78,22 +77,26 @@ export default function SignInForm() {
             const formData = new FormData(e.currentTarget);
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
-            const result = await signInCredentials(email, password);
-            if (result === true) {
-              router.push("/home/start");
-            } else {
-              if (typeof result === "string") {
-                switch (result) {
-                  case "invcreds":
-                    toast.error("Ongeldige inloggegevens");
-                    break;
-                  default:
-                    toast.error(`Je bent permanent verbannen van PolarLearn met reden: ${result || 'Niet gevonden in database'}. Deze actie kan niet ongedaan worden gemaakt.`);
-                    break;
-                }
+
+            try {
+              const response = await fetch("/api/v1/auth/sign-in", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+              });
+
+              const data = await response.json();
+
+              if (response.ok && data.success) {
+                router.push("/home/start");
               } else {
-                toast.error("interne serverfout");
+                toast.error(data.error || "Er is een fout opgetreden");
               }
+            } catch (error) {
+              console.error("Sign-in error:", error);
+              toast.error("Er is een fout opgetreden bij het inloggen");
             }
           }}
         >

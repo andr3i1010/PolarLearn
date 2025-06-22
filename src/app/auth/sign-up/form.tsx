@@ -1,18 +1,10 @@
 "use client"
 import Button1 from "@/components/button/Button1";
 import { toast } from "react-toastify";
-import type { Metadata } from 'next'
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createUserCredentials } from "@/utils/auth/user";
-import { createSession } from "@/utils/auth/session";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
-
-const metadata: Metadata = {
-  title: 'PolarLearn - Account aanmaken',
-  description: 'Accountcreatiepagina van PolarLearn',
-}
 
 export default function SignUpForm() {
   const [usernameError, setUsernameError] = useState("");
@@ -36,7 +28,9 @@ export default function SignUpForm() {
 
   return (
     <form className="space-y-4 md:space-y-6"
-      action={async (formData) => {
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
         const username = formData.get("username") as string;
 
         if (!validateUsername(username)) {
@@ -47,19 +41,26 @@ export default function SignUpForm() {
         const password = formData.get("password") as string;
 
         try {
-          interface User {
-            userdata: {
-              id: string;
-            };
+          const response = await fetch("/api/v1/auth/sign-up", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, email, password }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            toast.success("Account succesvol aangemaakt!");
+            await delay(1500);
+            router.push("/auth/sign-in");
+          } else {
+            toast.error(result.error || "Er is een fout opgetreden");
           }
-          const user = await createUserCredentials(username, email, password) as User;
-          toast.success("Account succesvol aangemaakt!");
-          await createSession(user.userdata.id)
-          await delay(1500);
-          router.push("/auth/sign-in");
         } catch (error) {
-          console.error("Error creating user:", error);
-          toast.error("Er is een fout opgetreden bij het aanmaken van het account.");
+          console.error("Sign-up error:", error);
+          toast.error("Er is een fout opgetreden bij het aanmaken van je account");
         }
       }}
     >

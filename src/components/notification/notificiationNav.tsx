@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import Button1 from "../button/Button1";
 import { useEffect, useState } from "react";
 import {
-    getAllNotifs,
     markNotificationsAsRead,
     deleteNotification as deleteNotificationAction,
     markNotificationAsRead
@@ -58,14 +57,15 @@ export default function NotificationNav() {
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const response = await getAllNotifs();
+                const response = await fetch("/api/v1/notifications");
+                const data = await response.json();
 
                 // Validate the response data
-                if (isValidNotificationData(response)) {
-                    setNotifications(response);
+                if (response.ok && isValidNotificationData(data)) {
+                    setNotifications(data);
 
                     // Set readAll based on notification status
-                    if (Object.keys(response).length === 0) {
+                    if (Object.keys(data).length === 0) {
                         setReadAll(true);
                     } else {
                         const allRead = Object.values(response).every(notif => notif && notif.read === true);

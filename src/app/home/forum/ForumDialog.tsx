@@ -10,7 +10,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { formSchema } from "./formSchema";
-import { createPostServer } from "./createPostServer";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
@@ -253,9 +252,18 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
     }
     try {
       setIsSubmitting(true);
-      const result = await createPostServer(values);
 
-      if (result.success) {
+      const response = await fetch("/api/v1/forum/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
         toast.success("Post succesvol geplaatst!");
         // Navigate to the newly created forum post first
         router.push(`/home/forum/${result.postId}`);
@@ -263,9 +271,10 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
         setOpen(false);
         form.reset();
       } else {
-        toast.error(result.error);
+        toast.error(result.error || "Er is een fout opgetreden");
       }
     } catch (error) {
+      console.error("Error creating post:", error);
       toast.error("Er is een fout opgetreden bij het plaatsen van je post.");
     } finally {
       setIsSubmitting(false);
