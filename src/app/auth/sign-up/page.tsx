@@ -14,14 +14,6 @@ export const metadata: Metadata = {
 import SignUpForm from "./form";
 import { prisma } from "@/utils/prisma";
 export default async function SignUpPage() {
-  // Check if registration is enabled
-  const registrationConfig = await prisma.config.findFirst({
-    where: {
-      key: "registration_enabled",
-    }
-  });
-
-  const isRegistrationEnabled = registrationConfig?.value === "true";
 
   // Check if registration is enabled
   const registrationConfig = await prisma.config.findFirst({
