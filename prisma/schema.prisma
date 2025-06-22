@@ -35,7 +35,7 @@ model User {
   loginAllowed   Boolean?
   banReason      String?
   forumAllowed   Boolean?  @default(false)
-  forumBanReason String?   @default("We hebben wat problemeen met iritanten mensen, daarom sturen we je een email die je moet bevestigen om toegang te krijgen tot het forum.")
+  forumBanReason String?
   forumBanEnd    DateTime?
 
   notificationData Json?
