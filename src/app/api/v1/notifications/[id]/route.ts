@@ -93,3 +93,57 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await getUserFromSession();
+    if (!user?.id) {
+      return NextResponse.json(
+        { error: "Niet ingelogd" },
+        { status: 401 }
+      );
+    }
+
+    const notificationId = params.id;
+    const userData = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { notificationData: true }
+    });
+    if (!userData) {
+      return NextResponse.json(
+        { error: "Gebruiker niet gevonden" },
+        { status: 404 }
+      );
+    }
+
+    const currentNotifications = safelyParseNotificationData(userData.notificationData);
+    if (!currentNotifications[notificationId]) {
+      return NextResponse.json(
+        { error: "Notificatie niet gevonden" },
+        { status: 404 }
+      );
+    }
+
+    delete currentNotifications[notificationId];
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        notificationData: currentNotifications as unknown as Prisma.InputJsonValue
+      }
+    });
+
+    return NextResponse.json(
+      { success: true },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    return NextResponse.json(
+      { error: "Fout bij het verwijderen van notificatie" },
+      { status: 500 }
+    );
+  }
+}

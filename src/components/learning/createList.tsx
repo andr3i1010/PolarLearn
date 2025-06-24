@@ -29,11 +29,10 @@ import Button1 from "@/components/button/Button1";
 import Dropdown, { DropdownHandle } from "@/components/button/DropdownBtn";
 import Image from "next/image";
 import { ReactNode } from "react";
-const API_LISTS_ENDPOINT = '/api/v1/lists';
 
 async function sendListRequest(listData: any) {
   const isUpdate = !!listData.listId;
-  const url = isUpdate ? `${API_LISTS_ENDPOINT}/${listData.listId}` : API_LISTS_ENDPOINT;
+  const url = isUpdate ? `/api/v1/lists/${listData.listId}` : `/api/v1/lists`;
   const response = await fetch(url, {
     method: isUpdate ? 'PUT' : 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -452,9 +451,6 @@ export default function CreateListTool({
 
     // Only translate if both languages are set and different
     if (fromLang && toLang && fromLang !== toLang) {
-      // Create a unique request ID to track this specific translation request
-      const requestId = `manual-${pairId}-${word}-${fromLang}-${toLang}-${Date.now()}`;
-
       try {
         const res = await fetch(
           `/api/v1/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`

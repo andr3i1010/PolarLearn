@@ -3,7 +3,6 @@
 import { useState, useCallback } from "react";
 import { Trash2 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
-import { deleteListAction } from "@/serverActions/deleteList";
 import { removeListFromGroup } from "@/serverActions/groupActions";
 
 import {
@@ -46,16 +45,19 @@ export default function DeleteListButton({
                 await removeListFromGroup(groupId, listId);
                 router.refresh();
             } else {
-                // Delete the list
-                const result = await deleteListAction(listId);
-
-                // Only redirect if we're on the view page of the list being deleted
-                if (pathname.includes(`/learn/viewlist/${listId}`) ||
-                    pathname.includes(`/learn/editlist/${listId}`)) {
-                    router.push('/home/start');
+                // Call DELETE API endpoint
+                const res = await fetch(`/api/v1/lists/${listId}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (res.ok && result.success) {
+                    // Only redirect if we're on the view or edit page of the deleted list
+                    if (pathname.includes(`/learn/viewlist/${listId}`) ||
+                        pathname.includes(`/learn/editlist/${listId}`)) {
+                        router.push('/home/start');
+                    } else {
+                        router.refresh();
+                    }
                 } else {
-                    // Just refresh the current page without navigation to maintain scroll position
-                    router.refresh();
+                    console.error("Failed to delete list:", result.error || result.message);
                 }
             }
         } catch (error) {

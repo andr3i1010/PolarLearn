@@ -7,11 +7,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Button1 from "../button/Button1";
 import { useEffect, useState } from "react";
-import {
-    markNotificationsAsRead,
-    deleteNotification as deleteNotificationAction,
-    markNotificationAsRead
-} from "./notificationActions";
+import { markNotificationsAsRead, markNotificationAsRead } from "./notificationActions";
 import React from "react";
 import * as LucideIcons from "lucide-react";
 import { LucideProps } from "lucide-react";
@@ -115,24 +111,20 @@ export default function NotificationNav() {
 
     // New function to delete a notification
     const deleteNotification = async (key: string, e: React.MouseEvent) => {
-        e.stopPropagation(); // Prevent triggering the notification click
-
+        e.stopPropagation();
         if (!notifications) return;
-
         try {
-            const result = await deleteNotificationAction(key);
-
-            if (result.success) {
+            const res = await fetch(`/api/v1/notifications/${key}`, { method: 'DELETE' });
+            const result = await res.json();
+            if (res.ok && result.success) {
                 const updatedNotifications = { ...notifications };
                 delete updatedNotifications[key];
-
                 setNotifications(updatedNotifications);
-
                 if (Object.keys(updatedNotifications).length === 0) {
                     setReadAll(true);
                 }
             } else {
-                console.error("Failed to delete notification:", result.message);
+                console.error("Failed to delete notification:", result.error || result.message);
             }
         } catch (error) {
             console.error("Error deleting notification:", error);

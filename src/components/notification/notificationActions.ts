@@ -201,15 +201,13 @@ export async function deleteNotification(notificationKey: string) {
         // Update in database
         await prisma.user.update({
             where: { id: user.id },
-            data: {
-                notificationData: updatedNotifications as any
-            }
+            data: { notificationData: updatedNotifications as any }
         });
 
         return { success: true, message: "Notificatie verwijderd" };
     } catch (error) {
         console.error("Error deleting notification:", error);
-        return { success: false, message: "Er ging iets mis" };
+        return { success: false, message: "Er ging iets mis bij het verwijderen" };
     }
 }
 
