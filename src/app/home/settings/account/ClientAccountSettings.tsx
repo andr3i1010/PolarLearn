@@ -105,7 +105,7 @@ export default function ClientAccountSettings({ initialData }: Props) {
     setDeleteLoading(true)
 
     try {
-      const result = await fetch('/api/settings/account', {
+      const result = await fetch('/api/v1/settings/account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deleteLists, deleteForumPosts })

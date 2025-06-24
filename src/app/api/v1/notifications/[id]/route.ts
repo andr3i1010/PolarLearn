@@ -95,9 +95,10 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: notificationId } = await params;
   try {
     const user = await getUserFromSession();
     if (!user?.id) {
@@ -107,7 +108,6 @@ export async function DELETE(
       );
     }
 
-    const notificationId = params.id;
     const userData = await prisma.user.findUnique({
       where: { id: user.id },
       select: { notificationData: true }
