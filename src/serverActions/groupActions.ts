@@ -327,8 +327,10 @@ export async function removeListFromGroup(groupId: string, listId: string) {
             throw new Error("Group not found");
         }
 
-        // Check if user is the creator or is the list creator
-        const isCreator = group.creator === session.name;
+        // Determine roles: group creator (by id or name), group admin (by id), platform admin
+        const isGroupCreator = group.creator === session.id || group.creator === session.name;
+        const isGroupAdmin = Array.isArray(group.admins) && group.admins.includes(session.id);
+        const isPlatformAdmin = session.role === 'admin';
 
         // Get the list to check the creator
         const list = await prisma.practice.findFirst({
@@ -339,10 +341,12 @@ export async function removeListFromGroup(groupId: string, listId: string) {
             throw new Error("List not found");
         }
 
-        const isListCreator = list.creator === session.name;
+        // Also allow list creator (by id or name)
+        const isListCreator = list.creator === session.id || list.creator === session.name;
 
-        if (!isCreator && !isListCreator) {
-            throw new Error("You must be the group creator or list creator to remove this list");
+        // Only allow removal if user is group creator, list creator, group admin, or platform admin
+        if (!isGroupCreator && !isListCreator && !isGroupAdmin && !isPlatformAdmin) {
+            throw new Error("You do not have permission to remove this list from the group");
         }
 
         // Remove the list ID from the group's listsAdded field

@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error resetting streak:", error);
     return NextResponse.json(
-      { success: false, message: "Fout bij het resetten van de streak" },
+      { success: false, message: "Fout bij het resetten van de reeks" },
       { status: 500 }
     );
   }

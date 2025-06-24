@@ -18,8 +18,8 @@ import Button1 from "@/components/button/Button1";
 interface DeleteListButtonProps {
     listId: string;
     isCreator: boolean;
-    groupId?: string; // Optional groupId for removing lists from groups
-    customText?: string; // Optional custom text for the list
+    groupId?: string;
+    customText?: string;
 }
 
 export default function DeleteListButton({
@@ -27,7 +27,6 @@ export default function DeleteListButton({
     isCreator,
     groupId,
     customText,
-
 }: DeleteListButtonProps) {
     const [open, setOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);

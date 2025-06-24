@@ -9,19 +9,20 @@ import { PlusIcon, PencilIcon } from "lucide-react";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import CreatorLink from "@/components/links/CreatorLink";
-import { getGroupLists, getPendingApprovals } from "@/serverActions/groupActions";
+import { getGroupLists, getPendingApprovals, getAvailableLists } from "@/serverActions/groupActions";
 import { AlertTriangle } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
 
 import { getSubjectIcon } from "@/components/icons"
-import DeleteListButton from "@/components/learning/DeleteListButton";
+import RemoveListFromGroupButton from "@/components/groups/RemoveListFromGroupButton";
 import AddListDialog from "@/components/groups/AddListDialog";
 import Button1 from "@/components/button/Button1";
 import PendingApprovals from "@/components/groups/PendingApprovals";
 import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
 import { Metadata } from "next";
+import { sendNotificationToUser } from '@/utils/notifications/sendNotification';
 
 // Add this new function to fetch user details for members
 async function getGroupMembersDetails(memberIds: string[]) {
@@ -87,6 +88,29 @@ export default async function Page({
     return <div className="text-center text-neutral-400">Je moet ingelogd zijn om deze pagina te bekijken.</div>;
   }
 
+  // Automatically elect a new owner if the current owner no longer exists
+  let isNewOwner = false;
+  const ownerExists = await prisma.user.findUnique({ where: { id: groupData.creator } });
+  if (!ownerExists && Array.isArray(groupData.members) && groupData.members.length > 0) {
+    // Fetch existing member details
+    const aliveMembers = await getGroupMembersDetails(groupData.members as string[]);
+    if (aliveMembers.length > 0) {
+      const newOwnerId = aliveMembers[Math.floor(Math.random() * aliveMembers.length)].id;
+      // Update group creator
+      await prisma.group.update({ where: { groupId: id }, data: { creator: newOwnerId } });
+      groupData.creator = newOwnerId;
+      // Send notification to the newly elected owner
+      await sendNotificationToUser(
+        newOwnerId,
+        `Sindsdat de eigenaar van "${groupData.name}" zijn/haar account heeft verwijdert, ben je de nieuwe eigenaar van deze groep!`,
+        'Award'
+      );
+      if (currentUserId === newOwnerId) {
+        isNewOwner = true;
+      }
+    }
+  }
+
   // Check if user is creator or member of the group (using ID or name comparison)
   const members = groupData?.members as string[] || [];
   const isCreator = groupData?.creator === currentUserId || groupData?.creator === currentUserName;
@@ -104,6 +128,9 @@ export default async function Page({
 
   // Get lists that are in the group
   const groupLists = await getGroupLists(id);
+  // Get available lists for AddListDialog
+  const availableListsResult = await getAvailableLists(id);
+  const availableLists = availableListsResult.success ? availableListsResult.lists : [];
 
   // Get members details for display
   const memberIds = groupData?.members as string[] || [];
@@ -129,7 +156,7 @@ export default async function Page({
           <div className="flex justify-between items-center mb-4">
             <div className="flex-grow" />
             {isMember && canAddLists && (
-              <AddListDialog groupId={id}>
+              <AddListDialog groupId={id} initialLists={availableLists}>
                 <Button1
                   text="Lijst toevoegen"
                   icon={<PlusIcon size={14} />}
@@ -180,9 +207,9 @@ export default async function Page({
                       <CreatorLink creator={list.creator} />
                     </div>
 
-                    {/* Action buttons for list owner or group creator */}
-                    {(isCreator || list.creator === currentUserName) && (
-                      <div className="flex items-center gap-2">
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2">
+                      {(isCreator || list.creator === currentUserName) && (
                         <Link
                           href={`/learn/editlist/${list.list_id}`}
                           className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
@@ -190,14 +217,17 @@ export default async function Page({
                         >
                           <PencilIcon className="h-5 w-5 text-white" />
                         </Link>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                          <DeleteListButton
-                            listId={list.list_id}
-                            isCreator={isCreator || list.creator === currentUserName}
-                          />
-                        </div>
-                      </div>
-                    )}
+                      )}
+                      {(isCreator || isAdmin || isPlatformAdmin) && (
+                        <RemoveListFromGroupButton
+                          groupId={id}
+                          listId={list.list_id}
+                          isCreator={isCreator}
+                          isAdmin={isAdmin}
+                          isPlatformAdmin={isPlatformAdmin}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -237,28 +267,27 @@ export default async function Page({
 
           {/* Existing Members Section */}
           <h2 className="text-xl font-bold mb-4">Groepsleden</h2>
-          {memberIds.length === 0 ? (
+          {membersDetails.length === 0 ? (
             <div className="bg-neutral-800 text-neutral-400 text-center p-6 rounded-lg">
               Deze groep heeft nog geen leden.
             </div>
           ) : (
             <div className="space-y-3">
-              {memberIds.map((memberId) => {
-                // Find user details if available
-                const memberDetails = membersDetails.find(m =>
-                  m.id === memberId || m.name === memberId
-                );
-                const displayName = memberDetails?.name || memberId;
-
-                // Check roles
-                const isGroupAdmin = Array.isArray(groupData?.admins) ?
-                  groupData.admins.includes(memberId) : false;
+              {membersDetails.map((member) => {
+                const memberId = member.id;
+                const displayName = member.name;
+                const isGroupAdmin = Array.isArray(groupData?.admins)
+                  ? groupData.admins.includes(memberId)
+                  : false;
                 const isGroupCreator = groupData?.creator === memberId;
-
                 return (
-                  <Link href={`/home/viewuser/${memberId}`} key={memberId} className="p-4 bg-neutral-800 hover:bg-neutral-700 transition-colors rounded-lg flex items-center justify-between">
+                  <Link
+                    href={`/home/viewuser/${memberId}`}
+                    key={memberId}
+                    className="p-4 bg-neutral-800 hover:bg-neutral-700 transition-colors rounded-lg flex items-center justify-between"
+                  >
                     <div className="flex items-center">
-                      <Jdenticon value={displayName} size={40} />
+                      <Jdenticon value={displayName as string} size={40} />
                       <div className="ml-4">
                         <div className="font-medium flex items-center">
                           {displayName}
@@ -278,12 +307,10 @@ export default async function Page({
                       </div>
                     </div>
 
-                    {/* Member management options for admins */}
                     {(isCreator || (isAdmin && !isGroupCreator)) && (
                       <div className="flex gap-2">
                         {!isGroupCreator && (
                           <>
-                            {/* Only show admin toggle if the current user is the creator */}
                             {isCreator && (
                               <AdminToggleButton
                                 groupId={id}
@@ -295,7 +322,7 @@ export default async function Page({
                             <RemoveMemberButton
                               groupId={id}
                               memberId={memberId}
-                              memberName={displayName}
+                              memberName={displayName as string}
                             />
                           </>
                         )}

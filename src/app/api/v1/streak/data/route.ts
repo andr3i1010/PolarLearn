@@ -87,7 +87,6 @@ export async function GET(request: NextRequest) {
     // Check if we have activity from today or yesterday
     const hasActivityToday = streakDataObj[todayStr] === 'done' || streakDataObj[todayStr] === 'frozen';
     const hadYesterdayActivity = streakDataObj[yesterdayStr] === 'done' || streakDataObj[yesterdayStr] === 'frozen';
-    const hadDayBeforeYesterdayActivity = streakDataObj[dayBeforeYesterdayStr] === 'done' || streakDataObj[dayBeforeYesterdayStr] === 'frozen';
 
     // Streak should be reset only if:
     // 1. User has a streak count > 0
@@ -115,7 +114,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Fout bij het ophalen van streak gegevens"
+        error: "Fout bij het ophalen van reeksgegevens"
       },
       { status: 500 }
     );

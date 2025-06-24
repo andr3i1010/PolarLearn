@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useRouter } from 'next/navigation';
 
 // Import Lottie dynamically to avoid SSR issues
 const Lottie = dynamic(() => import("lottie-react"), {
@@ -328,6 +329,8 @@ const LearnTool = ({
   onProgressUpdate?: (completed: number, total: number) => void;
   onComplete?: () => void;
 }) => {
+  const router = useRouter();
+
   // Seeded random number generator for deterministic results
   const seededRandom = useCallback((seed: number) => {
     let x = Math.sin(seed) * 10000;
@@ -1042,12 +1045,16 @@ const LearnTool = ({
       }
 
       const updateStreak = async () => {
+        console.log('updateStreak called, sending request to update streak');
+        const endpoint = '/api/v1/streak/update';
+        console.log(`Fetching ${endpoint}`);
         try {
           const response = await fetch("/api/v1/streak/update", {
             method: "POST",
           });
-
+          console.log(`Response status: ${response.status}`);
           const result = await response.json();
+          console.log('Streak update result:', result);
 
           if (response.ok && result.success) {
             setStreakInfo({
@@ -1062,8 +1069,8 @@ const LearnTool = ({
             setFreezeAwarded(result.freezeAwarded === true);
             setFreezeUsed(result.freezeUsed === true);
 
-            // Determine which screen to show first
-            if (result.streakUpdated && result.isNewStreak) {
+            // Determine which screen to show first for any updated streak
+            if (result.streakUpdated) {
               setStreakStarted(true);
             }
 
@@ -1094,17 +1101,28 @@ const LearnTool = ({
 
   // Detect when the session is completed and set the listCompleted flag
   useEffect(() => {
-    const isCompleted = mode === "leren"
-      ? initialMappedData.length > 0 && initialMappedData.every((item) => {
-        const questionKey = getQuestionKey(item.vraag, item.antwoord);
-        return isQuestionCompleteInLeren(questionKey);
-      })
-      : lijstData.length === 0 && initialMappedData.length > 0;
+    const isCompleted =
+      mode === "leren"
+        ? initialMappedData.length > 0 && initialMappedData.every((item) => {
+          const questionKey = getQuestionKey(item.vraag, item.antwoord);
+          return isQuestionCompleteInLeren(questionKey);
+        })
+        : lijstData.length === 0 && initialMappedData.length > 0;
 
     if (isCompleted && !listCompleted) {
       setListCompleted(true);
+      // Also trigger streak update here to ensure request is sent
+      (async () => {
+        console.log('Second effect: updateStreak triggered');
+        try {
+          const res = await fetch('/api/v1/streak/update', { method: 'POST' });
+          console.log('Second effect response status:', res.status);
+        } catch (e) {
+          console.error('Error in second effect streak update:', e);
+        }
+      })();
     }
-  }, [mode, initialMappedData, lijstData.length, lerenCompleted, listCompleted, getQuestionKey, isQuestionCompleteInLeren]);
+  }, [mode, initialMappedData, lijstData.length, isQuestionCompleteInLeren, listCompleted]);
 
   // Call this when a question is processed (either right or wrong)
   const updateProgress = useCallback(() => {
@@ -1517,7 +1535,8 @@ const LearnTool = ({
           {streakStarted && (
             <StreakCelebration
               streak={streakInfo.currentStreak}
-              isNewStreak={true}
+              // Pass actual flag for whether this is a new streak
+              isNewStreak={streakInfo.isNewStreak}
             />
           )}
 
@@ -1541,9 +1560,10 @@ const LearnTool = ({
               className="mt-4"
             />
             <Button1
-              text={"Terug naar home"}
               redirectTo="/home/start"
               useClNav={true}
+              text="Terug naar home"
+              className="mt-4"
             />
           </div>
         </div>

@@ -8,6 +8,8 @@ import { Eye } from "lucide-react";
 
 export default function SignUpForm() {
   const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const delay = (ms: number) => new Promise(
     resolve => setTimeout(resolve, ms)
@@ -19,6 +21,26 @@ export default function SignUpForm() {
       return false;
     }
     setUsernameError("");
+    return true;
+  };
+
+  const validateEmail = (email: string) => {
+    // Basic email format check
+    const re = /\S+@\S+\.\S+/;
+    if (!re.test(email)) {
+      setEmailError("Ongeldig e-mailadres");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  const validatePassword = (password: string) => {
+    if (password.length < 8) {
+      setPasswordError("Wachtwoord moet minimaal 8 tekens bevatten");
+      return false;
+    }
+    setPasswordError("");
     return true;
   };
 
@@ -36,9 +58,14 @@ export default function SignUpForm() {
         if (!validateUsername(username)) {
           return;
         }
-
         const email = formData.get("email") as string;
+        if (!validateEmail(email)) {
+          return;
+        }
         const password = formData.get("password") as string;
+        if (!validatePassword(password)) {
+          return;
+        }
 
         try {
           const response = await fetch("/api/v1/auth/sign-up", {
@@ -100,8 +127,10 @@ export default function SignUpForm() {
           id="email"
           className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
           placeholder="email@mail.nl"
+          onChange={(e) => validateEmail(e.target.value)}
           required
         />
+        {emailError && <p className="mt-1 text-sm text-red-500">{emailError}</p>}
       </div>
       <div>
         <label
@@ -116,6 +145,7 @@ export default function SignUpForm() {
             name="password"
             placeholder="••••••••"
             className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 pr-10 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
+            onChange={(e) => validatePassword(e.target.value)}
             required
           />
           <button

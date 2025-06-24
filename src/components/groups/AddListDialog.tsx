@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 import { PlusIcon, SearchIcon, Loader2, XCircleIcon, AlertCircleIcon } from "lucide-react";
-import { getAvailableLists, addListToGroup } from "@/serverActions/groupActions";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Button1 from "../button/Button1";
@@ -24,56 +23,29 @@ interface List {
 interface AddListDialogProps {
     groupId: string;
     children: ReactNode;
+    initialLists: List[];
 }
 
-export default function AddListDialog({ groupId, children }: AddListDialogProps) {
+export default function AddListDialog({ groupId, children, initialLists }: AddListDialogProps) {
     const [open, setOpen] = useState(false);
-    const [availableLists, setAvailableLists] = useState<List[]>([]);
-    const [filteredLists, setFilteredLists] = useState<List[]>([]);
+    const [availableLists, setAvailableLists] = useState<List[]>(initialLists);
+    const [filteredLists, setFilteredLists] = useState<List[]>(initialLists);
     const [searchTerm, setSearchTerm] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    // Fetch user's lists that aren't already in the group using server action
-    const fetchAvailableLists = useCallback(async () => {
-        if (!open) return;
-
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const result = await getAvailableLists(groupId);
-
-            if (result.error) {
-                console.error("Error from server:", result.error);
-                setError(result.error);
-                toast.error(`Fout bij ophalen van lijsten: ${result.error}`);
-                return;
-            }
-
-            setAvailableLists(result.lists || []);
-            setFilteredLists(result.lists || []);
-
-            if (result.lists?.length === 0) {
-                setError("Geen lijsten beschikbaar om toe te voegen aan deze groep.");
-            }
-        } catch (error) {
-            console.error("Unexpected error fetching available lists:", error);
-            setError(`Onverwachte fout: ${error}`);
-            toast.error("Er is een fout opgetreden bij het ophalen van je lijsten.");
-        } finally {
-            setIsLoading(false);
-        }
-    }, [groupId, open]);
-
-    // Load lists when dialog opens
+    // Initialize lists when dialog opens
     useEffect(() => {
         if (open) {
-            fetchAvailableLists();
+            setAvailableLists(initialLists);
+            setFilteredLists(initialLists);
+            if (initialLists.length === 0) {
+                setError("Geen lijsten beschikbaar om toe te voegen aan deze groep.");
+            }
         }
-    }, [open, fetchAvailableLists]);
+    }, [open, initialLists]);
 
     // Handle dialog open/close
     const handleOpenChange = useCallback((isOpen: boolean) => {
@@ -103,7 +75,14 @@ export default function AddListDialog({ groupId, children }: AddListDialogProps)
     const handleAddList = async (listId: string) => {
         setIsSubmitting(listId);
         try {
-            await addListToGroup(groupId, listId);
+            // Call API endpoint to add list to group
+            const res = await fetch(`/api/v1/groups/${groupId}/lists`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ listId }),
+            });
+            if (!res.ok) throw new Error(await res.text());
+
             toast.success("Lijst succesvol toegevoegd!");
 
             // Remove this list from the available lists

@@ -89,6 +89,7 @@ model practice {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   published Boolean
+  scheduledDeletion DateTime?  // schedule for TTL deletion
 }
 
 model forum {
@@ -109,7 +110,8 @@ model forum {
   votes_data Json?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
+  scheduledDeletion DateTime?  // schedule for TTL deletion
 }
 
 model group {
@@ -126,6 +128,7 @@ model group {
   admins  String[]
 
   listsAdded Json?
+  scheduledDeletion DateTime? // schedule for TTL deletion or transfer
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

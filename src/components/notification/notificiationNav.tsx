@@ -68,7 +68,7 @@ export default function NotificationNav() {
                     if (Object.keys(data).length === 0) {
                         setReadAll(true);
                     } else {
-                        const allRead = Object.values(response).every(notif => notif && notif.read === true);
+                        const allRead = Object.values(data as NotificationData).every(notif => notif.read === true);
                         setReadAll(allRead);
                     }
                 } else {

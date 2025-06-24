@@ -177,9 +177,10 @@ export async function updateUserPreferences(preferences: {
 /**
  * Initiates account deletion process
  */
-export async function initiateAccountDeletion() {
+export async function initiateAccountDeletion(options?: { deleteLists?: boolean; deleteForumPosts?: boolean }) {
     try {
         const user = await getUserFromSession()
+        const { deleteLists, deleteForumPosts } = options || {}
         if (!user) {
             return { success: false, message: "Je moet ingelogd zijn om je account te verwijderen." }
         }
@@ -187,14 +188,20 @@ export async function initiateAccountDeletion() {
         // Ensure TTL index exists for automatic deletion
         await setupUserDeletionTTLIndex()
 
-        // Calculate the deletion date (2 weeks from now) using the utility function
+        // Calculate the deletion date (2 weeks from now)
         const deletionDate = await getAccountDeletionDate();
 
-        // Mark the user for deletion in the list_data (for backward compatibility)
+        // Mark the user for deletion and store flags
         let listData = user.list_data as any || {}
         listData.deletionRequested = new Date().toISOString()
+        if (deleteLists) {
+            listData.deleteLists = true
+        }
+        if (deleteForumPosts) {
+            listData.deleteForumPosts = true
+        }
 
-        // Update the user with the scheduledDeletion date
+        // Update the user with the scheduledDeletion date and flags
         await prisma.user.update({
             where: { id: user.id },
             data: {
@@ -202,6 +209,14 @@ export async function initiateAccountDeletion() {
                 list_data: listData
             }
         })
+
+        // Update related practice lists and forum posts with scheduledDeletion
+        if (deleteLists) {
+            await prisma.practice.updateMany({ where: { creator: user.id }, data: { scheduledDeletion: deletionDate } });
+        }
+        if (deleteForumPosts) {
+            await prisma.forum.updateMany({ where: { creator: user.id }, data: { scheduledDeletion: deletionDate } });
+        }
 
         return {
             success: true,
@@ -212,6 +227,47 @@ export async function initiateAccountDeletion() {
         return {
             success: false,
             message: "Er is een fout opgetreden bij het verwerken van je verwijderingsverzoek."
+        }
+    }
+}
+
+/**
+ * Cancels account deletion process
+ */
+export async function cancelAccountDeletion() {
+    try {
+        const user = await getUserFromSession()
+        if (!user) {
+            return { success: false, message: "Je moet ingelogd zijn om je accountherstel te annuleren." }
+        }
+
+        // Clear deletion flags and dates
+        // Copy and remove flags from list_data
+        let listData = (user.list_data as any) || {}
+        delete listData.deletionRequested
+        delete listData.deleteLists
+        delete listData.deleteForumPosts
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                scheduledDeletion: null,
+                list_data: listData
+            }
+        })
+
+        // Clear scheduledDeletion on related practice and forum
+        await prisma.practice.updateMany({ where: { creator: user.id }, data: { scheduledDeletion: null } });
+        await prisma.forum.updateMany({ where: { creator: user.id }, data: { scheduledDeletion: null } });
+
+        return {
+            success: true,
+            message: "Je accountverwijdering is geannuleerd. Je accountgegevens zijn hersteld."
+        }
+    } catch (error) {
+        console.error("Error canceling account deletion:", error)
+        return {
+            success: false,
+            message: "Er is een fout opgetreden bij het annuleren van je accountverwijdering."
         }
     }
 }

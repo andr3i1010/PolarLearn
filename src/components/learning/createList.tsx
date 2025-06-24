@@ -29,7 +29,24 @@ import Button1 from "@/components/button/Button1";
 import Dropdown, { DropdownHandle } from "@/components/button/DropdownBtn";
 import Image from "next/image";
 import { ReactNode } from "react";
-import { createListAction } from "@/serverActions/createList";
+const API_LISTS_ENDPOINT = '/api/v1/lists';
+
+async function sendListRequest(listData: any) {
+  const isUpdate = !!listData.listId;
+  const url = isUpdate ? `${API_LISTS_ENDPOINT}/${listData.listId}` : API_LISTS_ENDPOINT;
+  const response = await fetch(url, {
+    method: isUpdate ? 'PUT' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(listData),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error ${isUpdate ? 'updating' : 'creating'} list: ${errorText}`);
+  }
+  return response.json();
+}
+
+// import { createListAction } from "@/serverActions/createList";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -512,7 +529,7 @@ export default function CreateListTool({
 
       try {
         const res = await fetch(
-          `/api/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
+          `/api/v1/translate?text=${encodeURIComponent(word)}&to=${toLang}&from=${fromLang}`
         );
         const data = await res.json();
         const translation = data.translation || "";
@@ -585,7 +602,7 @@ export default function CreateListTool({
         published: false,
       };
 
-      const data = await createListAction(listData);
+      const data = await sendListRequest(listData);
 
       if (data && typeof data === "object" && "list_id" in data) {
         setAutosavedListId(data.list_id);
@@ -700,7 +717,7 @@ export default function CreateListTool({
     };
 
     try {
-      const data = await createListAction(listData);
+      const data = await sendListRequest(listData);
       const message = isEditMode
         ? "Lijst succesvol bijgewerkt."
         : "Lijst succesvol opgeslagen.";
@@ -757,7 +774,7 @@ export default function CreateListTool({
     };
 
     try {
-      const data = await createListAction(listData);
+      const data = await sendListRequest(listData);
       const message = isEditMode
         ? "Lijst succesvol bijgewerkt en gepubliceerd."
         : "Lijst succesvol gepubliceerd.";
