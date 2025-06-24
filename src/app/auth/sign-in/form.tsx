@@ -137,7 +137,11 @@ export default function SignInForm() {
                 },
                 body: JSON.stringify({ email, password }),
               });
-
+              if (response.redirected) {
+                // Follow server-side redirect
+                router.push(response.url);
+                return;
+              }
               const data = await response.json();
 
               if (response.ok && data.success) {

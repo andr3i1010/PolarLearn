@@ -1,8 +1,12 @@
 import { signInCredentials } from "@/utils/auth/auth";
+import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
+      ? process.env.NEXT_PUBLIC_URL
+      : "http://localhost:3000";
     const body = await request.json();
     const { email, password } = body;
 
@@ -31,10 +35,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (result === true) {
-      return NextResponse.json(
+      const res =  NextResponse.json(
         { success: true },
         { status: 200 }
       );
+      const gotoCookie = request.cookies.get("polarlearn.goto")
+      if (gotoCookie) {
+        const response = NextResponse.redirect(new URL(gotoCookie.value, baseUrl));
+        response.cookies.delete("polarlearn.goto");
+        return response;
+      }
+      return res;
     }
 
     return NextResponse.json(
