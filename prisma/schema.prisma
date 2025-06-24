@@ -55,6 +55,7 @@ model User {
   lastActivity DateTime?
   streakData   Json? // key: YYYY-MM-DD, value: "done" | "frozen"
   freezeCount  Int       @default(0)
+  lastExportedAt DateTime?   // Timestamp of last data export for cooldown enforcement
 
   scheduledDeletion DateTime? // TTL index for account deletion
 
