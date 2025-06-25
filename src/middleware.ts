@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { decodeCookie } from '@/utils/auth/session';
 import { prisma } from '@/utils/prisma';
+import { getTourState } from "./serverActions/getTourState";
 
 export async function middleware(request: NextRequest, response: NextResponse) {
     let cspHeader = '';
@@ -53,6 +54,11 @@ export async function middleware(request: NextRequest, response: NextResponse) {
             sameSite: 'strict'
         });
     }
+    const { finishedTour } = await getTourState();
+    if (!finishedTour && request.nextUrl.pathname !== '/home/start' && !request.nextUrl.pathname.startsWith('/api') && !request.headers.get('Next-Url')) {
+        return NextResponse.redirect(new URL('/home/start', request.url));
+      }
+
     return resp;
 }
 

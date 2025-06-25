@@ -22,6 +22,7 @@ interface DropdownProps {
   onChange?: (selected: any) => void;
   disabled?: boolean;
   value?: string;
+  className?: string;
   zIndex?: number;
 }
 
@@ -31,7 +32,7 @@ export interface DropdownHandle {
 }
 
 const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
-  ({ text, dropdownMatrix, selectorMode, onChangeSelected, width, onSelect, onChange, disabled, value, zIndex = 50 }, ref) => {
+  ({ text, dropdownMatrix, selectorMode, onChangeSelected, width, onSelect, onChange, disabled, value, zIndex = 50, className }, ref) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [computedWidth, setComputedWidth] = useState<number>(0);
     const [dropdownHeight, setDropdownHeight] = useState<number>(0);
@@ -120,7 +121,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
 
     return (
       <div
-        className={`absolute ${disabled ? "pointer-events-none opacity-50" : ""}`}
+        className={`absolute ${disabled ? "pointer-events-none opacity-50" : ""} ${className}`}
         style={{ zIndex }}
       >
         <div

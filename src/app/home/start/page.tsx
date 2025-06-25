@@ -244,7 +244,17 @@ export default async function Start() {
             </div>
           </div>
           <div className="h-4" />
-          <div className="space-y-4">
+          <div className="space-y-4 relative">
+            <div
+              id="pixel-area-start"
+              style={{
+                position: 'absolute',
+                top: '0px',
+                left: '16px',
+                width: 'calc(100% - 32px)',
+                height: '154px',
+              }}
+            />
             {combinedItems.length === 0 && (
               <>
                 <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">

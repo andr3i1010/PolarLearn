@@ -13,6 +13,106 @@ import React from "react";
 import { ViewTransitions } from "next-view-transitions";
 import { cookies } from "next/headers";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
+import { NextStepProvider, NextStep } from "nextstepjs";
+import DarkCard from "@/components/DarkCard";
+import { getTourState } from "@/serverActions/getTourState";
+import TourInitializer from "@/components/TourInitializer";
+import TourNavigator from "@/components/TourNavigator";
+
+const steps = [
+  {
+    tour: "mainTour",
+    steps: [
+      {
+        icon: "📖",
+        title: "Welkom bij PolarLearn!",
+        content:
+          "Welkom bij PolarLearn! Ontdek alle functionaliteiten en voordelen van PolarLearn in deze korte rondleiding.",
+        selector: "", // empty selector triggers centered dialog
+        showControls: true,
+        showSkip: true,
+      },
+      {
+        icon: "🧭",
+        title: "Dit is de navigatiebalk",
+        content:
+          "Hiermee kan je snel naar verschillende delen van de website navigeren, zoals leertools, instellingen en meer.",
+        selector: "#step1",
+        side: "right" as const,
+        showControls: true,
+        showSkip: true,
+      },
+      {
+        icon: "📃",
+        title: "Leren keuzelijst",
+        content:
+          "Beweeg je muis over de keuzelijst om naar een pagina van keuze te gaan. ",
+        selector: ".step2",
+        side: "bottom" as const,
+        showControls: true,
+        showSkip: true,
+      },
+      {
+        icon: "💬",
+        title: "Forum",
+        content:
+          "Klik hier om naar het forum te gaan en discussies te bekijken.",
+        selector: "#step3",
+        side: "bottom" as const,
+        showControls: false,
+        showSkip: true,
+      },
+      {
+        icon: "💬",
+        title: "Forum",
+        content:
+          "Hier kan je vragen stellen, antwoorden geven en discussies voeren. Tegenover StudyGo, mag je hier ook chatten, zonder dat een of andere tutor dat verwijdert!",
+        selector: "#pixel-area", // target the absolute pixel region
+        side: "bottom" as const,
+        showControls: true,
+        showSkip: false,
+      },
+      {
+        icon: "🏠",
+        title: "Ga terug naar Start",
+        content: "Klik hier om terug te keren naar de startpagina.",
+        selector: ".step5",
+        side: "bottom" as const,
+        showControls: false,
+        showSkip: true,
+        clickThroughOverlay: true,
+      },
+      {
+        icon: "📃",
+        title: "Overzicht Lijsten",
+        content: (
+          <div className="w-full flex flex-col items-center">
+            <p>Hier komen je recent bekeken/geoefende lijsten te staan.</p>
+            <p>Zo komt het eruit te zien:</p>
+            <img
+              src="https://cdn.polarlearn.tech/listpreview.png"
+              alt="Overzicht lijsten"
+              className="mt-4 w-60 h-auto rounded-lg"
+            />
+          </div>
+        ),
+        selector: "#pixel-area-start",
+        side: "bottom" as const,
+        showControls: true,
+        showSkip: true,
+      },
+      {
+        icon: "🎉",
+        title: "Klaar!",
+        content:
+          "Je bent klaar met de rondleiding! Je kunt nu beginnen met het gebruiken van PolarLearn.",
+        selector: "", // empty selector triggers centered dialog
+        showControls: true,
+        showSkip: true,
+      },
+    ],
+  },
+];
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +131,9 @@ export async function generateMetadata(): Promise<Metadata> {
     ],
     icons: [
       {
-        url: hasSG ? `${process.env.NEXT_PUBLIC_URL}/SG.png` : `${process.env.NEXT_PUBLIC_URL}/icon.png`,
+        url: hasSG
+          ? `${process.env.NEXT_PUBLIC_URL}/SG.png`
+          : `${process.env.NEXT_PUBLIC_URL}/icon.png`,
         type: "image/png",
         rel: "icon",
       },
@@ -91,6 +193,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { finishedTour } = await getTourState();
   const art = `                                          
                                                __ 
      _____     _         __                   |  |
@@ -148,9 +251,14 @@ export default async function RootLayout({
             dangerouslySetInnerHTML={{ __html: art }}
           />
           <SessionWrapper>
-            <ToastProvider>
-              <WSProvider>
-                {/* <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
+            <NextStepProvider>
+              {/* Only start tour if not finished in DB */}
+              {!finishedTour && <TourInitializer tourName="mainTour" />}
+              <NextStep steps={steps} cardComponent={DarkCard}>
+                <TourNavigator />
+                <ToastProvider>
+                  <WSProvider>
+                    {/* <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
                 <div className="flex flex-col items-center">
                   <p className="text-6xl">⚠️</p>
                   <br />
@@ -159,18 +267,21 @@ export default async function RootLayout({
                   </p>
                 </div>
               </div> */}
-                <>
-                  <ImpersonationCheck />
-                  <ImpersonationStyles />
-                  <TopNavBar />
-                  <div>
-                    {children}
-                  </div>
-                </>
-                {footerContent}
-                <AnalyticsProvider />
-              </WSProvider>
-            </ToastProvider>
+                    <>
+                      <ImpersonationCheck />
+                      <ImpersonationStyles />
+                      {/* Anchor first step to the navbar */}
+                      <div id="step1">
+                        <TopNavBar />
+                      </div>
+                      <div>{children}</div>
+                    </>
+                    {footerContent}
+                    <AnalyticsProvider />
+                  </WSProvider>
+                </ToastProvider>
+              </NextStep>
+            </NextStepProvider>
           </SessionWrapper>
         </body>
       </html>

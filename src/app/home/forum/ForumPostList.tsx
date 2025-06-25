@@ -93,178 +93,192 @@ export default function ForumPostList({
   });
 
   return (
-    <div className="rounded-md overflow-hidden">
-      <InfiniteScroll
-        dataLength={sortedPosts.length}
-        next={loadMorePosts}
-        hasMore={hasMore}
-        loader={
-          <div className="text-center p-4 bg-neutral-800 border border-neutral-700">
-            Laden...
-          </div>
-        }
-        scrollThreshold={0.8}
-        style={{ overflow: "visible" }}
-      >
-        <div className="border border-neutral-700 rounded-md overflow-hidden bg-neutral-800">
-          {sortedPosts.map((post) => {
-            const creatorId =
-              typeof post.creator === "string"
-                ? post.creator
-                : String(post.creator);
-            const user = userMapById[creatorId] || userMapByName[creatorId];
-            const subjectIcon = icons[post.subject as keyof typeof icons];
-            const subjectLabel = getSubjectName(post.subject) || post.subject;
-            const relativeTime = formatRelativeTime(post.createdAt);
-            const isReply = post.isReply === true;
+    <>
+      {/* Invisible box to highlight a specific pixel region */}
+      <div
+        id="pixel-area"
+        style={{
+          position: 'absolute',
+          left: "60px",
+          top: "270px",
+          width: "1090px",
+          height: "400px",
+          pointerEvents: 'none',
+        }}
+      />
+      <div id="step4" className="rounded-md overflow-hidden">
+        <InfiniteScroll
+          dataLength={sortedPosts.length}
+          next={loadMorePosts}
+          hasMore={hasMore}
+          loader={
+            <div className="text-center p-4 bg-neutral-800 border border-neutral-700">
+              Laden...
+            </div>
+          }
+          scrollThreshold={0.8}
+          style={{ overflow: "visible" }}
+        >
+          <div className="border border-neutral-700 rounded-md overflow-hidden bg-neutral-800">
+            {sortedPosts.map((post) => {
+              const creatorId =
+                typeof post.creator === "string"
+                  ? post.creator
+                  : String(post.creator);
+              const user = userMapById[creatorId] || userMapByName[creatorId];
+              const subjectIcon = icons[post.subject as keyof typeof icons];
+              const subjectLabel = getSubjectName(post.subject) || post.subject;
+              const relativeTime = formatRelativeTime(post.createdAt);
+              const isReply = post.isReply === true;
 
-            // Check if current user is the creator
-            const isPostCreator =
-              currentUserId === post.creator ||
-              currentUsername === post.creator ||
-              (user?.name && currentUsername === user.name) ||
-              userRole === "admin";
+              // Check if current user is the creator
+              const isPostCreator =
+                currentUserId === post.creator ||
+                currentUsername === post.creator ||
+                (user?.name && currentUsername === user.name) ||
+                userRole === "admin";
 
-            let category = "";
-            let catBagdeColor = "";
-            let categoryIcon;
-            switch (post.category) {
-              case "school":
-                category = "School-gerelateerd";
-                catBagdeColor = "bg-blue-500";
-                categoryIcon = <Book />;
-                break;
-              case "general":
-                category = "Niet school-gerelateerd";
-                catBagdeColor = "bg-green-500";
-                categoryIcon = <MessageCircle />;
-                break;
-              case "help":
-                category = "Hulp";
-                catBagdeColor = "bg-yellow-500";
-                categoryIcon = <MessageCircleQuestion />;
-                break;
-              case "announcement":
-                category = "Aankondiging";
-                catBagdeColor = "bg-red-500";
-                categoryIcon = <Megaphone />;
-                break;
-            }
+              let category = "";
+              let catBagdeColor = "";
+              let categoryIcon;
+              switch (post.category) {
+                case "school":
+                  category = "School-gerelateerd";
+                  catBagdeColor = "bg-blue-500";
+                  categoryIcon = <Book />;
+                  break;
+                case "general":
+                  category = "Niet school-gerelateerd";
+                  catBagdeColor = "bg-green-500";
+                  categoryIcon = <MessageCircle />;
+                  break;
+                case "help":
+                  category = "Hulp";
+                  catBagdeColor = "bg-yellow-500";
+                  categoryIcon = <MessageCircleQuestion />;
+                  break;
+                case "announcement":
+                  category = "Aankondiging";
+                  catBagdeColor = "bg-red-500";
+                  categoryIcon = <Megaphone />;
+                  break;
+              }
 
-            return (
-              <div key={post.post_id} className="relative">
-                <Link
-                  href={`/home/forum/${isReply ? post.replyTo : post.post_id}`}
-                  className="block"
-                >
-                  <div
-                    className={`border-b border-neutral-700 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-start sm:items-center cursor-pointer ${post.pinned ? "bg-green-900/10" : ""
-                      }`}
+              return (
+                <div key={post.post_id} className="relative">
+                  <Link
+                    href={`/home/forum/${isReply ? post.replyTo : post.post_id}`}
+                    className="block"
                   >
-                    <div className="mr-4 flex-shrink-0">
-                      {user?.image ? (
-                        <Image
-                          src={user.image}
-                          alt={`de profielfoto van ${user.name || "iemand"}`}
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <Jdenticon
-                          value={user?.name || post.creator}
-                          size={40}
-                        />
-                      )}
-                    </div>
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <div className="text-xs text-gray-400 mb-1 flex flex-wrap items-center gap-1">
-                        {post.pinned && (
-                          <>
-                            <Badge
-                              variant="outline"
-                              className="text-xs bg-green-500 flex items-center gap-1"
-                            >
-                              <Pin size={12} />
-                              Vastgezet
-                            </Badge>
-                            <span className="mx-1.5">•</span>
-                          </>
-                        )}
-                        {post.category && (
-                          <>
-                            <Badge
-                              variant="outline"
-                              className={`text-xs ${catBagdeColor}`}
-                            >
-                              {categoryIcon}
-                              {category}
-                            </Badge>
-                            <span className="mx-1.5">•</span>
-                          </>
-                        )}
-                        {subjectIcon && (
+                    <div
+                      className={`border-b border-neutral-700 last:border-b-0 p-4 hover:bg-neutral-700 transition-all flex items-start sm:items-center cursor-pointer ${post.pinned ? "bg-green-900/10" : ""
+                        }`}
+                    >
+                      <div className="mr-4 flex-shrink-0">
+                        {user?.image ? (
                           <Image
-                            src={subjectIcon}
-                            alt={subjectLabel}
-                            width={16}
-                            height={16}
-                            className="mr-1"
+                            src={user.image}
+                            alt={`de profielfoto van ${user.name || "iemand"}`}
+                            width={40}
+                            height={40}
+                            className="rounded-full"
+                          />
+                        ) : (
+                          <Jdenticon
+                            value={user?.name || post.creator}
+                            size={40}
                           />
                         )}
-                        {post.subject && (
-                          <>
-                            <span>{subjectLabel}</span>
-                            <span className="mx-1.5">•</span>
-                          </>
-                        )}
-                        <span className="text-gray-500">{relativeTime}</span>
-                        <span className="mx-1.5">•</span>
-                        <span className="text-gray-500 truncate">
-                          Door: {user?.name || post.creator}
-                        </span>
                       </div>
-                      <h3 className="font-medium text-lg break-words">
-                        {isReply ? (
-                          <>
-                            <span className="text-gray-400 font-normal text-sm">
-                              Antwoord op:{" "}
-                            </span>
-                            {post.title}
-                          </>
-                        ) : (
-                          post.title
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <div className="text-xs text-gray-400 mb-1 flex flex-wrap items-center gap-1">
+                          {post.pinned && (
+                            <>
+                              <Badge
+                                variant="outline"
+                                className="text-xs bg-green-500 flex items-center gap-1"
+                              >
+                                <Pin size={12} />
+                                Vastgezet
+                              </Badge>
+                              <span className="mx-1.5">•</span>
+                            </>
+                          )}
+                          {post.category && (
+                            <>
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${catBagdeColor}`}
+                              >
+                                {categoryIcon}
+                                {category}
+                              </Badge>
+                              <span className="mx-1.5">•</span>
+                            </>
+                          )}
+                          {subjectIcon && (
+                            <Image
+                              src={subjectIcon}
+                              alt={subjectLabel}
+                              width={16}
+                              height={16}
+                              className="mr-1"
+                            />
+                          )}
+                          {post.subject && (
+                            <>
+                              <span>{subjectLabel}</span>
+                              <span className="mx-1.5">•</span>
+                            </>
+                          )}
+                          <span className="text-gray-500">{relativeTime}</span>
+                          <span className="mx-1.5">•</span>
+                          <span className="text-gray-500 truncate">
+                            Door: {user?.name || post.creator}
+                          </span>
+                        </div>
+                        <h3 className="font-medium text-lg break-words">
+                          {isReply ? (
+                            <>
+                              <span className="text-gray-400 font-normal text-sm">
+                                Antwoord op:{" "}
+                              </span>
+                              {post.title}
+                            </>
+                          ) : (
+                            post.title
+                          )}
+                        </h3>
+                        {isReply && (
+                          <p className="text-sm text-gray-300 mt-1 line-clamp-2 break-words">
+                            {post.content.length > 100
+                              ? `${post.content.substring(0, 100)}...`
+                              : post.content}
+                          </p>
                         )}
-                      </h3>
-                      {isReply && (
-                        <p className="text-sm text-gray-300 mt-1 line-clamp-2 break-words">
-                          {post.content.length > 100
-                            ? `${post.content.substring(0, 100)}...`
-                            : post.content}
-                        </p>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
 
-                {/* Position the delete button absolutely to not interfere with the link */}
-                {isPostCreator && (
-                  <div className="absolute top-4 right-4 z-10">
-                    <DeletePostButton
-                      postId={post.post_id}
-                      isCreator={currentUserId === post.creator || currentUsername === post.creator}
-                      isMainPost={!isReply}
-                      title={post.title}
-                      creatorId={post.creator}
-                      isAdmin={userRole === "admin"}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </InfiniteScroll>
-    </div>
+                  {/* Position the delete button absolutely to not interfere with the link */}
+                  {isPostCreator && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <DeletePostButton
+                        postId={post.post_id}
+                        isCreator={currentUserId === post.creator || currentUsername === post.creator}
+                        isMainPost={!isReply}
+                        title={post.title}
+                        creatorId={post.creator}
+                        isAdmin={userRole === "admin"}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </InfiniteScroll>
+      </div>
+    </>
   );
 }

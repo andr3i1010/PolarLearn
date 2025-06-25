@@ -24,6 +24,8 @@ model User {
   password      String
   salt          String
 
+  finishedTour  Boolean? @default(false)
+
   inGroups  Json?
   ownGroups Json?
 

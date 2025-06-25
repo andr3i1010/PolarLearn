@@ -281,13 +281,17 @@ const NavigationLinks = memo(
     }) => (
         <>
             <div className="hidden md:flex items-center space-x-4 flex-grow">
-                <NavBtn text="Start" redirectTo="/home/start" useClNav={true} />
-                <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
+                <NavBtn text="Start" redirectTo="/home/start" useClNav={true} className="step5" />
+                {/* Wrapper for forum button tour step */}
+                <div id="step3">
+                    <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
+                </div>
                 <div className="relative block mb-12" style={{ textAlign: "left" }}>
                     <DropdownBtn
                         selectorMode={false}
                         text={"Leren"}
                         dropdownMatrix={dropdownMatrixStart}
+                        className="step2"
                     />
                 </div>
                 <div className="w-39" />
