@@ -1,7 +1,7 @@
 "use client"
 import Button1 from "@/components/button/Button1";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
@@ -10,6 +10,8 @@ export default function SignUpForm() {
   const [usernameError, setUsernameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+  const [widgetId, setWidgetId] = useState<number | null>(null);
 
   const delay = (ms: number) => new Promise(
     resolve => setTimeout(resolve, ms)
@@ -48,46 +50,65 @@ export default function SignUpForm() {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  // Load Turnstile and render invisible widget
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+    script.onload = () => {
+      if (window.turnstile) {
+        const id = window.turnstile.render("#turnstile-signup", {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+          size: "invisible",
+          callback: async (token: string) => {
+            // perform sign-up after invisible captcha
+            const form = formRef.current!;
+            const formData = new FormData(form);
+            const username = formData.get("username") as string;
+            const email = formData.get("email") as string;
+            const password = formData.get("password") as string;
+            // run validations
+            if (!validateUsername(username) || !validateEmail(email) || !validatePassword(password)) return;
+            try {
+              const response = await fetch("/api/v1/auth/sign-up", {
+                method: "POST",
+                credentials: 'include',
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, email, password, captchaToken: token }),
+              });
+              const result = await response.json();
+              if (response.ok && result.success) {
+                toast.success("Account succesvol aangemaakt!");
+                await delay(1500);
+                router.push("/auth/sign-in");
+              } else {
+                toast.error(result.error || "Er is een fout opgetreden");
+              }
+            } catch (err) {
+              console.error("Sign-up error:", err);
+              toast.error("Er is een fout opgetreden bij het aanmaken van je account");
+            }
+          },
+        });
+        setWidgetId(id);
+      }
+    };
+  }, []);
+
   return (
-    <form className="space-y-4 md:space-y-6"
-      onSubmit={async (e) => {
+    <form
+      ref={formRef}
+      className="space-y-4 md:space-y-6"
+      onSubmit={(e) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const username = formData.get("username") as string;
-
-        if (!validateUsername(username)) {
-          return;
-        }
-        const email = formData.get("email") as string;
-        if (!validateEmail(email)) {
-          return;
-        }
-        const password = formData.get("password") as string;
-        if (!validatePassword(password)) {
-          return;
-        }
-
-        try {
-          const response = await fetch("/api/v1/auth/sign-up", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, email, password }),
-          });
-
-          const result = await response.json();
-
-          if (response.ok && result.success) {
-            toast.success("Account succesvol aangemaakt!");
-            await delay(1500);
-            router.push("/auth/sign-in");
-          } else {
-            toast.error(result.error || "Er is een fout opgetreden");
-          }
-        } catch (error) {
-          console.error("Sign-up error:", error);
-          toast.error("Er is een fout opgetreden bij het aanmaken van je account");
+        if (widgetId !== null && window.turnstile) {
+          window.turnstile.execute(widgetId);
+        } else {
+          toast.error("Bevestig dat je geen robot bent.");
         }
       }}
     >
@@ -157,6 +178,7 @@ export default function SignUpForm() {
           </button>
         </div>
       </div>
+      <div id="turnstile-signup" className="mt-4"></div>
       <Button1 text="Maak 'm aan!" className="w-full" type="submit" />
     </form>
   )

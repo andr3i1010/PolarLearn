@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import GoogleLogin from "@/components/button/logInGoogle";
 import GithubLogin from "@/components/button/loginGithub";
@@ -9,7 +8,7 @@ import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { getValidRedirectPath, clearRedirectCookie } from "@/utils/auth/redirect";
 
 function getCookie(cname: string) {
@@ -31,6 +30,9 @@ function getCookie(cname: string) {
 export default function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [captchaToken, setCaptchaToken] = useState("");
+
   useEffect(() => {
     const error = params.get("error");
     const provider = params.get("provider");
@@ -107,6 +109,21 @@ export default function SignInForm() {
   }, []);
 
   const [showPassword, setShowPassword] = useState(false);
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+    script.onload = () => {
+      if (window.turnstile) {
+        window.turnstile.render("#turnstile-signin", {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+          callback: (token: string) => setCaptchaToken(token),
+        });
+      }
+    };
+  }, []);
 
   return (
     <div className="relative">
@@ -123,29 +140,31 @@ export default function SignInForm() {
         </div>
 
         <form
+          ref={formRef}
           onSubmit={async (e) => {
             e.preventDefault();
+            if (!captchaToken) {
+              toast.error("Bevestig dat je geen robot bent.");
+              return;
+            }
             const formData = new FormData(e.currentTarget);
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
-
             try {
               const response = await fetch("/api/v1/auth/sign-in", {
                 method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
+                credentials: 'include',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, captchaToken }),
               });
-              if (response.redirected) {
-                // Follow server-side redirect
-                router.push(response.url);
-                return;
-              }
               const data = await response.json();
-
               if (response.ok && data.success) {
-                router.push("/home/start");
+                const gotoPath = data.goto;
+                if (gotoPath) {
+                  router.push(gotoPath);
+                } else {
+                  router.push("/home/start");
+                }
               } else {
                 toast.error(data.error || "Er is een fout opgetreden");
               }
@@ -197,6 +216,7 @@ export default function SignInForm() {
             <br />
           </div>
 
+          <div id="turnstile-signin" className="mt-4"></div>
           <Button1 type="submit" text="Log In" className="w-full" />
           <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
             Heb je nog geen account?{" "}

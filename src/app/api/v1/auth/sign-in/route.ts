@@ -1,5 +1,4 @@
 import { signInCredentials } from "@/utils/auth/auth";
-import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -8,8 +7,24 @@ export async function POST(request: NextRequest) {
       ? process.env.NEXT_PUBLIC_URL
       : "http://localhost:3000";
     const body = await request.json();
-    const { email, password } = body;
-
+    const { email, password, captchaToken } = body;
+    // Verify captcha token
+    if (!captchaToken) {
+      return NextResponse.json({ error: "Captcha verificatie vereist" }, { status: 400 });
+    }
+    console.log("secret ", process.env.TURNSTILE_SECRET_KEY)
+    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        secret: process.env.TURNSTILE_SECRET_KEY || "",
+        response: captchaToken,
+      }),
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      return NextResponse.json({ error: "Ongeldige captcha" }, { status: 400 });
+    }
     if (!email || !password) {
       return NextResponse.json(
         { error: "email of wachtwoord mist" },
