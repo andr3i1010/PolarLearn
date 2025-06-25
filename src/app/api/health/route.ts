@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export default async function GET() {
+export async function GET(request: NextRequest) {
   return new NextResponse("OK")
 }
