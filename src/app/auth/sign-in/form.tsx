@@ -159,12 +159,9 @@ export default function SignInForm() {
               });
               const data = await response.json();
               if (response.ok && data.success) {
-                const gotoPath = data.goto;
-                if (gotoPath) {
-                  router.push(gotoPath);
-                } else {
-                  router.push("/home/start");
-                }
+                // Redirect based on server-provided 'goto' or default to '/home/start'
+                const gotoPath = data.goto || '/home/start';
+                router.push(gotoPath);
               } else {
                 toast.error(data.error || "Er is een fout opgetreden");
               }
@@ -216,7 +213,7 @@ export default function SignInForm() {
             <br />
           </div>
 
-          <div id="turnstile-signin" className="mt-4"></div>
+          <div id="turnstile-signin"></div>
           <Button1 type="submit" text="Log In" className="w-full" />
           <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
             Heb je nog geen account?{" "}

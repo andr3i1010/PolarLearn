@@ -10,6 +10,8 @@ import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { Input } from "@/components/ui/input";
 import Button1 from "@/components/button/Button1";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { X } from "lucide-react";
 
 export default function Page() {
     const params = useParams();
@@ -231,6 +233,12 @@ export default function Page() {
 
     return (
         <div className="px-2 pb-20">
+            <Link
+                href="/home/start"
+                className="fixed top-4 right-4 z-[150] flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 transition-colors hover:bg-neutral-600 drop-shadow-2xl"
+            >
+                <X />
+            </Link>
             <div className="w-full text-center py-2">
                 <h1 className="font-extrabold text-4xl">Samenvatting Bewerken</h1>
                 <div className="text-xs mt-1 h-4">

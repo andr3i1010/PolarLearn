@@ -178,7 +178,7 @@ export default function SignUpForm() {
           </button>
         </div>
       </div>
-      <div id="turnstile-signup" className="mt-4"></div>
+      <div id="turnstile-signup"></div>
       <Button1 text="Maak 'm aan!" className="w-full" type="submit" />
     </form>
   )

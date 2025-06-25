@@ -50,17 +50,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (result === true) {
-      const res =  NextResponse.json(
-        { success: true },
+      // On successful sign-in, return JSON with optional 'goto' path for client redirect
+      const gotoCookie = request.cookies.get("polarlearn.goto");
+      const response = NextResponse.json(
+        { success: true, goto: gotoCookie?.value },
         { status: 200 }
       );
-      const gotoCookie = request.cookies.get("polarlearn.goto")
       if (gotoCookie) {
-        const response = NextResponse.redirect(new URL(gotoCookie.value, baseUrl));
         response.cookies.delete("polarlearn.goto");
-        return response;
       }
-      return res;
+      return response;
     }
 
     return NextResponse.json(

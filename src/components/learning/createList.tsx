@@ -676,66 +676,6 @@ export default function CreateListTool({
     return () => clearInterval(interval);
   }, []);
 
-  // Update the save and publish functions to handle both create and update
-  async function saveList() {
-    // Check for list name
-    if (!listName.trim()) {
-      toast.error("Voer een naam in voor de lijst.");
-      return;
-    }
-    // Check for subject selection.
-    if (!selectedSubject) {
-      toast.error("Selecteer alstublieft een vak.");
-      return;
-    }
-    // Check that at least one pair field "1" is filled.
-    const hasFilledPair = pairs.some((pair) => pair["1"].trim() !== "");
-    if (!hasFilledPair) {
-      toast.error("Vul ten minste één paar in.");
-      return;
-    }
-
-    const formattedPairs = pairs.map((pair) => ({
-      id: pair.id,
-      "1": pair["1"] || "",
-      "2": pair["2"] || "",
-    }));
-
-    const listData = {
-      listId: listToEdit?.list_id ?? autosavedListId ?? undefined,
-      name: listName || "Naamloze Lijst",
-      mode: "list",
-      data: formattedPairs,
-      lang_from: vanDropdownRef.current?.getSelectedItem(),
-      lang_to: naarDropdownRef.current?.getSelectedItem(),
-      subject: selectedSubject.id,
-      published: false, // Explicitly save as unpublished
-    };
-
-    try {
-      const data = await sendListRequest(listData);
-      const message = isEditMode
-        ? "Lijst succesvol bijgewerkt."
-        : "Lijst succesvol opgeslagen.";
-      toast.success(message);
-      setHasChanges(false);
-      setLastSaved(new Date());
-
-      if (data && typeof data === "object" && "list_id" in data) {
-        setAutosavedListId(data.list_id);
-        router.push(`/learn/viewlist/${data.list_id}`);
-      }
-    } catch (error) {
-      console.error(
-        isEditMode ? "Error updating list" : "Error saving list",
-        error
-      );
-      toast.error(
-        `Er trad een fout op bij het ${isEditMode ? "bijwerken" : "opslaan"}.`
-      );
-    }
-  }
-
   async function publishList() {
     // Same validation as saveList
     if (!listName.trim()) {
