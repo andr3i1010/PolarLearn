@@ -55,14 +55,14 @@ export default function PlusBtn() {
                     </Link>
                     <button
                         onClick={handleOpenGroupDialog}
-                        className="flex flex-row rounded-lg hover:bg-neutral-700 p-2 items-center gap-2 transition-all w-full"
+                        className="flex flex-row rounded-lg hover:bg-neutral-700 p-2 items-center gap-2 transition-all w-full cursor-pointer"
                     >
                         <Users />
                         Nieuwe Groep
                     </button>
                     <button
                         onClick={handleOpenForumDialog}
-                        className="flex flex-row rounded-lg hover:bg-neutral-700 p-2 items-center gap-2 transition-all w-full"
+                        className="flex flex-row rounded-lg hover:bg-neutral-700 p-2 items-center gap-2 transition-all w-full cursor-pointer"
                     >
                         <MessageCircle />
                         Nieuwe Forumpost
