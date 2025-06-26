@@ -42,10 +42,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate username (no spaces)
-    if (username.includes(" ")) {
+    // Validate username (only allow alphanumeric characters, dots, and underscores)
+    const validUsernameRegex = /^[a-zA-Z0-9._]+$/;
+    if (!validUsernameRegex.test(username)) {
       return NextResponse.json(
-        { error: "Gebruikersnaam mag geen spaties bevatten" },
+        { error: "Gebruikersnaam mag alleen letters, cijfers, punten en underscores bevatten" },
         { status: 400 }
       );
     }
@@ -58,11 +59,14 @@ export async function POST(request: NextRequest) {
       )) as any;
 
       if (result.success && result.userdata) {
-        // Create session for the new user
-        await createSession(result.userdata.id);
+        // Don't create session for unverified users
+        // await createSession(result.userdata.id);
 
         return NextResponse.json(
-          { success: true },
+          {
+            success: true,
+            message: "Account aangemaakt! Controleer je e-mail om je account te activeren."
+          },
           { status: 201 }
         );
       } else {
@@ -76,6 +80,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: "Er bestaat al een account met dit gebruikersnaam of emailadres" },
           { status: 409 }
+        );
+      }
+      if (err.error === "email_send_failed") {
+        return NextResponse.json(
+          { error: "Fout bij het versturen van de activatie-email. Probeer het opnieuw." },
+          { status: 500 }
         );
       }
       throw err;

@@ -18,9 +18,10 @@ export default function SignUpForm() {
   );
 
   const validateUsername = (username: string) => {
-    console.log("Validating username:", username);
-    if (username.includes(" ")) {
-      setUsernameError("Gebruikersnaam mag geen spaties bevatten");
+    // Only allow alphanumeric characters, dots, and underscores
+    const validUsernameRegex = /^[a-zA-Z0-9._]+$/;
+    if (!validUsernameRegex.test(username)) {
+      setUsernameError("Gebruikersnaam mag alleen letters, cijfers, punten en underscores bevatten");
       return false;
     }
     setUsernameError("");
@@ -28,7 +29,6 @@ export default function SignUpForm() {
   };
 
   const validateEmail = (email: string) => {
-    console.log("Validating email:", email);
     // Basic email format check
     const re = /\S+@\S+\.\S+/;
     if (!re.test(email)) {
@@ -40,9 +40,7 @@ export default function SignUpForm() {
   };
 
   const validatePassword = (password: string) => {
-    console.log("Validating password:", password ? `'${password}' (${password.length} chars)` : "empty");
     if (password.length < 8) {
-      console.log("Password too short, setting error");
       setPasswordError("Wachtwoord moet minimaal 8 tekens bevatten");
       return false;
     }
@@ -74,17 +72,12 @@ export default function SignUpForm() {
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
 
-            console.log("Turnstile callback - Form data:", { username, email, password: password ? `${password.length} chars` : "empty" });
-
             // run validations and show errors
             const usernameValid = validateUsername(username);
             const emailValid = validateEmail(email);
             const passwordValid = validatePassword(password);
 
-            console.log("Validation results:", { username: usernameValid, email: emailValid, password: passwordValid });
-
             if (!usernameValid || !emailValid || !passwordValid) {
-              console.log("Validation failed - errors should be visible on form");
               return;
             }
 
@@ -99,9 +92,9 @@ export default function SignUpForm() {
               });
               const result = await response.json();
               if (response.ok && result.success) {
-                toast.success("Account succesvol aangemaakt!");
-                await delay(1500);
-                router.push("/auth/sign-in");
+                toast.success(result.message || "Account succesvol aangemaakt! Controleer je e-mail om je account te activeren.");
+                await delay(3000);
+                router.push("/auth/sign-in?message=check_email");
               } else {
                 toast.error(result.error || "Er is een fout opgetreden");
               }
@@ -142,8 +135,8 @@ export default function SignUpForm() {
           id="username"
           className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
           placeholder="Naam123456"
-          pattern="^\S+$"
-          title="Geen spaties toegestaan"
+          pattern="^[a-zA-Z0-9._]+$"
+          title="Alleen letters, cijfers, punten en underscores toegestaan"
           onChange={(e) => validateUsername(e.target.value)}
           required
         />

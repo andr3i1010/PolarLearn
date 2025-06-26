@@ -1045,16 +1045,11 @@ const LearnTool = ({
       }
 
       const updateStreak = async () => {
-        console.log('updateStreak called, sending request to update streak');
-        const endpoint = '/api/v1/streak/update';
-        console.log(`Fetching ${endpoint}`);
         try {
           const response = await fetch("/api/v1/streak/update", {
             method: "POST",
           });
-          console.log(`Response status: ${response.status}`);
           const result = await response.json();
-          console.log('Streak update result:', result);
 
           if (response.ok && result.success) {
             setStreakInfo({
@@ -1113,7 +1108,6 @@ const LearnTool = ({
       setListCompleted(true);
       // Also trigger streak update here to ensure request is sent
       (async () => {
-        console.log('Second effect: updateStreak triggered');
         try {
           const res = await fetch('/api/v1/streak/update', { method: 'POST' });
           console.log('Second effect response status:', res.status);

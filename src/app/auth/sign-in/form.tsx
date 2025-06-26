@@ -32,10 +32,76 @@ export default function SignInForm() {
   const params = useSearchParams();
   const formRef = useRef<HTMLFormElement>(null);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [showResendActivation, setShowResendActivation] = useState(false);
+
+  const handleResendActivation = async () => {
+    const email = prompt("Voer je e-mailadres in om een nieuwe activatie-email te ontvangen:");
+
+    if (!email) return;
+
+    try {
+      const response = await fetch("/api/v1/auth/resend-activation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.error || "Er is een fout opgetreden");
+      }
+    } catch (error) {
+      console.error("Resend activation error:", error);
+      toast.error("Er is een fout opgetreden bij het versturen van de activatie-email");
+    }
+  };
 
   useEffect(() => {
     const error = params.get("error");
+    const message = params.get("message");
     const provider = params.get("provider");
+
+    // Handle success messages first
+    if (message === "check_email") {
+      toast.info(
+        "Account aangemaakt! Controleer je e-mail en klik op de activatielink om je account te activeren.",
+        {
+          autoClose: 8000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (message === "already_activated") {
+      toast.info("Je account is al geactiveerd. Je kunt nu inloggen.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    // Handle activation errors
+    if (error === "missing_token") {
+      toast.error("Geen activatie token gevonden. Controleer de link in je e-mail.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (error === "invalid_token") {
+      toast.error("Ongeldige of verlopen activatie token. Probeer opnieuw te registreren.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (error === "activation_failed") {
+      toast.error("Er is een fout opgetreden bij het activeren van je account.");
+      router.replace("/auth/sign-in");
+      return;
+    }
 
     if (error === "banned") {
       toast.error(
@@ -186,6 +252,10 @@ export default function SignInForm() {
                   }
                 }, 200);
               } else {
+                // Check if error is related to email verification
+                if (data.error && data.error.includes("geverifieerd")) {
+                  setShowResendActivation(true);
+                }
                 toast.error(data.error || "Er is een fout opgetreden");
               }
             } catch (error) {
@@ -247,6 +317,18 @@ export default function SignInForm() {
               <strong>Maak er dan eentje!</strong>
             </Link>
           </p>
+          {showResendActivation && (
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center mt-2">
+              Account niet geactiveerd?{" "}
+              <button
+                type="button"
+                onClick={handleResendActivation}
+                className="font-medium text-primary-600 hover:underline dark:text-primary-500 cursor-pointer"
+              >
+                <strong>Verstuur nieuwe activatie-email</strong>
+              </button>
+            </p>
+          )}
         </form>
       </div>
     </div>

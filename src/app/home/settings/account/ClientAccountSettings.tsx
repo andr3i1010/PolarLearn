@@ -126,7 +126,6 @@ export default function ClientAccountSettings({ initialData }: Props) {
       toast.error(
         "Er is een fout opgetreden bij het wijzigen van je wachtwoord."
       );
-      console.log(err);
     } finally {
       setPasswordLoading(false);
     }

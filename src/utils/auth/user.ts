@@ -11,16 +11,183 @@ interface PasswordActionResult {
   error?: any;
 }
 
-export async function sendSignUpEmail(email: string, username: string): Promise<string> {
+export async function sendSignUpEmail(email: string, username: string, token: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    await transporter.verify()
-      .catch((err) => reject(err));
-    const mail = await transporter.sendMail({
-      from: `"PolarLearn" <noreply@polarlearn.tech>`,
-      to: email,
-      subject: `PolarLearn | Registratie voor ${username}`,
-    })
-  })
+    try {
+      console.log("Attempting to verify transporter...");
+      await transporter.verify();
+      console.log("Transporter verified successfully");
+
+      const activationUrl = `${process.env.NEXT_PUBLIC_URL || 'https://polarlearn.tech'}/auth/activate?token=${token}`;
+      console.log("Activation URL:", activationUrl);
+
+      const htmlTemplate = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Account Activeren</title>
+  </head>
+
+  <body style="margin: 0; padding: 0; background-color: #f6f9fc">
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      bgcolor="#171717"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 0">
+          <!-- Main container -->
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            bgcolor="#ffffff"
+            style="border-radius: 8px; overflow: hidden"
+          >
+            <!-- Header -->
+            <tr>
+              <td align="center" bgcolor="#404040" style="padding: 30px 20px">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="center">
+                      <img
+                        src="https://polarlearn.tech/icon.png"
+                        height="40"
+                        alt="Logo Icon"
+                        style="vertical-align: middle; margin-right: 10px"
+                      />
+                    </td>
+                    <td align="center">
+                      <img
+                        src="https://polarlearn.tech/text.png"
+                        width="200"
+                        alt="PolarLearn"
+                        style="vertical-align: middle"
+                      />
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Body Content -->
+            <tr>
+              <td
+                style="
+                  padding: 30px 20px;
+                  font-family: Arial, sans-serif;
+                  font-size: 16px;
+                  color: #ffffff;
+                  background: #272727;
+                "
+              >
+                <p>Hallo ${username},</p>
+                <p>
+                  Welkom bij PolarLearn! Om je account te activeren en te kunnen beginnen met leren, 
+                  moet je eerst je e-mailadres bevestigen.
+                </p>
+                <p>
+                  Klik op de knop hieronder om je account te activeren:
+                </p>
+
+                <div style="text-align: center; margin: 30px 0">
+                  <div
+                    style="
+                      position: relative;
+                      display: inline-block;
+                      transition: transform 0.15s ease-in-out;
+                      border-radius: 0.5rem;
+                    "
+                  >
+                    <div
+                      style="
+                        border-radius: 0.5rem;
+                        border: 4px solid #404040;
+                        transition-duration: 0.3s;
+                        overflow: hidden;
+                        position: relative;
+                      "
+                    >
+                      <a
+                        style="
+                          width: 100%;
+                          border-radius: 0.25rem;
+                          transition: all 0.3s ease;
+                          background-color: #262626;
+                          color: white;
+                          font-weight: bold;
+                          padding: 0.5rem 1rem;
+                          text-align: center;
+                          display: block;
+                          text-decoration: none;
+                          box-sizing: border-box;
+                        "
+                        href="${activationUrl}"
+                      >
+                        <span
+                          style="
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                          "
+                          >Account activeren</span
+                        >
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <p>
+                  Deze link vervalt in 24 uur. Als je deze link niet hebt aangevraagd, 
+                  kun je deze e-mail veilig negeren.
+                </p>
+                <p>
+                  Als de knop niet werkt, kopieer dan deze link naar je browser:<br>
+                  <a href="${activationUrl}" style="color: #38bdf8; word-break: break-all;">${activationUrl}</a>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                bgcolor="#f0f0f0"
+                style="
+                  padding: 20px;
+                  font-family: Arial, sans-serif;
+                  font-size: 12px;
+                  color: #888888;
+                  text-align: center;
+                  background: #272727;
+                "
+              >
+                Dit email is automatisch gestuurd vanuit PolarLearn. Je kan
+                hierop niet antwoorden
+              </td>
+            </tr>
+          </table>
+          <!-- End Main container -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+
+      const mail = await transporter.sendMail({
+        from: `"PolarLearn" <noreply@polarlearn.tech>`,
+        to: email,
+        subject: `PolarLearn | Account activeren voor ${username}`,
+        html: htmlTemplate
+      });
+      resolve(mail.messageId);
+    } catch (err) {
+      console.error("Error in sendSignUpEmail:", err);
+      reject(err);
+    }
+  });
 }
 
 export async function hashPassword(
@@ -48,40 +215,73 @@ export async function createUserCredentials(
 ) {
   const salt = crypto.randomBytes(16).toString("base64")
   const id = crypto.randomUUID()
+  const activationToken = crypto.randomBytes(32).toString("hex")
+
+  // Set scheduled deletion for 24 hours from now
+  const scheduledDeletion = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
   return new Promise(async (resolve, reject) => {
-    await prisma.user
-      .create({
-        data: {
-          id: id,
-          name: username,
-          email: email,
-          password: await hashPassword(
-            password,
-            salt
-          ),
-          salt: salt,
-          loginAllowed: true,
-          forumAllowed: true,
-          // Use unique placeholder values for OAuth fields
-          githubOAuthID: id,
-          googleOAuthID: id,
-          list_data: {
-            recent_lists: [],
-            created_lists: [],
-            recent_subjects: [],
-          }
-        },
-      })
-      .then((user: any) => {
-        resolve({ success: true, userdata: user });
-      })
-      .catch((err: { code: string; }) => {
-        if (err.code === "P2002") {
-          reject({ success: false, error: "userexists" });
+    try {
+      console.log("Creating user with data:", { username, email, hasPassword: !!password });
+
+      const userData = {
+        id: id,
+        name: username,
+        email: email,
+        password: await hashPassword(password, salt),
+        salt: salt,
+        emailVerified: null, // Email not verified yet
+        loginAllowed: false, // Don't allow login until email is verified
+        forumAllowed: false, // Don't allow forum access until email is verified
+        // Use unique placeholder values for OAuth fields
+        githubOAuthID: id,
+        googleOAuthID: id,
+        list_data: {
+          recent_lists: [],
+          created_lists: [],
+          recent_subjects: [],
         }
-        reject(err);
+      };
+
+      // Add activation token and scheduled deletion if supported
+      try {
+        (userData as any).activationToken = activationToken;
+        (userData as any).scheduledDeletion = scheduledDeletion;
+      } catch (e) {
+        console.warn("Prisma schema may not include activationToken/scheduledDeletion fields");
+      }
+
+      const user = await prisma.user.create({
+        data: userData,
       });
+
+      console.log("User created successfully:", user.id);
+
+      // Send activation email
+      try {
+        console.log("Sending activation email...");
+        await sendSignUpEmail(email, username, activationToken);
+        console.log("Activation email sent successfully");
+        resolve({ success: true, userdata: user });
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError);
+        // If email sending fails, delete the created user
+        try {
+          await prisma.user.delete({ where: { id: user.id } });
+          console.log("User deleted due to email send failure");
+        } catch (deleteError) {
+          console.error("Failed to delete user after email error:", deleteError);
+        }
+        reject({ success: false, error: "email_send_failed" });
+      }
+    } catch (err: any) {
+      console.error("Error creating user:", err);
+      if (err.code === "P2002") {
+        reject({ success: false, error: "userexists" });
+      } else {
+        reject({ success: false, error: err.message || "database_error" });
+      }
+    }
   });
 }
 
