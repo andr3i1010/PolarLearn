@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Sign-up error:", error);
     return NextResponse.json(
-      { error: "Interne serverfout" },
+      { error: "🚨 Interne serverfout" },
       { status: 500 }
     );
   }

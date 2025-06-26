@@ -159,9 +159,32 @@ export default function SignInForm() {
               });
               const data = await response.json();
               if (response.ok && data.success) {
-                // Redirect based on server-provided 'goto' or default to '/home/start'
-                const gotoPath = data.goto || '/home/start';
-                router.push(gotoPath);
+                toast.success("Succesvol ingelogd!");
+
+                // Get redirect path - check both server response and cookie
+                const serverGoto = data.goto;
+                const cookieGoto = getCookie('polarlearn.goto');
+                const gotoPath = getValidRedirectPath(serverGoto || cookieGoto) || '/home/start';
+
+                // Clear redirect cookie
+                clearRedirectCookie();
+
+                // Add a small delay to ensure session is established, then redirect
+                setTimeout(() => {
+                  // Try router first, fallback to window.location
+                  try {
+                    router.push(gotoPath);
+                    // Additional fallback: if still on sign-in page after 1 second, force redirect
+                    setTimeout(() => {
+                      if (window.location.pathname === '/auth/sign-in') {
+                        window.location.href = gotoPath;
+                      }
+                    }, 1000);
+                  } catch (routerError) {
+                    console.warn("Router redirect failed:", routerError);
+                    window.location.href = gotoPath;
+                  }
+                }, 200);
               } else {
                 toast.error(data.error || "Er is een fout opgetreden");
               }

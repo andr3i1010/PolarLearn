@@ -3,16 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
-      ? process.env.NEXT_PUBLIC_URL
-      : "http://localhost:3000";
     const body = await request.json();
     const { email, password, captchaToken } = body;
     // Verify captcha token
     if (!captchaToken) {
       return NextResponse.json({ error: "Captcha verificatie vereist" }, { status: 400 });
     }
-    console.log("secret ", process.env.TURNSTILE_SECRET_KEY)
     const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },

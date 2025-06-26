@@ -88,48 +88,63 @@ async function middlewareAuth(request: NextRequest, response: NextResponse) {
       const response = NextResponse.redirect(
         new URL("/auth/sign-in", request.url)
       );
-      response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
-        path: "/",
-        maxAge: 10 * 60, // 10 minutes
-        httpOnly: false, // Allow client-side access
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
+      
+      // Don't set goto cookie for prefetch requests
+      if (!request.headers.get("Next-Router-Prefetch")) {
+        response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
+          path: "/",
+          maxAge: 10 * 60, // 10 minutes
+          httpOnly: false, // Allow client-side access
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        });
+      }
+      
       return response;
     }
 
     try {
       const sessionId = await decodeCookie(sessionCookie.value);
 
-      if (!sessionId) {
+      if (!sessionId && !request.headers.get("Next-Url")) {
         const response = NextResponse.redirect(
           new URL("/auth/sign-in", request.url)
         );
-        response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
-          path: "/",
-          maxAge: 10 * 60, // 10 minutes
-          httpOnly: false, // Allow client-side access
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
+        
+        // Don't set goto cookie for prefetch requests
+        if (!request.headers.get("Next-Router-Prefetch")) {
+          response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
+            path: "/",
+            maxAge: 10 * 60, // 10 minutes
+            httpOnly: false, // Allow client-side access
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+          });
+        }
+        
         return response;
       }
 
       const session = await prisma.session.findUnique({
-        where: { sessionID: sessionId },
+        where: { sessionID: sessionId as string },
       });
 
       if (!session || session.expires < new Date()) {
         const response = NextResponse.redirect(
           new URL("/auth/sign-in", request.url)
         );
-        response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
-          path: "/",
-          maxAge: 10 * 60, // 10 minutes
-          httpOnly: false, // Allow client-side access
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
+        
+        // Don't set goto cookie for prefetch requests
+        if (!request.headers.get("Next-Router-Prefetch")) {
+          response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
+            path: "/",
+            maxAge: 10 * 60, // 10 minutes
+            httpOnly: false, // Allow client-side access
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+          });
+        }
+        
         return response;
       }
 
