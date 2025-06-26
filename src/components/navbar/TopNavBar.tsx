@@ -281,9 +281,9 @@ const NavigationLinks = memo(
     }) => (
         <>
             <div className="hidden md:flex items-center space-x-4 flex-grow">
-                <NavBtn text="Start" redirectTo="/home/start" useClNav={true} className="step5" />
+                <NavBtn text="Start" redirectTo="/home/start" useClNav={true} className="startbutton" />
                 {/* Wrapper for forum button tour step */}
-                <div id="step3">
+                <div id="forumbutton">
                     <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
                 </div>
                 <div className="relative block mb-12" style={{ textAlign: "left" }}>
@@ -291,12 +291,12 @@ const NavigationLinks = memo(
                         selectorMode={false}
                         text={"Leren"}
                         dropdownMatrix={dropdownMatrixStart}
-                        className="step2"
+                        className="lerendropdown"
                     />
                 </div>
                 <div className="w-39" />
 
-                <div className="w-70 mr-1">
+                <div className="w-70 mr-1 searchbar">
                     <SearchBar onExpand={onExpandSearch} />
                 </div>
                 <StreakNavbarThing />
@@ -310,6 +310,7 @@ const NavigationLinks = memo(
                             ["Instellingen", "/home/settings"],
                             ["Uitloggen", "/auth/sign-out"],
                         ]}
+                        className="accountdropdown"
                     />
                 </div>
             </div>

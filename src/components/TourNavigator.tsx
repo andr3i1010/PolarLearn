@@ -11,13 +11,13 @@ export default function TourNavigator() {
   useEffect(() => {
     const navigate = () => {
       // From forum button to forum list
-      if (pathname === '/home/forum' && currentStep === 3) {
-        setCurrentStep(4);
+      if (pathname === '/home/forum' && currentStep === 7) {
+        setCurrentStep(8);
       }
 
       // From forum list back to start page
-      if (pathname === '/home/start' && currentStep === 5) {
-        setCurrentStep(6);
+      if (pathname === '/home/start' && currentStep === 9) {
+        setCurrentStep(10);
       }
     };
 

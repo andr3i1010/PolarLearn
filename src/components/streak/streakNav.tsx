@@ -262,7 +262,7 @@ export default function StreakNavbarThing() {
 
     return (
         <Popover>
-            <PopoverTrigger>
+            <PopoverTrigger className="streak">
                 <div className="bg-neutral-800 text-white rounded-lg flex items-center justify-center min-w-40 min-h-10 hover:bg-neutral-700 transition-colors px-2">
                     <Flame className={`mr-1 ${(streakCnt > 0 && activeStreak) ? "text-orange-400" : "text-white"}`} />
                     {loading ? (

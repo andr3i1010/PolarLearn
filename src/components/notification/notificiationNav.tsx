@@ -189,7 +189,7 @@ export default function NotificationNav() {
 
     return (
         <Popover>
-            <PopoverTrigger>
+            <PopoverTrigger className="notification">
                 <div className="relative w-10 h-10 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full flex items-center transition-all justify-center">
                     <Bell className="w-6 h-6" />
                     {unreadCount > 0 && (

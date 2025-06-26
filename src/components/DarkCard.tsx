@@ -38,7 +38,7 @@ export default function DarkCard({
         />
         <span className="whitespace-nowrap">{`${
           currentStep + 1
-        } of ${totalSteps}`}</span>
+        }/${totalSteps}`}</span>
         {currentStep === totalSteps - 1 ? (
           <Button1
             text="Klaar"

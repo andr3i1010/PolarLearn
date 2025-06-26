@@ -37,7 +37,7 @@ const steps = [
         title: "Dit is de navigatiebalk",
         content:
           "Hiermee kan je snel naar verschillende delen van de website navigeren, zoals leertools, instellingen en meer.",
-        selector: "#step1",
+        selector: "#navbar",
         side: "right" as const,
         showControls: true,
         showSkip: true,
@@ -47,7 +47,47 @@ const steps = [
         title: "Leren keuzelijst",
         content:
           "Beweeg je muis over de keuzelijst om naar een pagina van keuze te gaan. ",
-        selector: ".step2",
+        selector: ".lerendropdown",
+        side: "bottom" as const,
+        showControls: true,
+        showSkip: true,
+      },
+      {
+        icon: "🔍",
+        title: "Zoekbalk",
+        content:
+          "Dit is de zoekbalk. Hier kan je lijsten, samenvattingen, forumvragen en groepen vinden. Typ gewoon in wat je zoekt en dan krijg je resultaten.",
+        selector: ".searchbar",
+        side: "bottom" as const,
+        showControls: true,
+        showSkip: true,
+      },
+      {
+        icon: "🔥",
+        title: "Reeks",
+        content:
+          "Hier kan je je reeks bekijken, oefen dagelijks om je reeks te behouden. Je krijgt ook een bevriezer als je drie dagen achter elkaar oefent.",
+        selector: ".streak",
+        side: "bottom" as const,
+        showControls: true,
+        showSkip: true,
+      },
+      {
+        icon: "🔔",
+        title: "Berichten",
+        content:
+          "Hier kan je je berichten bekijken en beheren. Tot nu toe krijg je berichten voor als iemand je forumpost leuk vind, er op heeft geantwoord of als een administrator je vraag/antwoord heeft verwijderd.",
+        selector: ".notification",
+        side: "bottom" as const,
+        showControls: true,
+        showSkip: true,
+      },
+      {
+        icon: "⚙️",
+        title: "Account keuzelijst",
+        content:
+          "In deze keuzelijst kan je uitloggen, en je account beheren.",
+        selector: ".accountdropdown",
         side: "bottom" as const,
         showControls: true,
         showSkip: true,
@@ -57,7 +97,7 @@ const steps = [
         title: "Forum",
         content:
           "Klik hier om naar het forum te gaan en discussies te bekijken.",
-        selector: "#step3",
+        selector: "#forumbutton",
         side: "bottom" as const,
         showControls: false,
         showSkip: true,
@@ -76,7 +116,7 @@ const steps = [
         icon: "🏠",
         title: "Ga terug naar Start",
         content: "Klik hier om terug te keren naar de startpagina.",
-        selector: ".step5",
+        selector: ".startbutton",
         side: "bottom" as const,
         showControls: false,
         showSkip: true,
@@ -271,7 +311,7 @@ export default async function RootLayout({
                       <ImpersonationCheck />
                       <ImpersonationStyles />
                       {/* Anchor first step to the navbar */}
-                      <div id="step1">
+                      <div id="navbar">
                         <TopNavBar />
                       </div>
                       <div>{children}</div>
