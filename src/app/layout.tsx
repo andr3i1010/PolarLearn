@@ -86,7 +86,7 @@ const steps = [
         icon: "📃",
         title: "Overzicht Lijsten",
         content: (
-          <div className="w-full flex flex-col items-center">
+          <div className="w-full flex flex-col">
             <p>Hier komen je recent bekeken/geoefende lijsten te staan.</p>
             <p>Zo komt het eruit te zien:</p>
             <img
@@ -96,7 +96,7 @@ const steps = [
             />
           </div>
         ),
-        selector: "#pixel-area-start",
+        selector: "",
         side: "bottom" as const,
         showControls: true,
         showSkip: true,

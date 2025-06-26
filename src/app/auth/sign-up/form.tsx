@@ -18,6 +18,7 @@ export default function SignUpForm() {
   );
 
   const validateUsername = (username: string) => {
+    console.log("Validating username:", username);
     if (username.includes(" ")) {
       setUsernameError("Gebruikersnaam mag geen spaties bevatten");
       return false;
@@ -27,6 +28,7 @@ export default function SignUpForm() {
   };
 
   const validateEmail = (email: string) => {
+    console.log("Validating email:", email);
     // Basic email format check
     const re = /\S+@\S+\.\S+/;
     if (!re.test(email)) {
@@ -38,7 +40,9 @@ export default function SignUpForm() {
   };
 
   const validatePassword = (password: string) => {
+    console.log("Validating password:", password ? `'${password}' (${password.length} chars)` : "empty");
     if (password.length < 8) {
+      console.log("Password too short, setting error");
       setPasswordError("Wachtwoord moet minimaal 8 tekens bevatten");
       return false;
     }
@@ -69,8 +73,21 @@ export default function SignUpForm() {
             const username = formData.get("username") as string;
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
-            // run validations
-            if (!validateUsername(username) || !validateEmail(email) || !validatePassword(password)) return;
+
+            console.log("Turnstile callback - Form data:", { username, email, password: password ? `${password.length} chars` : "empty" });
+
+            // run validations and show errors
+            const usernameValid = validateUsername(username);
+            const emailValid = validateEmail(email);
+            const passwordValid = validatePassword(password);
+
+            console.log("Validation results:", { username: usernameValid, email: emailValid, password: passwordValid });
+
+            if (!usernameValid || !emailValid || !passwordValid) {
+              console.log("Validation failed - errors should be visible on form");
+              return;
+            }
+
             try {
               const response = await fetch("/api/v1/auth/sign-up", {
                 method: "POST",
@@ -177,6 +194,9 @@ export default function SignUpForm() {
             {showPassword ? <Eye /> : <EyeOff />}
           </button>
         </div>
+        {passwordError && (
+          <p className="mt-1 text-sm text-red-500">{passwordError}</p>
+        )}
       </div>
       <div id="turnstile-signup"></div>
       <Button1 text="Maak 'm aan!" className="w-full" type="submit" />

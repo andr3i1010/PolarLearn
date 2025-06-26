@@ -60,7 +60,7 @@ export default function DarkCard({
       </div>
       {currentStep < totalSteps - 1 && (
         <Button1
-          text="Klaar"
+          text="Tour overslaan"
           onClick={async () => {
             skipTour?.();
             await fetch("/api/v1/finish-tour", {

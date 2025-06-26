@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     } catch (err: any) {
       if (err.error === "userexists") {
         return NextResponse.json(
-          { error: "Er bestaat al een account met dit email adres" },
+          { error: "Er bestaat al een account met dit gebruikersnaam of emailadres" },
           { status: 409 }
         );
       }
