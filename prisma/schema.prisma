@@ -23,7 +23,7 @@ model User {
   image         String?
   password      String
   salt          String
-  activationToken  String? @unique // Used for email verification or password reset
+  activationToken  String?
 
   finishedTour  Boolean? @default(false)
 
