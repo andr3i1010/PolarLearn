@@ -22,7 +22,12 @@ install_mongodb() {
     case "$OSTYPE" in
     "linux"* )
         if command apt -v &> /dev/null; then
-                sudo apt update && sudo apt install -y mongodb
+            # Voor Debian/Ubuntu
+                sudo apt-get install gnupg curl # MongoDB GPG key installeren
+                curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+                echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] http://repo.mongodb.org/apt/debian bookworm/mongodb-org/8.0 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+                sudo apt-get update
+                sudo apt install -y mongodb-org
             elif command dnf --version &> /dev/null; then
                 sudo dnf install -y mongodb
             elif command yay --version &> /dev/null; then
@@ -56,6 +61,32 @@ esac
 install_node() {
     if command -v node &> /dev/null; then
         echo "✅ Node.js is al geïnstalleerd."
+        # Controleer de versie
+        NODE_VERSION=$(node -v | cut -d'.' -f1 | sed 's/^v//')
+        if [ "$NODE_VERSION" -ge 19 ]; then
+            echo "ℹ️ Node.js versie is $NODE_VERSION, dit is goed genoeg."
+        else
+            echo "ℹ️ Node.js versie is $NODE_VERSION, dit is niet hoog genoeg."
+            echo "🚀 Node.js updaten naar de laatste LTS versie..."
+            if command -v nvm &> /dev/null; then
+                echo "ℹ️ nvm is al geïnstalleerd, updaten..."
+                nvm install --lts
+                nvm use --lts
+            else
+                echo "🚀 nvm installeren..."
+                wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+                nvm install --lts
+                nvm use --lts
+            fi
+            echo "✅ Node.js succesvol bijgewerkt naar de laatste LTS versie."
+        fi
+        echo "🚀 pnpm updaten..."
+        npm install -g pnpm@latest-10
+        if ! command -v pnpm &> /dev/null; then
+            echo "❌ pnpm update is mislukt!"
+            exit 1
+        fi
+        echo "✅ pnpm succesvol bijgewerkt."
         return
     fi
 
@@ -65,7 +96,6 @@ install_node() {
             if command -v apt &> /dev/null; then
                 sudo apt update && sudo apt install -y nodejs
                 sudo apt install npm -y
-                sudo npm install -g pnpm@latest-10
             elif command -v dnf &> /dev/null; then
                 sudo dnf install -y nodejs
                 elif command brew -v &> /dev/null; then
@@ -93,6 +123,13 @@ esac
         exit 1
     fi
     echo "✅ Node.js succesvol geïnstalleerd."
+    echo "🚀 pnpm installeren..."
+    npm install -g pnpm@latest-10
+    if ! command -v pnpm &> /dev/null; then
+        echo "❌ pnpm installatie is mislukt!"
+        exit 1
+    fi
+    echo "✅ pnpm succesvol geïnstalleerd."
 }
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
