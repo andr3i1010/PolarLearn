@@ -97,6 +97,12 @@ export default function SignInForm() {
       return;
     }
 
+    if (error === "invalid_or_used_token") {
+      toast.error("Ongeldige of reeds gebruikte activatie token. Als je account al geactiveerd is, probeer dan in te loggen.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
     if (error === "activation_failed") {
       toast.error("Er is een fout opgetreden bij het activeren van je account.");
       router.replace("/auth/sign-in");

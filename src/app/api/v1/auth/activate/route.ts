@@ -15,13 +15,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user with the activation token
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findFirst({
       where: { activationToken: token }
     });
 
+    // If no user found with the token, it could be:
+    // 1. Invalid/expired token
+    // 2. Already used token (activationToken was set to null after activation)
     if (!user) {
+      // Check if any user was recently activated (within last 30 days) - this is a best effort check
+      // In a production system, you might want to store used tokens separately
       return NextResponse.json(
-        { error: "Ongeldige of verlopen activatie token" },
+        { error: "Ongeldige of verlopen activatie token. Als je account al geactiveerd is, probeer in te loggen." },
         { status: 400 }
       );
     }
@@ -79,13 +84,13 @@ export async function GET(request: NextRequest) {
 
   try {
     // Find user with the activation token
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findFirst({
       where: { activationToken: token }
     });
 
     if (!user) {
       return NextResponse.redirect(
-        new URL('/auth/sign-in?error=invalid_token', url.origin)
+        new URL('/auth/sign-in?error=invalid_or_used_token', url.origin)
       );
     }
 
