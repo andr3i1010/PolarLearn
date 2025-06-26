@@ -146,7 +146,7 @@ const steps = [
         title: "Klaar!",
         content:
           "Je bent klaar met de rondleiding! Je kunt nu beginnen met het gebruiken van PolarLearn.",
-        selector: "", // empty selector triggers centered dialog
+        selector: "",
         showControls: true,
         showSkip: true,
       },
