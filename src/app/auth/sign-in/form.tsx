@@ -252,6 +252,7 @@ export default function SignInForm() {
                 setTimeout(() => {
                   // Try router first, fallback to window.location
                   try {
+                    console.log(gotoPath);
                     router.push(gotoPath);
                     // setTimeout(() => {
                     //   if (window.location.pathname === '/auth/sign-in') {
