@@ -187,20 +187,52 @@ export default async function Start() {
         <div className="subjects">
           <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
           <div>
-            <div className="flex pt-5 pl-5 space-x-4 relative overflow-hidden w-screen">
+            <div className="flex pt-5 pl-5 space-x-4 relative w-240 min-h-[80px]">
               {recentSubjects.length === 0 && (
                 <>
-                  <p className="absolute top-[35px] w-full pl-9 text-neutral-400 font-bold">
+                  <p className="absolute top-[80px] w-full pl-9 text-neutral-400 font-bold pr-4">
                     Je hebt nog geen vakken geoefend. Leer een lijst of een
                     bepaalde vak, en de geoefende vak van de lijst komt hier.
                   </p>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["NL"]
+                        ? subjectEmojiMap["NL"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["AK"]
+                        ? subjectEmojiMap["AK"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["BI"]
+                        ? subjectEmojiMap["BI"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["LA"]
+                        ? subjectEmojiMap["LA"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["FR"]
+                        ? subjectEmojiMap["FR"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-48 h-14 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed">
+                    <ChevronRight />
+                    Meer vakken
+                  </div>
                 </>
               )}
               {recentSubjects.length > 0 && (
@@ -222,12 +254,10 @@ export default async function Start() {
                       </Link>
                     ))}
 
-                  {recentSubjects.length >= 5 && (
-                    <Link href={'/learn/subjects'} className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-48 h-14 flex items-center justify-center gap-2 hover:bg-neutral-700 transition-all">
-                      <ChevronRight />
-                      Meer vakken
-                    </Link>
-                  )}
+                  <Link href={'/learn/subjects'} className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-48 h-14 flex items-center justify-center gap-2 hover:bg-neutral-700 transition-all">
+                    <ChevronRight />
+                    Meer vakken
+                  </Link>
                 </>
               )}
             </div>

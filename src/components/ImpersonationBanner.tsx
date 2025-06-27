@@ -29,9 +29,9 @@ export default function ImpersonationBanner({ adminName, impersonatedUserName }:
   return (
     <div className="fixed top-0 left-0 right-0 z-[100] bg-amber-600 text-white p-2 flex justify-between items-center shadow-md h-10">
       <div className="flex items-center">
-        <Info />
+        <Info className="mr-2"/>
         <span>
-          Admin modus: <strong>{adminName}</strong> handelt momenteel als <strong>{impersonatedUserName}</strong>
+          CHROOT: <strong>{adminName}</strong> handelt momenteel als <strong>{impersonatedUserName}</strong>
         </span>
       </div>
       <button
