@@ -244,7 +244,7 @@ export default async function Start() {
                       <Link
                         key={index}
                         href={`/learn/subject/${subject}`}
-                        className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid transition-colors"
+                        className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-10 h-14 text-center place-items-center grid transition-colors"
                       >
                         {(() => {
                           return subjectEmojiMap[subject]
