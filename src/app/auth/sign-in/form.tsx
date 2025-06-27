@@ -6,7 +6,7 @@ import GithubLogin from "@/components/button/loginGithub";
 import Button1 from "@/components/button/Button1";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
-import { EyeOff } from "lucide-react";
+import { EyeOff, Loader2 } from "lucide-react";
 import { Eye } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { getValidRedirectPath, clearRedirectCookie } from "@/utils/auth/redirect";
@@ -32,6 +32,7 @@ export default function SignInForm() {
   const params = useSearchParams();
   const formRef = useRef<HTMLFormElement>(null);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaLoading, setCaptchaLoading] = useState(true);
   const [showResendActivation, setShowResendActivation] = useState(false);
 
   const handleResendActivation = async () => {
@@ -191,7 +192,13 @@ export default function SignInForm() {
       if (window.turnstile) {
         window.turnstile.render("#turnstile-signin", {
           sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
-          callback: (token: string) => setCaptchaToken(token),
+          callback: (token: string) => {
+            setCaptchaToken(token);
+            setCaptchaLoading(false);
+          },
+          "error-callback": () => {
+            setCaptchaLoading(false);
+          },
         });
       }
     };
@@ -246,14 +253,13 @@ export default function SignInForm() {
                   // Try router first, fallback to window.location
                   try {
                     router.push(gotoPath);
-                    // Additional fallback: if still on sign-in page after 1 second, force redirect
-                    setTimeout(() => {
-                      if (window.location.pathname === '/auth/sign-in') {
-                        window.location.href = gotoPath;
-                      }
-                    }, 1000);
-                  } catch (routerError) {
-                    console.warn("Router redirect failed:", routerError);
+                    // setTimeout(() => {
+                    //   if (window.location.pathname === '/auth/sign-in') {
+                    //     window.location.href = gotoPath;
+                    //   }
+                    // }, 1000);
+                  } catch (err) {
+                    console.warn("nextjs router redirect gefaald:", err);
                     window.location.href = gotoPath;
                   }
                 }, 200);
@@ -313,8 +319,14 @@ export default function SignInForm() {
           </div>
 
           <div id="turnstile-signin"></div>
-          <Button1 type="submit" text="Log In" className="w-full" />
-          <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
+          <Button1
+            type="submit"
+            text={captchaLoading ? "CAPTCHA uitvoeren..." : "Log In"}
+            className="w-full"
+            disabled={captchaLoading || !captchaToken}
+            icon={captchaLoading ? <Loader2 className="animate-spin" /> : null}
+          />
+          <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center mt-2">
             Heb je nog geen account?{" "}
             <Link
               href="/auth/sign-up"

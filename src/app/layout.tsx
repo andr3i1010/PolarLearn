@@ -291,14 +291,14 @@ export default async function RootLayout({
             dangerouslySetInnerHTML={{ __html: art }}
           />
           <SessionWrapper>
-            <NextStepProvider>
-              {/* Only start tour if not finished in DB */}
-              {!finishedTour && <TourInitializer tourName="mainTour" />}
-              <NextStep steps={steps} cardComponent={DarkCard}>
-                <TourNavigator />
-                <ToastProvider>
-                  <WSProvider>
-                    {/* <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
+            {!finishedTour ? (
+              <NextStepProvider>
+                <TourInitializer tourName="mainTour" />
+                <NextStep steps={steps} cardComponent={DarkCard}>
+                  <TourNavigator />
+                  <ToastProvider>
+                    <WSProvider>
+                      {/* <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
                 <div className="flex flex-col items-center">
                   <p className="text-6xl">⚠️</p>
                   <br />
@@ -307,21 +307,38 @@ export default async function RootLayout({
                   </p>
                 </div>
               </div> */}
-                    <>
-                      <ImpersonationCheck />
-                      <ImpersonationStyles />
-                      {/* Anchor first step to the navbar */}
-                      <div id="navbar">
-                        <TopNavBar />
-                      </div>
-                      <div>{children}</div>
-                    </>
-                    {footerContent}
-                    <AnalyticsProvider />
-                  </WSProvider>
-                </ToastProvider>
-              </NextStep>
-            </NextStepProvider>
+                      <>
+                        <ImpersonationCheck />
+                        <ImpersonationStyles />
+                        {/* Anchor first step to the navbar */}
+                        <div id="navbar">
+                          <TopNavBar />
+                        </div>
+                        <div>{children}</div>
+                      </>
+                      {footerContent}
+                      <AnalyticsProvider />
+                    </WSProvider>
+                  </ToastProvider>
+                </NextStep>
+              </NextStepProvider>
+            ) : (
+              <ToastProvider>
+                <WSProvider>
+                  <>
+                    <ImpersonationCheck />
+                    <ImpersonationStyles />
+                    {/* Anchor first step to the navbar */}
+                    <div id="navbar">
+                      <TopNavBar />
+                    </div>
+                    <div>{children}</div>
+                  </>
+                  {footerContent}
+                  <AnalyticsProvider />
+                </WSProvider>
+              </ToastProvider>
+            )}
           </SessionWrapper>
         </body>
       </html>

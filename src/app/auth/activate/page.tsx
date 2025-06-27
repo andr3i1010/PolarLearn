@@ -16,7 +16,7 @@ export default function ActivatePage() {
 
     if (!token) {
       setActivationStatus("error");
-      setErrorMessage("Geen activatie token gevonden in de URL.");
+      setErrorMessage("ja hoor, denk je echt dat je de token weg kan halen");
       setIsActivating(false);
       return;
     }
