@@ -6,6 +6,7 @@ import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
 import { ChevronRight, PencilIcon, Trash2 } from "lucide-react"; // Added Trash2
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import DeleteSummaryButton from "@/components/learning/DeleteSummaryButton"; // Added DeleteSummaryButton
 import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
@@ -186,8 +187,8 @@ export default async function Start() {
       <div className="flex flex-col">
         <div className="subjects">
           <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
-          <div>
-            <div className="flex pt-5 pl-5 space-x-4 relative w-240 min-h-[80px]">
+          <ScrollArea className="w-full">
+            <div className="flex pt-5 pl-5 space-x-4 relative min-w-max min-h-[80px] pr-5">
               {recentSubjects.length === 0 && (
                 <>
                   <p className="absolute top-[80px] w-full pl-9 text-neutral-400 font-bold pr-4">
@@ -261,7 +262,8 @@ export default async function Start() {
                 </>
               )}
             </div>
-          </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         </div>
         {/* Combined "Recent Geoefend" section */}
         <div className="recent-practiced mt-8"> {/* Changed class name */}

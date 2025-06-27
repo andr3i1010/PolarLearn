@@ -33,7 +33,7 @@ const Tab = memo(({
 }) => (
     <div
         data-tab-id={id}
-        className={`p-3 cursor-pointer text-lg transition-colors duration-200 border-b-2 ${isActive
+        className={`p-3 text-sm md:text-lg cursor-pointer transition-colors duration-200 border-b-2 ${isActive
             ? "text-white"
             : "text-gray-400 border-transparent hover:text-white"
             }`}
