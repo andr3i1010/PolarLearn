@@ -318,7 +318,7 @@ export default function SignInForm() {
             <br />
           </div>
 
-          <div id="turnstile-signin"></div>
+          <div id="turnstile-signin" className="flex justify-center"></div>
           <Button1
             type="submit"
             text={captchaLoading ? "CAPTCHA uitvoeren..." : "Log In"}

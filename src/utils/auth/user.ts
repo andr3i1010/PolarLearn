@@ -4,6 +4,7 @@ import { prisma } from "@/utils/prisma";
 import * as crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { transporter } from "../mail";
+import { Prisma } from "@prisma/client";
 
 interface PasswordActionResult {
   success: boolean;
@@ -224,7 +225,7 @@ export async function createUserCredentials(
     try {
       console.log("Creating user with data:", { username, email, hasPassword: !!password });
 
-      const userData = {
+      const userData: Prisma.XOR<Prisma.UserCreateInput, Prisma.UserUncheckedCreateInput> = {
         id: id,
         name: username,
         email: email,

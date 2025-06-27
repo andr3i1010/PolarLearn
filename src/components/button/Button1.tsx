@@ -47,7 +47,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
 
   // Create conditional classes for disabled state - memoizing these calculations
   const containerClasses = cn(
-    "relative inline-block transition-transform rounded-lg",
+    "relative inline-block transition-transform rounded-lg active:scale-99",
     !disabled && "hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-110",
     disabled && "opacity-70 cursor-not-allowed",
     className

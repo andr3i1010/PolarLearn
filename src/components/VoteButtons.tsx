@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { ArrowBigUp, ArrowBigDown } from "lucide-react"
-import VoteServer from "./voteServer"
 import { toast } from "react-toastify" // assuming you use toast for notifications
 
 type VoteStatus = "up" | "down" | null
@@ -26,6 +25,26 @@ export default function VoteButtons({ postId, initialVotes, initialUserVote = nu
   const [votes, setVotes] = useState(initialVotes)
   const [isVoting, setIsVoting] = useState(false)
 
+  const voteApi = async (postId: string, direction: VoteStatus) => {
+    const response = await fetch('/api/v1/forum/vote', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        postId,
+        direction,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Failed to vote')
+    }
+
+    return response.json()
+  }
+
   const handleVote = async (direction: VoteStatus) => {
     // Check if user was provided from the server (i.e. is authenticated)
     if (!user) {
@@ -43,7 +62,7 @@ export default function VoteButtons({ postId, initialVotes, initialUserVote = nu
         // Cancel vote
         setVoteStatus(null)
         setVotes(prevVotes => direction === 'up' ? prevVotes - 1 : prevVotes + 1)
-        await VoteServer(postId, null)
+        await voteApi(postId, null)
       } else {
         // New vote or change vote
         let adjustment = 0
@@ -56,10 +75,11 @@ export default function VoteButtons({ postId, initialVotes, initialUserVote = nu
         setVotes(prevVotes => prevVotes + adjustment)
         setVoteStatus(direction)
 
-        await VoteServer(postId, direction)
+        await voteApi(postId, direction)
       }
     } catch (error) {
       console.error("Vote error:", error)
+      toast.error("Er ging iets mis bij het stemmen. Probeer het opnieuw.")
       setVoteStatus(prevVoteStatus)
       setVotes(prevVotes)
     } finally {
@@ -80,7 +100,7 @@ export default function VoteButtons({ postId, initialVotes, initialUserVote = nu
       </button>
 
       <span className={`font-medium text-base px-2 ${voteStatus === 'up' ? 'text-blue-500' :
-          voteStatus === 'down' ? 'text-red-500' : 'text-gray-300'
+        voteStatus === 'down' ? 'text-red-500' : 'text-gray-300'
         }`}>
         {votes}
       </span>
