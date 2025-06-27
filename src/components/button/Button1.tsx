@@ -59,7 +59,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
   );
 
   const buttonClasses = cn(
-    "w-full bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-md duration-300",
+    "w-full bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded duration-300",
     disabled && "cursor-not-allowed"
   );
 
