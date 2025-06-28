@@ -36,8 +36,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate the form data
     const validatedData = formSchema.parse(body);
+    if (validatedData.content.includes("studygo")) {
+      validatedData.content = validatedData.content.replace(/studygo/g, "st*dygo 🤢");
+    }
 
     // Get the current user
     const user = await getUserFromSession();
@@ -70,9 +72,8 @@ export async function POST(request: NextRequest) {
 
     // Ensure we have a valid string key for the votes_data object
     const userName = user.name as string;
-
-    // Create the post in the database
-    const post = await prisma.forum.create({
+  
+    await prisma.forum.create({
       data: {
         post_id: postId,
         type: "thread",
@@ -88,8 +89,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // A more direct approach that bypasses the null issue
-    // First, fetch the current user with all their data
     const currentUser = await prisma.user.findUnique({
       where: { id: user.id }
     });

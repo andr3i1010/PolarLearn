@@ -59,7 +59,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
   );
 
   const buttonClasses = cn(
-    "w-full bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded duration-300",
+    "w-full bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-sm duration-300",
     disabled && "cursor-not-allowed"
   );
 
@@ -80,7 +80,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
             href={redirectTo}
             tabIndex={tabIndex}
             prefetch={true}
-            className="w-full rounded transition-all duration-300 bg-neutral-800 text-white font-bold py-2 px-4 text-center flex items-center justify-center"
+            className="w-full rounded-sm transition-all duration-300 bg-neutral-800 text-white font-bold py-2 px-4 text-center flex items-center justify-center"
           >
             {icon && <span className="mr-2">{icon}</span>}
             <span className={textClasses}>{text}</span>

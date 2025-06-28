@@ -139,7 +139,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
           >
             <button
               type="button"
-              className={`w-full bg-neutral-800 text-white font-bold py-2 px-4 ${isExpanded ? 'rounded-t-md' : 'rounded-md'}`}
+              className={`w-full bg-neutral-800 text-white font-bold py-2 px-4 ${isExpanded ? 'rounded-t-sm' : 'rounded-sm'}`}
               onClick={handleButtonClick}
             >
               {selectorMode ? (value || selectedOption.display) : text}
@@ -147,12 +147,12 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
 
             <div
               ref={dropdownRef}
-              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100 rounded-b-md" : "opacity-0"} shadow-lg`}
+              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100 rounded-b-lg" : "opacity-0"} shadow-lg`}
               style={{
                 height: isExpanded ? `${dropdownHeight}px` : "0px",
                 width: `${effectiveWidth - 8}px`,
                 backgroundColor: "#262626",
-                margin: "0 auto",
+                //margin: "0 auto",
                 transition: "height 0.3s ease, opacity 0.3s ease",
               }}
               onMouseEnter={handleDropdownMouseEnter}
@@ -162,7 +162,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
                 selectorMode ? (
                   <div
                     key={index}
-                    className={`block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200 cursor-pointer ${index === dropdownMatrix.length - 1 ? 'rounded-b-md' : ''}`}
+                    className={`block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200 cursor-pointer ${index === dropdownMatrix.length - 1 ? 'rounded-b-lg' : ''}`}
                     onClick={() => handleItemClick(path, display)}
                   >
                     {display}
@@ -171,7 +171,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
                   <Link
                     key={index}
                     href={path}
-                    className={`block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200 ${index === dropdownMatrix.length - 1 ? 'rounded-b-md' : ''}`}
+                    className={`block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200 ${index === dropdownMatrix.length - 1 ? 'rounded-b-lg' : ''}`}
                     onClick={() => handleItemClick(path, display)}
                   >
                     {display}
