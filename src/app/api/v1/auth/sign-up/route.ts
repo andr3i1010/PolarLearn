@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createUserCredentials } from "@/utils/auth/user";
-import { createSession } from "@/utils/auth/session";
-import { prisma } from "@/utils/prisma";
-import crypto from "crypto";
+import disposable from 'disposable-email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,6 +45,41 @@ export async function POST(request: NextRequest) {
     if (!validUsernameRegex.test(username)) {
       return NextResponse.json(
         { error: "Gebruikersnaam mag alleen letters, cijfers, punten en underscores bevatten" },
+        { status: 400 }
+      );
+    }
+
+    if (username.length < 3 || username.length > 20) {
+      return NextResponse.json(
+        { error: "Gebruikersnaam moet tussen de 3 en 20 tekens zijn" },
+        { status: 400 }
+      );
+    }
+
+    if (email.length < 5 || email.length > 100) {
+      return NextResponse.json(
+        { error: "Email moet tussen de 5 en 100 tekens zijn" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8 || password.length > 100) {
+      return NextResponse.json(
+        { error: "Wachtwoord moet tussen de 8 en 100 tekens zijn" },
+        { status: 400 }
+      );
+    }
+
+    if (password.includes(username)) {
+      return NextResponse.json(
+        { error: "Wachtwoord mag niet de gebruikersnaam bevatten" },
+        { status: 400 }
+      );
+    }
+
+    if (disposable.validate(email)) {
+      return NextResponse.json(
+        { error: "Tijdelijke email adressen zijn niet toegestaan" },
         { status: 400 }
       );
     }

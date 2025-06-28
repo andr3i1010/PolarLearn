@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
+import Honeypot from "../honeypot";
 
 export default function SignUpForm() {
   const [usernameError, setUsernameError] = useState("");
@@ -12,6 +13,7 @@ export default function SignUpForm() {
   const [passwordError, setPasswordError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const [widgetId, setWidgetId] = useState<number | null>(null);
+  const [captchaReady, setCaptchaReady] = useState(false);
 
   const delay = (ms: number) => new Promise(
     resolve => setTimeout(resolve, ms)
@@ -52,7 +54,6 @@ export default function SignUpForm() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  // Load Turnstile and render invisible widget
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
@@ -63,8 +64,8 @@ export default function SignUpForm() {
       if (window.turnstile) {
         const id = window.turnstile.render("#turnstile-signup", {
           sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
-          size: "invisible",
           callback: async (token: string) => {
+            setCaptchaReady(true);
             // perform sign-up after invisible captcha
             const form = formRef.current!;
             const formData = new FormData(form);
@@ -72,12 +73,15 @@ export default function SignUpForm() {
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
 
-            // run validations and show errors
             const usernameValid = validateUsername(username);
             const emailValid = validateEmail(email);
             const passwordValid = validatePassword(password);
 
             if (!usernameValid || !emailValid || !passwordValid) {
+              if (window.turnstile && widgetId !== null) {
+                window.turnstile.reset(widgetId);
+                setCaptchaReady(false);
+              }
               return;
             }
 
@@ -97,10 +101,20 @@ export default function SignUpForm() {
                 router.push("/auth/sign-in?message=check_email");
               } else {
                 toast.error(result.error || "Er is een fout opgetreden");
+                // Reset captcha on server error
+                if (window.turnstile && widgetId !== null) {
+                  window.turnstile.reset(widgetId);
+                  setCaptchaReady(false);
+                }
               }
             } catch (err) {
               console.error("Sign-up error:", err);
               toast.error("Er is een fout opgetreden bij het aanmaken van je account");
+              // Reset captcha on network/other errors
+              if (window.turnstile && widgetId !== null) {
+                window.turnstile.reset(widgetId);
+                setCaptchaReady(false);
+              }
             }
           },
         });
@@ -191,8 +205,14 @@ export default function SignUpForm() {
           <p className="mt-1 text-sm text-red-500">{passwordError}</p>
         )}
       </div>
-      <div id="turnstile-signup"></div>
-      <Button1 text="Maak 'm aan!" className="w-full" type="submit" />
+      <div id="turnstile-signup" className="flex justify-center"></div>
+      <Button1
+        text={captchaReady ? "Maak 'm aan!" : "CAPTCHA laden..."}
+        className="w-full"
+        type="submit"
+        disabled={!captchaReady}
+      />
+      <Honeypot />
     </form>
   )
 }

@@ -10,6 +10,7 @@ import { EyeOff, Loader2 } from "lucide-react";
 import { Eye } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { getValidRedirectPath, clearRedirectCookie } from "@/utils/auth/redirect";
+import Honeypot from "../honeypot";
 
 function getCookie(cname: string) {
   let name = cname + "=";
@@ -34,6 +35,7 @@ export default function SignInForm() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaLoading, setCaptchaLoading] = useState(true);
   const [showResendActivation, setShowResendActivation] = useState(false);
+  const [widgetId, setWidgetId] = useState<number | null>(null);
 
   const handleResendActivation = async () => {
     const email = prompt("Voer je e-mailadres in om een nieuwe activatie-email te ontvangen:");
@@ -190,7 +192,7 @@ export default function SignInForm() {
     document.body.appendChild(script);
     script.onload = () => {
       if (window.turnstile) {
-        window.turnstile.render("#turnstile-signin", {
+        const id = window.turnstile.render("#turnstile-signin", {
           sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
           callback: (token: string) => {
             setCaptchaToken(token);
@@ -200,6 +202,7 @@ export default function SignInForm() {
             setCaptchaLoading(false);
           },
         });
+        setWidgetId(id);
       }
     };
   }, []);
@@ -270,10 +273,22 @@ export default function SignInForm() {
                   setShowResendActivation(true);
                 }
                 toast.error(data.error || "Er is een fout opgetreden");
+                // Reset captcha on login failure
+                if (window.turnstile && widgetId !== null) {
+                  window.turnstile.reset(widgetId);
+                  setCaptchaToken("");
+                  setCaptchaLoading(true);
+                }
               }
             } catch (error) {
               console.error("Sign-in error:", error);
               toast.error("Er is een fout opgetreden bij het inloggen");
+              // Reset captcha on network/other errors
+              if (window.turnstile && widgetId !== null) {
+                window.turnstile.reset(widgetId);
+                setCaptchaToken("");
+                setCaptchaLoading(true);
+              }
             }
           }}
         >
@@ -348,6 +363,7 @@ export default function SignInForm() {
               </button>
             </p>
           )}
+          <Honeypot/>
         </form>
       </div>
     </div>
