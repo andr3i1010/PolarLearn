@@ -22,7 +22,7 @@ import mu_img from '@/app/img/muziek.svg'
 import ot_img from '@/app/img/anders.svg'
 import gl_img from '@/app/img/gl.svg'
 import gr_img from '@/app/img/oude_taal2.svg'
-
+import ckv_img from '@/app/img/ckv.svg'
 
 // als je een vak wil toevoegen voeg die toe aan vakken verder hoef je niks te doen!!
 
@@ -150,6 +150,14 @@ export const Vakken: vak[] = [
         afkorting: "GL",
         naam: "Godsdienst / Levensbeschouwing",
         icon: gl_img,
+        istaal: false,
+        van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
+        naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
+    },
+    {
+        afkorting: "CKV",
+        naam: "CKV",
+        icon: ckv_img,
         istaal: false,
         van: { afkorting: "NL", naam: "Nederlands", icon: nl_img },
         naar: { afkorting: "NL", naam: "Nederlands", icon: nl_img }
