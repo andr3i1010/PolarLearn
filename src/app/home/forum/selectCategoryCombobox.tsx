@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useMemo } from "react"
-import { Book, Check, ChevronsUpDown, Megaphone, MessageCircle, MessageCircleQuestion } from "lucide-react"
+import { Book, Check, ChevronsUpDown, Lightbulb, Megaphone, MessageCircle, MessageCircleQuestion } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { SearchIcon } from "lucide-react"
@@ -43,6 +43,16 @@ const defaultItems: ComboboxItem[] = [
       </div>
     ),
     searchText: "hulp help vraag vragen",
+  },
+  {
+    value: "fr",
+    label: (
+      <div className="flex flex-row">
+        <Lightbulb />
+        <span className="ml-2">Gewilde Feature</span>
+      </div>
+    ),
+    searchText: "gewilde feature fr wens wenslijst",
   },
   {
     value: "announcement",

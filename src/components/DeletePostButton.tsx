@@ -72,7 +72,7 @@ function DeletePostButton({
         setOpen(false)
 
         // If this is a main post, redirect to the forum, otherwise refresh
-        if (result.isMainPost) {
+        if (isMainPost) {
           router.push("/home/forum")
         } else {
           router.refresh()

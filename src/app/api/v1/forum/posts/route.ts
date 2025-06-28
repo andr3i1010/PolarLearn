@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { success: true },
+      { success: true, postId: postId },
       { status: 201 }
     );
   } catch (error) {

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import ForumRepliesList from "../ForumRepliesList";
 import { Metadata } from "next";
+import { PostBadge } from "../PostBadge";
 
 // UUID validation regex pattern
 const UUID_REGEX =
@@ -240,34 +241,6 @@ export default async function Page({
     minute: "2-digit",
   });
 
-  // Determine category display
-  let categoryDisplay = "";
-  let categoryBadgeColor = "";
-  let categoryIcon;
-
-  switch (post.category) {
-    case "school":
-      categoryDisplay = "School-gerelateerd";
-      categoryBadgeColor = "bg-blue-500";
-      categoryIcon = <Book />;
-      break;
-    case "general":
-      categoryDisplay = "Niet school-gerelateerd";
-      categoryBadgeColor = "bg-green-500";
-      categoryIcon = <MessageCircle />;
-      break;
-    case "help":
-      categoryDisplay = "Hulp";
-      categoryBadgeColor = "bg-yellow-500";
-      categoryIcon = <MessageCircleQuestion />;
-      break;
-    case "announcement":
-      categoryDisplay = "Aankondiging";
-      categoryBadgeColor = "bg-red-500";
-      categoryIcon = <Megaphone />;
-      break;
-  }
-
   // Get subject info if available
   let subjectIcon = null;
   let subjectName = null;
@@ -302,10 +275,7 @@ export default async function Page({
                 />
               </div>
               {post.category && (
-                <Badge variant="outline" className={`${categoryBadgeColor}`}>
-                  {categoryIcon}
-                  {categoryDisplay}
-                </Badge>
+                <PostBadge type={post.category} />
               )}
               {subjectIcon && subjectName && (
                 <div className="flex items-center gap-1 px-2 py-1 bg-neutral-800 rounded-md">

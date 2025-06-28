@@ -184,20 +184,6 @@ Veel leerplezier! 🚀
     },
   ];
 
-  let banned = false;
-  if (!user!.forumAllowed) {
-    banned = true;
-  }
-
-  // Determine the base route dynamically
-  let baseRoute = "/home/forum";
-
-  // If we have a tab in the params, we're already at a subroute
-  if (params?.tab && params.tab.length > 0) {
-    // We're in a route like /home/forum/[tab] - the base path is everything before the tab
-    baseRoute = "/home/forum";
-  }
-
   // Render only the active tab's content; header and tabs handled in layout
   return (
     <div className="px-6">

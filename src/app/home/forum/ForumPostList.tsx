@@ -17,6 +17,7 @@ import {
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getPosts } from "./getPosts";
 import { icons, getSubjectName } from "@/components/icons";
+import { PostBadge } from "./PostBadge";
 
 interface ForumPostListProps {
   initialPosts: any[];
@@ -138,32 +139,6 @@ export default function ForumPostList({
                 (user?.name && currentUsername === user.name) ||
                 userRole === "admin";
 
-              let category = "";
-              let catBagdeColor = "";
-              let categoryIcon;
-              switch (post.category) {
-                case "school":
-                  category = "School-gerelateerd";
-                  catBagdeColor = "bg-blue-500";
-                  categoryIcon = <Book />;
-                  break;
-                case "general":
-                  category = "Niet school-gerelateerd";
-                  catBagdeColor = "bg-green-500";
-                  categoryIcon = <MessageCircle />;
-                  break;
-                case "help":
-                  category = "Hulp";
-                  catBagdeColor = "bg-yellow-500";
-                  categoryIcon = <MessageCircleQuestion />;
-                  break;
-                case "announcement":
-                  category = "Aankondiging";
-                  catBagdeColor = "bg-red-500";
-                  categoryIcon = <Megaphone />;
-                  break;
-              }
-
               return (
                 <div key={post.post_id} className="relative">
                   <Link
@@ -206,13 +181,7 @@ export default function ForumPostList({
                           )}
                           {post.category && (
                             <>
-                              <Badge
-                                variant="outline"
-                                className={`text-xs ${catBagdeColor}`}
-                              >
-                                {categoryIcon}
-                                {category}
-                              </Badge>
+                              <PostBadge type={post.category} />
                               <span className="mx-1.5">•</span>
                             </>
                           )}
