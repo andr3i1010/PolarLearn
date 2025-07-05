@@ -42,6 +42,11 @@ const nextConfig: NextConfig = {
   // compiler: {
   //   removeConsole: true
   // },
+  images: {
+    remotePatterns: [
+      new URL(process.env.S3_ENDPOINT + '/**') || new URL('https://cdn.polarlearn.tech/**'),
+    ]
+  },
   productionBrowserSourceMaps: true
 };
 

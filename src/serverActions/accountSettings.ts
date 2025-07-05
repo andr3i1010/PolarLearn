@@ -283,17 +283,19 @@ export async function getUserPreferences() {
         }
 
         // Extract preferences from list_data
-        const listData = user.list_data as any || {}
+        const listData = (user.list_data as any) || {}
         const preferences = listData.preferences || {
             streakReminders: true,
             profileVisibility: true
         }
 
         return {
+            id: user.id,
             username: user.name,
             email: user.email,
             scheduledDeletion: user.scheduledDeletion,
-            preferences
+            preferences,
+            profilePicture: user.image || null
         }
     } catch (error) {
         console.error("Error getting user preferences:", error)

@@ -287,7 +287,17 @@ export default async function Page({
                     className="p-4 bg-neutral-800 hover:bg-neutral-700 transition-colors rounded-lg flex items-center justify-between"
                   >
                     <div className="flex items-center">
-                      <Jdenticon value={displayName as string} size={40} />
+                      {member.image ? (
+                        <Image
+                          src={member.image}
+                          alt={`Profielfoto van ${displayName}`}
+                          width={40}
+                          height={40}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <Jdenticon value={displayName as string} size={40} />
+                      )}
                       <div className="ml-4">
                         <div className="font-medium flex items-center">
                           {displayName}

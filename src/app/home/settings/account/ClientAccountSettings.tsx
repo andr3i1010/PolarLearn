@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import Jdenticon from "@/components/Jdenticon";
 import {
   Card,
   CardContent,
@@ -19,6 +20,9 @@ import {
   Trash,
   AlertCircle,
   CircleCheck,
+  Upload,
+  X,
+  User,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Button1 from "@/components/button/Button1";
@@ -37,10 +41,12 @@ interface Preferences {
 }
 
 interface InitialData {
+  id: string;
   username: string | null;
   email: string | null;
   scheduledDeletion?: string | null;
   preferences?: Preferences;
+  profilePicture?: string | null;
 }
 
 interface Props {
@@ -59,6 +65,10 @@ export default function ClientAccountSettings({ initialData }: Props) {
   const [deleteLists, setDeleteLists] = useState(false);
   const [deleteForumPosts, setDeleteForumPosts] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
+  const [profilePictureLoading, setProfilePictureLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveChanges = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -129,6 +139,104 @@ export default function ClientAccountSettings({ initialData }: Props) {
     } finally {
       setPasswordLoading(false);
     }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Alleen JPEG, PNG en WebP bestanden zijn toegestaan.');
+        return;
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Bestand is te groot. Maximum 5MB toegestaan.');
+        return;
+      }
+
+      setSelectedFile(file);
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }; const handleProfilePictureUpload = async () => {
+    if (!selectedFile) return;
+
+    setProfilePictureLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', selectedFile);
+
+      const result = await fetch('/api/v1/settings/profile-picture', {
+        method: 'POST',
+        body: formData,
+      }).then((res) => res.json());
+
+      if (result.success) {
+        toast.success(result.message);
+        // Update cache buster to force fresh image loads
+        const newCacheBuster = Date.now();
+
+        // Use the URL returned from the server (which already includes cache busting)
+        setUserData(prev => ({
+          ...prev,
+          profilePicture: result.imageUrl
+        }));
+        setSelectedFile(null);
+        setPreviewUrl(null);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      toast.error('Er is een fout opgetreden bij het uploaden van je profielfoto.');
+    } finally {
+      setProfilePictureLoading(false);
+    }
+  }; const handleProfilePictureDelete = async () => {
+    setProfilePictureLoading(true);
+    try {
+      const result = await fetch('/api/v1/settings/profile-picture', {
+        method: 'DELETE',
+      }).then((res) => res.json());
+
+      if (result.success) {
+        toast.success(result.message);
+
+        setUserData(prev => ({
+          ...prev,
+          profilePicture: null
+        }));
+      } else {
+        toast.error(result.message);
+
+        // If deletion failed, let's verify if the image still exists
+        if (result.message.includes('geen profielfoto')) {
+          // Server says no profile picture exists, update UI accordingly
+          setUserData(prev => ({
+            ...prev,
+            profilePicture: null
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting profile picture:', error);
+      toast.error('Er is een fout opgetreden bij het verwijderen van je profielfoto.');
+    } finally {
+      setProfilePictureLoading(false);
+    }
+  };
+
+  const handleCancelFileSelection = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
   };
 
   const handleDeleteAccount = async () => {
@@ -232,8 +340,8 @@ export default function ClientAccountSettings({ initialData }: Props) {
             color: "#fff",
           },
         },
-      },  
-    )
+      },
+      )
       .finally(() => {
         setExportLoading(false);
       });
@@ -291,6 +399,115 @@ export default function ClientAccountSettings({ initialData }: Props) {
           </CardFooter>
         </Card>
       </form>
+
+      <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
+        <CardHeader>
+          <CardTitle>Profielfoto</CardTitle>
+          <CardDescription className="text-neutral-400">
+            Upload je profielfoto om je profiel te personaliseren.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Current Profile Picture */}
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full bg-neutral-700 flex items-center justify-center overflow-hidden">
+                {userData.profilePicture ? (
+                  <img
+                    src={userData.profilePicture}
+                    alt="Profielfoto"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Jdenticon value={userData.username as string} size={80} />
+                )}
+              </div>
+            </div>
+
+            {/* Upload/Delete Buttons */}
+            <div className="flex-1">
+              <p className="text-sm font-medium">
+                {userData.profilePicture ? 'Huidige profielfoto' : 'Geen profielfoto'}
+              </p>
+              <p className="text-xs text-neutral-400">
+                JPEG, PNG of WebP. Max 5MB.
+              </p>
+            </div>
+          </div>
+
+          {/* File Selection */}
+          {selectedFile && (
+            <div className="border border-neutral-600 rounded-lg p-4 bg-neutral-700">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 rounded-full bg-neutral-600 flex items-center justify-center overflow-hidden">
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="Voorbeeld"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-6 h-6 text-neutral-400" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{selectedFile.name}</p>
+                  <p className="text-xs text-neutral-400">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  onClick={handleCancelFileSelection}
+                  className="text-neutral-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex space-x-2 mt-4">
+                <Button1
+                  text={profilePictureLoading ? "Uploaden..." : "Uploaden"}
+                  onClick={handleProfilePictureUpload}
+                  disabled={profilePictureLoading}
+                  icon={profilePictureLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                />
+                <Button1
+                  text="Annuleren"
+                  onClick={handleCancelFileSelection}
+                  className="bg-neutral-600 hover:bg-neutral-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Upload Actions */}
+          <div className="flex space-x-2">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileSelect}
+              className="sr-only"
+              disabled={profilePictureLoading}
+              ref={fileInputRef}
+            />
+            <Button1
+              text="Foto selecteren"
+              icon={<Upload className="w-4 h-4" />}
+              disabled={profilePictureLoading}
+              className="cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            />
+            {userData.profilePicture && (
+              <Button1
+                text="Verwijderen"
+                onClick={handleProfilePictureDelete}
+                disabled={profilePictureLoading}
+                icon={<Trash className="w-4 h-4" />}
+                className="bg-red-600 hover:bg-red-500"
+              />
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
         <CardHeader>
