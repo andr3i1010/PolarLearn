@@ -4,7 +4,7 @@ import { prisma } from "../prisma";
 class GoogleOAuth {
     private clientId: string = process.env.GOOGLE_ID || "";
     private clientSecret: string = process.env.GOOGLE_SECRET || "";
-    private redirectUri: string = (process.env.NEXT_PUBLIC_URL || "http://localhost:3000") + "/api/auth/google";
+    private redirectUri: string = (process.env.NEXT_PUBLIC_URL || "http://localhost:3000") + "/api/v1/auth/google";
     private scope: string = "openid profile email https://www.googleapis.com/auth/user.emails.read";
 
     getAuthUrl(): string {
@@ -104,7 +104,7 @@ class GithubOAuth {
     private clientId: string = process.env.GITHUB_ID || "";
     private clientSecret: string = process.env.GITHUB_SECRET || "";
     private redirectUri: string =
-        process.env.NEXT_PUBLIC_URL + "/api/auth/github";
+        process.env.NEXT_PUBLIC_URL + "/api/v1/auth/github";
     private scope: string = "read:user user:email";
 
     getAuthUrl(): string {

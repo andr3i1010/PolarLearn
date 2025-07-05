@@ -6,6 +6,7 @@ import VoteButtons from "@/components/VoteButtons";
 import { getUserFromSession } from "@/utils/auth/auth";
 import ForumReply from "@/components/ForumReply";
 import DeletePostButton from "@/components/DeletePostButton";
+import PinPostButton from "@/components/PinPostButton";
 import MarkdownRenderer from "@/components/md";
 import { cookies } from "next/headers";
 import CreatorLink from "@/components/links/CreatorLink";
@@ -21,6 +22,8 @@ import {
   Megaphone,
 } from "lucide-react";
 import ForumRepliesList from "../ForumRepliesList";
+import { Metadata } from "next";
+import { PostBadge } from "../PostBadge";
 
 // UUID validation regex pattern
 const UUID_REGEX =
@@ -29,6 +32,59 @@ const UUID_REGEX =
 // Define the structure for vote data
 interface VoteData {
   users: Record<string, "up" | "down" | null>;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ postId: string }>;
+}): Promise<Metadata> {
+  const { postId } = await params;
+
+  // If postId is actually a tab identifier, return default metadata
+  if (
+    ["questions", "my-questions", "my-answers", "how-the-forum-works"].includes(
+      postId
+    )
+  ) {
+    return {
+      title: "PolarLearn | Forum",
+      description: "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden"
+    };
+  }
+
+  try {
+    const post = await prisma.forum.findUnique({
+      where: {
+        post_id: postId,
+      },
+    });
+
+    if (!post) {
+      return {
+        title: "Post niet gevonden | PolarLearn Forum",
+        description: "De gevraagde forumpost kon niet worden gevonden.",
+      };
+    }
+
+    // Clean the content for description (remove markdown and limit length)
+    const cleanContent = post.content
+      .replace(/[#*`_~\[\]()]/g, "") // Remove markdown characters
+      .replace(/\n+/g, " ") // Replace newlines with spaces
+      .trim()
+      .substring(0, 160); // Limit to 160 characters for SEO
+
+    return {
+      title: `PolarLearn Forum | ${post.title}`,
+      description:
+        cleanContent || "Bekijk deze discussie op het PolarLearn forum",
+    };
+  } catch (error) {
+    return {
+      title: "PolarLearn | Forum",
+      description: "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden"
+    };
+  }
 }
 
 export default async function Page({
@@ -65,6 +121,9 @@ export default async function Page({
   if (!post) {
     return <div>Post not found</div>;
   }
+
+  // Check if user is admin
+  const isAdmin = session?.role === "admin";
 
   // Check if post creator is a UUID and get the proper display name if needed
   let jdenticonPostValue = post.creator;
@@ -151,8 +210,7 @@ export default async function Page({
   // Check if current user is the post creator, using multiple checks
   const isPostCreator =
     currentUsername === post.creator ||
-    (postcreator?.name && currentUsername === postcreator.name) ||
-    session?.role === "admin";
+    (postcreator?.name && currentUsername === postcreator.name);
 
   // Get user's current vote if logged in
   let userVote: "up" | "down" | null = null;
@@ -182,34 +240,6 @@ export default async function Page({
     hour: "2-digit",
     minute: "2-digit",
   });
-
-  // Determine category display
-  let categoryDisplay = "";
-  let categoryBadgeColor = "";
-  let categoryIcon;
-
-  switch (post.category) {
-    case "school":
-      categoryDisplay = "School-gerelateerd";
-      categoryBadgeColor = "bg-blue-500";
-      categoryIcon = <Book />;
-      break;
-    case "general":
-      categoryDisplay = "Niet school-gerelateerd";
-      categoryBadgeColor = "bg-green-500";
-      categoryIcon = <MessageCircle />;
-      break;
-    case "help":
-      categoryDisplay = "Hulp";
-      categoryBadgeColor = "bg-yellow-500";
-      categoryIcon = <MessageCircleQuestion />;
-      break;
-    case "announcement":
-      categoryDisplay = "Aankondiging";
-      categoryBadgeColor = "bg-red-500";
-      categoryIcon = <Megaphone />;
-      break;
-  }
 
   // Get subject info if available
   let subjectIcon = null;
@@ -245,10 +275,7 @@ export default async function Page({
                 />
               </div>
               {post.category && (
-                <Badge variant="outline" className={`${categoryBadgeColor}`}>
-                  {categoryIcon}
-                  {categoryDisplay}
-                </Badge>
+                <PostBadge type={post.category} />
               )}
               {subjectIcon && subjectName && (
                 <div className="flex items-center gap-1 px-2 py-1 bg-neutral-800 rounded-md">
@@ -273,20 +300,35 @@ export default async function Page({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {isPostCreator && (
-              <div>
-                <EditPostBtn
+            <div className="flex gap-2">
+              {/* Edit and Delete buttons for post creator and admins */}
+              {(isPostCreator || isAdmin) && (
+                <>
+                  <EditPostBtn
+                    postId={post.post_id}
+                    isCreator={isPostCreator}
+                    isMainPost={true}
+                    isAdmin={isAdmin}
+                  />
+                  <DeletePostButton
+                    postId={post.post_id}
+                    title={post.title}
+                    creatorId={post.creator}
+                    isCreator={isPostCreator}
+                    isAdmin={isAdmin}
+                    isMainPost={true}
+                  />
+                </>
+              )}
+              {/* Pin button for admin */}
+              {isAdmin && (
+                <PinPostButton
                   postId={post.post_id}
-                  isCreator={true}
-                  isMainPost={true}
+                  isAdmin={isAdmin}
+                  initialPinned={post.pinned || false}
                 />
-                <DeletePostButton
-                  postId={post.post_id}
-                  isCreator={true}
-                  isMainPost={true}
-                />
-              </div>
-            )}
+              )}
+            </div>
             <VoteButtons
               postId={post.post_id}
               initialVotes={post.votes}
@@ -304,7 +346,7 @@ export default async function Page({
       </div>
 
       <div className="mt-6">
-        <ForumReply postId={post.post_id} />
+        <ForumReply postId={post.post_id} userId={post.creator} />
       </div>
 
       {totalReplies > 0 && (
@@ -314,6 +356,7 @@ export default async function Page({
           initialTotal={totalReplies}
           initialUserMap={userMap}
           currentUser={session}
+          mainPostTitle={post.title}
         />
       )}
     </div>

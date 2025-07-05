@@ -8,6 +8,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MoveLeft, Search, Menu, X } from "lucide-react";
 import Link from "next/link";
 import StreakNavbarThing from "../streak/streakNav";
+import NotificationNav from "../notification/notificiationNav";
+import PlusBtn from "@/components/button/plusbutton";
 
 // SearchBar component
 const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
@@ -198,12 +200,18 @@ const MobileMenu = memo(
         return (
             <div className="fixed inset-0 bg-neutral-900 z-[90] p-4 overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <Link href="/">
+                    <Link href="/" className="flex-shrink-0">
                         <Image src={pl500} alt="PolarLearn Logo" height={50} width={50} />
                     </Link>
+                    {/* Modified middle container for StreakNavbarThing */}
+                    <div className="px-2 items-center"> {/* This div handles shrinking and clipping */}
+                        <div className="w-min h-full">
+                            <StreakNavbarThing />
+                        </div>
+                    </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full hover:bg-neutral-800"
+                        className="p-2 rounded-full hover:bg-neutral-800 flex-shrink-0"
                     >
                         <X size={24} />
                     </button>
@@ -273,30 +281,36 @@ const NavigationLinks = memo(
     }) => (
         <>
             <div className="hidden md:flex items-center space-x-4 flex-grow">
-                <NavBtn text="Start" redirectTo="/home/start" useClNav={true} />
-                <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
+                <NavBtn text="Start" redirectTo="/home/start" useClNav={true} className="startbutton" />
+                {/* Wrapper for forum button tour step */}
+                <div id="forumbutton">
+                    <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
+                </div>
                 <div className="relative block mb-12" style={{ textAlign: "left" }}>
                     <DropdownBtn
                         selectorMode={false}
                         text={"Leren"}
                         dropdownMatrix={dropdownMatrixStart}
+                        className="lerendropdown"
                     />
                 </div>
-                <div className="w-36" />
+                <div className="w-39" />
 
-                <div className="flex-grow mx-4 max-w pr-5">
+                <div className="w-70 mr-1 searchbar">
                     <SearchBar onExpand={onExpandSearch} />
                 </div>
                 <StreakNavbarThing />
-                <div className="w-50" />
+                <NotificationNav />
+                <PlusBtn />
                 <div className="ml-auto relative block dropdown-right">
                     <DropdownBtn
                         selectorMode={false}
                         text={"Account"}
                         dropdownMatrix={[
-                            ["Accountinstellingen", "/home/settings"],
+                            ["Instellingen", "/home/settings"],
                             ["Uitloggen", "/auth/sign-out"],
                         ]}
+                        className="accountdropdown"
                     />
                 </div>
             </div>
@@ -318,7 +332,7 @@ export const TopNavBar = memo(function TopNavBar() {
 
     // Use useMemo for display conditions to prevent recalculations on every render
     const displayConditions = useMemo(() => {
-        const showOnViewList = pathname.startsWith('/learn/viewlist');
+        const showOnViewList = pathname.startsWith('/learn/viewlist') || pathname.startsWith('/learn/summary');
         const showOnSubjects = pathname.startsWith('/learn/subject') || pathname === "/learn/subjects";
         const hideOnCreateList = pathname === "/home/createlist";
         const showOnHomeRoutes = pathname === "/" || pathname.startsWith("/home");
@@ -437,7 +451,7 @@ export const TopNavBar = memo(function TopNavBar() {
             </nav>
 
             {/* Mobile menu */}
-            < MobileMenu
+            <MobileMenu
                 isOpen={isMobileMenuOpen}
                 onClose={() => setIsMobileMenuOpen(false)}
                 pathname={pathname}
@@ -447,7 +461,7 @@ export const TopNavBar = memo(function TopNavBar() {
             <div className="h-16" />
             <style jsx global>{`
         .dropdown-right > div.absolute {
-          right: 6px !important;
+          right: 5px !important;
           top: -24px !important;
         }
         

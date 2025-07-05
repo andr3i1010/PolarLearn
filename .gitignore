@@ -41,7 +41,6 @@ next-env.d.ts
 
 # Persoonlijke dingen
 .idea/
-pnpm-lock.yaml
 .pnpm*
 .gitignore
 /public/sw*

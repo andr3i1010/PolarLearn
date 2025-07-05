@@ -57,7 +57,7 @@ export function SettingsSidebar() {
                     />
                 </div>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Settings</SidebarGroupLabel>
+                    <SidebarGroupLabel>Instellingen</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => {

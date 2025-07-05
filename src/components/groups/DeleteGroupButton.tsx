@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Trash, Loader2 } from "lucide-react";
 import { deleteGroup } from "@/serverActions/groupActions";
 import { toast } from "react-toastify";
@@ -14,6 +13,7 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog";
+import Button1 from "../button/Button1";
 
 interface DeleteGroupButtonProps {
     groupId: string;
@@ -47,14 +47,11 @@ export default function DeleteGroupButton({ groupId }: DeleteGroupButtonProps) {
 
     return (
         <>
-            <Button
-                variant="destructive"
-                className="bg-red-700 hover:bg-red-800 text-white"
+            <Button1
                 onClick={() => setIsConfirmOpen(true)}
-            >
-                <Trash className="mr-2 h-4 w-4" />
-                Groep verwijderen
-            </Button>
+                icon={<Trash className="mr-2 h-4 w-4" />}
+                text="Groep verwijderen"
+            />
 
             <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
                 <DialogContent className="bg-neutral-900 border-neutral-700 text-white z-[110]">
@@ -66,32 +63,18 @@ export default function DeleteGroupButton({ groupId }: DeleteGroupButtonProps) {
                     </DialogHeader>
 
                     <DialogFooter className="mt-4">
-                        <Button
-                            variant="outline"
+                        <Button1
+                            text="Annuleren"
                             onClick={() => setIsConfirmOpen(false)}
                             className="border-neutral-600 bg-neutral-800 text-white hover:bg-neutral-700"
                             disabled={isDeleting}
-                        >
-                            Annuleren
-                        </Button>
-                        <Button
-                            variant="destructive"
+                        />
+                        <Button1
                             onClick={handleDelete}
                             disabled={isDeleting}
-                            className="bg-red-700 hover:bg-red-800"
-                        >
-                            {isDeleting ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Verwijderen...
-                                </>
-                            ) : (
-                                <>
-                                    <Trash className="mr-2 h-4 w-4" />
-                                    Verwijderen
-                                </>
-                            )}
-                        </Button>
+                            text={isDeleting ? "Verwijderen..." : "Verwijderen"}
+                            icon={<Trash className="mr-2 h-4 w-4" />}
+                        />
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

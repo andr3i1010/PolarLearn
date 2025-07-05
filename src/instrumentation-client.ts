@@ -13,6 +13,7 @@ if (process.env.NODE_ENV === "production") {
         blockAllMedia: false,
         maskAllText: false
       }),
+      Sentry.consoleLoggingIntegration({ levels: ["log", "error", "warn"] }),
     ],
 
     // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.

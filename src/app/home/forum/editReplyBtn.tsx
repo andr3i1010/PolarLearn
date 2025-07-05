@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo, useEffect } from "react";
-import { updateReply, getPost } from "@/actions/forum";
+import { getPost } from "@/actions/forum";
 import { useRouter } from "next/navigation";
 import {
     Dialog,
@@ -39,6 +39,7 @@ const replyFormSchema = z.object({
 interface EditReplyButtonProps {
     postId: string;
     isCreator: boolean;
+    isAdmin?: boolean;
 }
 
 // Memoized markdown preview component
@@ -77,6 +78,7 @@ const MarkdownPreview = memo(({ content }: { content: string }) => (
 function EditReplyButton({
     postId,
     isCreator,
+    isAdmin = false,
 }: EditReplyButtonProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -117,7 +119,7 @@ function EditReplyButton({
     // Extract content separately to avoid re-rendering the entire form
     const content = form.watch("content");
 
-    if (!isCreator) {
+    if (!isCreator && !isAdmin) {
         return null;
     }
 
@@ -127,16 +129,26 @@ function EditReplyButton({
 
             try {
                 setIsSubmitting(true);
-                const result = await updateReply(postId, values.content);
 
-                if (result.success) {
+                const response = await fetch(`/api/v1/forum/edit?postId=${postId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ content: values.content }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
                     toast.success("Antwoord succesvol bijgewerkt!");
                     setOpen(false);
                     router.refresh();
                 } else {
-                    toast.error(result.error);
+                    toast.error(result.error || "Er is een fout opgetreden");
                 }
             } catch (error) {
+                console.error("Error updating reply:", error);
                 toast.error("Er is een fout opgetreden bij het bewerken van je antwoord.");
             } finally {
                 setIsSubmitting(false);

@@ -10,9 +10,10 @@ interface ButtonProps {
   useClNav?: boolean;
   onClick?: () => void;
   disabled?: boolean;
-  icon?: ReactNode; // Add only the icon parameter
-  wrapText?: boolean; // Add wrapText parameter
-  textClassName?: string; // Add textClassName parameter
+  icon?: ReactNode;
+  wrapText?: boolean;
+  textClassName?: string;
+  tabIndex?: number;
 }
 
 // Add missing cn utility if not available in your project
@@ -29,9 +30,10 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
   useClNav,
   onClick,
   disabled = false,
-  icon, // Add icon parameter
-  wrapText = false, // Add wrapText parameter
-  textClassName // Add textClassName parameter
+  icon,
+  wrapText = false,
+  textClassName,
+  tabIndex
 }) {
   // Use useCallback to memoize the click handler
   const handleClick = useCallback(() => {
@@ -45,7 +47,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
 
   // Create conditional classes for disabled state - memoizing these calculations
   const containerClasses = cn(
-    "relative inline-block transition-transform rounded-lg",
+    "relative inline-block transition-transform rounded-lg active:scale-99",
     !disabled && "hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-110",
     disabled && "opacity-70 cursor-not-allowed",
     className
@@ -57,7 +59,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
   );
 
   const buttonClasses = cn(
-    "w-full bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-md duration-300",
+    "w-full bg-neutral-800 text-white font-bold py-2 px-4 transition-all rounded-sm duration-300",
     disabled && "cursor-not-allowed"
   );
 
@@ -76,8 +78,9 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
         <div className={borderClasses}>
           <Link
             href={redirectTo}
+            tabIndex={tabIndex}
             prefetch={true}
-            className="w-full rounded transition-all duration-300 bg-neutral-800 text-white font-bold py-2 px-4 text-center flex items-center justify-center"
+            className="w-full rounded-sm transition-all duration-300 bg-neutral-800 text-white font-bold py-2 px-4 text-center flex items-center justify-center"
           >
             {icon && <span className="mr-2">{icon}</span>}
             <span className={textClasses}>{text}</span>
@@ -92,6 +95,7 @@ const Button1: React.FC<ButtonProps> = React.memo(function Button1({
       <div className={borderClasses}>
         <button
           type={type || "button"}
+          tabIndex={tabIndex}
           onClick={type ? undefined : handleClick}
           disabled={disabled}
           className={buttonClasses + " flex items-center justify-center"}>

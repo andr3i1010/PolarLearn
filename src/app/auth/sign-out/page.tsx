@@ -1,6 +1,6 @@
 "use client"
 import { logOut } from "@/utils/auth/session"
-import { useEffect, useLayoutEffect } from "react"
+import { useLayoutEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
 

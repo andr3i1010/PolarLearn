@@ -1,40 +1,44 @@
-import UnderConstruction from '@/components/underConstruction';
-// import LearnToolHeader from "@/components/navbar/learntToolHeader";
-// import { prisma } from "@/utils/prisma";
-// import { addToRecentLists } from "@/utils/actions/updateRecentLists";
-// import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
-// import LearnToolWithProgress from "@/components/learning/LearnToolWithProgress"; // Import the component
+import { prisma } from "@/utils/prisma";
+import { addToRecentLists } from "@/utils/actions/updateRecentLists";
+import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
+import LearnToolWithProgress from "@/components/learning/LearnToolWithProgress";
 
-export default async function Page({
+export default async function LerenListPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
-    // const { id } = await params;
+    const { id } = await params;
+    const listdata = await prisma.practice.findFirst({
+        where: { list_id: id },
+    });
 
-    // // Add this list to user's recent lists
-    // const listdata = await prisma.practice.findFirst({
-    //     where: { list_id: id },
-    // });
+    // Add this list to user's recent lists
+    if (listdata) {
+        await addToRecentLists(id);
 
-    // if (listdata) {
-    //     await addToRecentLists(id);
+        // Also add the subject to recent subjects
+        if (listdata.subject) {
+            await addToRecentSubjects(listdata.subject);
+        }
+    }
 
-    //     // Also add the subject to recent subjects
-    //     if (listdata.subject) {
-    //         await addToRecentSubjects(listdata.subject);
-    //     }
-    // }
+    // Transform the data correctly - the database has format { "1": string, "2": string }
+    // but LearnTool expects { vraag: string, antwoord: string }
+    const rawListData =
+        listdata && listdata.data && Array.isArray(listdata.data)
+            ? listdata.data.map((item: any) => ({
+                vraag: item["1"] || "",
+                antwoord: item["2"] || ""
+            }))
+            : [];
 
-    // // Transform the data correctly
-    // const rawListData =
-    //     listdata && listdata.data && Array.isArray(listdata.data)
-    //         ? listdata.data.map((item: any) => ({
-    //             vraag: item["1"] || "",
-    //             antwoord: item["2"] || ""
-    //         }))
-    //         : [];
     return (
-        <UnderConstruction/>
-    )
+        <LearnToolWithProgress
+            mode="leren"
+            rawlistdata={rawListData}
+            listId={id}
+            currentMethod="leren"
+        />
+    );
 }

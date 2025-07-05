@@ -7,8 +7,11 @@ import { cookies } from "next/headers";
 import { formSchema } from "@/app/home/forum/formSchema";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { sendNotificationToUser } from "@/utils/notifications/sendNotification"
 
-export async function createReply(postId: string, content: string) {
+
+
+export async function createReply(postId: string, content: string, userId: string) {
   const session = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")!.value
   );
@@ -18,7 +21,7 @@ export async function createReply(postId: string, content: string) {
   }
 
   let gebruiker = await prisma.user.findFirst({ where: { id: session.id } });
-  if (!gebruiker || !gebruiker.loginAllowed || !gebruiker.forumAllowed) {
+  if (!gebruiker || gebruiker.loginAllowed === false || !gebruiker.forumAllowed) {
     throw new Error("je bent verbannen van PolarLearn");
   }
 
@@ -53,6 +56,10 @@ export async function createReply(postId: string, content: string) {
     },
   });
 
+  // Only send notification if the person replying is not the original poster
+  if (userId !== session.id && userId !== session.name) {
+    await sendNotificationToUser(userId, session.name + " heeft op je vraag '" + originalPost.title + "' geantwoord!")
+  }
   // A more direct approach that bypasses the null issue
   // First, fetch the current user with all their data
   const currentUser = await prisma.user.findUnique({
@@ -106,6 +113,58 @@ export async function deletePost(postId: string) {
     }
   }
 
+  // If user is deleting their own post (not an admin deleting someone else's post)
+  const isUserDeletingOwnPost = post.creator === session.id || post.creator === session.name;
+
+  // If user is deleting their own post, subtract 10 forum points
+  if (isUserDeletingOwnPost) {
+    try {
+      // Find the user to update their points
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: session.id },
+            { name: session.name }
+          ]
+        },
+        select: {
+          id: true,
+          forumPoints: true
+        }
+      });
+
+      if (user) {
+        // Check if forumPoints is null or undefined
+        if (user.forumPoints === null || user.forumPoints === undefined) {
+          // Initialize with -10
+          await prisma.user.update({
+            where: {
+              id: user.id
+            },
+            data: {
+              forumPoints: -10
+            }
+          });
+        } else {
+          // Subtract 10 points from existing points
+          await prisma.user.update({
+            where: {
+              id: user.id
+            },
+            data: {
+              forumPoints: {
+                decrement: 10
+              }
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error updating forum points for post deletion:", error);
+      // Continue with deletion even if point update fails
+    }
+  }
+
   // If it's a main post, also delete all replies
   if (post.type !== "reply") {
     await prisma.forum.deleteMany({
@@ -121,6 +180,16 @@ export async function deletePost(postId: string) {
       post_id: postId,
     },
   });
+
+  // Revalidate the forum pages to ensure proper refresh
+  revalidatePath("/home/forum");
+  if (post.replyTo) {
+    // If it was a reply, also revalidate the parent post page
+    revalidatePath(`/home/forum/${post.replyTo}`);
+  } else {
+    // If it was a main post, revalidate its specific page too
+    revalidatePath(`/home/forum/${postId}`);
+  }
 
   // If it was a main post, redirect to forum list
   // If it was a reply, we'll just refresh the page

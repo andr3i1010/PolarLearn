@@ -8,8 +8,33 @@ import {
 } from "@/components/ui/popover"
 import { Check, Flame, Snowflake, X } from "lucide-react"
 
-import { getAllStreakData } from "./streakData"
-import { resetLostStreak } from "./resetLostStreak"
+// Server actions removed - now using API endpoints
+
+// Helper function to fetch streak data from API
+async function fetchStreakData() {
+    const response = await fetch("/api/v1/streak/data");
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to fetch streak data");
+    }
+
+    return result.data;
+}
+
+// Helper function to reset lost streak via API
+async function resetLostStreak() {
+    try {
+        const response = await fetch("/api/v1/streak/reset", {
+            method: "POST",
+        });
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error("Error resetting lost streak:", error);
+        return { success: false, message: "Network error" };
+    }
+}
 import { ColorRing } from "react-loader-spinner"
 
 // Create a cache to prevent redundant requests
@@ -44,7 +69,7 @@ export default function StreakNavbarThing() {
 
         try {
             dataCache.loading = true;
-            const data = await getAllStreakData();
+            const data = await fetchStreakData();
 
             dataCache = {
                 data,
@@ -168,7 +193,7 @@ export default function StreakNavbarThing() {
                 dataCache.loading = true;
 
                 // Fetch new data
-                const data = await getAllStreakData();
+                const data = await fetchStreakData();
 
                 // Cache the result
                 dataCache = {
@@ -237,7 +262,7 @@ export default function StreakNavbarThing() {
 
     return (
         <Popover>
-            <PopoverTrigger>
+            <PopoverTrigger className="streak">
                 <div className="bg-neutral-800 text-white rounded-lg flex items-center justify-center min-w-40 min-h-10 hover:bg-neutral-700 transition-colors px-2">
                     <Flame className={`mr-1 ${(streakCnt > 0 && activeStreak) ? "text-orange-400" : "text-white"}`} />
                     {loading ? (
@@ -246,7 +271,6 @@ export default function StreakNavbarThing() {
                             height="40"
                             width="40"
                             ariaLabel="color-ring-loading"
-                            wrapperStyle={{}}
                             wrapperClass="color-ring-wrapper"
                             colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                         />
@@ -263,7 +287,6 @@ export default function StreakNavbarThing() {
                                 height="40"
                                 width="40"
                                 ariaLabel="color-ring-loading"
-                                wrapperStyle={{}}
                                 wrapperClass="color-ring-wrapper"
                                 colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                             />
@@ -279,7 +302,6 @@ export default function StreakNavbarThing() {
                                 height="40"
                                 width="40"
                                 ariaLabel="color-ring-loading"
-                                wrapperStyle={{}}
                                 wrapperClass="color-ring-wrapper"
                                 colors={['#f0f9ff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8']}
                             />

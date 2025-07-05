@@ -1,7 +1,7 @@
 "use client"
 
-import React, { memo, useMemo } from "react"
-import { Book, Check, ChevronsUpDown, Globe, Megaphone, MessageCircle, MessageCircleQuestion } from "lucide-react"
+import React, { useMemo } from "react"
+import { Book, Check, ChevronsUpDown, Lightbulb, Megaphone, MessageCircle, MessageCircleQuestion } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { SearchIcon } from "lucide-react"
@@ -22,7 +22,7 @@ const defaultItems: ComboboxItem[] = [
         <span className="ml-2">School-gerelateerd</span>
       </div>
     ),
-    searchText: "Wiskunde",
+    searchText: "School-gerelateerd school wiskunde",
   },
   {
     value: "general",
@@ -32,7 +32,7 @@ const defaultItems: ComboboxItem[] = [
         <span className="ml-2">Niet school-gerelateerd</span>
       </div>
     ),
-    searchText: "Niet school-gerelateerd",
+    searchText: "Niet school-gerelateerd algemeen general",
   },
   {
     value: "help",
@@ -42,7 +42,17 @@ const defaultItems: ComboboxItem[] = [
         <span className="ml-2">Hulp</span>
       </div>
     ),
-    searchText: "hulp",
+    searchText: "hulp help vraag vragen",
+  },
+  {
+    value: "fr",
+    label: (
+      <div className="flex flex-row">
+        <Lightbulb />
+        <span className="ml-2">Gewilde Feature</span>
+      </div>
+    ),
+    searchText: "gewilde feature fr wens wenslijst",
   },
   {
     value: "announcement",
@@ -52,14 +62,14 @@ const defaultItems: ComboboxItem[] = [
         <span className="ml-2">Aankondigingen</span>
       </div>
     ),
-    searchText: "aankondigingen",
+    searchText: "aankondigingen announcement mededeling",
   },
 ];
 
 // Convert existing frameworks to match the new format
 const convertedItems: ComboboxItem[] = defaultItems.map(item => ({
   ...item,
-  searchText: typeof item.label === 'string' ? item.label : '',
+  searchText: item.searchText || (typeof item.label === 'string' ? item.label : ''),
 }));
 
 interface ComboboxProps {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo, useEffect } from "react";
-import { deletePost, updatePost, getPost, checkIsAdmin } from "@/actions/forum";
+import { getPost } from "@/actions/forum";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -36,6 +36,7 @@ interface EditPostButtonProps {
   postId: string;
   isCreator: boolean;
   isMainPost?: boolean;
+  isAdmin?: boolean;
 }
 
 // Memoized markdown preview component
@@ -75,13 +76,13 @@ function EditPostButton({
   postId,
   isCreator,
   isMainPost = false,
+  isAdmin = false,
 }: EditPostButtonProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   // Initialize form with default empty values
@@ -120,22 +121,6 @@ function EditPostButton({
     }
   }, [postId, form]);
 
-  // Get user role from session when component mounts
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      try {
-        // Call server action to check if user is admin
-        const adminStatus = await checkIsAdmin();
-        setIsAdmin(adminStatus);
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-        setIsAdmin(false);
-      }
-    };
-
-    checkAdminStatus();
-  }, []);
-
   // Extract content separately to avoid re-rendering the entire form
   const content = form.watch("content");
 
@@ -144,7 +129,9 @@ function EditPostButton({
 
   // Simple strict comparison for school category
   const isSchoolCategory = selectedCategory === "school";
-  if (!isCreator) {
+
+  // Only show edit button if user is creator or admin
+  if (!isCreator && !isAdmin) {
     return null;
   }
 
@@ -153,11 +140,20 @@ function EditPostButton({
 
     setIsDeleting(true);
     try {
-      const result = await deletePost(postId);
-      if (result.redirect) {
-        router.push(result.redirect);
+      const response = await fetch(`/api/v1/forum/delete?postId=${postId}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        if (result.isMainPost) {
+          router.push("/home/forum");
+        } else {
+          router.refresh();
+        }
       } else {
-        router.refresh();
+        throw new Error(result.error || "Failed to delete post");
       }
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -172,16 +168,26 @@ function EditPostButton({
 
       try {
         setIsSubmitting(true);
-        const result = await updatePost(postId, values);
 
-        if (result.success) {
+        const response = await fetch(`/api/v1/forum/edit?postId=${postId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
           toast.success("Post succesvol bijgewerkt!");
           setOpen(false);
           router.refresh();
         } else {
-          toast.error(result.error);
+          toast.error(result.error || "Er is een fout opgetreden");
         }
       } catch (error) {
+        console.error("Error updating post:", error);
         toast.error("Er is een fout opgetreden bij het bewerken van je post.");
       } finally {
         setIsSubmitting(false);

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { deletePost } from "@/actions/forum"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import Button1 from "@/components/button/Button1"
@@ -29,11 +28,20 @@ export default function DeletePostButton({
     const handleDelete = useCallback(async () => {
         setIsDeleting(true)
         try {
-            const result = await deletePost(postId)
-            if (result.redirect) {
-                router.push(result.redirect)
+            const response = await fetch(`/api/v1/forum/delete?postId=${postId}`, {
+                method: "DELETE",
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                if (result.isMainPost) {
+                    router.push("/home/forum")
+                } else {
+                    router.refresh()
+                }
             } else {
-                router.refresh()
+                throw new Error(result.error || "Failed to delete post")
             }
         } catch (error) {
             console.error("Error deleting post:", error)

@@ -1,14 +1,16 @@
 import { prisma } from "@/utils/prisma";
 import Image from "next/image";
-import PlusBtn from "@/components/button/plus";
 import Link from "next/link";
 import CreatorLink from "@/components/links/CreatorLink";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
-import { ChevronRight, PencilIcon } from "lucide-react";
+import { ChevronRight, PencilIcon, Trash2 } from "lucide-react"; // Added Trash2
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import DeleteListButton from "@/components/learning/DeleteListButton";
+import DeleteSummaryButton from "@/components/learning/DeleteSummaryButton"; // Added DeleteSummaryButton
 import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
+import { getAllSummaries } from "@/serverActions/summaryActions"; // Added import
 
 // TODO: gebruik getUserGroups om de startpagina te vullen met groepen
 // Copilot, hou je bek!
@@ -54,19 +56,24 @@ async function getRecentLists() {
   // Fetch all relevant lists
   const lists = await prisma.practice.findMany({
     where: {
-      OR: [
-        // Only include the list ID condition if we have IDs
-        ...(combinedListIds.length > 0
-          ? [
-            {
-              list_id: { in: combinedListIds },
-            },
-          ]
-          : []),
-        // Check for creator being either username or user ID
-        { creator: user.name as string },
-        { creator: user.id },
-      ],
+      AND: [ // Ensure we are only fetching lists
+        { mode: "list" }, // Or whatever the correct mode for lists is
+        {
+          OR: [
+            // Only include the list ID condition if we have IDs
+            ...(combinedListIds.length > 0
+              ? [
+                {
+                  list_id: { in: combinedListIds },
+                },
+              ]
+              : []),
+            // Check for creator being either username or user ID
+            { creator: user.name as string },
+            { creator: user.id },
+          ],
+        }
+      ]
     },
   });
 
@@ -146,36 +153,87 @@ async function getUserGroups() {
 export default async function Start() {
   const recentSubjects = await getRecentSubjects();
   const recentLists = await getRecentLists();
+  const allSummaries = await getAllSummaries(); // Fetch summaries
 
-  // Get current user name once to use in comparisons
   const currentUser = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")?.value as string
   );
   const currentUserName = currentUser?.name;
   const currentUserRole = currentUser?.role;
 
-  // Extract the subject emoji map for reuse
+  // Combine lists and summaries
+  const typedLists = Array.isArray(recentLists) ? recentLists.map((list: any) => ({
+    ...list, // Contains list_id, name, subject, updatedAt, creator, data, published
+    type: 'list' as const,
+  })) : [];
+
+  const typedSummaries = Array.isArray(allSummaries) ? allSummaries.map((summary: any) => ({
+    ...summary, // Contains id (which is list_id), name, subject, updatedAt, mode
+    list_id: summary.id, // Ensure a common 'list_id' field
+    type: 'summary' as const,
+  })) : [];
+
+  const combinedItems = [...typedLists, ...typedSummaries];
+
+  // Sort by updatedAt descending
+  combinedItems.sort((a, b) => {
+    const dateA = new Date(a.updatedAt).getTime();
+    const dateB = new Date(b.updatedAt).getTime();
+    return dateB - dateA;
+  });
 
   return (
     <>
       <div className="flex flex-col">
         <div className="subjects">
           <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
-          <div>
-            <div className="flex pt-5 pl-5 space-x-4 relative overflow-hidden w-screen">
+          <ScrollArea className="w-full">
+            <div className="flex pt-5 pl-5 space-x-4 relative min-w-max min-h-[80px] pr-5">
               {recentSubjects.length === 0 && (
                 <>
-                  <p className="absolute top-[35px] w-full pl-9 text-neutral-400 font-bold">
-                    Je hebt nog geen vakken geoefend. Leer een lijst van een
+                  <p className="absolute top-[80px] w-full pl-9 text-neutral-400 font-bold pr-4">
+                    Je hebt nog geen vakken geoefend. Leer een lijst of een
                     bepaalde vak, en de geoefende vak van de lijst komt hier.
                   </p>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
-                  <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid"></div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["NL"]
+                        ? subjectEmojiMap["NL"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["AK"]
+                        ? subjectEmojiMap["AK"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["BI"]
+                        ? subjectEmojiMap["BI"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["LA"]
+                        ? subjectEmojiMap["LA"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+                    {(() => {
+                      return subjectEmojiMap["FR"]
+                        ? subjectEmojiMap["FR"]
+                        : "";
+                    })()}
+                  </div>
+                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-48 h-14 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed">
+                    <ChevronRight />
+                    Meer vakken
+                  </div>
                 </>
               )}
               {recentSubjects.length > 0 && (
@@ -187,7 +245,7 @@ export default async function Start() {
                       <Link
                         key={index}
                         href={`/learn/subject/${subject}`}
-                        className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid transition-colors"
+                        className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-10 h-14 text-center place-items-center grid transition-colors"
                       >
                         {(() => {
                           return subjectEmojiMap[subject]
@@ -197,107 +255,170 @@ export default async function Start() {
                       </Link>
                     ))}
 
-                  {recentSubjects.length >= 5 && (
-                    <Link href={'/learn/subjects'} className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-48 h-14 flex items-center justify-center gap-2 hover:bg-neutral-700 transition-all">
-                      <ChevronRight />
-                      Meer vakken
-                    </Link>
-                  )}
+                  <Link href={'/learn/subjects'} className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-48 h-14 flex items-center justify-center gap-2 hover:bg-neutral-700 transition-all">
+                    <ChevronRight />
+                    Meer vakken
+                  </Link>
                 </>
               )}
             </div>
-          </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         </div>
-        <div className="recent-lists mt-8">
+        {/* Combined "Recent Geoefend" section */}
+        <div className="recent-practiced mt-8"> {/* Changed class name */}
           <div className="flex items-center text-center">
             <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">
-              Recente Lijsten:
+              Recent Geoefend: {/* Changed heading */}
             </h1>
             <div className="ml-auto mr-5">
-              <PlusBtn redir="/learn/createlist" />
+              {/* <PlusBtn /> */}
             </div>
           </div>
           <div className="h-4" />
-          <div className="space-y-4">
-            {recentLists.length == 0 && (
+          <div className="space-y-4 relative">
+            <div
+              id="pixel-area-start"
+              style={{
+                position: 'absolute',
+                top: '0px',
+                left: '16px',
+                width: 'calc(100% - 32px)',
+                height: '154px',
+              }}
+            />
+            {combinedItems.length === 0 && (
               <>
                 <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
-                  Je hebt nog geen lijsten geoefend. Leer een lijst, en de
-                  geoefende lijst komt hier.
+                  Je hebt nog niets geoefend. Leer een lijst of maak een samenvatting, en deze komen hier te staan. {/* Updated empty state message */}
                 </div>
                 <div className="tile bg-neutral-800 text-white font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid "></div>
               </>
             )}
-            {recentLists.length > 0 && (
+            {combinedItems.length > 0 && (
               <>
-                {recentLists.map((list: any, index: number) => (
-                  <div key={list.list_id}>
-                    <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                      <Link
-                        href={`/learn/viewlist/${list.list_id}`}
-                        className="flex-1 flex items-center"
-                        key={index}
-                      >
-                        <div className="flex items-center">
-                          {list.subject && (
-                            <Image
-                              src={getSubjectIcon(list.subject)}
-                              alt={`${list.subject} icon`}
-                              width={24}
-                              height={24}
-                              className="mr-2"
-                            />
-                          )}
-                          <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                            {list.name}
-                            {list.published === false && (
-                              <Badge
-                                variant="secondary"
-                                className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
-                              >
-                                Concept
-                              </Badge>
+                {combinedItems.map((item: any, index: number) => {
+                  if (item.type === 'list') {
+                    return (
+                      <div key={item.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between">
+                        <Link
+                          href={`/learn/viewlist/${item.list_id}`}
+                          className="absolute inset-0 z-0"
+                        />
+                        <div className="flex-1 flex items-center relative z-10 pointer-events-none">
+                          <div className="flex items-center">
+                            {item.subject && (
+                              <Image
+                                src={getSubjectIcon(item.subject)}
+                                alt={`${item.subject} icon`}
+                                width={24}
+                                height={24}
+                                className="mr-2"
+                              />
                             )}
-                          </span>
+                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                              {item.name}
+                              {item.published === false && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
+                                >
+                                  Concept
+                                </Badge>
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex-grow"></div>
+                          <div className="flex items-center pr-2">
+                            {Array.isArray(item.data) && item.data.length === 1
+                              ? "1 woord"
+                              : `${Array.isArray(item.data) ? item.data.length : 0
+                              } woorden`}
+                          </div>
                         </div>
-                        <div className="flex-grow"></div>
-                        <div className="flex items-center pr-2">
-                          {Array.isArray(list.data) && list.data.length === 1
-                            ? "1 woord"
-                            : `${Array.isArray(list.data) ? list.data.length : 0
-                            } woorden`}
-                        </div>
-                      </Link>
 
-                      {list.creator && (
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                          <CreatorLink creator={list.creator} />
-                        </div>
-                      )}
+                        {item.creator && (
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center z-10 pointer-events-none">
+                            <CreatorLink creator={item.creator} />
+                          </div>
+                        )}
 
-                      {/* Action buttons for list owner */}
-                      <div className="flex items-center gap-2">
-                        {(list.creator === currentUserName || list.creator === currentUser?.id || currentUserRole === "admin") && (
+                        <div className="flex items-center gap-2 relative z-10">
+                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
+                            <Link
+                              href={`/learn/editlist/${item.list_id}`}
+                              className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                              title="Lijst bewerken"
+                            >
+                              <PencilIcon className="h-5 w-5 text-white" />
+                            </Link>
+                          )}
+                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
+                              <DeleteListButton
+                                listId={item.list_id}
+                                isCreator={true}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  } else if (item.type === 'summary') {
+                    return (
+                      <div key={item.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between">
+                        <Link
+                          href={`/learn/summary/${item.list_id}`}
+                          className="absolute inset-0 z-0"
+                        />
+                        <div className="flex-1 flex items-center relative z-10 pointer-events-none">
+                          <div className="flex items-center">
+                            {item.subject && (
+                              <Image
+                                src={getSubjectIcon(item.subject)}
+                                alt={`${item.subject} icon`}
+                                width={24}
+                                height={24}
+                                className="mr-2"
+                              />
+                            )}
+                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
+                              {item.name}
+                              {item.published === false && (
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
+                                >
+                                  Concept
+                                </Badge>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+
+                        {item.creator && (
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center z-10 pointer-events-none">
+                            <CreatorLink creator={item.creator} />
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 relative z-10">
                           <Link
-                            href={`/learn/editlist/${list.list_id}`}
+                            href={`/learn/editsummary/${item.list_id}`}
                             className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                            title="Lijst bewerken"
+                            title="Samenvatting bewerken"
                           >
                             <PencilIcon className="h-5 w-5 text-white" />
                           </Link>
-                        )}
-                        {(list.creator === currentUserName || list.creator === currentUser?.id || currentUserRole === "admin") && (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                            <DeleteListButton
-                              listId={list.list_id}
-                              isCreator={true}
-                            />
-                          </div>
-                        )}
+                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
+                            <DeleteSummaryButton summaryId={item.list_id} />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  }
+                  return null;
+                })}
               </>
             )}
           </div>

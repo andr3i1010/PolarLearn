@@ -10,8 +10,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { formSchema } from "./formSchema";
-import { createPostServer } from "./createPostServer";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
 import Tabs, { TabItem } from "@/components/Tabs";
 import { SelectCategoryCombobox } from "./selectCategoryCombobox";
@@ -194,10 +194,11 @@ const CategoryField = memo(({ control, isAdmin }: { control: any; isAdmin: boole
 });
 
 // ForumDialog component with memoization
-function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason: string | null | undefined; banEnd: Date | null | undefined }) {
+function ForumDialog({ banned, banreason, banEnd, forumDisabled }: { banned: boolean; banreason: string | null | undefined; banEnd: Date | null | undefined, forumDisabled: boolean }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
 
   // Initialize form with react-hook-form and zod validation
   const form = useForm<z.infer<typeof formSchema>>({
@@ -251,21 +252,34 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
     }
     try {
       setIsSubmitting(true);
-      const result = await createPostServer(values);
 
-      if (result.success) {
+      const response = await fetch("/api/v1/forum/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
         toast.success("Post succesvol geplaatst!");
+        // Navigate to the newly created forum post first
+        router.push(`/home/forum/${result.postId}`);
+        // Then close dialog and reset form
         setOpen(false);
         form.reset();
       } else {
-        toast.error(result.error);
+        toast.error(result.error || "Er is een fout opgetreden");
       }
     } catch (error) {
+      console.error("Error creating post:", error);
       toast.error("Er is een fout opgetreden bij het plaatsen van je post.");
     } finally {
       setIsSubmitting(false);
     }
-  }, [banned, banEnd, banreason, form]);
+  }, [banned, banEnd, banreason, form, router]);
 
   // Memoize handleOpenChange to prevent recreation on render
   const handleOpenChange = useCallback((isOpen: boolean) => {
@@ -282,8 +296,12 @@ function ForumDialog({ banned, banreason, banEnd }: { banned: boolean; banreason
       });
       return;
     }
+    if (forumDisabled) {
+      toast.error("Het forum is momenteel platformbreed uitgeschakeld.");
+      return;
+    }
     setOpen(true);
-  }, [banned, banEnd, banreason]);
+  }, [banned, banEnd, banreason, forumDisabled]);
 
   // Memoize form submission handler
   const handleFormSubmit = useCallback(() => {

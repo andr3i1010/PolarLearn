@@ -79,6 +79,7 @@ export async function createSession(userid: string) {
         // console.debug("createSession: Session created with ID", sessionID);
         await createCookie(sessionID, sessionExp);
         // console.debug("createSession: Cookie created for session", sessionID);
+
         resolve(sessionID);
       })
       .catch((error: any) => {
@@ -154,7 +155,7 @@ export async function isLoggedIn() {
 
     if (!session) {
       console.error("isLoggedIn: Session not found in DB for sessionId", sessionId);
-      
+
       (await cookies()).set('polarlearn.session-id', '', {
         expires: new Date(0),
         path: '/',
@@ -217,11 +218,17 @@ export async function logOut() {
     // console.debug("logOut: Cookie deleted for session", sessionId);
 
     try {
-      await prisma.session.delete({
-        where: {
-          sessionID: sessionId,
-        },
+      const session = await prisma.session.findUnique({
+        where: { sessionID: sessionId }
       });
+
+      if (session) {
+        // Delete the session
+        await prisma.session.delete({
+          where: { sessionID: sessionId }
+        });
+      }
+
       // console.debug("logOut: Session record deleted for", sessionId);
     } catch (error) {
       console.error("logOut: Error deleting session record", error);

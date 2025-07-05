@@ -20,7 +20,6 @@ export async function setupUserDeletionTTLIndex() {
         );
 
         if (ttlIndexExists) {
-            console.log("TTL index for user deletion already exists");
             return;
         }
 
@@ -34,8 +33,22 @@ export async function setupUserDeletionTTLIndex() {
                     expireAfterSeconds: 0 // Delete immediately after the scheduledDeletion date
                 }
             ]
-        });
-        console.log("TTL index for user account deletion configured successfully");
+        })
+        // Also create TTL index on practice
+        await prisma.$runCommandRaw({
+            createIndexes: 'practice',
+            indexes: [{ key: { scheduledDeletion: 1 }, name: 'practice_deletion_ttl', expireAfterSeconds: 0 }]
+        })
+        // Also create TTL index on forum
+        await prisma.$runCommandRaw({
+            createIndexes: 'forum',
+            indexes: [{ key: { scheduledDeletion: 1 }, name: 'forum_deletion_ttl', expireAfterSeconds: 0 }]
+        })
+        // Also create TTL index on group
+        await prisma.$runCommandRaw({
+            createIndexes: 'group',
+            indexes: [{ key: { scheduledDeletion: 1 }, name: 'group_deletion_ttl', expireAfterSeconds: 0 }]
+        })
     } catch (error) {
         console.error("Failed to set up TTL index for user deletion:", error);
     }
@@ -45,14 +58,19 @@ export async function setupUserDeletionTTLIndex() {
  * Calculates the date 2 weeks from now for account deletion grace period
  */
 export async function getAccountDeletionDate(): Promise<Date> {
-    const twoWeeksFromNow = new Date();
-    twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14); // 2 weeks = 14 days
-    return twoWeeksFromNow;
+    const date = new Date();
+    if (process.env.NODE_ENV === 'development') {
+        // For dev: 5 minutes
+        date.setMinutes(date.getMinutes() + 5);
+    } else {
+        // Production: 2 weeks
+        date.setDate(date.getDate() + 14);
+    }
+    return date;
 }
 
 // New function to ensure TTL index exists after Prisma schema push
 export async function ensureUserDeletionTTLIndex() {
-    console.log("Ensuring user deletion TTL index exists...");
     try {
         await setupUserDeletionTTLIndex();
         return true;
@@ -61,11 +79,3 @@ export async function ensureUserDeletionTTLIndex() {
         return false;
     }
 }
-
-// Ensure TTL index is set up on module load
-// This will run automatically when the application starts
-ensureUserDeletionTTLIndex().then(success => {
-    if (success) {
-        console.log("User deletion TTL index is ready");
-    }
-});

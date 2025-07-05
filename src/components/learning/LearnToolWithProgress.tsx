@@ -5,17 +5,19 @@ import LearnTool from './learnTool';
 import LearnToolHeader from '../navbar/learntToolHeader';
 
 interface LearnToolWithProgressProps {
-    mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze";
+    mode: "toets" | "gedachten" | "hints" | "learn" | "multikeuze" | "leren";
     rawlistdata: any[];
     listId: string;
     currentMethod?: string;  // Make currentMethod optional
+    onComplete?: () => void;
 }
 
 export default function LearnToolWithProgress({
     mode,
     rawlistdata,
     listId,
-    currentMethod
+    currentMethod,
+    onComplete
 }: LearnToolWithProgressProps) {
     const [progress, setProgress] = useState(0);
     const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -52,6 +54,7 @@ export default function LearnToolWithProgress({
                     onCorrectAnswer={handleCorrectAnswer}
                     onWrongAnswer={handleWrongAnswer}
                     onProgressUpdate={handleProgressUpdate}
+                    onComplete={onComplete}
                 />
             </div>
         </div>

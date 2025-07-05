@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Jdenticon from "@/components/Jdenticon";
-import DeletePostButton from "@/components/DeletePostButton";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { Badge } from "@/components/ui/badge";
 import { getSearchResults } from "./getSearchResults";

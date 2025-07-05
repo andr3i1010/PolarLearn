@@ -15,8 +15,10 @@ import Tabs, { TabItem } from "@/components/Tabs";
 import { getAdminData } from "./getAdminData";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { icons, getSubjectIcon, getSubjectName } from "@/components/icons";
-import { Users, ListTodo, School } from "lucide-react";
+import { Users, ListTodo, School, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import SendNotificationButton from "./SendNotificationButton";
+import AlgemeenTabContent from "./AlgemeenTabContent";
 
 interface AdminTabsProps {
     initialUsersData: any[];
@@ -40,26 +42,34 @@ export default function AdminTabs({
     userMapById: initialUserMapById,
     defaultActiveTab,
     currentUserId,
-}: AdminTabsProps) {
+    renderContent = true, // Added for layout usage
+}: AdminTabsProps & { renderContent?: boolean }) {
+    // Added for layout usage
     // Users tab state
     const [usersData, setUsersData] = useState(initialUsersData);
-    const [usersHasMore, setUsersHasMore] = useState(initialUsersData.length < initialUsersTotal);
+    const [usersHasMore, setUsersHasMore] = useState(
+        initialUsersData.length < initialUsersTotal
+    );
     const [usersTotal, setUsersTotal] = useState(initialUsersTotal);
 
     // Lists tab state
     const [listsData, setListsData] = useState(initialListsData);
-    const [listsHasMore, setListsHasMore] = useState(initialListsData.length < initialListsTotal);
+    const [listsHasMore, setListsHasMore] = useState(
+        initialListsData.length < initialListsTotal
+    );
     const [listsTotal, setListsTotal] = useState(initialListsTotal);
 
     // Groups tab state
     const [groupsData, setGroupsData] = useState(initialGroupsData);
-    const [groupsHasMore, setGroupsHasMore] = useState(initialGroupsData.length < initialGroupsTotal);
+    const [groupsHasMore, setGroupsHasMore] = useState(
+        initialGroupsData.length < initialGroupsTotal
+    );
     const [groupsTotal, setGroupsTotal] = useState(initialGroupsTotal);
 
     const [userMapById, setUserMapById] = useState(initialUserMapById);
     const [loadingUsers, setLoadingUsers] = useState(false);
     const [loadingLists, setLoadingLists] = useState(false);
-    const [loadingGroups, setLoadingGroups] = useState(false);    // Load more users
+    const [loadingGroups, setLoadingGroups] = useState(false); // Load more users
     const loadMoreUsers = async () => {
         if (loadingUsers) return;
         setLoadingUsers(true);
@@ -80,7 +90,7 @@ export default function AdminTabs({
         } finally {
             setLoadingUsers(false);
         }
-    };    // Load more lists
+    }; // Load more lists
     const loadMoreLists = async () => {
         if (loadingLists) return;
         setLoadingLists(true);
@@ -104,7 +114,7 @@ export default function AdminTabs({
         } finally {
             setLoadingLists(false);
         }
-    };    // Load more groups
+    }; // Load more groups
     const loadMoreGroups = async () => {
         if (loadingGroups) return;
         setLoadingGroups(true);
@@ -162,11 +172,11 @@ export default function AdminTabs({
                             {usersData.map((user) => (
                                 <div
                                     key={user.id}
-                                    className="relative border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all"
+                                    className="flex items-center border-b border-neutral-700 bg-neutral-800 last:border-b-0 p-4 hover:bg-neutral-700 transition-all"
                                 >
                                     <Link
-                                        href={`/home/viewuser/${user.name}`}
-                                        className="inline-block w-7/11"
+                                        href={`/home/viewuser/${user.id}`}
+                                        className="flex-1"
                                     >
                                         <div className="flex items-center cursor-pointer">
                                             <div className="mr-4 flex-shrink-0">
@@ -217,56 +227,48 @@ export default function AdminTabs({
                                             </div>
                                         </div>
                                     </Link>
-                                    {user.role !== "admin" && (
-                                        <>
-                                            <div className="inline-block w-1/11 text-right">
-                                                {!user.forumAllowed ? (
-                                                    <BanButton
-                                                        userId={user.id}
-                                                        text="unban van forum"
-                                                        platform={false}
-                                                        unban={true}
-                                                    />
-                                                ) : (
-                                                    <BanButton
-                                                        userId={user.id}
-                                                        text="ban van forum"
-                                                        platform={false}
-                                                        unban={false}
-                                                    />
-                                                )}
-                                            </div>
-                                            <div className="inline-block w-1/11 text-right">
-                                                {!user.loginAllowed ? (
-                                                    <BanButton
-                                                        userId={user.id}
-                                                        text="unban van site"
-                                                        platform={true}
-                                                        unban={true}
-                                                    />
-                                                ) : (
-                                                    <BanButton
-                                                        userId={user.id}
-                                                        text="ban van site"
-                                                        platform={true}
-                                                        unban={false}
-                                                    />
-                                                )}
-                                            </div>
-                                            <div className="inline-block w-1/11 text-right">
-                                                <ResetPasswordButton userId={user.id} />
-                                            </div>
-                                            <div className="inline-block w-1/11 text-right">
-                                                <DeleteUserButton userId={user.id} />
-                                            </div>
-                                            <div className="inline-block w-1/11 text-right">
-                                                <ImpersonateUserButton
-                                                    userId={user.id}
-                                                    userName={user.name}
-                                                />
-                                            </div>
-                                        </>
-                                    )}
+                                    <div className="flex items-center space-x-4">
+                                        {!user.forumAllowed ? (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="unban van forum"
+                                                platform={false}
+                                                unban={true}
+                                            />
+                                        ) : (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="ban van forum"
+                                                platform={false}
+                                                unban={false}
+                                            />
+                                        )}
+                                        {!user.loginAllowed ? (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="unban van site"
+                                                platform={true}
+                                                unban={true}
+                                            />
+                                        ) : (
+                                            <BanButton
+                                                userId={user.id}
+                                                text="ban van site"
+                                                platform={true}
+                                                unban={false}
+                                            />
+                                        )}
+                                        <ResetPasswordButton userId={user.id} />
+                                        <DeleteUserButton userId={user.id} />
+                                        <ImpersonateUserButton
+                                            userId={user.id}
+                                            userName={user.name}
+                                        />
+                                        <SendNotificationButton
+                                            userId={user.id}
+                                            userName={user.name}
+                                        />
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -338,12 +340,17 @@ export default function AdminTabs({
                                                     )}
                                                 </h3>
                                                 <p className="text-sm text-gray-400">
-                                                    Gemaakt door: {userMapById[list.creator]?.name || list.creator} •
+                                                    Gemaakt door:{" "}
+                                                    {userMapById[list.creator]?.name || list.creator} •
                                                     {Array.isArray(list.data) && list.data.length === 1
                                                         ? " 1 woord"
-                                                        : ` ${Array.isArray(list.data) ? list.data.length : 0} woorden`}
+                                                        : ` ${Array.isArray(list.data) ? list.data.length : 0
+                                                        } woorden`}
                                                     {list.subject && (
-                                                        <> • {getSubjectName(list.subject) || list.subject}</>
+                                                        <>
+                                                            {" "}
+                                                            • {getSubjectName(list.subject) || list.subject}
+                                                        </>
                                                     )}
                                                 </p>
                                             </div>
@@ -395,13 +402,15 @@ export default function AdminTabs({
                     >
                         <div className="space-y-4">
                             {groupsData.map((groep) => {
-                                const memberCount = groep.members && typeof groep.members === 'object'
-                                    ? Object.keys(groep.members).length
-                                    : 0;
+                                const memberCount =
+                                    groep.members && typeof groep.members === "object"
+                                        ? Object.keys(groep.members).length
+                                        : 0;
 
-                                const listCount = groep.listsAdded && Array.isArray(groep.listsAdded)
-                                    ? groep.listsAdded.length
-                                    : 0;
+                                const listCount =
+                                    groep.listsAdded && Array.isArray(groep.listsAdded)
+                                        ? groep.listsAdded.length
+                                        : 0;
 
                                 return (
                                     <div
@@ -436,7 +445,9 @@ export default function AdminTabs({
 
                                         {groep.description && (
                                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-[150px] text-center">
-                                                <p className="text-sm text-neutral-400 line-clamp-1">{groep.description}</p>
+                                                <p className="text-sm text-neutral-400 line-clamp-1">
+                                                    {groep.description}
+                                                </p>
                                             </div>
                                         )}
 
@@ -454,6 +465,16 @@ export default function AdminTabs({
     };
 
     const tabs: TabItem[] = [
+        {
+            id: "algemeen",
+            label: (
+                <div className="flex items-center gap-2">
+                    <Settings size={16} />
+                    <span>Algemeen</span>
+                </div>
+            ),
+            content: <AlgemeenTabContent />,
+        },
         {
             id: "gebruikers",
             label: (
@@ -512,6 +533,7 @@ export default function AdminTabs({
                 defaultActiveTab={defaultActiveTab}
                 withRoutes={true}
                 baseRoute={baseRoute}
+                renderContent={renderContent} // Pass down renderContent
             />
         </div>
     );

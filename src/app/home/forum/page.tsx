@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import Tabs, { TabItem } from "@/components/Tabs";
 import { prisma } from "@/utils/prisma";
 import ForumDialog from "./ForumDialog";
 import { getUserFromSession } from "@/utils/auth/auth";
@@ -8,6 +7,12 @@ import { getPosts } from "./getPosts";
 import ForumPostList from "./ForumPostList";
 import MarkdownRenderer from "@/components/md";
 import { cookies } from "next/headers";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "PolarLearn | Forum",
+  description: "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden"
+}
 
 export default async function ForumHome({
   searchParams,
@@ -41,7 +46,7 @@ export default async function ForumHome({
   );
 
   // Define tabs for the forum page
-  const tabs: TabItem[] = [
+  const tabs = [
     {
       id: "questions",
       label: "Alle vragen",
@@ -112,11 +117,11 @@ export default async function ForumHome({
       content: (
         <MarkdownRenderer
           content={`
-## Hoe werkt het forum?
+# Hoe werkt het forum?
 
 ---
 
-Welkom op ons forum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt, of gewoon chatten.
+Welkom op ons (leer)forum! Hier kun je vragen stellen, antwoorden geven en punten verdienen terwijl je leert en anderen helpt, of gewoon chatten.
 
 ### 🔍 Zoeken naar antwoorden
 
@@ -128,30 +133,48 @@ Dit bespaart tijd en helpt om dubbele vragen te voorkomen.
 Heb je een vraag? Plaats deze in de juiste categorie en wees zo duidelijk mogelijk.<br />
 Hoe specifieker je vraag, hoe sneller en beter de antwoorden zullen zijn!
 
-Bij het stellen van een vraag kun je labels toevoegen om aan te geven of je vraag over school gaat of niet.<br />
+Bij het stellen van een vraag kun je categorieën toevoegen om aan te geven of je vraag over school gaat of niet.<br />
 Zo kunnen anderen makkelijker de juiste vragen vinden.
+
+De categoriën zijn:
+* 🟦 School gerelateerd
+   
+   Gebruik dit voor vragen over een school vak zoals wat de oplossing is, hoe iets werkt. etc.
+* 🟩 Niet school-gerelateerd
+   
+   Gebruik dit voor alles wat je maar wilt, zoals games, huisdieren, etc. Alles mag behalve ongepaste dingen.
+* 🟨 Hulp
+   
+   Gebruik dit als je wilt weten hoe iets werkt in PolarLearn.
+* 🟥 Aankondiging
+   
+   Dit is een speciale categorie, administrators kunnen met deze categorie een nieuwe functie of iets anders in PolarLearn aankondigen.
+
 
 ### 💬 Antwoorden geven
 
 Help anderen door antwoorden te geven op vragen.<br />
 Zorg ervoor dat je uitleg helder en behulpzaam is.
 
-### ⭐ Punten verdienen
+⭐ **Punten verdienen**
 
 Je verdient punten door actief bij te dragen:
+* ✅ Een goedgekeurd antwoord geven: +50 punten (nog niet geïmplementeerd)
+* 👍 Een upvote ontvangen op jouw antwoord of post: +1 punt
+* 👎 Een downvote ontvangen op jouw antwoord of post: -1 punt
+* ❓ Een vraag stellen: +0 punten
+* 🗣️ Antwoord geven op een vraag: +10 punten
+* 🗑️ Een antwoord verwijderen: -10 punten (Dit is gedaan om te voorkomen dat je antwoorden kan spammen en onrechtvaardig punten krijgt)
 
-* ✅ Een goedgekeurd antwoord geven: **+50** punten!
-* 👍 Een upvote ontvangen op jouw antwoord: +1 punt
-* ❓ Een vraag stellen: +10 punten
-
-Met punten verdien je prestaties die je als titel in kan stellen onder je naam! En het ziet er gewoon cool uit.
+Met punten verdien je prestaties die je als titel in kan stellen onder je naam (nog niet geïmplementeerd)! En het ziet er gewoon cool uit.
 
 ### 🚨 Moderatie
 
 Alleen vragen die ongepast, spam of beledigend zijn, worden verwijderd.
 
-In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan!
+In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan, en er zullen geen tutors zijn die alles verwijderen!
 
+### Meerdere keren een verwijderde post kan leiden tot een (permanente) verbanning. Dit kan ook meteen gebeuren als je iets heel ongepast zegt.
 ---
 
 Veel leerplezier! 🚀
@@ -161,40 +184,10 @@ Veel leerplezier! 🚀
     },
   ];
 
-  let banned = false;
-  if (!user!.forumAllowed) {
-    banned = true;
-  }
-
-  // Determine the base route dynamically
-  let baseRoute = "/home/forum";
-
-  // If we have a tab in the params, we're already at a subroute
-  if (params?.tab && params.tab.length > 0) {
-    // We're in a route like /home/forum/[tab] - the base path is everything before the tab
-    baseRoute = "/home/forum";
-  }
-
+  // Render only the active tab's content; header and tabs handled in layout
   return (
-    <>
-      <div className="py-6 pl-6">
-        <div className="flex items-center">
-          <h1 className="text-4xl font-extrabold mb-4">Forum</h1>
-          <div className="flex-grow"></div>
-          <ForumDialog
-            banned={banned}
-            banreason={user?.forumBanReason}
-            banEnd={user?.forumBanEnd}
-          />
-          <div className="w-4" />
-        </div>
-        <Tabs
-          tabs={tabs}
-          defaultActiveTab={defaultActiveTab}
-          withRoutes={true}
-          baseRoute={baseRoute}
-        />
-      </div>
-    </>
+    <div className="px-6">
+      {tabs.find((tab) => tab.id === defaultActiveTab)?.content}
+    </div>
   );
 }

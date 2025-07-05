@@ -10,7 +10,6 @@ import {
     DialogTrigger
 } from "../ui/dialog";
 import { PlusIcon } from "lucide-react";
-import { addListToGroup } from "@/serverActions/groupActions";
 import { toast } from "react-toastify";
 
 interface AddListToGroupButtonProps {
@@ -30,25 +29,17 @@ export default function AddListToGroupButton({
     const handleAddList = async () => {
         setIsLoading(true);
         try {
-            await addListToGroup(groupId, listId);
-            toast.success(`Lijst "${listName}" toegevoegd aan de groep`, {
-                position: "bottom-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
+            // Call API endpoint to add list to group
+            const res = await fetch(`/api/v1/groups/${groupId}/lists`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ listId }),
             });
+            if (!res.ok) throw new Error(await res.text());
+            toast.success(`Lijst "${listName}" toegevoegd aan de groep`);
             setIsOpen(false);
         } catch (error) {
-            toast.error(`Fout bij het toevoegen van lijst: ${(error as Error).message}`, {
-                position: "bottom-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            toast.error(`Fout bij het toevoegen van lijst: ${(error as Error).message}`);
         } finally {
             setIsLoading(false);
         }

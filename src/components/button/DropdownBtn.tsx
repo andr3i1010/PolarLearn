@@ -22,6 +22,8 @@ interface DropdownProps {
   onChange?: (selected: any) => void;
   disabled?: boolean;
   value?: string;
+  className?: string;
+  zIndex?: number;
 }
 
 export interface DropdownHandle {
@@ -30,7 +32,7 @@ export interface DropdownHandle {
 }
 
 const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
-  ({ text, dropdownMatrix, selectorMode, onChangeSelected, width, onSelect, onChange, disabled, value }, ref) => {
+  ({ text, dropdownMatrix, selectorMode, onChangeSelected, width, onSelect, onChange, disabled, value, zIndex = 50, className }, ref) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [computedWidth, setComputedWidth] = useState<number>(0);
     const [dropdownHeight, setDropdownHeight] = useState<number>(0);
@@ -119,10 +121,11 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
 
     return (
       <div
-        className={`absolute z-50 ${disabled ? "pointer-events-none opacity-50" : ""}`}
+        className={`absolute ${disabled ? "pointer-events-none opacity-50" : ""} ${className}`}
+        style={{ zIndex }}
       >
         <div
-          className="inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg"
+          className={`inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -136,7 +139,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
           >
             <button
               type="button"
-              className="w-full bg-neutral-800 text-white font-bold py-2 px-4 rounded-t-md"
+              className={`w-full bg-neutral-800 text-white font-bold py-2 px-4 ${isExpanded ? 'rounded-t-sm' : 'rounded-sm'}`}
               onClick={handleButtonClick}
             >
               {selectorMode ? (value || selectedOption.display) : text}
@@ -144,12 +147,12 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
 
             <div
               ref={dropdownRef}
-              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100" : "opacity-0"} shadow-lg`}
+              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100 rounded-b-lg" : "opacity-0"} shadow-lg`}
               style={{
                 height: isExpanded ? `${dropdownHeight}px` : "0px",
                 width: `${effectiveWidth - 8}px`,
                 backgroundColor: "#262626",
-                margin: "0 auto",
+                //margin: "0 auto",
                 transition: "height 0.3s ease, opacity 0.3s ease",
               }}
               onMouseEnter={handleDropdownMouseEnter}
@@ -159,7 +162,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
                 selectorMode ? (
                   <div
                     key={index}
-                    className="block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200 cursor-pointer"
+                    className={`block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200 cursor-pointer ${index === dropdownMatrix.length - 1 ? 'rounded-b-lg' : ''}`}
                     onClick={() => handleItemClick(path, display)}
                   >
                     {display}
@@ -168,7 +171,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
                   <Link
                     key={index}
                     href={path}
-                    className="block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200"
+                    className={`block px-4 py-2 text-white hover:bg-sky-500 transition-colors duration-200 ${index === dropdownMatrix.length - 1 ? 'rounded-b-lg' : ''}`}
                     onClick={() => handleItemClick(path, display)}
                   >
                     {display}

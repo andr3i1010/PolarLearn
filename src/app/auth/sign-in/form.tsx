@@ -1,24 +1,166 @@
 "use client";
 import Link from "next/link";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import GoogleLogin from "@/components/button/logInGoogle";
 import GithubLogin from "@/components/button/loginGithub";
 import Button1 from "@/components/button/Button1";
-import { signInCredentials } from "@/utils/auth/auth";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
-import { EyeOff } from "lucide-react";
+import { EyeOff, Loader2 } from "lucide-react";
 import { Eye } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { getValidRedirectPath, clearRedirectCookie } from "@/utils/auth/redirect";
+import Honeypot from "../honeypot";
+
+function getCookie(cname: string) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 
 export default function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaLoading, setCaptchaLoading] = useState(true);
+  const [showResendActivation, setShowResendActivation] = useState(false);
+  const [widgetId, setWidgetId] = useState<number | null>(null);
+
+  const handleResendActivation = async () => {
+    const email = prompt("Voer je e-mailadres in om een nieuwe activatie-email te ontvangen:");
+
+    if (!email) return;
+
+    try {
+      const response = await fetch("/api/v1/auth/resend-activation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.error || "Er is een fout opgetreden");
+      }
+    } catch (error) {
+      console.error("Resend activation error:", error);
+      toast.error("Er is een fout opgetreden bij het versturen van de activatie-email");
+    }
+  };
 
   useEffect(() => {
     const error = params.get("error");
+    const message = params.get("message");
     const provider = params.get("provider");
+
+    // Handle success messages first
+    if (message === "check_email") {
+      toast.info(
+        "Account aangemaakt! Controleer je e-mail en klik op de activatielink om je account te activeren.",
+        {
+          autoClose: 8000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (message === "already_activated") {
+      toast.info("Je account is al geactiveerd. Je kunt nu inloggen.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    // Handle activation errors
+    if (error === "missing_token") {
+      toast.error("Geen activatie token gevonden. Controleer de link in je e-mail.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (error === "invalid_token") {
+      toast.error("Ongeldige of verlopen activatie token. Probeer opnieuw te registreren.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (error === "invalid_or_used_token") {
+      toast.error("Ongeldige of reeds gebruikte activatie token. Als je account al geactiveerd is, probeer dan in te loggen.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (error === "activation_failed") {
+      toast.error("Er is een fout opgetreden bij het activeren van je account.");
+      router.replace("/auth/sign-in");
+      return;
+    }
+
+    if (error === "banned") {
+      toast.error(
+        "Je account is verbannen wegens niet-toegestane activiteit. Deze actie kan niet ongedaan worden gemaakt.",
+        {
+          autoClose: 7000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      clearRedirectCookie();
+      return;
+    }
+
+    if (error === "session_expired") {
+      toast.info(
+        "Je sessie is verlopen. Log opnieuw in om verder te gaan.",
+        {
+          autoClose: 5000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      clearRedirectCookie();
+      return;
+    }
+
+
+    if (error === "banned") {
+      toast.error(
+        "Je account is verbannen wegens niet-toegestane activiteit. Deze actie kan niet ongedaan worden gemaakt.",
+        {
+          autoClose: 7000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      clearRedirectCookie();
+      return;
+    }
+
+    if (error === "session_expired") {
+      toast.info(
+        "Je sessie is verlopen. Log opnieuw in om verder te gaan.",
+        {
+          autoClose: 5000,
+        }
+      );
+      router.replace("/auth/sign-in");
+      clearRedirectCookie();
+      return;
+    }
+
     if (error && provider) {
       switch (error) {
         case "usernotfound":
@@ -36,11 +178,34 @@ export default function SignInForm() {
           toast.error("Er is een onbekende fout opgetreden");
           break;
       }
-      router.replace("/auth/sign-in");
+      router.replace(getValidRedirectPath(getCookie('polarlearn.goto')));
+      router.replace(getValidRedirectPath(getCookie('polarlearn.goto')));
     }
   }, []);
 
   const [showPassword, setShowPassword] = useState(false);
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+    script.onload = () => {
+      if (window.turnstile) {
+        const id = window.turnstile.render("#turnstile-signin", {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+          callback: (token: string) => {
+            setCaptchaToken(token);
+            setCaptchaLoading(false);
+          },
+          "error-callback": () => {
+            setCaptchaLoading(false);
+          },
+        });
+        setWidgetId(id);
+      }
+    };
+  }, []);
 
   return (
     <div className="relative">
@@ -57,26 +222,72 @@ export default function SignInForm() {
         </div>
 
         <form
+          ref={formRef}
           onSubmit={async (e) => {
             e.preventDefault();
+            if (!captchaToken) {
+              toast.error("Bevestig dat je geen robot bent.");
+              return;
+            }
             const formData = new FormData(e.currentTarget);
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
-            const result = await signInCredentials(email, password);
-            if (result === true) {
-              router.push("/home/start");
-            } else {
-              if (typeof result === "string") {
-                switch (result) {
-                  case "invcreds":
-                    toast.error("Ongeldige inloggegevens");
-                    break;
-                  default:
-                    toast.error(`Je bent permanent verbannen van PolarLearn met reden: ${result || 'Niet gevonden in database'}. Deze actie kan niet ongedaan worden gemaakt.`);
-                    break;
-                }
+            try {
+              const response = await fetch("/api/v1/auth/sign-in", {
+                method: "POST",
+                credentials: 'include',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, captchaToken }),
+              });
+              const data = await response.json();
+              if (response.ok && data.success) {
+                toast.success("Succesvol ingelogd!");
+
+                // Get redirect path - check both server response and cookie
+                const serverGoto = data.goto;
+                const cookieGoto = getCookie('polarlearn.goto');
+                const gotoPath = getValidRedirectPath(serverGoto || cookieGoto) || '/home/start';
+
+                // Clear redirect cookie
+                clearRedirectCookie();
+
+                // Add a small delay to ensure session is established, then redirect
+                setTimeout(() => {
+                  // Try router first, fallback to window.location
+                  try {
+                    console.log(gotoPath);
+                    router.push(gotoPath);
+                    // setTimeout(() => {
+                    //   if (window.location.pathname === '/auth/sign-in') {
+                    //     window.location.href = gotoPath;
+                    //   }
+                    // }, 1000);
+                  } catch (err) {
+                    console.warn("nextjs router redirect gefaald:", err);
+                    window.location.href = gotoPath;
+                  }
+                }, 200);
               } else {
-                toast.error("interne serverfout");
+                // Check if error is related to email verification
+                if (data.error && data.error.includes("geverifieerd")) {
+                  setShowResendActivation(true);
+                }
+                toast.error(data.error || "Er is een fout opgetreden");
+                // Reset captcha on login failure
+                if (window.turnstile && widgetId !== null) {
+                  window.turnstile.reset(widgetId);
+                  setCaptchaToken("");
+                  setCaptchaLoading(true);
+                }
+              }
+            } catch (error) {
+              console.error("Sign-in error:", error);
+              toast.error("Er is een fout opgetreden bij het inloggen");
+              // Reset captcha on network/other errors
+              if (window.turnstile && widgetId !== null) {
+                window.turnstile.reset(widgetId);
+                setCaptchaToken("");
+                setCaptchaLoading(true);
               }
             }
           }}
@@ -123,8 +334,15 @@ export default function SignInForm() {
             <br />
           </div>
 
-          <Button1 type="submit" text="Log In" className="w-full" />
-          <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
+          <div id="turnstile-signin" className="flex justify-center"></div>
+          <Button1
+            type="submit"
+            text={captchaLoading ? "CAPTCHA uitvoeren..." : "Log In"}
+            className="w-full"
+            disabled={captchaLoading || !captchaToken}
+            icon={captchaLoading ? <Loader2 className="animate-spin" /> : null}
+          />
+          <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center mt-2">
             Heb je nog geen account?{" "}
             <Link
               href="/auth/sign-up"
@@ -133,6 +351,19 @@ export default function SignInForm() {
               <strong>Maak er dan eentje!</strong>
             </Link>
           </p>
+          {showResendActivation && (
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center mt-2">
+              Account niet geactiveerd?{" "}
+              <button
+                type="button"
+                onClick={handleResendActivation}
+                className="font-medium text-primary-600 hover:underline dark:text-primary-500 cursor-pointer"
+              >
+                <strong>Verstuur nieuwe activatie-email</strong>
+              </button>
+            </p>
+          )}
+          <Honeypot/>
         </form>
       </div>
     </div>

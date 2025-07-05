@@ -15,6 +15,8 @@ interface TabsProps {
     withRoutes?: boolean;
     baseRoute?: string;
     currentQuery?: string;
+    renderContent?: boolean; // New prop
+    onTabChange?: (tabId: string) => void; // Add callback for tab changes
 }
 
 // Memoized Tab component for individual tabs
@@ -31,7 +33,7 @@ const Tab = memo(({
 }) => (
     <div
         data-tab-id={id}
-        className={`p-3 cursor-pointer text-lg transition-colors duration-200 border-b-2 ${isActive
+        className={`p-3 text-sm md:text-lg cursor-pointer transition-colors duration-200 border-b-2 ${isActive
             ? "text-white"
             : "text-gray-400 border-transparent hover:text-white"
             }`}
@@ -55,7 +57,9 @@ const Tabs = ({
     defaultActiveTab,
     withRoutes = false,
     baseRoute = "",
-    currentQuery
+    currentQuery,
+    renderContent = true, // Default to true
+    onTabChange, // Add the callback prop
 }: TabsProps) => {
     const router = useRouter();
     const pathname = usePathname();
@@ -121,12 +125,13 @@ const Tabs = ({
 
     // Initial setup on mount
     useEffect(() => {
-        if (isFirstMount.current) {
-            setTimeout(() => {
+        if (isFirstMount.current && tabsContainerRef.current) {
+            const animationFrameId = requestAnimationFrame(() => {
                 storeAllTabPositions();
-                positionIndicator(activeTabId, false);
+                positionIndicator(activeTabId, false); // Position without animation
                 isFirstMount.current = false;
-            }, 50);
+            });
+            return () => cancelAnimationFrame(animationFrameId); // Cleanup on unmount
         }
     }, [activeTabId, positionIndicator, storeAllTabPositions]);
 
@@ -212,6 +217,11 @@ const Tabs = ({
         setActiveTabId(tabId);
         positionIndicator(tabId, true);
 
+        // Call the callback if provided
+        if (onTabChange) {
+            onTabChange(tabId);
+        }
+
         if (withRoutes) {
             isNavigating.current = true;
             ignorePathChange.current = true;
@@ -230,7 +240,7 @@ const Tabs = ({
                 isNavigating.current = false;
             }, 50);
         }
-    }, [activeTabId, withRoutes, baseRoute, router, positionIndicator, searchParams, currentQuery]);
+    }, [activeTabId, withRoutes, baseRoute, router, positionIndicator, searchParams, currentQuery, onTabChange]);
 
     const activeTab = tabs.find(tab => tab.id === activeTabId);
 
@@ -261,7 +271,7 @@ const Tabs = ({
                     }}
                 />
             </div>
-            {activeTab && <TabContent content={activeTab.content} />}
+            {renderContent && activeTab && <TabContent content={activeTab.content} />}
         </>
     );
 };

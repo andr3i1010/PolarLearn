@@ -1,32 +1,52 @@
 "use client"
 import Button1 from "@/components/button/Button1";
 import { toast } from "react-toastify";
-import type { Metadata } from 'next'
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { createUserCredentials } from "@/utils/auth/user";
-import { createSession } from "@/utils/auth/session";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
-
-const metadata: Metadata = {
-  title: 'PolarLearn - Account aanmaken',
-  description: 'Accountcreatiepagina van PolarLearn',
-}
+import Honeypot from "../honeypot";
 
 export default function SignUpForm() {
   const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+  const [widgetId, setWidgetId] = useState<number | null>(null);
+  const [captchaReady, setCaptchaReady] = useState(false);
 
   const delay = (ms: number) => new Promise(
     resolve => setTimeout(resolve, ms)
   );
 
   const validateUsername = (username: string) => {
-    if (username.includes(" ")) {
-      setUsernameError("Gebruikersnaam mag geen spaties bevatten");
+    // Only allow alphanumeric characters, dots, and underscores
+    const validUsernameRegex = /^[a-zA-Z0-9._]+$/;
+    if (!validUsernameRegex.test(username)) {
+      setUsernameError("Gebruikersnaam mag alleen letters, cijfers, punten en underscores bevatten");
       return false;
     }
     setUsernameError("");
+    return true;
+  };
+
+  const validateEmail = (email: string) => {
+    // Basic email format check
+    const re = /\S+@\S+\.\S+/;
+    if (!re.test(email)) {
+      setEmailError("Ongeldig e-mailadres");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  const validatePassword = (password: string) => {
+    if (password.length < 8) {
+      setPasswordError("Wachtwoord moet minimaal 8 tekens bevatten");
+      return false;
+    }
+    setPasswordError("");
     return true;
   };
 
@@ -34,32 +54,85 @@ export default function SignUpForm() {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+    script.onload = () => {
+      if (window.turnstile) {
+        const id = window.turnstile.render("#turnstile-signup", {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+          callback: async (token: string) => {
+            setCaptchaReady(true);
+            // perform sign-up after invisible captcha
+            const form = formRef.current!;
+            const formData = new FormData(form);
+            const username = formData.get("username") as string;
+            const email = formData.get("email") as string;
+            const password = formData.get("password") as string;
+
+            const usernameValid = validateUsername(username);
+            const emailValid = validateEmail(email);
+            const passwordValid = validatePassword(password);
+
+            if (!usernameValid || !emailValid || !passwordValid) {
+              if (window.turnstile && widgetId !== null) {
+                window.turnstile.reset(widgetId);
+                setCaptchaReady(false);
+              }
+              return;
+            }
+
+            try {
+              const response = await fetch("/api/v1/auth/sign-up", {
+                method: "POST",
+                credentials: 'include',
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, email, password, captchaToken: token }),
+              });
+              const result = await response.json();
+              if (response.ok && result.success) {
+                toast.success(result.message || "Account succesvol aangemaakt! Controleer je e-mail om je account te activeren.");
+                await delay(3000);
+                router.push("/auth/sign-in?message=check_email");
+              } else {
+                toast.error(result.error || "Er is een fout opgetreden");
+                // Reset captcha on server error
+                if (window.turnstile && widgetId !== null) {
+                  window.turnstile.reset(widgetId);
+                  setCaptchaReady(false);
+                }
+              }
+            } catch (err) {
+              console.error("Sign-up error:", err);
+              toast.error("Er is een fout opgetreden bij het aanmaken van je account");
+              // Reset captcha on network/other errors
+              if (window.turnstile && widgetId !== null) {
+                window.turnstile.reset(widgetId);
+                setCaptchaReady(false);
+              }
+            }
+          },
+        });
+        setWidgetId(id);
+      }
+    };
+  }, []);
+
   return (
-    <form className="space-y-4 md:space-y-6"
-      action={async (formData) => {
-        const username = formData.get("username") as string;
-
-        if (!validateUsername(username)) {
-          return;
-        }
-
-        const email = formData.get("email") as string;
-        const password = formData.get("password") as string;
-
-        try {
-          interface User {
-            userdata: {
-              id: string;
-            };
-          }
-          const user = await createUserCredentials(username, email, password) as User;
-          toast.success("Account succesvol aangemaakt!");
-          await createSession(user.userdata.id)
-          await delay(1500);
-          router.push("/auth/sign-in");
-        } catch (error) {
-          console.error("Error creating user:", error);
-          toast.error("Er is een fout opgetreden bij het aanmaken van het account.");
+    <form
+      ref={formRef}
+      className="space-y-4 md:space-y-6"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (widgetId !== null && window.turnstile) {
+          window.turnstile.execute(widgetId);
+        } else {
+          toast.error("Bevestig dat je geen robot bent.");
         }
       }}
     >
@@ -76,8 +149,8 @@ export default function SignUpForm() {
           id="username"
           className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
           placeholder="Naam123456"
-          pattern="^\S+$"
-          title="Geen spaties toegestaan"
+          pattern="^[a-zA-Z0-9._]+$"
+          title="Alleen letters, cijfers, punten en underscores toegestaan"
           onChange={(e) => validateUsername(e.target.value)}
           required
         />
@@ -99,8 +172,10 @@ export default function SignUpForm() {
           id="email"
           className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
           placeholder="email@mail.nl"
+          onChange={(e) => validateEmail(e.target.value)}
           required
         />
+        {emailError && <p className="mt-1 text-sm text-red-500">{emailError}</p>}
       </div>
       <div>
         <label
@@ -115,6 +190,7 @@ export default function SignUpForm() {
             name="password"
             placeholder="••••••••"
             className="bg-neutral-800 border rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 pr-10 border-neutral-700 placeholder-gray-400 text-white focus:border-blue-500"
+            onChange={(e) => validatePassword(e.target.value)}
             required
           />
           <button
@@ -125,8 +201,18 @@ export default function SignUpForm() {
             {showPassword ? <Eye /> : <EyeOff />}
           </button>
         </div>
+        {passwordError && (
+          <p className="mt-1 text-sm text-red-500">{passwordError}</p>
+        )}
       </div>
-      <Button1 text="Maak 'm aan!" className="w-full" type="submit" />
+      <div id="turnstile-signup" className="flex justify-center"></div>
+      <Button1
+        text={captchaReady ? "Maak 'm aan!" : "CAPTCHA laden..."}
+        className="w-full"
+        type="submit"
+        disabled={!captchaReady}
+      />
+      <Honeypot />
     </form>
   )
 }
