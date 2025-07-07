@@ -5,6 +5,8 @@ import * as crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { transporter } from "../mail";
 import { Prisma } from "@prisma/client";
+import { Embed, Webhook } from '@vermaysha/discord-webhook'
+const hook = new Webhook(process.env.DISCORD_WEBHOOK || '')
 
 interface PasswordActionResult {
   success: boolean;
@@ -340,13 +342,27 @@ export async function deleteUser(userId: string) {
     await prisma.session.deleteMany({
       where: { userId }
     });
-
+    const naam = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true }
+    });
     // Delete the user
     await prisma.user.delete({
       where: { id: userId }
     });
 
     revalidatePath('/admin');
+    hook.addEmbed(
+      new Embed()
+        .setTitle('Gebruiker Verwijderd')
+        .setDescription(`Gebruiker met de naam ${naam} is verwijderd`)
+        .setColor('#ff0000')
+        .setTimestamp()
+        .setFooter({
+          text: 'Van ' + process.env.NEXT_PUBLIC_URL,
+        })
+    )
+    await hook.send();
     return { success: true };
   } catch (error) {
     console.error("Error deleting user:", error);
