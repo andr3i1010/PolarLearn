@@ -295,7 +295,8 @@ export async function getUserPreferences() {
             email: user.email,
             scheduledDeletion: user.scheduledDeletion,
             preferences,
-            profilePicture: user.image || null
+            profilePicture: user.image || null,
+            
         }
     } catch (error) {
         console.error("Error getting user preferences:", error)
