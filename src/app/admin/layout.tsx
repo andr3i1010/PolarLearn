@@ -1,4 +1,3 @@
-// filepath: /workspaces/polarlearn/src/app/admin/layout.tsx
 import AdminNavWrapper from "./AdminNavWrapper";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";

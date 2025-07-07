@@ -103,7 +103,7 @@ const LearnToolHeader = ({
             <div key="gedachten" className="flex items-center">
                 <Image
                     src={mind}
-                    alt="mind plaatje"
+                    alt="gedachten plaatje"
                     width={20}
                     height={20}
                     className="mr-2"

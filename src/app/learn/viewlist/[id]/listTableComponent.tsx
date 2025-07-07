@@ -1,7 +1,7 @@
 "use client"
 import Button1 from "@/components/button/Button1";
 import Dropdown from "@/components/button/DropdownBtn";
-import { BookOpen, MousePointerClick } from "lucide-react";
+import { BookOpen, List, MousePointerClick } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -72,7 +72,7 @@ export default function ListTableComponent({
                     <div className="flex flex-wrap gap-2">
                         <Button1
                             text="Leren"
-                            icon={<Image src={learn} alt="gemengd leren" width={16} height={16} />}
+                            icon={<Image src={learn} alt="leren" width={16} height={16} />}
                             disabled={!select || selectedPairs.length === 0}
                             onClick={() => handleLearn('leren')}
                             wrapText={false}
@@ -93,14 +93,14 @@ export default function ListTableComponent({
                         />
                         <Button1
                             text="Gedachten"
-                            icon={<Image src={mind} alt="mind" width={16} height={16} />}
+                            icon={<Image src={mind} alt="gedachten" width={16} height={16} />}
                             disabled={!select || selectedPairs.length === 0}
                             onClick={() => handleLearn('mind')}
                             wrapText={false}
                         />
                         <Button1
-                            text="Multikeuze"
-                            icon={<Image src={livequiz} alt="multikeuze" width={16} height={16} />}
+                            text="Meerkeuze"
+                            icon={<List width={16} height={16}/>}
                             disabled={!select || selectedPairs.length === 0}
                             onClick={() => handleLearn('multichoice')}
                             wrapText={false}

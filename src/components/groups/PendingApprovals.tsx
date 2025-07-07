@@ -105,7 +105,7 @@ export default function PendingApprovals({ groupId }: PendingApprovalsProps) {
                         <div className="flex items-center">
                             <div className="mr-3">
                                 {member.image ? (
-                                    <Image
+                                    <img
                                         src={member.image}
                                         alt={`Avatar van ${member.name || 'gebruiker'}`}
                                         width={40}

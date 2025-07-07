@@ -255,7 +255,7 @@ export default async function Page({
         <div className="flex items-start sm:items-center mb-3">
           <div className="mr-4">
             {postcreator?.image ? (
-              <Image
+              <img
                 src={postcreator.image}
                 alt={`de profielfoto van ${postcreator.name || "iemand"}`}
                 width={48}

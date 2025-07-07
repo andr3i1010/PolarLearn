@@ -46,9 +46,9 @@ export default function ViewUserTabsWrapper({
         <>
             <div className="space-x-5 flex flex-row items-center pl-2">
                 {user?.image ? (
-                    <Image
+                    <img
                         src={user.image}
-                        alt={`${user.name}'s Avatar`}
+                        alt={`${user.name}'s profielfoto`}
                         width={100}
                         height={100}
                         className="rounded-full"

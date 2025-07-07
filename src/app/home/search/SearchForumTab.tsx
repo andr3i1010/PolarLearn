@@ -127,7 +127,7 @@ export default function SearchForumTab({
                                     >
                                         <div className="mr-4 flex-shrink-0">
                                             {user?.image ? (
-                                                <Image
+                                                <img
                                                     src={user.image}
                                                     alt={`de profielfoto van ${user.name || "iemand"}`}
                                                     width={40}

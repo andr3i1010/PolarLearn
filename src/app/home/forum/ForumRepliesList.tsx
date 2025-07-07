@@ -143,7 +143,7 @@ export default function ForumRepliesList({
                                 <div className="flex items-center mb-4">
                                     <div className="mr-4">
                                         {replyCreator?.image ? (
-                                            <Image
+                                            <img
                                                 src={replyCreator.image}
                                                 alt={`de profielfoto van ${replyCreator.name || "iemand"
                                                     }`}

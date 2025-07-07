@@ -249,8 +249,8 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
         ],
         [
             <div key="multichoice" className="flex items-center">
-                <Image src={livequiz} alt="Multikeuze plaatje" width={20} height={20} className="mr-2" />
-                <span className="font-medium">Multikeuze</span>
+                <Image src={livequiz} alt="Meerkeuze plaatje" width={20} height={20} className="mr-2" />
+                <span className="font-medium">Meerkeuze</span>
             </div>,
             `/learn/multichoice/${id}`
         ],
@@ -285,7 +285,7 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                         </div>
                     ) : (
                         <p className="text-gray-500 text-center">
-                            Geen woorden gevonden in deze lijst.
+                            Geen woorden gevonden in deze lijst :(
                         </p>
                     )}
                 </div>

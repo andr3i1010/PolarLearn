@@ -87,7 +87,7 @@ export default function UsersTabContent({
                                     <div className="flex items-center cursor-pointer">
                                         <div className="mr-4 flex-shrink-0">
                                             {user?.image ? (
-                                                <Image
+                                                <img
                                                     src={user.image}
                                                     alt={`de profielfoto van ${user.name}`}
                                                     width={40}
