@@ -1,4 +1,4 @@
-import { getUserPreferences } from '@/serverActions/accountSettings'
+import { getUserPreferences, getUserBotAccount } from '@/serverActions/accountSettings'
 import ClientAccountSettings from './ClientAccountSettings'
 import { redirect } from 'next/navigation'
 
@@ -9,11 +9,16 @@ export default async function SettingsPage() {
     if (!initialData) {
         redirect('/auth/sign-in')
     }
+
+    // Also fetch bot account data server-side
+    const botAccountData = await getUserBotAccount()
+
     const parsedData = {
         ...initialData,
         scheduledDeletion: initialData.scheduledDeletion
             ? initialData.scheduledDeletion.toISOString()
-            : null
+            : null,
+        botAccount: botAccountData
     }
 
     return <ClientAccountSettings initialData={parsedData} />
