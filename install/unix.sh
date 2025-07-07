@@ -213,6 +213,7 @@ AUTH_GITHUB_SECRET=\"Stop hier de GitHub OAuth2 Client Secret die je hebt gekreg
 AUTH_SECRET=\"$random_string\"
 AUTH_URL=\"http://localhost:3000\"
 SECRET=\"$random_string\"
+DISCORD_WEBHOOK=\"\"
 " >> .env
     chmod 644 .env
     echo "✅ .env bestand aangemaakt!"

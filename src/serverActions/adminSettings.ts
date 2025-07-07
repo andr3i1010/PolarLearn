@@ -2,6 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/utils/prisma'
+import { Embed, Webhook } from '@vermaysha/discord-webhook'
+
+const hook = new Webhook(process.env.DISCORD_WEBHOOK || '')
 
 export async function getAdminSettings() {
     try {
@@ -32,6 +35,7 @@ export async function updateAdminSettings(formData: FormData) {
     try {
         const forumEnabled = formData.get('forumEnabled') === 'on'
         const registrationEnabled = formData.get('registrationEnabled') === 'on'
+        const oldSettings = await getAdminSettings()
 
         // Update or create forum_enabled setting
         await prisma.config.upsert({
@@ -52,6 +56,17 @@ export async function updateAdminSettings(formData: FormData) {
                 value: registrationEnabled.toString()
             }
         })
+        const embed = new Embed()
+            .setTitle('Polarlearn Instellingen Bijgewerkt')
+            .setDescription(`Forum: ${forumEnabled ? 'aan' : 'uit'}\nRegistraties: ${registrationEnabled ? 'aan' : 'uit'}`)
+            .setColor('#0099ff')
+            .setTimestamp()
+            .setFooter({
+            text: 'Van ' + process.env.NEXT_PUBLIC_URL,
+            })
+        
+        hook.addEmbed(embed)
+        await hook.send()
 
         revalidatePath('/admin')
 
