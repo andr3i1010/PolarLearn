@@ -1,6 +1,7 @@
 "use server"
 import Jdenticon from "@/components/Jdenticon";
 import { prisma } from "@/utils/prisma";
+import { randomInt } from "crypto";
 import Tabs, { TabItem } from "@/components/Tabs";
 import Image from "next/image";
 import Link from "next/link";
@@ -95,7 +96,7 @@ export default async function Page({
     // Fetch existing member details
     const aliveMembers = await getGroupMembersDetails(groupData.members as string[]);
     if (aliveMembers.length > 0) {
-      const newOwnerId = aliveMembers[Math.floor(Math.random() * aliveMembers.length)].id;
+      const newOwnerId = aliveMembers[crypto.randomInt(0, aliveMembers.length)].id;
       // Update group creator
       await prisma.group.update({ where: { groupId: id }, data: { creator: newOwnerId } });
       groupData.creator = newOwnerId;
