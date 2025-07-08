@@ -32,6 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 
@@ -47,6 +48,7 @@ interface InitialData {
   scheduledDeletion?: string | null;
   preferences?: Preferences;
   profilePicture?: string | null;
+  botAccount?: { name: string | null; key: string | null } | null;
 }
 
 interface Props {
@@ -69,6 +71,16 @@ export default function ClientAccountSettings({ initialData }: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Bot API settings state
+  const [botAccount, setBotAccount] = useState<{
+    name: string | null;
+    key: string | null;
+  }>(initialData.botAccount || { name: null, key: null });
+  const [deleteApiAgentOpen, setDeleteApiAgentOpen] = useState(false);
+  const [createBotDialogOpen, setCreateBotDialogOpen] = useState(false);
+  const [createBotLoading, setCreateBotLoading] = useState(false);
+  const [botName, setBotName] = useState("");
 
   const handleSaveChanges = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -145,15 +157,15 @@ export default function ClientAccountSettings({ initialData }: Props) {
     const file = event.target.files?.[0];
     if (file) {
       // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
-        toast.error('Alleen JPEG, PNG en WebP bestanden zijn toegestaan.');
+        toast.error("Alleen JPEG, PNG en WebP bestanden zijn toegestaan.");
         return;
       }
 
       // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Bestand is te groot. Maximum 5MB toegestaan.');
+        toast.error("Bestand is te groot. Maximum 5MB toegestaan.");
         return;
       }
 
@@ -166,16 +178,17 @@ export default function ClientAccountSettings({ initialData }: Props) {
       };
       reader.readAsDataURL(file);
     }
-  }; const handleProfilePictureUpload = async () => {
+  };
+  const handleProfilePictureUpload = async () => {
     if (!selectedFile) return;
 
     setProfilePictureLoading(true);
     try {
       const formData = new FormData();
-      formData.append('profilePicture', selectedFile);
+      formData.append("profilePicture", selectedFile);
 
-      const result = await fetch('/api/v1/settings/profile-picture', {
-        method: 'POST',
+      const result = await fetch("/api/v1/settings/profile-picture", {
+        method: "POST",
         body: formData,
       }).then((res) => res.json());
 
@@ -185,9 +198,9 @@ export default function ClientAccountSettings({ initialData }: Props) {
         const newCacheBuster = Date.now();
 
         // Use the URL returned from the server (which already includes cache busting)
-        setUserData(prev => ({
+        setUserData((prev) => ({
           ...prev,
-          profilePicture: result.imageUrl
+          profilePicture: result.imageUrl,
         }));
         setSelectedFile(null);
         setPreviewUrl(null);
@@ -195,40 +208,45 @@ export default function ClientAccountSettings({ initialData }: Props) {
         toast.error(result.message);
       }
     } catch (error) {
-      console.error('Error uploading profile picture:', error);
-      toast.error('Er is een fout opgetreden bij het uploaden van je profielfoto.');
+      console.error("Error uploading profile picture:", error);
+      toast.error(
+        "Er is een fout opgetreden bij het uploaden van je profielfoto."
+      );
     } finally {
       setProfilePictureLoading(false);
     }
-  }; const handleProfilePictureDelete = async () => {
+  };
+  const handleProfilePictureDelete = async () => {
     setProfilePictureLoading(true);
     try {
-      const result = await fetch('/api/v1/settings/profile-picture', {
-        method: 'DELETE',
+      const result = await fetch("/api/v1/settings/profile-picture", {
+        method: "DELETE",
       }).then((res) => res.json());
 
       if (result.success) {
         toast.success(result.message);
 
-        setUserData(prev => ({
+        setUserData((prev) => ({
           ...prev,
-          profilePicture: null
+          profilePicture: null,
         }));
       } else {
         toast.error(result.message);
 
         // If deletion failed, let's verify if the image still exists
-        if (result.message.includes('geen profielfoto')) {
+        if (result.message.includes("geen profielfoto")) {
           // Server says no profile picture exists, update UI accordingly
-          setUserData(prev => ({
+          setUserData((prev) => ({
             ...prev,
-            profilePicture: null
+            profilePicture: null,
           }));
         }
       }
     } catch (error) {
-      console.error('Error deleting profile picture:', error);
-      toast.error('Er is een fout opgetreden bij het verwijderen van je profielfoto.');
+      console.error("Error deleting profile picture:", error);
+      toast.error(
+        "Er is een fout opgetreden bij het verwijderen van je profielfoto."
+      );
     } finally {
       setProfilePictureLoading(false);
     }
@@ -340,8 +358,7 @@ export default function ClientAccountSettings({ initialData }: Props) {
             color: "#fff",
           },
         },
-      },
-      )
+      })
       .finally(() => {
         setExportLoading(false);
       });
@@ -427,7 +444,9 @@ export default function ClientAccountSettings({ initialData }: Props) {
             {/* Upload/Delete Buttons */}
             <div className="flex-1">
               <p className="text-sm font-medium">
-                {userData.profilePicture ? 'Huidige profielfoto' : 'Geen profielfoto'}
+                {userData.profilePicture
+                  ? "Huidige profielfoto"
+                  : "Geen profielfoto"}
               </p>
               <p className="text-xs text-neutral-400">
                 JPEG, PNG of WebP. Max 5MB.
@@ -468,7 +487,13 @@ export default function ClientAccountSettings({ initialData }: Props) {
                   text={profilePictureLoading ? "Uploaden..." : "Uploaden"}
                   onClick={handleProfilePictureUpload}
                   disabled={profilePictureLoading}
-                  icon={profilePictureLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  icon={
+                    profilePictureLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )
+                  }
                 />
                 <Button1
                   text="Annuleren"
@@ -605,20 +630,193 @@ export default function ClientAccountSettings({ initialData }: Props) {
 
       <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
         <CardHeader>
-          <CardTitle>Data-export</CardTitle>
+          <CardTitle>API instellingen</CardTitle>
           <CardDescription className="text-neutral-400">
-            Exporteer je gegevens in JSON-formaat. Deze actie kan slechts elke
-            30 dagen worden uitgevoerd.
+            Beheer je API instellingen. Je kunt hier een bot voor de API account
+            aanmaken of verwijderen.
           </CardDescription>
         </CardHeader>
-        <CardFooter>
-          <Button1
-            text={exportLoading ? "Bezig exporteren..." : "Exporteer data"}
-            onClick={handleExportData}
-            disabled={exportLoading}
-          />
-        </CardFooter>
+        <CardContent className="space-y-4">
+          {botAccount.name ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="botAccount">Bot naam</Label>
+                <Input
+                  id="botAccount"
+                  name="botAccount"
+                  placeholder="Je bot account naam"
+                  defaultValue={botAccount.name || ""}
+                  className="bg-neutral-700 border-neutral-600 text-white"
+                  readOnly
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="apiKey">API key</Label>
+                <Input
+                  id="apiKey"
+                  name="apiKey"
+                  placeholder="Je API key"
+                  defaultValue={botAccount.key || ""}
+                  className="bg-neutral-700 border-neutral-600 text-white"
+                  readOnly
+                />
+              </div>
+              <Button1
+                text="Bot verwijderen"
+                onClick={() => setDeleteApiAgentOpen(true)}
+                icon={<Trash className="h-4 w-4" />}
+              />
+            </>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-neutral-400">
+                Je hebt nog geen bot account. Maak een bot account aan om de API
+                te kunnen gebruiken.
+              </p>
+              <Button1
+                text="Bot account aanmaken"
+                onClick={() => setCreateBotDialogOpen(true)}
+              />
+            </div>
+          )}
+        </CardContent>
       </Card>
+
+      {/* Create Bot Dialog */}
+      <Dialog open={createBotDialogOpen} onOpenChange={setCreateBotDialogOpen}>
+        <DialogContent className="bg-neutral-800 text-white border-neutral-700">
+          <DialogHeader>
+            <DialogTitle>Bot Account Aanmaken</DialogTitle>
+            <DialogDescription className="text-neutral-400">
+              Maak een bot account aan om de API te kunnen gebruiken.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="botName">Bot Naam</Label>
+              <Input
+                id="botName"
+                value={botName}
+                onChange={(e) => setBotName(e.target.value)}
+                placeholder="Geef je bot een naam"
+                className="bg-neutral-700 border-neutral-600 text-white"
+              />
+            </div>
+
+            <div className="bg-blue-900/30 border border-blue-700 rounded-md p-3">
+              <p className="text-sm text-blue-300">
+                Een bot account geeft je toegang tot onze publieke API. Je krijgt een
+                unieke API sleutel die je kunt gebruiken om programmatisch
+                toegang te krijgen tot onze diensten.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-row gap-2 justify-end">
+            <Button1
+              text="Annuleren"
+              onClick={() => {
+                setCreateBotDialogOpen(false);
+                setBotName("");
+              }}
+            />
+            <Button1
+              text={createBotLoading ? "Bezig..." : "Bot Aanmaken"}
+              disabled={!botName.trim() || createBotLoading}
+              icon={
+                createBotLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : undefined
+              }
+              onClick={async () => {
+                setCreateBotLoading(true);
+                try {
+                  const result = await fetch("/api/v1/settings/bot-account", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: botName.trim() }),
+                  }).then((res) => res.json());
+
+                  if (result.success && result.botAccount) {
+                    toast.success("Bot account succesvol aangemaakt!");
+                    setBotAccount({
+                      name: botName.trim(),
+                      key: result.botAccount.key,
+                    });
+                    setCreateBotDialogOpen(false);
+                    setBotName("");
+                  } else {
+                    toast.error(
+                      result.message || "Kon bot account niet aanmaken."
+                    );
+                  }
+                } catch (error) {
+                  console.error("Error creating bot account:", error);
+                  toast.error(
+                    "Er is een fout opgetreden bij het aanmaken van je bot account."
+                  );
+                } finally {
+                  setCreateBotLoading(false);
+                }
+              }}
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Bot Dialog */}
+      <Dialog open={deleteApiAgentOpen} onOpenChange={setDeleteApiAgentOpen}>
+        <DialogContent className="bg-neutral-800 text-white border-neutral-700">
+          <DialogHeader>
+            <DialogTitle className="text-red-400">
+              Bot account verwijderen
+            </DialogTitle>
+            <DialogDescription className="text-neutral-400">
+              Weet je zeker dat je je bot account wilt verwijderen?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <p className="text-white">
+              Als je deze actie uitvoert, wordt de API-sleutel permanent
+              verwijderd en kun je geen toegang meer krijgen tot de API met deze
+              sleutel.
+            </p>
+          </div>
+
+          <DialogFooter className="flex flex-row gap-2 justify-end">
+            <Button1
+              text="Annuleren"
+              onClick={() => setDeleteApiAgentOpen(false)}
+            />
+            <Button1
+              text="Bot verwijderen"
+              onClick={async () => {
+                try {
+                  const result = await fetch("/api/v1/settings/bot-account", {
+                    method: "DELETE",
+                  }).then((res) => res.json());
+
+                  if (result.success) {
+                    toast.success(result.message);
+                    setBotAccount({ name: null, key: null });
+                    setDeleteApiAgentOpen(false);
+                  } else {
+                    toast.error(result.message);
+                  }
+                } catch (error) {
+                  console.error("Error deleting bot account:", error);
+                  toast.error(
+                    "Er is een fout opgetreden bij het verwijderen van je bot account."
+                  );
+                }
+              }}
+              icon={<Trash className="h-4 w-4" />}
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
         <CardHeader>

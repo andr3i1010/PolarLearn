@@ -66,6 +66,19 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Bot {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  image      String?
+  name       String
+  creatorId  String   @unique @db.String
+  key        String   @unique @default(uuid())
+  token      String   @unique
+  limit      Int      @default(100) // Number of requests per day
+  createdAt  DateTime @default(now())
+  resetToken DateTime @default(now()) // Date when the limit resets
+  resetLimit DateTime @default(now()) // Date when the limit resets
+}
+
 model Session {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionID String   @unique
@@ -134,14 +147,6 @@ model group {
   listsAdded Json?
   scheduledDeletion DateTime? // schedule for TTL deletion or transfer
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model nonce {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.String
-  nonce     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

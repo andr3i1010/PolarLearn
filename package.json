@@ -41,6 +41,7 @@
     "@types/disposable-email": "^0.2.2",
     "@types/nodemailer": "^6.4.17",
     "@types/ws": "^8.18.1",
+    "@vermaysha/discord-webhook": "^1.4.0",
     "argon2": "^0.43.0",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
     "class-variance-authority": "^0.7.1",

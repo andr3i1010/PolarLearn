@@ -77,12 +77,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (disposable.validate(email)) {
-      return NextResponse.json(
-        { error: "Tijdelijke email adressen zijn niet toegestaan" },
-        { status: 400 }
-      );
-    }
+    // if (disposable.validate(email)) {
+    //   return NextResponse.json(
+    //     { error: "Tijdelijke email adressen zijn niet toegestaan" },
+    //     { status: 400 }
+    //   );
+    // }
 
     try {
       const result = (await createUserCredentials(

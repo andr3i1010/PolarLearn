@@ -295,10 +295,89 @@ export async function getUserPreferences() {
             email: user.email,
             scheduledDeletion: user.scheduledDeletion,
             preferences,
-            profilePicture: user.image || null
+            profilePicture: user.image || null,
+            
         }
     } catch (error) {
         console.error("Error getting user preferences:", error)
         return null
+    }
+}
+
+/**
+ * Gets the current user's bot account
+ */
+export async function getUserBotAccount() {
+    try {
+        const user = await getUserFromSession()
+        if (!user) {
+            return null
+        }
+
+        // Fetch the user's bot account from the database
+        const botAccount = await prisma.bot.findFirst({
+            where: { creatorId: user.id }
+        })
+
+        return botAccount
+    } catch (error) {
+        console.error("Error getting user bot account:", error)
+        return null
+    }
+}
+
+/**
+ * Deletes the user's bot account
+ */
+export async function deleteUserBotAccount() {
+    try {
+        const user = await getUserFromSession()
+        if (!user) {
+            return { success: false, message: "Je moet ingelogd zijn om je botaccount te verwijderen." }
+        }
+
+        const botAccount = await prisma.bot.findFirst({
+            where: { creatorId: user.id }
+        })
+
+        if (!botAccount) {
+            return { success: false, message: "Botaccount niet gevonden." }
+        }
+
+        await prisma.bot.delete({
+            where: { id: botAccount.id }
+        })
+
+        return { success: true, message: "Botaccount verwijderd." }
+    } catch (error) {
+        console.error("Error deleting user bot account:", error)
+        return { success: false, message: "Er is een fout opgetreden bij het verwijderen van je botaccount." }
+    }
+}
+
+/**
+ * make the user's bot account
+ */
+export async function createUserBotAccount(name: string,) {
+    try {
+        const user = await getUserFromSession()
+        if (!user) {
+            return { success: false, message: "Je moet ingelogd zijn om een botaccount aan te maken." }
+        }
+
+        // Create a new bot account
+        const botAccount = await prisma.bot.create({
+            data: {
+                creatorId: user.id,
+                name: name,
+                key: crypto.randomUUID(),
+                token: crypto.randomUUID(),
+            }
+        })
+
+        return { success: true, botAccount }
+    } catch (error) {
+        console.error("Error creating user bot account:", error)
+        return { success: false, message: "Er is een fout opgetreden bij het aanmaken van je botaccount." }
     }
 }
