@@ -5,7 +5,7 @@ export default function Honeypot() {
   const [botDetected, setBotDetected] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowInput(true), 2000);
+    const timer = setTimeout(() => setShowInput(true), crypto.getRandomValues(new Uint32Array(1))[0] % 5000 + 1000);
     return () => clearTimeout(timer);
   }, []);
 

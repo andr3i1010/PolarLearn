@@ -55,6 +55,5 @@ export async function GET(request: Request) {
         skip,
         take: 10,
     })
-    console.log(forum)
     return NextResponse.json({ staat: 'OK', forum }, { status: 200 });
 }

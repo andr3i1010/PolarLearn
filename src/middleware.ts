@@ -15,6 +15,7 @@ export async function middleware(request: NextRequest, response: NextResponse) {
         default-src 'self';
         script-src 'self' 'unsafe-inline' 'unsafe-eval' ${process.env.NEXT_PUBLIC_URL} https://*.cloudflare.com https://*.sentry.io https://*.google.com;
         worker-src 'self' blob:;
+        ${process.env.TURNSTILE_SECRET_KEY && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? "frame-src 'self' https://challenges.cloudflare.com;" : ""}
         style-src 'self' 'unsafe-inline';
         img-src 'self' blob: data: *;
         font-src 'self';
@@ -77,6 +78,17 @@ export async function middleware(request: NextRequest, response: NextResponse) {
 }
 
 async function middlewareAuth(request: NextRequest, response: NextResponse) {
+  // Skip authentication entirely for prefetch, RSC or Next-Url requests
+  const isPrefetch =
+    request.headers.get("purpose") === "prefetch" ||
+    request.headers.get("Next-Router-Prefetch") === "1";
+  const isRSC =
+    request.headers.get("RSC") === "1" ||
+    request.nextUrl.searchParams.has("_rsc");
+  if (isPrefetch || isRSC || request.headers.has("Next-Url")) {
+    return NextResponse.next();
+  }
+
   if (
     request.nextUrl.pathname.startsWith("/home") ||
     request.nextUrl.pathname.startsWith("/learn")
@@ -88,7 +100,7 @@ async function middlewareAuth(request: NextRequest, response: NextResponse) {
       const response = NextResponse.redirect(
         new URL("/auth/sign-in", request.url)
       );
-      
+
       // Don't set goto cookie for prefetch requests
       if (!request.headers.get("Next-Router-Prefetch")) {
         response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
@@ -98,8 +110,8 @@ async function middlewareAuth(request: NextRequest, response: NextResponse) {
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
         });
-      }
-      
+      } else return;
+
       return response;
     }
 
@@ -110,7 +122,7 @@ async function middlewareAuth(request: NextRequest, response: NextResponse) {
         const response = NextResponse.redirect(
           new URL("/auth/sign-in", request.url)
         );
-        
+
         // Don't set goto cookie for prefetch requests
         if (!request.headers.get("Next-Router-Prefetch")) {
           response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
@@ -121,7 +133,7 @@ async function middlewareAuth(request: NextRequest, response: NextResponse) {
             sameSite: "strict",
           });
         }
-        
+
         return response;
       }
 
@@ -133,7 +145,7 @@ async function middlewareAuth(request: NextRequest, response: NextResponse) {
         const response = NextResponse.redirect(
           new URL("/auth/sign-in", request.url)
         );
-        
+
         // Don't set goto cookie for prefetch requests
         if (!request.headers.get("Next-Router-Prefetch")) {
           response.cookies.set("polarlearn.goto", request.nextUrl.pathname, {
@@ -144,7 +156,7 @@ async function middlewareAuth(request: NextRequest, response: NextResponse) {
             sameSite: "strict",
           });
         }
-        
+
         return response;
       }
 

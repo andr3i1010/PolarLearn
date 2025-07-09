@@ -17,13 +17,8 @@ interface PasswordActionResult {
 export async function sendSignUpEmail(email: string, username: string, token: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log("Attempting to verify transporter...");
       await transporter.verify();
-      console.log("Transporter verified successfully");
-
       const activationUrl = `${process.env.NEXT_PUBLIC_URL || 'https://polarlearn.tech'}/auth/activate?token=${token}`;
-      console.log("Activation URL:", activationUrl);
-
       const htmlTemplate = `<!DOCTYPE html>
 <html lang="en">
   <head>
