@@ -1,7 +1,7 @@
 "use server"
 import Jdenticon from "@/components/Jdenticon";
 import { prisma } from "@/utils/prisma";
-import Tabs, { TabItem } from "@/components/Tabs";
+import { TabItem } from "@/components/Tabs";
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
@@ -23,6 +23,10 @@ import PendingApprovals from "@/components/groups/PendingApprovals";
 import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
 import { Metadata } from "next";
 import { sendNotificationToUser } from '@/utils/notifications/sendNotification';
+import { getUserNameById } from '@/serverActions/getUserName';
+
+// UUID validation regex pattern
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Add this new function to fetch user details for members
 async function getGroupMembersDetails(memberIds: string[]) {
@@ -128,6 +132,24 @@ export default async function Page({
 
   // Get lists that are in the group
   const groupLists = await getGroupLists(id);
+  // Prefetch creators for group lists
+  const listCreators = Array.from(new Set(groupLists.map(l => l.creator)));
+  const creatorMap: Record<string, { name: string; jdenticonValue: string }> = {};
+  await Promise.all(listCreators.map(async creator => {
+    if (UUID_REGEX.test(creator)) {
+      const info = await getUserNameById(creator);
+      creatorMap[creator] = { name: info.name || creator, jdenticonValue: info.jdenticonValue || creator };
+    } else {
+      creatorMap[creator] = { name: creator, jdenticonValue: creator };
+    }
+  }));
+  // Enrich groupLists with prefetched data
+  const enrichedGroupLists = groupLists.map(item => ({
+    ...item,
+    prefetchedName: creatorMap[item.creator]?.name,
+    prefetchedJdenticonValue: creatorMap[item.creator]?.jdenticonValue,
+  }));
+
   // Get available lists for AddListDialog
   const availableListsResult = await getAvailableLists(id);
   const availableLists = availableListsResult.success ? availableListsResult.lists : [];
@@ -165,7 +187,7 @@ export default async function Page({
             )}
           </div>
 
-          {groupLists.length === 0 ? (
+          {enrichedGroupLists.length === 0 ? (
             <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
               {isMember
                 ? canAddLists
@@ -175,7 +197,7 @@ export default async function Page({
             </div>
           ) : (
             <div className="space-y-4">
-              {groupLists.map((list) => (
+              {enrichedGroupLists.map((list) => (
                 <div key={list.list_id}>
                   <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
                     <Link href={`${list.mode === "list" ? `/learn/viewlist/${list.list_id}` : `/learn/summary/${list.list_id}`}`} className="flex-1 flex items-center">
@@ -203,8 +225,12 @@ export default async function Page({
                       </div>
                     </Link>
 
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                      <CreatorLink creator={list.creator} />
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center pointer-events-auto">
+                      <CreatorLink
+                        creator={list.creator}
+                        prefetchedName={list.prefetchedName}
+                        prefetchedJdenticonValue={list.prefetchedJdenticonValue}
+                      />
                     </div>
 
                     {/* Action buttons */}
@@ -288,7 +314,7 @@ export default async function Page({
                   >
                     <div className="flex items-center">
                       {member.image ? (
-                        <Image
+                        <img
                           src={member.image}
                           alt={`Profielfoto van ${displayName}`}
                           width={40}

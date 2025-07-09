@@ -298,22 +298,10 @@ export default async function RootLayout({
                   <TourNavigator />
                   <ToastProvider>
                     <WSProvider>
-                      {/* <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
-                <div className="flex flex-col items-center">
-                  <p className="text-6xl">⚠️</p>
-                  <br />
-                  <p className="text-xl">
-                    PolarLearn werkt slecht op kleine schermen. Als je geen groter scherm hebt, probeer de tekstgroote te verminderen en je telefoon in liggende modus te zetten.
-                  </p>
-                </div>
-              </div> */}
                       <>
                         <ImpersonationCheck />
                         <ImpersonationStyles />
-                        {/* Anchor first step to the navbar */}
-                        <div id="navbar">
-                          <TopNavBar />
-                        </div>
+                        <TopNavBar />
                         <div>{children}</div>
                       </>
                       {footerContent}

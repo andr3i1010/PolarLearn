@@ -8,9 +8,10 @@ import { ChevronRight, PencilIcon, Trash2 } from "lucide-react"; // Added Trash2
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import DeleteListButton from "@/components/learning/DeleteListButton";
-import DeleteSummaryButton from "@/components/learning/DeleteSummaryButton"; // Added DeleteSummaryButton
+import RecentGeoefend from './RecentGeoefend';
 import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
 import { getAllSummaries } from "@/serverActions/summaryActions"; // Added import
+import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
 
 // TODO: gebruik getUserGroups om de startpagina te vullen met groepen
 // Copilot, hou je bek!
@@ -182,6 +183,37 @@ export default async function Start() {
     return dateB - dateA;
   });
 
+  // Prefetch creator displayName and jdenticonValue to avoid client waterfalls
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const creators = Array.from(new Set(combinedItems.map(item => item.creator)));
+  const creatorMap: Record<string, { name: string; jdenticonValue: string; userId?: string }> = {};
+  await Promise.all(
+    creators.map(async creator => {
+      if (UUID_REGEX.test(creator)) {
+        const info = await getUserNameById(creator);
+        creatorMap[creator] = {
+          name: info.name || creator,
+          jdenticonValue: info.jdenticonValue || creator,
+          userId: creator,
+        };
+      } else {
+        const info = await getUserIdByName(creator);
+        creatorMap[creator] = {
+          name: creator,
+          jdenticonValue: creator,
+          userId: info.id ?? undefined,
+        };
+      }
+    })
+  );
+  // Enrich items with prefetched creator info
+  const enrichedItems = combinedItems.map(item => ({
+    ...item,
+    prefetchedName: creatorMap[item.creator].name,
+    prefetchedJdenticonValue: creatorMap[item.creator].jdenticonValue,
+    prefetchedUserId: creatorMap[item.creator].userId,
+  }));
+
   return (
     <>
       <div className="flex flex-col">
@@ -265,15 +297,12 @@ export default async function Start() {
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </div>
-        {/* Combined "Recent Geoefend" section */}
-        <div className="recent-practiced mt-8"> {/* Changed class name */}
+        {/* Recent geoefend */}
+        <div className="recent-practiced mt-8">
           <div className="flex items-center text-center">
-            <h1 className="text-4xl pl-5 pt-4 mb-2 font-extrabold">
-              Recent Geoefend: {/* Changed heading */}
+            <h1 className="text-4xl pl-5 mb-2 font-extrabold">
+              Recent Geoefend:
             </h1>
-            <div className="ml-auto mr-5">
-              {/* <PlusBtn /> */}
-            </div>
           </div>
           <div className="h-4" />
           <div className="space-y-4 relative">
@@ -297,128 +326,11 @@ export default async function Start() {
             )}
             {combinedItems.length > 0 && (
               <>
-                {combinedItems.map((item: any, index: number) => {
-                  if (item.type === 'list') {
-                    return (
-                      <div key={item.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between">
-                        <Link
-                          href={`/learn/viewlist/${item.list_id}`}
-                          className="absolute inset-0 z-0"
-                        />
-                        <div className="flex-1 flex items-center relative z-10 pointer-events-none">
-                          <div className="flex items-center">
-                            {item.subject && (
-                              <Image
-                                src={getSubjectIcon(item.subject)}
-                                alt={`${item.subject} icon`}
-                                width={24}
-                                height={24}
-                                className="mr-2"
-                              />
-                            )}
-                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                              {item.name}
-                              {item.published === false && (
-                                <Badge
-                                  variant="secondary"
-                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
-                                >
-                                  Concept
-                                </Badge>
-                              )}
-                            </span>
-                          </div>
-                          <div className="flex-grow"></div>
-                          <div className="flex items-center pr-2">
-                            {Array.isArray(item.data) && item.data.length === 1
-                              ? "1 woord"
-                              : `${Array.isArray(item.data) ? item.data.length : 0
-                              } woorden`}
-                          </div>
-                        </div>
-
-                        {item.creator && (
-                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center z-10 pointer-events-none">
-                            <CreatorLink creator={item.creator} />
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2 relative z-10">
-                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
-                            <Link
-                              href={`/learn/editlist/${item.list_id}`}
-                              className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                              title="Lijst bewerken"
-                            >
-                              <PencilIcon className="h-5 w-5 text-white" />
-                            </Link>
-                          )}
-                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors">
-                              <DeleteListButton
-                                listId={item.list_id}
-                                isCreator={true}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  } else if (item.type === 'summary') {
-                    return (
-                      <div key={item.list_id} className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between">
-                        <Link
-                          href={`/learn/summary/${item.list_id}`}
-                          className="absolute inset-0 z-0"
-                        />
-                        <div className="flex-1 flex items-center relative z-10 pointer-events-none">
-                          <div className="flex items-center">
-                            {item.subject && (
-                              <Image
-                                src={getSubjectIcon(item.subject)}
-                                alt={`${item.subject} icon`}
-                                width={24}
-                                height={24}
-                                className="mr-2"
-                              />
-                            )}
-                            <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                              {item.name}
-                              {item.published === false && (
-                                <Badge
-                                  variant="secondary"
-                                  className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
-                                >
-                                  Concept
-                                </Badge>
-                              )}
-                            </span>
-                          </div>
-                        </div>
-
-                        {item.creator && (
-                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center z-10 pointer-events-none">
-                            <CreatorLink creator={item.creator} />
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2 relative z-10">
-                          <Link
-                            href={`/learn/editsummary/${item.list_id}`}
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                            title="Samenvatting bewerken"
-                          >
-                            <PencilIcon className="h-5 w-5 text-white" />
-                          </Link>
-                          {(item.creator === currentUserName || item.creator === currentUser?.id || currentUserRole === "admin") && (
-                            <DeleteSummaryButton summaryId={item.list_id} />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
+                <RecentGeoefend
+                  items={enrichedItems}
+                  currentUserName={currentUserName as string}
+                  isAdmin={currentUserRole === 'admin'}
+                />
               </>
             )}
           </div>

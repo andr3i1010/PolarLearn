@@ -13,6 +13,9 @@ interface PracticeList {
     published: boolean;
     data: any[];
     creator: string;
+    // Prefetched server-side
+    prefetchedName?: string;
+    prefetchedJdenticonValue?: string;
 }
 
 interface ListsTabContentProps {
@@ -64,8 +67,12 @@ export default function ListsTabContent({
                                     </div>
                                 </Link>
 
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                                    <CreatorLink creator={list.creator} />
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center pointer-events-auto">
+                                    <CreatorLink
+                                        creator={list.creator}
+                                        prefetchedName={list.prefetchedName}
+                                        prefetchedJdenticonValue={list.prefetchedJdenticonValue}
+                                    />
                                 </div>
 
                                 {/* Action buttons for list owner */}

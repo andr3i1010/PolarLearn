@@ -6,6 +6,7 @@ import ListsTabContent from "./ListsTabContent";
 import SummariesTabContent from "./SummariesTabContent";
 import GroupsTabContent from "./GroupsTabContent";
 import AchievementsTabContent from "./AchievementsTabContent";
+import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
 
 // UUID validation regex pattern
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -97,9 +98,25 @@ export default async function Page({ params, searchParams }: PageProps) {
         data: Array.isArray(list.data) ? list.data : []
       }));
 
+      // Prefetch creators
+      const creators = Array.from(new Set(createdLists.map(l => l.creator)));
+      const creatorMap: Record<string, { name: string; jdenticonValue: string }> = {};
+      await Promise.all(creators.map(async creator => {
+        if (UUID_REGEX.test(creator)) {
+          const info = await getUserNameById(creator);
+          creatorMap[creator] = { name: info.name || creator, jdenticonValue: info.jdenticonValue || creator };
+        } else {
+          creatorMap[creator] = { name: creator, jdenticonValue: creator };
+        }
+      }));
+      const enrichedLists = createdLists.map(item => ({
+        ...item,
+        prefetchedName: creatorMap[item.creator].name,
+        prefetchedJdenticonValue: creatorMap[item.creator].jdenticonValue,
+      }));
       return (
         <ListsTabContent
-          lists={createdLists}
+          lists={enrichedLists}
           currentUserName={currentUser?.name || null}
           currentUserRole={currentUser?.role}
         />
@@ -129,9 +146,26 @@ export default async function Page({ params, searchParams }: PageProps) {
         data: Array.isArray(summary.data) ? summary.data : []
       }));
 
+      // Prefetch creators for summaries
+      const creatorsS = Array.from(new Set(summaryList.map(s => s.creator)));
+      const creatorMapS: Record<string, { name: string; jdenticonValue: string }> = {};
+      await Promise.all(creatorsS.map(async creator => {
+        if (UUID_REGEX.test(creator)) {
+          const info = await getUserNameById(creator);
+          creatorMapS[creator] = { name: info.name || creator, jdenticonValue: info.jdenticonValue || creator };
+        } else {
+          const info = await getUserIdByName(creator);
+          creatorMapS[creator] = { name: creator, jdenticonValue: creator };
+        }
+      }));
+      const enrichedSummaries = summaryList.map(item => ({
+        ...item,
+        prefetchedName: creatorMapS[item.creator].name,
+        prefetchedJdenticonValue: creatorMapS[item.creator].jdenticonValue,
+      }));
       return (
         <SummariesTabContent
-          summaries={summaryList}
+          summaries={enrichedSummaries}
           currentUserName={currentUser?.name || null}
           currentUserRole={currentUser?.role}
         />
@@ -209,9 +243,26 @@ export default async function Page({ params, searchParams }: PageProps) {
         data: Array.isArray(list.data) ? list.data : []
       }));
 
+      // Prefetch creators
+      const creators = Array.from(new Set(createdLists.map(l => l.creator)));
+      const creatorMap: Record<string, { name: string; jdenticonValue: string }> = {};
+      await Promise.all(creators.map(async creator => {
+        if (UUID_REGEX.test(creator)) {
+          const info = await getUserNameById(creator);
+          creatorMap[creator] = { name: info.name || creator, jdenticonValue: info.jdenticonValue || creator };
+        } else {
+          const info = await getUserIdByName(creator);
+          creatorMap[creator] = { name: creator, jdenticonValue: creator };
+        }
+      }));
+      const enrichedLists = createdLists.map(item => ({
+        ...item,
+        prefetchedName: creatorMap[item.creator].name,
+        prefetchedJdenticonValue: creatorMap[item.creator].jdenticonValue,
+      }));
       return (
         <ListsTabContent
-          lists={createdLists}
+          lists={enrichedLists}
           currentUserName={currentUser?.name || null}
           currentUserRole={currentUser?.role}
         />

@@ -12,6 +12,9 @@ interface Summary {
     createdAt: Date;
     published: boolean;
     creator: string;
+    // Prefetched server-side
+    prefetchedName?: string;
+    prefetchedJdenticonValue?: string;
 }
 
 interface SummariesTabContentProps {
@@ -57,8 +60,12 @@ export default function SummariesTabContent({
                                     </div>
                                 </Link>
 
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                                    <CreatorLink creator={summary.creator} />
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center pointer-events-auto">
+                                    <CreatorLink
+                                        creator={summary.creator}
+                                        prefetchedName={summary.prefetchedName}
+                                        prefetchedJdenticonValue={summary.prefetchedJdenticonValue}
+                                    />
                                 </div>
 
                                 {/* Action buttons for summary owner */}

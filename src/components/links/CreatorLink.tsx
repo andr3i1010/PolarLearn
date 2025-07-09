@@ -1,3 +1,5 @@
+"use client";
+import React, { useState, useEffect } from 'react';
 import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
 import CreatorLinkClient from './CreatorLinkClient';
 
@@ -9,45 +11,46 @@ interface CreatorLinkProps {
   prefetchedJdenticonValue?: string;
 }
 
-// UUID validation regex pattern
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export default async function CreatorLink({
+export default function CreatorLink({
   creator,
   color,
   setJdenticonValue,
   prefetchedName,
   prefetchedJdenticonValue
 }: CreatorLinkProps) {
-  let displayName = prefetchedName || creator;
-  let jdenticonValue = prefetchedJdenticonValue || creator;
-  let userId: string | null = null;
+  const [displayName, setDisplayName] = useState(prefetchedName || creator);
+  const [jdenticonValue, setJdenticon] = useState(prefetchedJdenticonValue || creator);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
 
-  // If creator is a UUID, fetch the name and use the UUID for navigation
-  if (UUID_REGEX.test(creator)) {
-    if (!prefetchedName) {
-      try {
-        const userInfo = await getUserNameById(creator);
-        if (userInfo.name) {
-          displayName = userInfo.name;
-          jdenticonValue = userInfo.jdenticonValue || creator;
+  // UUID validation regex pattern
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  useEffect(() => {
+    async function resolveCreator() {
+      if (UUID_REGEX.test(creator)) {
+        setUserId(creator);
+        if (!prefetchedName) {
+          try {
+            const info = await getUserNameById(creator);
+            if (info.name) {
+              setDisplayName(info.name);
+              setJdenticon(info.jdenticonValue || creator);
+            }
+          } catch (e) {
+            console.error("Error fetching user name on client:", e);
+          }
         }
-      } catch (err) {
-        console.error("Error fetching user name on server:", err);
+      } else {
+        try {
+          const info = await getUserIdByName(creator);
+          if (info.id) setUserId(info.id);
+        } catch (e) {
+          console.error("Error fetching user ID on client:", e);
+        }
       }
     }
-    userId = creator; // Use the UUID for navigation
-  } else {
-    // If creator is a name, get the UUID for navigation
-    try {
-      const userInfo = await getUserIdByName(creator);
-      if (userInfo.id) {
-        userId = userInfo.id;
-      }
-    } catch (err) {
-      console.error("Error fetching user ID on server:", err);
-    }
-  }
+    resolveCreator();
+  }, [creator, prefetchedName]);
 
   return (
     <CreatorLinkClient
@@ -55,7 +58,7 @@ export default async function CreatorLink({
       jdenticonValue={jdenticonValue}
       color={color}
       setJdenticonValue={setJdenticonValue}
-      userId={userId || undefined}
+      userId={userId}
     />
   );
 }
