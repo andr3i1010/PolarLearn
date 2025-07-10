@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import RecentGeoefend from './RecentGeoefend';
 import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
-import { getAllSummaries } from "@/serverActions/summaryActions"; // Added import
 import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
 
 // TODO: gebruik getUserGroups om de startpagina te vullen met groepen
