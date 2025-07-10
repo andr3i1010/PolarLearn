@@ -1,13 +1,11 @@
 import { prisma } from "@/utils/prisma";
-import Image from "next/image";
+
 import Link from "next/link";
-import CreatorLink from "@/components/links/CreatorLink";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
 import { ChevronRight, PencilIcon, Trash2 } from "lucide-react"; // Added Trash2
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import DeleteListButton from "@/components/learning/DeleteListButton";
 import RecentGeoefend from './RecentGeoefend';
 import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
 import { getAllSummaries } from "@/serverActions/summaryActions"; // Added import
@@ -213,13 +211,8 @@ export default async function Start() {
     prefetchedJdenticonValue: creatorMap[item.creator].jdenticonValue,
     prefetchedUserId: creatorMap[item.creator].userId,
   }));
-
-  return (
-    <>
-      <div className="flex flex-col">
-        <div className="subjects">
-          <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
-          <ScrollArea className="w-full">
+  // waarom kan dit
+  const slechtIdee = (                       
             <div className="flex pt-5 pl-5 space-x-4 relative min-w-max min-h-[80px] pr-5">
               {recentSubjects.length === 0 && (
                 <>
@@ -294,8 +287,21 @@ export default async function Start() {
                 </>
               )}
             </div>
-            <ScrollBar orientation="horizontal" />
+  );
+
+  return (
+    <>
+      <div className="flex flex-col">
+        <div className="subjects">
+          <h1 className="text-4xl pl-5 pt-4 font-extrabold">Recente Vakken:</h1>
+          <ScrollArea className="w-full md:hidden">
+            {slechtIdee}
+            <ScrollBar orientation="horizontal" className="md:hidden" />
           </ScrollArea>
+          <div className="w-full hidden md:block">
+
+            {slechtIdee}
+          </div>
         </div>
         {/* Recent geoefend */}
         <div className="recent-practiced mt-8">
