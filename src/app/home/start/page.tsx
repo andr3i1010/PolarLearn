@@ -3,7 +3,7 @@ import { prisma } from "@/utils/prisma";
 import Link from "next/link";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
-import { ChevronRight, PencilIcon, Trash2 } from "lucide-react"; // Added Trash2
+import { ChevronRight, PencilIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import RecentGeoefend from './RecentGeoefend';
