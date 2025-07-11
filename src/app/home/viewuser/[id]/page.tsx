@@ -7,9 +7,7 @@ import SummariesTabContent from "./SummariesTabContent";
 import GroupsTabContent from "./GroupsTabContent";
 import AchievementsTabContent from "./AchievementsTabContent";
 import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
-
-// UUID validation regex pattern
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { isUUID } from '@/utils/uuid';
 
 interface PracticeList {
   list_id: string;
@@ -41,7 +39,7 @@ export default async function Page({ params, searchParams }: PageProps) {
 
   // Check if the id parameter is a UUID or a username
   let user;
-  if (UUID_REGEX.test(id)) {
+  if (isUUID(id)) {
     // If it's a UUID, find user by ID
     user = await prisma.user.findUnique({
       where: {
@@ -102,7 +100,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       const creators = Array.from(new Set(createdLists.map(l => l.creator)));
       const creatorMap: Record<string, { name: string; jdenticonValue: string }> = {};
       await Promise.all(creators.map(async creator => {
-        if (UUID_REGEX.test(creator)) {
+        if (isUUID(creator)) {
           const info = await getUserNameById(creator);
           creatorMap[creator] = { name: info.name || creator, jdenticonValue: info.jdenticonValue || creator };
         } else {
@@ -150,7 +148,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       const creatorsS = Array.from(new Set(summaryList.map(s => s.creator)));
       const creatorMapS: Record<string, { name: string; jdenticonValue: string }> = {};
       await Promise.all(creatorsS.map(async creator => {
-        if (UUID_REGEX.test(creator)) {
+        if (isUUID(creator)) {
           const info = await getUserNameById(creator);
           creatorMapS[creator] = { name: info.name || creator, jdenticonValue: info.jdenticonValue || creator };
         } else {
@@ -247,7 +245,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       const creators = Array.from(new Set(createdLists.map(l => l.creator)));
       const creatorMap: Record<string, { name: string; jdenticonValue: string }> = {};
       await Promise.all(creators.map(async creator => {
-        if (UUID_REGEX.test(creator)) {
+        if (isUUID(creator)) {
           const info = await getUserNameById(creator);
           creatorMap[creator] = { name: info.name || creator, jdenticonValue: info.jdenticonValue || creator };
         } else {

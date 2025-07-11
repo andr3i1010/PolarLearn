@@ -1109,8 +1109,7 @@ const LearnTool = ({
       // Also trigger streak update here to ensure request is sent
       (async () => {
         try {
-          const res = await fetch('/api/v1/streak/update', { method: 'POST' });
-          console.log('Second effect response status:', res.status);
+          await fetch('/api/v1/streak/update', { method: 'POST' });
         } catch (e) {
           console.error('Error in second effect streak update:', e);
         }

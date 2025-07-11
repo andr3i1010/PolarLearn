@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
 import CreatorLinkClient from './CreatorLinkClient';
+import { isUUID } from '@/utils/uuid';
 
 interface CreatorLinkProps {
   creator: string;
@@ -22,12 +23,9 @@ export default function CreatorLink({
   const [jdenticonValue, setJdenticon] = useState(prefetchedJdenticonValue || creator);
   const [userId, setUserId] = useState<string | undefined>(undefined);
 
-  // UUID validation regex pattern
-  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
   useEffect(() => {
     async function resolveCreator() {
-      if (UUID_REGEX.test(creator)) {
+      if (isUUID(creator)) {
         setUserId(creator);
         if (!prefetchedName) {
           try {

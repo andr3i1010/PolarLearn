@@ -1,14 +1,13 @@
 import { prisma } from "@/utils/prisma";
-
 import Link from "next/link";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { cookies } from "next/headers";
-import { ChevronRight, PencilIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import RecentGeoefend from './RecentGeoefend';
-import { subjectEmojiMap, getSubjectIcon } from "@/components/icons";
-import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
+import { subjectEmojiMap } from "@/components/icons";
+import { getAllSummaries } from "@/serverActions/summaryActions";
+import { prefetchCreatorInfo } from '@/utils/creator';
 
 // TODO: gebruik getUserGroups om de startpagina te vullen met groepen
 // Copilot, hou je bek!
@@ -181,28 +180,9 @@ export default async function Start() {
   });
 
   // Prefetch creator displayName and jdenticonValue to avoid client waterfalls
-  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const creators = Array.from(new Set(combinedItems.map(item => item.creator)));
-  const creatorMap: Record<string, { name: string; jdenticonValue: string; userId?: string }> = {};
-  await Promise.all(
-    creators.map(async creator => {
-      if (UUID_REGEX.test(creator)) {
-        const info = await getUserNameById(creator);
-        creatorMap[creator] = {
-          name: info.name || creator,
-          jdenticonValue: info.jdenticonValue || creator,
-          userId: creator,
-        };
-      } else {
-        const info = await getUserIdByName(creator);
-        creatorMap[creator] = {
-          name: creator,
-          jdenticonValue: creator,
-          userId: info.id ?? undefined,
-        };
-      }
-    })
-  );
+  const creators = combinedItems.map(item => item.creator);
+  const creatorMap = await prefetchCreatorInfo(creators);
+
   // Enrich items with prefetched creator info
   const enrichedItems = combinedItems.map(item => ({
     ...item,
@@ -211,81 +191,81 @@ export default async function Start() {
     prefetchedUserId: creatorMap[item.creator].userId,
   }));
   // waarom kan dit
-  const slechtIdee = (                       
-            <div className="flex pt-5 pl-5 space-x-4 relative min-w-max min-h-[80px] pr-5">
-              {recentSubjects.length === 0 && (
-                <>
-                  <p className="absolute top-[80px] w-full pl-9 text-neutral-400 font-bold pr-4">
-                    Je hebt nog geen vakken geoefend. Leer een lijst of een
-                    bepaalde vak, en de geoefende vak van de lijst komt hier.
-                  </p>
-                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
-                    {(() => {
-                      return subjectEmojiMap["NL"]
-                        ? subjectEmojiMap["NL"]
-                        : "";
-                    })()}
-                  </div>
-                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
-                    {(() => {
-                      return subjectEmojiMap["AK"]
-                        ? subjectEmojiMap["AK"]
-                        : "";
-                    })()}
-                  </div>
-                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
-                    {(() => {
-                      return subjectEmojiMap["BI"]
-                        ? subjectEmojiMap["BI"]
-                        : "";
-                    })()}
-                  </div>
-                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
-                    {(() => {
-                      return subjectEmojiMap["LA"]
-                        ? subjectEmojiMap["LA"]
-                        : "";
-                    })()}
-                  </div>
-                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
-                    {(() => {
-                      return subjectEmojiMap["FR"]
-                        ? subjectEmojiMap["FR"]
-                        : "";
-                    })()}
-                  </div>
-                  <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-48 h-14 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed">
-                    <ChevronRight />
-                    Meer vakken
-                  </div>
-                </>
-              )}
-              {recentSubjects.length > 0 && (
-                <>
-                  {/* Show only the first 5 subjects */}
-                  {recentSubjects
-                    .slice(0, 5)
-                    .map((subject: string, index: number) => (
-                      <Link
-                        key={index}
-                        href={`/learn/subject/${subject}`}
-                        className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-10 h-14 text-center place-items-center grid transition-colors"
-                      >
-                        {(() => {
-                          return subjectEmojiMap[subject]
-                            ? subjectEmojiMap[subject]
-                            : "";
-                        })()}
-                      </Link>
-                    ))}
+  const slechtIdee = (
+    <div className="flex pt-5 pl-5 space-x-4 relative min-w-max min-h-[80px] pr-5">
+      {recentSubjects.length === 0 && (
+        <>
+          <p className="absolute top-[80px] w-full pl-9 text-neutral-400 font-bold pr-4">
+            Je hebt nog geen vakken geoefend. Leer een lijst of een
+            bepaalde vak, en de geoefende vak van de lijst komt hier.
+          </p>
+          <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+            {(() => {
+              return subjectEmojiMap["NL"]
+                ? subjectEmojiMap["NL"]
+                : "";
+            })()}
+          </div>
+          <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+            {(() => {
+              return subjectEmojiMap["AK"]
+                ? subjectEmojiMap["AK"]
+                : "";
+            })()}
+          </div>
+          <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+            {(() => {
+              return subjectEmojiMap["BI"]
+                ? subjectEmojiMap["BI"]
+                : "";
+            })()}
+          </div>
+          <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+            {(() => {
+              return subjectEmojiMap["LA"]
+                ? subjectEmojiMap["LA"]
+                : "";
+            })()}
+          </div>
+          <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-36 w-auto h-14 text-center place-items-center grid opacity-50 cursor-not-allowed">
+            {(() => {
+              return subjectEmojiMap["FR"]
+                ? subjectEmojiMap["FR"]
+                : "";
+            })()}
+          </div>
+          <div className="tile bg-neutral-900 text-neutral-600 font-bold py-2 px-4 rounded-lg min-w-48 h-14 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed">
+            <ChevronRight />
+            Meer vakken
+          </div>
+        </>
+      )}
+      {recentSubjects.length > 0 && (
+        <>
+          {/* Show only the first 5 subjects */}
+          {recentSubjects
+            .slice(0, 5)
+            .map((subject: string, index: number) => (
+              <Link
+                key={index}
+                href={`/learn/subject/${subject}`}
+                className="tile bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-4 rounded-lg min-w-10 h-14 text-center place-items-center grid transition-colors"
+              >
+                {(() => {
+                  return subjectEmojiMap[subject]
+                    ? subjectEmojiMap[subject]
+                    : "";
+                })()}
+              </Link>
+            ))}
 
-                  <Link href={'/learn/subjects'} className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-48 h-14 flex items-center justify-center gap-2 hover:bg-neutral-700 transition-all">
-                    <ChevronRight />
-                    Meer vakken
-                  </Link>
-                </>
-              )}
-            </div>
+          <Link href={'/learn/subjects'} className="tile bg-neutral-800 text-white font-bold py-2 px-4 rounded-lg w-48 h-14 flex items-center justify-center gap-2 hover:bg-neutral-700 transition-all">
+            <ChevronRight />
+            Meer vakken
+          </Link>
+        </>
+      )}
+    </div>
   );
 
   return (

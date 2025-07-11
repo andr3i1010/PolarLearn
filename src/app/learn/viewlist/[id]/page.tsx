@@ -2,7 +2,6 @@ import { prisma } from "@/utils/prisma"
 import { NextPage } from 'next';
 import Tabs, { TabItem } from "@/components/Tabs";
 import Dropdown from "@/components/button/DropdownBtn";
-import React from 'react';
 import { cookies } from "next/headers";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +10,8 @@ import CreatorLink from "@/components/links/CreatorLink";
 import { addToRecentLists } from "@/utils/actions/updateRecentLists";
 import { addToRecentSubjects } from "@/utils/actions/updateRecentSubjects";
 import { Metadata } from "next";
+import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName';
+import { isUUID } from '@/utils/uuid';
 
 import Image from "next/image";
 import { getSubjectIcon, getSubjectName } from "@/components/icons";
@@ -176,6 +177,24 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
         currentUser?.role === "admin");
     const isUnpublished = listData?.published === false;
 
+    // Prefetch creator info to avoid CSR waterfall
+    let creatorName = listData?.creator || "";
+    let creatorJdenticonValue = listData?.creator || "";
+    if (listData?.creator) {
+        try {
+            if (isUUID(listData.creator)) {
+                const info = await getUserNameById(listData.creator);
+                creatorName = info.name || listData.creator;
+                creatorJdenticonValue = info.jdenticonValue || listData.creator;
+            } else {
+                creatorName = listData.creator;
+                creatorJdenticonValue = listData.creator;
+            }
+        } catch (error) {
+            console.error("Error fetching creator info:", error);
+        }
+    }
+
     // Use the top-level subject field from the practice model
     const subject = listData?.subject || 'general';
 
@@ -329,7 +348,11 @@ const ViewListPage: NextPage<any, PageParams> = async ({ params }: PageParams) =
                     <div className="flex-row flex items-center">
                         <p>Gemaakt door:</p>
                         <div className="w-2" />
-                        <CreatorLink creator={listData?.creator || ""} />
+                        <CreatorLink
+                            creator={listData?.creator || ""}
+                            prefetchedName={creatorName}
+                            prefetchedJdenticonValue={creatorJdenticonValue}
+                        />
                     </div>
 
                     <div className="relative h-12">

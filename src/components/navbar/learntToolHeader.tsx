@@ -137,7 +137,7 @@ const LearnToolHeader = ({
             case "gedachten":
                 return "In gedachten";
             case "multikeuze":
-                return "Multikeuze";
+                return "Meerkeuze";
             default:
                 return "Leren";
         }

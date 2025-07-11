@@ -8,6 +8,9 @@ import DeleteListButton from "@/components/learning/DeleteListButton";
 import CreatorLink from "@/components/links/CreatorLink";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { getSubjectIcon, getSubjectName } from "@/components/icons";
+import { prefetchCreatorInfo } from '@/utils/creator';
+import { formatWordCount } from '@/utils/list';
+
 import construction from '@/app/img/construction.gif';
 
 export default async function SubjectTabPage({
@@ -91,6 +94,30 @@ export default async function SubjectTabPage({
   // Find lists created by current user for this subject
   const myLists = currentUserName ? lists.filter((list: { creator: any; }) => list.creator === currentUserName) : [];
 
+  // Prefetch creator info for all lists to avoid CSR waterfall
+  const allLists = [...lists, ...practicedLists];
+  const creators = allLists.map(list => list.creator);
+  const creatorMap = await prefetchCreatorInfo(creators);
+
+  // Enrich lists with prefetched creator info
+  const enrichedLists = lists.map(list => ({
+    ...list,
+    prefetchedName: creatorMap[list.creator]?.name,
+    prefetchedJdenticonValue: creatorMap[list.creator]?.jdenticonValue,
+  }));
+
+  const enrichedPracticedLists = sortedPracticedLists.map(list => ({
+    ...list,
+    prefetchedName: creatorMap[list.creator]?.name,
+    prefetchedJdenticonValue: creatorMap[list.creator]?.jdenticonValue,
+  }));
+
+  const enrichedMyLists = myLists.map(list => ({
+    ...list,
+    prefetchedName: creatorMap[list.creator]?.name,
+    prefetchedJdenticonValue: creatorMap[list.creator]?.jdenticonValue,
+  }));
+
   // Fetch forum posts for this subject
   const forumPosts = await prisma.forum.findMany({
     where: {
@@ -134,7 +161,7 @@ export default async function SubjectTabPage({
 
   // Get user names for creators
   const creatorIds = forumPosts.map((post: { creator: any; }) => post.creator);
-  const creators = creatorIds.length > 0 ?
+  const creators2 = creatorIds.length > 0 ?
     await prisma.user.findMany({
       where: { id: { in: creatorIds } },
       select: { id: true, name: true }
@@ -142,7 +169,7 @@ export default async function SubjectTabPage({
 
   // Create a map of user IDs to names
   const creatorNameMap: Record<string, string> = {};
-  creators.forEach((user: { id: string; name: string | null; }) => {
+  creators2.forEach((user: { id: string; name: string | null; }) => {
     if (user.name) {
       creatorNameMap[user.id] = user.name;
     }
@@ -152,9 +179,9 @@ export default async function SubjectTabPage({
   if (selectedTab === "practiced-lists") {
     return (
       <div className="mt-4 px-6">
-        {sortedPracticedLists.length > 0 ? (
+        {enrichedPracticedLists.length > 0 ? (
           <div className="space-y-4">
-            {sortedPracticedLists.map((list) => (
+            {enrichedPracticedLists.map((list) => (
               <div key={list.list_id}>
                 <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
                   <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center">
@@ -180,8 +207,12 @@ export default async function SubjectTabPage({
                     </div>
                   </Link>
 
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                    <CreatorLink creator={list.creator} />
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center pointer-events-auto">
+                    <CreatorLink
+                      creator={list.creator}
+                      prefetchedName={list.prefetchedName}
+                      prefetchedJdenticonValue={list.prefetchedJdenticonValue}
+                    />
                   </div>
 
                   {/* Action buttons for list owner or admin */}
@@ -220,9 +251,9 @@ export default async function SubjectTabPage({
   if (selectedTab === "all-lists") {
     return (
       <div className="mt-4 px-6">
-        {lists.length > 0 ? (
+        {enrichedLists.length > 0 ? (
           <div className="space-y-4">
-            {lists.map((list) => (
+            {enrichedLists.map((list) => (
               <div key={list.list_id}>
                 <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
                   <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center">
@@ -248,8 +279,12 @@ export default async function SubjectTabPage({
                     </div>
                   </Link>
 
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                    <CreatorLink creator={list.creator} />
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center pointer-events-auto">
+                    <CreatorLink
+                      creator={list.creator}
+                      prefetchedName={list.prefetchedName}
+                      prefetchedJdenticonValue={list.prefetchedJdenticonValue}
+                    />
                   </div>
 
                   {/* Action buttons for list owner or admin */}
@@ -286,9 +321,9 @@ export default async function SubjectTabPage({
   if (selectedTab === "my-lists") {
     return (
       <div className="mt-4 px-6">
-        {myLists.length > 0 ? (
+        {enrichedMyLists.length > 0 ? (
           <div className="space-y-4">
-            {myLists.map((list) => (
+            {enrichedMyLists.map((list) => (
               <div key={list.list_id}>
                 <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
                   <Link href={`/learn/viewlist/${list.list_id}`} className="flex-1 flex items-center">
@@ -314,8 +349,12 @@ export default async function SubjectTabPage({
                     </div>
                   </Link>
 
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center">
-                    <CreatorLink creator={list.creator} />
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center pointer-events-auto">
+                    <CreatorLink
+                      creator={list.creator}
+                      prefetchedName={list.prefetchedName}
+                      prefetchedJdenticonValue={list.prefetchedJdenticonValue}
+                    />
                   </div>
 
                   {/* Action buttons for list owner or admin */}

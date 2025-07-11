@@ -57,8 +57,6 @@
     "lucide-react": "^0.524.0",
     "motion": "^12.19.2",
     "next": "15.4.0-canary.23",
-    "next-pwa": "^5.6.0",
-    "next-view-transitions": "^0.3.4",
     "next-ws": "^2.0.9",
     "nextstepjs": "^2.1.1",
     "nodemailer": "^7.0.3",

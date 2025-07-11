@@ -11,6 +11,8 @@ import { cookies } from "next/headers"
 import Link from "next/link"
 import { PencilIcon } from "lucide-react"
 import DeleteSummaryButton from "@/components/learning/DeleteSummaryButton"
+import { getUserNameById, getUserIdByName } from '@/serverActions/getUserName'
+import { isUUID } from '@/utils/uuid';
 
 export async function generateMetadata({
     params,
@@ -94,6 +96,24 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         }
     }
 
+    // Prefetch creator info to avoid CSR waterfall
+    let creatorName = summary?.creator || "";
+    let creatorJdenticonValue = summary?.creator || "";
+    if (summary?.creator) {
+        try {
+            if (isUUID(summary.creator)) {
+                const info = await getUserNameById(summary.creator);
+                creatorName = info.name || summary.creator;
+                creatorJdenticonValue = info.jdenticonValue || summary.creator;
+            } else {
+                creatorName = summary.creator;
+                creatorJdenticonValue = summary.creator;
+            }
+        } catch (error) {
+            console.error("Error fetching creator info:", error);
+        }
+    }
+
     return (
         <div className="pl-8 pt-10">
             <div className="flex flex-col justify-between mb-4">
@@ -129,7 +149,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 {summary?.creator && (
                     <div className="flex items-center">
                         <span className="text-md text-gray-500 mr-2 justify-center">Gemaakt door:</span>
-                        <CreatorLink creator={summary.creator} />
+                        <CreatorLink
+                            creator={summary.creator}
+                            prefetchedName={creatorName}
+                            prefetchedJdenticonValue={creatorJdenticonValue}
+                        />
                     </div>
                 )}
             </div>

@@ -111,8 +111,12 @@ export async function createListAction(listData: {
 					}
 
 					if (!user) {
-						const plainResult = JSON.parse(JSON.stringify(result));
-						return plainResult; // Return the plain object
+						// Return a simplified result object for serialization
+						return {
+							...result,
+							createdAt: result.createdAt.toISOString(),
+							updatedAt: result.updatedAt.toISOString(),
+						};
 					}
 
 					// Prepare the list_data to include the new list ID
@@ -147,8 +151,11 @@ export async function createListAction(listData: {
 		}
 
 		// Return the result as a plain object to avoid Prisma serialization issues
-		const plainResult = JSON.parse(JSON.stringify(result));
-		return plainResult;
+		return {
+			...result,
+			createdAt: result.createdAt.toISOString(),
+			updatedAt: result.updatedAt.toISOString(),
+		};
 	} catch (error) {
 		console.error("Error in createListAction:", error);
 		throw error; // Re-throw to let the client handle it

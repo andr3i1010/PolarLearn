@@ -1,53 +1,32 @@
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from "next";
 const { version } = require('./package.json');
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  disable: false,
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https?.*/,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'https-calls',
-        networkTimeoutSeconds: 15,
-        expiration: {
-          maxEntries: 150,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 1 month
-        },
-        cacheableResponse: {
-          statuses: [0, 200],
-        },
-      },
-    },
-  ],
-  // Set dev-specific options for better debugging
-  buildExcludes: [], // Don't exclude any files in development
-  mode: 'production', // Force production mode even in development
-  dynamicStartUrl: false // Use a static start URL
-});
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false, // Disable in development for faster builds
   publicRuntimeConfig: {
     appVersion: version,
   },
   experimental: {
     nodeMiddleware: true,
     ppr: 'incremental',
-    reactCompiler: true
+    reactCompiler: process.env.NODE_ENV === 'production', // Only enable in production
+    // Optimize bundling
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
-  // compiler: {
-  //   removeConsole: true
-  // },
-  productionBrowserSourceMaps: true
+  // Disable source maps in development for faster builds
+  productionBrowserSourceMaps: process.env.NODE_ENV === 'production',
+  // Optimize images
+  images: {
+    domains: ['localhost', `${process.env.NEXT_PUBLIC_URL}`],
+    formats: ['image/webp', 'image/avif'],
+  },
+  // Development optimizations
 };
 
 // Only apply Sentry config in production
 const config = process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SENTRY_DSN
-  ? withSentryConfig(withPWA(nextConfig), {
+  ? withSentryConfig(nextConfig, {
     // For all available options, see:
     // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -72,6 +51,6 @@ const config = process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_
     // Enables automatic instrumentation of Vercel Cron Monitors.
     automaticVercelMonitors: true,
   })
-  : withPWA(nextConfig);
+  : nextConfig;
 
 export default config;
