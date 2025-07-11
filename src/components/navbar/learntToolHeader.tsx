@@ -58,6 +58,12 @@ const LearnToolHeader = ({
     const isCustomMode = listId.startsWith('custom-');
     const actualListId = isCustomMode ? listId.replace('custom-', '') : listId;
 
+    // Check if this is a combined list (multiple lists selected)
+    const isCombinedList = actualListId.startsWith('combined-');
+
+    // Determine the back button URL
+    const backButtonUrl = isCombinedList ? '/home/start' : `/learn/viewlist/${actualListId}`;
+
     // Define the learning methods for the dropdown
     const learningMethods: [React.ReactNode, string][] = [
         [
@@ -149,7 +155,7 @@ const LearnToolHeader = ({
                 {/* Left side: Method dropdown and back button */}
                 <div className="flex items-center gap-3">
                     <Link
-                        href={`/learn/viewlist/${actualListId}`}
+                        href={backButtonUrl}
                         className="flex items-center bg-neutral-700 hover:bg-neutral-600 transition-colors px-3 py-1 rounded-md"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" />
