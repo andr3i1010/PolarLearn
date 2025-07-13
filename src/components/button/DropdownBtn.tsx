@@ -134,7 +134,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
             style={{
               width: `${effectiveWidth}px`,
               height: isExpanded ? `${48 + dropdownHeight}px` : "48px",
-              backgroundColor: isExpanded ? "transparent" : "#26",
+              backgroundColor: isExpanded ? "transparent" : "var(--neutral-800)",
             }}
           >
             <button
@@ -151,7 +151,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
               style={{
                 height: isExpanded ? `${dropdownHeight}px` : "0px",
                 width: `${effectiveWidth - 8}px`,
-                backgroundColor: "#262626",
+                backgroundColor: "var(--neutral-800)",
                 //margin: "0 auto",
                 transition: "height 0.3s ease, opacity 0.3s ease",
               }}

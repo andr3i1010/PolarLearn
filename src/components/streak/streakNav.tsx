@@ -294,7 +294,7 @@ export default function StreakNavbarThing() {
                             <>{streakCnt} {streakCnt === 1 ? "dag" : "dagen"} reeks</>
                         )}
                     </div>
-                    <div className="flex flex-col items-center justify-center h-min-10 hover:bg-neutral-700 drop-shadow-2xl rounded-lg w-full gap-y-3 text-white border-neutral-700 border-1 py-3">
+                    <div className="flex flex-col items-center justify-center h-min-10 hover:bg-neutral-700 drop-shadow-2xl rounded-lg w-full gap-y-3 text-white border-neutral-700 border-1 py-3 transition-all">
                         <Snowflake className={`${freezeCnt >= 1 ? "text-sky-400" : "text-white"}`} />
                         {loading ? (
                             <ColorRing

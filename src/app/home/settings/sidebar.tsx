@@ -1,6 +1,6 @@
 "use client"
 
-import { User, Settings, Bell, Shield } from "lucide-react"
+import { User, Settings, Bell, Shield, Palette } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -20,6 +20,11 @@ const items = [
         title: "Account",
         url: "/home/settings/account",
         icon: User,
+    },
+    {
+        title: "Uiterlijk",
+        url: "/home/settings/appearance",
+        icon: Palette,
     },
     {
         title: "Foruminstellingen",
@@ -67,7 +72,7 @@ export function SettingsSidebar() {
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton
                                             asChild
-                                            className={isActive ? "bg-accent" : ""}
+                                            isActive={isActive}
                                         >
                                             <Link href={item.url}>
                                                 {item.icon && <item.icon size={18} />}

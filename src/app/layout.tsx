@@ -17,6 +17,7 @@ import DarkCard from "@/components/DarkCard";
 import { getTourState } from "@/serverActions/getTourState";
 import TourInitializer from "@/components/TourInitializer";
 import TourNavigator from "@/components/TourNavigator";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const steps = [
   {
@@ -84,8 +85,7 @@ const steps = [
       {
         icon: "⚙️",
         title: "Account keuzelijst",
-        content:
-          "In deze keuzelijst kan je uitloggen, en je account beheren.",
+        content: "In deze keuzelijst kan je uitloggen, en je account beheren.",
         selector: ".accountdropdown",
         side: "bottom" as const,
         showControls: true,
@@ -260,10 +260,36 @@ export default async function RootLayout({
   const footerContent = await Footer();
 
   return (
-    <html lang="nl" className={`${geistSans.className} antialiased`}>
+    <html
+      lang="nl"
+      className={`${geistSans.className} antialiased`}
+      suppressHydrationWarning
+    >
       <Head>
         <link rel="icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        {/* Prevent FOUC and hydration mismatch by setting theme before React loads */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('polarlearn.theme') || 'dark';
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                  document.documentElement.style.colorScheme = theme;
+                } catch (e) {
+                  // fallback to dark theme
+                  document.documentElement.classList.add('dark');
+                  document.documentElement.style.colorScheme = 'dark';
+                }
+              })();
+            `,
+          }}
+        />
       </Head>
       {/* <head>
           <script
@@ -289,42 +315,46 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: art }}
         />
         <SessionWrapper>
-          {!finishedTour ? (
-            <NextStepProvider>
-              <TourInitializer tourName="mainTour" />
-              <NextStep steps={steps} cardComponent={DarkCard}>
-                <TourNavigator />
-                <ToastProvider>
-                  <WSProvider>
-                    <>
-                      <ImpersonationCheck />
-                      <ImpersonationStyles />
-                      <TopNavBar />
-                      <div>{children}</div>
-                    </>
-                    {footerContent}
-                    <AnalyticsProvider />
-                  </WSProvider>
-                </ToastProvider>
-              </NextStep>
-            </NextStepProvider>
-          ) : (
-            <ToastProvider>
-              <WSProvider>
-                <>
-                  <ImpersonationCheck />
-                  <ImpersonationStyles />
-                  {/* Anchor first step to the navbar */}
-                  <div id="navbar">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem={false}
+            storageKey="polarlearn.theme"
+          >
+            {!finishedTour ? (
+              <NextStepProvider>
+                <TourInitializer tourName="mainTour" />
+                <NextStep steps={steps} cardComponent={DarkCard}>
+                  <TourNavigator />
+                  <ToastProvider>
+                    <WSProvider>
+                      <>
+                        <ImpersonationCheck />
+                        <ImpersonationStyles />
+                        <TopNavBar />
+                        {children}
+                      </>
+                      {footerContent}
+                      <AnalyticsProvider />
+                    </WSProvider>
+                  </ToastProvider>
+                </NextStep>
+              </NextStepProvider>
+            ) : (
+              <ToastProvider>
+                <WSProvider>
+                  <>
+                    <ImpersonationCheck />
+                    <ImpersonationStyles />
                     <TopNavBar />
-                  </div>
-                  <div>{children}</div>
-                </>
-                {footerContent}
-                <AnalyticsProvider />
-              </WSProvider>
-            </ToastProvider>
-          )}
+                    {children}
+                  </>
+                  {footerContent}
+                  <AnalyticsProvider />
+                </WSProvider>
+              </ToastProvider>
+            )}
+          </ThemeProvider>
         </SessionWrapper>
       </body>
     </html>
