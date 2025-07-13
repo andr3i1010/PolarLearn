@@ -1,6 +1,6 @@
 "use client"
 
-import { SidebarProvider, useSidebar } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { SettingsSidebar } from "@/app/home/settings/sidebar"
 
 // Create a client component for the content area that responds to sidebar state
@@ -17,6 +17,14 @@ function SettingsContent({ children }: { children: React.ReactNode }) {
                 }`}
         >
             <div className="p-6">
+                {/* Show trigger on mobile devices */}
+                {isMobile && (
+                    <div className="mb-4">
+                        <SidebarTrigger
+                            className="p-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                        />
+                    </div>
+                )}
                 {children}
             </div>
         </main>

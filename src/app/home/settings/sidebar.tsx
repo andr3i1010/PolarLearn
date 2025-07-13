@@ -45,7 +45,7 @@ const items = [
 
 export function SettingsSidebar() {
     const pathname = usePathname()
-    const { state } = useSidebar()
+    const { state, isMobile } = useSidebar()
 
     // Dynamic width based on sidebar state
     const sidebarWidth = state === "expanded" ? "w-64" : "w-12"
@@ -56,11 +56,14 @@ export function SettingsSidebar() {
             collapsible="icon"
         >
             <SidebarContent>
-                <div className="flex items-center justify-end p-2">
-                    <SidebarTrigger
-                        className="text-white hover:bg-neutral-700"
-                    />
-                </div>
+                {/* Only show trigger on desktop */}
+                {!isMobile && (
+                    <div className="flex items-center justify-end p-2">
+                        <SidebarTrigger
+                            className="text-white hover:bg-neutral-700"
+                        />
+                    </div>
+                )}
                 <SidebarGroup>
                     <SidebarGroupLabel>Instellingen</SidebarGroupLabel>
                     <SidebarGroupContent>
