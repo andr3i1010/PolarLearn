@@ -41,6 +41,7 @@ export default async function GroupLayout({ children, params }: GroupLayoutProps
                 baseRoute={`/learn/group/${id}`}
                 groupName={groupData?.name || ''}
                 groupDescription={groupData?.description || ''}
+                groupImage={groupData?.image}
                 requiresApproval={groupData?.requiresApproval ?? undefined}
                 isMember={isMember}
                 isCreator={isCreator}

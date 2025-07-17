@@ -12,6 +12,7 @@ interface GroupHeaderTabsProps {
     bannedOrRestrictedContent?: ReactNode;
     groupName: string;
     groupDescription: string;
+    groupImage?: string | null;
     requiresApproval?: boolean;
     isMember: boolean;
     isCreator: boolean;
@@ -25,6 +26,7 @@ export default function GroupHeaderTabs({
     baseRoute,
     groupName,
     groupDescription,
+    groupImage,
     requiresApproval,
     isMember,
     isCreator,
@@ -51,7 +53,15 @@ export default function GroupHeaderTabs({
         <>
             <div className="flex flex-col p-4">
                 <div className="flex items-center space-x-4">
-                    <Jdenticon value={groupName || ''} size={70} />
+                    {groupImage ? (
+                        <img
+                            src={groupImage}
+                            alt={`Groepsfoto van ${groupName}`}
+                            className="w-[70px] h-[70px] rounded-lg object-cover"
+                        />
+                    ) : (
+                        <Jdenticon value={groupName || ''} size={70} />
+                    )}
                     <h1 className="text-4xl font-extrabold">{groupName}</h1>
                     <div className="flex-grow" />
                     {/* Join/Leave buttons */}

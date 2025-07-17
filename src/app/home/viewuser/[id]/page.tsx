@@ -203,7 +203,8 @@ export default async function Page({ params, searchParams }: PageProps) {
             members: group.members,
             listsAdded: group.listsAdded,
             creator: group.creator,
-            admins: group.admins
+            admins: group.admins,
+            image: group.image
           }))}
           user={{
             id: user.id,

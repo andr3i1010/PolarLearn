@@ -140,6 +140,7 @@ model group {
   requiresApproval    Boolean? @default(false)
   toBeApproved        Json?
   everyoneCanAddLists Boolean? @default(true)
+  image               String?
 
   creator String   @db.String
   members Json?

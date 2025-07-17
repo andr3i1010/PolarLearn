@@ -91,7 +91,15 @@ export default function GroupsTabContent({
                                         className="flex-1 flex items-center"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <Jdenticon value={groep.name} size={40} />
+                                            {groep.image ? (
+                                                <img
+                                                    src={groep.image}
+                                                    alt={`Groepsfoto van ${groep.name}`}
+                                                    className="w-10 h-10 rounded-lg object-cover"
+                                                />
+                                            ) : (
+                                                <Jdenticon value={groep.name} size={40} />
+                                            )}
                                             <span className="text-lg whitespace-normal break-words max-w-[40ch] flex flex-row">
                                                 {groep.name}
                                                 <div className="flex gap-2 mt-1 pl-2">

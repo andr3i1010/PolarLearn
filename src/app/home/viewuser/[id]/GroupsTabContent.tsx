@@ -10,6 +10,7 @@ interface Group {
     listsAdded: string[] | any;
     creator: string;
     admins?: string[] | any;
+    image?: string | null;
 }
 
 interface GroupsTabContentProps {
@@ -39,7 +40,15 @@ export default function GroupsTabContent({
                             <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 mx-4 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
                                 <Link href={`/learn/group/${group.groupId}`} className="flex-1 flex items-center">
                                     <div className="flex items-center gap-3">
-                                        <Jdenticon value={group.name} size={40} />
+                                        {group.image ? (
+                                            <img
+                                                src={group.image}
+                                                alt={`Groepsfoto van ${group.name}`}
+                                                className="w-10 h-10 rounded-lg object-cover"
+                                            />
+                                        ) : (
+                                            <Jdenticon value={group.name} size={40} />
+                                        )}
                                         <span className="text-lg whitespace-normal break-words max-w-[40ch] flex flex-row">
                                             {group.name}
                                             <div className="flex gap-2 mt-1 pl-2">

@@ -21,6 +21,7 @@ import AddListDialog from "@/components/groups/AddListDialog";
 import Button1 from "@/components/button/Button1";
 import PendingApprovals from "@/components/groups/PendingApprovals";
 import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
+import GroupPictureManager from "@/components/groups/GroupPictureManager";
 import { Metadata } from "next";
 import { sendNotificationToUser } from '@/utils/notifications/sendNotification';
 import { getUserNameById } from '@/serverActions/getUserName';
@@ -378,6 +379,13 @@ export default async function Page({
       content: (
         <div className="mt-4 p-4">
           <h2 className="text-2xl font-bold mb-6">Groepsinstellingen</h2>
+
+          {/* Group Picture Manager */}
+          <GroupPictureManager
+            groupId={id}
+            currentImage={groupData?.image}
+            canEdit={isAdmin || isCreator}
+          />
 
           {/* Settings form */}
           <div className="mb-8 bg-neutral-800 rounded-lg p-6">
