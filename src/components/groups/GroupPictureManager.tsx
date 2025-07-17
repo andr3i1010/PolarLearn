@@ -214,7 +214,6 @@ export default function GroupPictureManager({
               icon={isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash className="w-4 h-4" />}
               onClick={handleDelete}
               disabled={isDeleting || isUploading}
-              className="bg-red-600 hover:bg-red-500"
             />
           )}
         </div>
