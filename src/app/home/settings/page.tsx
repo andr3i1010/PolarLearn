@@ -1,5 +1,14 @@
-import { redirect } from 'next/navigation'
+"use client"
+
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 export default function SettingsPage() {
-    redirect('/home/settings/account')
+    const router = useRouter()
+
+    useEffect(() => {
+        router.replace("/home/settings/account")
+    }, [router])
+
+    return null
 }
