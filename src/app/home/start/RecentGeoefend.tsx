@@ -207,13 +207,19 @@ export default function RecentGeoefend({ items, currentUserName, isAdmin }: Rece
                       />
                       <label
                         htmlFor={`checkbox-${item.list_id}`}
-                        className="block w-6 h-6 bg-gray-100 border-2 border-gray-300 rounded-full cursor-pointer relative transition-all duration-200 hover:border-sky-400 peer-checked:bg-sky-400 peer-checked:border-sky-400"
+                        className="block w-6 h-6 rounded-full cursor-pointer relative transition-all duration-200"
+                        style={{
+                          backgroundColor: '#f3f4f6',
+                          borderWidth: '2px',
+                          borderStyle: 'solid',
+                          borderColor: '#d1d5db'
+                        }}
                       >
                         <div className="absolute inset-0 flex items-center justify-center">
                           <svg
-                            className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100"
+                            className="w-3 h-3 opacity-0"
                             fill="none"
-                            stroke="currentColor"
+                            stroke="#ffffff"
                             viewBox="0 0 24 24"
                             strokeWidth={3}
                           >
@@ -226,8 +232,15 @@ export default function RecentGeoefend({ items, currentUserName, isAdmin }: Rece
                         </div>
                       </label>
                       <style jsx>{`
+                        input:checked + label {
+                          background-color: #38bdf8 !important;
+                          border-color: #38bdf8 !important;
+                        }
                         input:checked + label svg {
-                          opacity: 1;
+                          opacity: 1 !important;
+                        }
+                        label:hover {
+                          border-color: #38bdf8 !important;
                         }
                       `}</style>
                     </div>

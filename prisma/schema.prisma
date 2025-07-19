@@ -152,3 +152,15 @@ model group {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+model map {
+  id        String   @id @map("_id") @db.String
+  name      String
+  creator   String   @db.String
+  practices String[]
+  image     String?
+  public    Boolean? @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  scheduledDeletion DateTime? // schedule for TTL deletion
+}

@@ -16,12 +16,6 @@ const nextConfig: NextConfig = {
   },
   // Disable source maps in development for faster builds
   productionBrowserSourceMaps: process.env.NODE_ENV === 'production',
-  // Optimize images
-  images: {
-    domains: ['localhost', `${process.env.NEXT_PUBLIC_URL}`],
-    formats: ['image/webp', 'image/avif'],
-  },
-  // Development optimizations
 };
 
 // Only apply Sentry config in production

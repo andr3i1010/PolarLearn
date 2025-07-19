@@ -1,27 +1,20 @@
-"use server"
 import Jdenticon from "@/components/Jdenticon";
 import { prisma } from "@/utils/prisma";
 import { TabItem } from "@/components/Tabs";
-import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { PlusIcon, PencilIcon } from "lucide-react";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
-import CreatorLink from "@/components/links/CreatorLink";
 import { getGroupLists, getPendingApprovals, getAvailableLists } from "@/serverActions/groupActions";
 import { AlertTriangle } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
-
-import { getSubjectIcon } from "@/components/icons"
-import RemoveListFromGroupButton from "@/components/groups/RemoveListFromGroupButton";
-import AddListDialog from "@/components/groups/AddListDialog";
 import Button1 from "@/components/button/Button1";
 import PendingApprovals from "@/components/groups/PendingApprovals";
 import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
 import GroupPictureManager from "@/components/groups/GroupPictureManager";
+import GroupListsDisplay from "@/app/learn/group/[id]/GroepLijsten";
 import { Metadata } from "next";
 import { sendNotificationToUser } from '@/utils/notifications/sendNotification';
 import { getUserNameById } from '@/serverActions/getUserName';
@@ -174,93 +167,17 @@ export default async function Page({
       id: "lists",
       label: "Lijsten",
       content: (
-        <div className="px-4">
-
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex-grow" />
-            {isMember && canAddLists && (
-              <AddListDialog groupId={id} initialLists={availableLists}>
-                <Button1
-                  text="Lijst toevoegen"
-                  icon={<PlusIcon size={14} />}
-                />
-              </AddListDialog>
-            )}
-          </div>
-
-          {enrichedGroupLists.length === 0 ? (
-            <div className="tile bg-neutral-800 text-neutral-400 text-xl font-bold py-2 px-4 mx-4 rounded-lg h-20 text-center place-items-center grid">
-              {isMember
-                ? canAddLists
-                  ? "Deze groep heeft nog geen lijsten. Voeg een lijst toe om te beginnen."
-                  : "Deze groep heeft nog geen lijsten. Vraag een beheerder om lijsten toe te voegen."
-                : "Deze groep heeft nog geen lijsten."}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {enrichedGroupLists.map((list) => (
-                <div key={list.list_id}>
-                  <div className="tile relative bg-neutral-800 hover:bg-neutral-700 transition-colors text-white font-bold py-2 px-6 rounded-lg min-h-20 h-auto flex items-center justify-between cursor-pointer">
-                    <Link href={`${list.mode === "list" ? `/learn/viewlist/${list.list_id}` : `/learn/summary/${list.list_id}`}`} className="flex-1 flex items-center">
-                      <div className="flex items-center">
-                        {list.subject && (
-                          <Image
-                            src={getSubjectIcon(list.subject)}
-                            alt={`${list.subject} icon`}
-                            width={24}
-                            height={24}
-                            className="mr-2"
-                          />
-                        )}
-                        <span className="text-lg whitespace-normal break-words max-w-[40ch]">
-                          {list.name}
-                          {list.published === false && (
-                            <Badge
-                              variant="secondary"
-                              className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs"
-                            >
-                              Concept
-                            </Badge>
-                          )}
-                        </span>
-                      </div>
-                    </Link>
-
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center pointer-events-auto">
-                      <CreatorLink
-                        creator={list.creator}
-                        prefetchedName={list.prefetchedName}
-                        prefetchedJdenticonValue={list.prefetchedJdenticonValue}
-                      />
-                    </div>
-
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-2">
-                      {(isCreator || list.creator === currentUserName) && (
-                        <Link
-                          href={`/learn/editlist/${list.list_id}`}
-                          className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                          title="Lijst bewerken"
-                        >
-                          <PencilIcon className="h-5 w-5 text-white" />
-                        </Link>
-                      )}
-                      {(isCreator || isAdmin || isPlatformAdmin) && (
-                        <RemoveListFromGroupButton
-                          groupId={id}
-                          listId={list.list_id}
-                          isCreator={isCreator}
-                          isAdmin={isAdmin}
-                          isPlatformAdmin={isPlatformAdmin}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <GroupListsDisplay
+          lists={enrichedGroupLists}
+          groupId={id}
+          isMember={isMember}
+          canAddLists={canAddLists}
+          isCreator={isCreator}
+          isAdmin={isAdmin}
+          isPlatformAdmin={isPlatformAdmin}
+          currentUserName={currentUserName}
+          availableLists={availableLists}
+        />
       ),
     },
     {
