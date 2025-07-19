@@ -156,7 +156,7 @@ model map {
   id        String   @id @map("_id") @db.String
   name      String
   creator   String   @db.String
-  practices String[]
+  lists     String[]
   image     String?
   public    Boolean? @default(false)
 

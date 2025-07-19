@@ -18,6 +18,7 @@ interface List {
     data: any;
     creator: string;
     published: boolean;
+    mode?: string;
 }
 
 interface AddListDialogProps {
@@ -109,7 +110,11 @@ export default function AddListDialog({ groupId, children, initialLists }: AddLi
     };
 
     // Get word count for display
-    const getWordCount = (data: any) => {
+    const getWordCount = (data: any, mode?: string) => {
+        // Don't show word count for summaries
+        if (mode === "summary") {
+            return null;
+        }
         if (Array.isArray(data)) {
             return data.length === 1 ? "1 woord" : `${data.length} woorden`;
         }
@@ -194,9 +199,11 @@ export default function AddListDialog({ groupId, children, initialLists }: AddLi
                                             )}
                                             <div>
                                                 <p className="font-medium">{list.name}</p>
-                                                <p className="text-sm text-neutral-400">
-                                                    {getWordCount(list.data)}
-                                                </p>
+                                                {getWordCount(list.data, list.mode) && (
+                                                    <p className="text-sm text-neutral-400">
+                                                        {getWordCount(list.data, list.mode)}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
 

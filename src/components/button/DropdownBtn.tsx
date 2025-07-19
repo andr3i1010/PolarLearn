@@ -147,7 +147,7 @@ const Dropdown = forwardRef<DropdownHandle, DropdownProps>(
 
             <div
               ref={dropdownRef}
-              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100 rounded-b-lg" : "opacity-0"} shadow-lg`}
+              className={`overflow-hidden transition-all duration-300 ${isExpanded ? "opacity-100 rounded-b-md" : "opacity-0"} shadow-lg`}
               style={{
                 height: isExpanded ? `${dropdownHeight}px` : "0px",
                 width: `${effectiveWidth - 8}px`,

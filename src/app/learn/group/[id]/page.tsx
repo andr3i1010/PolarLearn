@@ -14,7 +14,7 @@ import Button1 from "@/components/button/Button1";
 import PendingApprovals from "@/components/groups/PendingApprovals";
 import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
 import GroupPictureManager from "@/components/groups/GroupPictureManager";
-import GroupListsDisplay from "@/app/learn/group/[id]/GroepLijsten";
+import GroepLijsten from "@/app/learn/group/[id]/GroepLijsten";
 import { Metadata } from "next";
 import { sendNotificationToUser } from '@/utils/notifications/sendNotification';
 import { getUserNameById } from '@/serverActions/getUserName';
@@ -167,7 +167,7 @@ export default async function Page({
       id: "lists",
       label: "Lijsten",
       content: (
-        <GroupListsDisplay
+        <GroepLijsten
           lists={enrichedGroupLists}
           groupId={id}
           isMember={isMember}
