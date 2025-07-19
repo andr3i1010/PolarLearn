@@ -21,7 +21,7 @@ import {
 // Images //
 import nsk_img from '@/app/img/nask.svg';
 import math_img from '@/app/img/math.svg';
-import eng_img from '@/app/img/english.svg';
+import eng_img from '@/app/img/tea_innit.svg';
 import fr_img from '@/app/img/baguette.svg';
 import de_img from '@/app/img/pretzel.svg';
 import nl_img from '@/app/img/nl.svg';
