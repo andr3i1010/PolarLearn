@@ -8,6 +8,7 @@ import { AlertTriangle, Folder } from "lucide-react";
 import Link from "next/link";
 import Button1 from "@/components/button/Button1";
 import LijstenMap from "./LijstenMap";
+import DeleteMapButton from "@/components/mappen/DeleteMapButton";
 import { Metadata } from "next";
 
 // UUID validation regex pattern
@@ -117,11 +118,17 @@ export default async function Page({ params }: { params: { id: Promise<string> }
   return (
     <div className="mt-4 p-4">
       {/* Header */}
-      <div className="flex items-center mb-6">
-        <Folder className="h-8 w-8 text-blue-500 mr-3" />
-        <div>
-          <h1 className="text-3xl font-bold">{map.name}</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <Folder className="h-8 w-8 text-blue-500 mr-3" />
+          <div>
+            <h1 className="text-3xl font-bold">{map.name}</h1>
+          </div>
         </div>
+        {/* Delete button for creator only */}
+        {isCreator && (
+          <DeleteMapButton mapId={id} mapName={map.name} />
+        )}
       </div>
 
       {/* Content */}

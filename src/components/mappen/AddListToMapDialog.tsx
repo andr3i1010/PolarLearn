@@ -80,7 +80,7 @@ export default function AddListToMapDialog({ mapId, children, initialLists }: Ad
     setIsSubmitting(listId);
     try {
       // Call API endpoint to add list to map
-      const res = await fetch(`/api/v1/maps/${mapId}/lists`, {
+      const res = await fetch(`/api/v1/map/${mapId}/lists`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ listId }),
