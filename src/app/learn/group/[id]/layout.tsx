@@ -28,6 +28,7 @@ export default async function GroupLayout({ children, params }: GroupLayoutProps
     const tabs: TabItem[] = [
         { id: 'lists', label: 'Lijsten', content: <></> },
         { id: 'members', label: 'Leden', content: <></> },
+        { id: "chat", label: "Groepschat", content: <></> },
         ...(isAdmin || isCreator || isPlatformAdmin
             ? [{ id: 'settings', label: 'Instellingen', content: <></> }]
             : []),

@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import { getGroupLists, getPendingApprovals, getAvailableLists } from "@/serverActions/groupActions";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Send } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
@@ -18,6 +18,14 @@ import GroepLijsten from "@/app/learn/group/[id]/GroepLijsten";
 import { Metadata } from "next";
 import { sendNotificationToUser } from '@/utils/notifications/sendNotification';
 import { getUserNameById } from '@/serverActions/getUserName';
+import ChatInput from "./Chat";
+import Chat from "./Chat";
+
+export type GroupChatContent = {
+  creator: string; // UUID van de poster
+  content: string; // Berichtinhoud
+  time: Date; // Tijd van het bericht
+}
 
 // UUID validation regex pattern
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -161,6 +169,21 @@ export default async function Page({
     }
   }
 
+  // Type guard to check if the chat content is valid
+  const isValidChatContent = (content: any): content is GroupChatContent[] => {
+    return Array.isArray(content) && content.every(item =>
+      item &&
+      typeof item === 'object' &&
+      typeof item.creator === 'string' &&
+      typeof item.content === 'string' &&
+      item.time
+    );
+  };
+
+  // Safely parse and validate chat content
+  const rawChatContent = groupData.chatContent;
+  const chatContent: GroupChatContent[] = isValidChatContent(rawChatContent) ? rawChatContent : [];
+
   // Define tabs for this page
   const tabs: TabItem[] = [
     {
@@ -288,6 +311,13 @@ export default async function Page({
             </div>
           )}
         </div>
+      ),
+    },
+    {
+      id: "chat",
+      label: "Groepschat",
+      content: (
+        <Chat chatContent={chatContent} />
       ),
     },
     ...(isAdmin || isCreator || currentUser?.role === "admin" ? [{
