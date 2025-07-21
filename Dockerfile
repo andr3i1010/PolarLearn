@@ -14,4 +14,4 @@ COPY --from=builder /app .
 
 EXPOSE 3000
 
-CMD ["/app/node_modules/.bin/tsx", "src/main.ts"]
+CMD ["node", "--import", "tsx", "src/main.ts"]# 
