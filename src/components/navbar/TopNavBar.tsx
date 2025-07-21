@@ -30,7 +30,7 @@ const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
 
   return (
     <div
-      className="searchbar relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95 w-full"
+      className="searchbar relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95 w-full mr-2 ml-1"
       onClick={handleSearchClick}
     >
       <div className="rounded-4xl border-4 border-neutral-700 duration-300 hover:border-transparent">
@@ -117,7 +117,6 @@ const dropdownMatrixStart: [React.ReactNode, string][] = [
     </div>,
     "/learn/groups",
   ],
-  ["Gemaakte lijsten", "/home/forum"],
   [
     <div className="flex items-center">
       <GraduationCap className="mr-2" />
@@ -330,18 +329,13 @@ const NavigationLinks = memo(
           useClNav={true}
           className="forumbutton"
         />
-        <div className="relative block mb-12 min-w-[180px]">
+        <div className="relative block mb-12 min-w-[152px]">
           <DropdownBtn
             selectorMode={false}
             text={"Leren"}
             dropdownMatrix={dropdownMatrixStart}
             className="lerendropdown"
-          />
-          {/* Hitbox below the dropdown, matching its width and position */}
-          <div
-            className="absolute left-0 w-full"
-            style={{ top: 0, height: 'calc(100% + 24px)' }}
-          // Optionally, add onClick or pointer-events-none if only for hitbox
+            width={160}
           />
         </div>
         <SearchBar onExpand={onExpandSearch} />

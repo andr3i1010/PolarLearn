@@ -6,6 +6,7 @@ import ForumPostList from "./ForumPostList";
 import MarkdownRenderer from "@/components/md";
 import { cookies } from "next/headers";
 import { Metadata } from "next";
+import { PrestatieSelector } from "./PrestatieSelector";
 
 export const metadata: Metadata = {
   title: "PolarLearn | Forum",
@@ -110,7 +111,8 @@ export default async function ForumHome({
       content: (
         <>
           <h1 className="text-4xl font-bold">Prestaties</h1>
-          <p>Hier kan je zien welke forumprestaties je hebt behaald en kan uitlichten op je profiel</p>
+          <p className="mb-2">Hier kan je zien welke forumprestaties je hebt behaald en kan uitlichten op je profiel</p>
+          <PrestatieSelector points={session?.forumPoints as number} />
         </>
       )
     },

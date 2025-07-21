@@ -20,6 +20,7 @@ import {
   MessageCircle,
   MessageCircleQuestion,
   Megaphone,
+  ShieldUser,
 } from "lucide-react";
 import ForumRepliesList from "../ForumRepliesList";
 import { Metadata } from "next";
@@ -43,13 +44,18 @@ export async function generateMetadata({
 
   // If postId is actually a tab identifier, return default metadata
   if (
-    ["questions", "my-questions", "my-answers", "how-the-forum-works", "advancements"].includes(
-      postId
-    )
+    [
+      "questions",
+      "my-questions",
+      "my-answers",
+      "how-the-forum-works",
+      "advancements",
+    ].includes(postId)
   ) {
     return {
       title: "PolarLearn | Forum",
-      description: "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden"
+      description:
+        "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden",
     };
   }
 
@@ -82,7 +88,8 @@ export async function generateMetadata({
   } catch (error) {
     return {
       title: "PolarLearn | Forum",
-      description: "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden"
+      description:
+        "Dit is het PolarLearn forum, hier kan je allerlei vragen stellen en beantwoorden, zondar dat je vragen voor geen reden verwijderd worden",
     };
   }
 }
@@ -95,9 +102,13 @@ export default async function Page({
   const { postId } = await params;
   // If postId is actually a tab identifier, delegate to ForumHome
   if (
-    ["questions", "my-questions", "my-answers", "how-the-forum-works", "advancements"].includes(
-      postId
-    )
+    [
+      "questions",
+      "my-questions",
+      "my-answers",
+      "how-the-forum-works",
+      "advancements",
+    ].includes(postId)
   ) {
     return (
       <ForumHome
@@ -273,10 +284,14 @@ export default async function Page({
                   creator={postcreator?.name || post.creator}
                   color="white"
                 />
+                {postcreator.role === "admin" && (
+                  <Badge className="bg-red-500 text-white ml-1 rounded-md">
+                    <ShieldUser />
+                    Administrator
+                  </Badge>
+                )}
               </div>
-              {post.category && (
-                <PostBadge type={post.category} />
-              )}
+              {post.category && <PostBadge type={post.category} />}
               {subjectIcon && subjectName && (
                 <div className="flex items-center gap-1 px-2 py-1 bg-neutral-800 rounded-md">
                   <Image
@@ -291,12 +306,11 @@ export default async function Page({
             </div>
             <div className="text-sm text-gray-400 flex flex-wrap gap-2">
               <span title={formattedDate}>{relativeTime}</span>
-              {post.updatedAt && post.createdAt &&
-                new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > 1000 && (
-                  <span>
-                    • Bewerkt
-                  </span>
-                )}
+              {post.updatedAt &&
+                post.createdAt &&
+                new Date(post.updatedAt).getTime() -
+                  new Date(post.createdAt).getTime() >
+                  1000 && <span>• Bewerkt</span>}
             </div>
           </div>
           <div className="flex items-center gap-2">

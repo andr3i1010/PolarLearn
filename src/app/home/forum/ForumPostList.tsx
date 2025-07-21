@@ -7,7 +7,7 @@ import Jdenticon from "@/components/Jdenticon";
 import DeletePostButton from "@/components/DeletePostButton";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { Badge } from "@/components/ui/badge";
-import { Pin } from "lucide-react";
+import { Pin, ShieldUser } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getPosts } from "./getPosts";
 import { icons, getSubjectName } from "@/components/icons";

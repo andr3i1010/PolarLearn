@@ -11,6 +11,8 @@ import MarkdownRenderer from "@/components/md";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getReplies } from "./getReplies";
 import EditReplyButton from "./editReplyBtn";
+import { Badge } from "@/components/ui/badge";
+import { ShieldUser } from "lucide-react";
 
 interface VoteData {
     users: Record<string, "up" | "down" | null>;
@@ -159,6 +161,12 @@ export default function ForumRepliesList({
                                         <ClientCreatorLink
                                             creator={replyCreator?.name || reply.creator}
                                         />
+                                        {replyCreator.role === "admin" && (
+                                            <Badge className="bg-red-500 text-white ml-1 rounded-md">
+                                                <ShieldUser />
+                                                Administrator
+                                            </Badge>
+                                        )}
                                         <div className="text-sm text-gray-400 flex flex-wrap gap-2">
                                             <span>{replyTime}</span>
                                             {reply.updatedAt && reply.createdAt &&
