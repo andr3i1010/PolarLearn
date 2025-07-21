@@ -30,7 +30,7 @@ const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
 
   return (
     <div
-      className="relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95 w-full"
+      className="searchbar relative inline-block transition-transform rounded-4xl hover:bg-gradient-to-r from-sky-400 to-sky-100 hover:scale-101 scale-95 w-full"
       onClick={handleSearchClick}
     >
       <div className="rounded-4xl border-4 border-neutral-700 duration-300 hover:border-transparent">
@@ -161,9 +161,8 @@ const MobileDropdown = memo(
         className={`inline-block hover:bg-gradient-to-r from-sky-400 to-sky-100 transition-transform rounded-lg w-full mb-3`}
       >
         <div
-          className={`rounded-lg border-4 border-neutral-700 duration-300 ${
-            isOpen ? "hover:border-transparent" : ""
-          }`}
+          className={`rounded-lg border-4 border-neutral-700 duration-300 ${isOpen ? "hover:border-transparent" : ""
+            }`}
           style={{
             height: isOpen ? `${48 + dropdownHeight}px` : "48px",
             backgroundColor: isOpen ? "transparent" : "#262626",
@@ -185,9 +184,8 @@ const MobileDropdown = memo(
 
           <div
             ref={dropdownRef}
-            className={`overflow-hidden transition-all duration-300 ${
-              isOpen ? "opacity-100" : "opacity-0"
-            } shadow-lg`}
+            className={`overflow-hidden transition-all duration-300 ${isOpen ? "opacity-100" : "opacity-0"
+              } shadow-lg`}
             style={{
               height: isOpen ? `${dropdownHeight}px` : "0px",
               backgroundColor: "#262626",
@@ -319,7 +317,7 @@ const NavigationLinks = memo(
     isAdmin?: boolean;
   }) => (
     <>
-      <div className="hidden md:flex items-center space-x-4 flex-grow">
+      <div className="hidden md:flex items-center space-x-3 flex-grow">
         <NavBtn
           text="Start"
           redirectTo="/home/start"
@@ -332,17 +330,21 @@ const NavigationLinks = memo(
           useClNav={true}
           className="forumbutton"
         />
-        <div className="relative block mb-12 w-95">
+        <div className="relative block mb-12 min-w-[180px]">
           <DropdownBtn
             selectorMode={false}
             text={"Leren"}
             dropdownMatrix={dropdownMatrixStart}
             className="lerendropdown"
           />
+          {/* Hitbox below the dropdown, matching its width and position */}
+          <div
+            className="absolute left-0 w-full"
+            style={{ top: 0, height: 'calc(100% + 24px)' }}
+          // Optionally, add onClick or pointer-events-none if only for hitbox
+          />
         </div>
-        <div className="w-full mr-2 searchbar">
-          <SearchBar onExpand={onExpandSearch} />
-        </div>
+        <SearchBar onExpand={onExpandSearch} />
         <StreakNavbarThing />
         <NotificationNav />
         <PlusBtn />
@@ -354,7 +356,7 @@ const NavigationLinks = memo(
             dropdownMatrix={[
               [
                 <div className="flex items-center">
-                  <Settings className="mr-1"/>
+                  <Settings className="mr-1" />
                   <span className="font-medium">Instellingen</span>
                 </div>,
                 "/home/settings",
@@ -368,14 +370,14 @@ const NavigationLinks = memo(
               ],
               ...(isAdmin
                 ? [
-                    [
-                      <div className="flex items-center">
-                        <ShieldUser className="mr-1" />
-                        <span className="font-medium">Admin</span>
-                      </div>,
-                      "/home/admin",
-                    ] as [React.ReactNode, string],
-                  ]
+                  [
+                    <div className="flex items-center">
+                      <ShieldUser className="mr-1" />
+                      <span className="font-medium">Admin</span>
+                    </div>,
+                    "/home/admin",
+                  ] as [React.ReactNode, string],
+                ]
                 : []),
             ]}
           />
@@ -480,14 +482,12 @@ export const TopNavBar = memo(function TopNavBar({
   return (
     <>
       <nav className="navbar fixed top-0 min-w-full shadow-md start-0 max-w-screen-xl z-[50] flex flex-wrap justify-between h-16 bg-neutral-900/70 backdrop-blur-sm items-center fade-in font-[family-name:var(--font-geist-sans)] font-bold">
-        <div className="flex items-center space-x-4 w-full transition-all duration-300 ease-in-out px-2">
-          <a href="/">
+        <div className="flex items-center space-x-4 w-full transition-all duration-300 ease-in-out pr-2">
+          <a href="/" className="w-12 h-12">
             <Image
-              className="mx-2"
+              className="mx-2 w-full h-full"
               src={pl500}
               alt="PolarLearn Logo"
-              height={50}
-              width={50}
             />
           </a>
 

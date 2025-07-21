@@ -110,7 +110,7 @@ export default async function ForumHome({
       content: (
         <>
           <h1 className="text-4xl font-bold">Prestaties</h1>
-
+          <p>Hier kan je zien welke forumprestaties je hebt behaald en kan uitlichten op je profiel</p>
         </>
       )
     },

@@ -3,7 +3,7 @@
 // Ik heb mijn tijd enorm verspilt aan alle animaties maken.
 // Het zou fijn zijn als jij de animatie zou maken voor als de gebruiker een paar loslaat,
 // dus dat het mooi beweegt naar zijn plek.
-// ik heb dit al gebrobeerd te doen, maar dat is verschrikkelijk mislukt.
+// ik heb dit al geprobeerd te doen, maar dat is verschrikkelijk mislukt.
 // const wastedHours = 4
 // Met vriendelijke groeten, andrei1010
 
