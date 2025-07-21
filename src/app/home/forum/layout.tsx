@@ -25,6 +25,7 @@ export default async function ForumLayout({ children, params }: ForumLayoutProps
         ...(session?.id ? [
             { id: "my-questions", label: "Mijn vragen", content: <></> },
             { id: "my-answers", label: "Mijn antwoorden", content: <></> },
+            { id: 'advancements', label: "Prestaties", content: <></> },
         ] : []),
         { id: "how-the-forum-works", label: "Hoe werkt het forum?", content: <></> },
     ];

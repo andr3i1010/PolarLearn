@@ -1,7 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import { prisma } from "@/utils/prisma";
-import ForumDialog from "./ForumDialog";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { getPosts } from "./getPosts";
 import ForumPostList from "./ForumPostList";
@@ -27,11 +25,6 @@ export default async function ForumHome({
   const session = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")!.value
   );
-  const user = await prisma.user.findFirst({
-    where: {
-      name: session!.name,
-    },
-  });
 
   // Get the user's ID for queries
   const userId = session?.id;
@@ -112,6 +105,16 @@ export default async function ForumHome({
       ),
     },
     {
+      id: "advancements",
+      label: "Prestaties",
+      content: (
+        <>
+          <h1 className="text-4xl font-bold">Prestaties</h1>
+
+        </>
+      )
+    },
+    {
       id: "how-the-forum-works",
       label: "Hoe werkt het forum?",
       content: (
@@ -166,7 +169,7 @@ Je verdient punten door actief bij te dragen:
 * 🗣️ Antwoord geven op een vraag: +10 punten
 * 🗑️ Een antwoord verwijderen: -10 punten (Dit is gedaan om te voorkomen dat je antwoorden kan spammen en onrechtvaardig punten krijgt)
 
-Met punten verdien je prestaties die je als titel in kan stellen onder je naam (nog niet geïmplementeerd)! En het ziet er gewoon cool uit.
+Met punten verdien je prestaties die je als titel in kan stellen naast je naam! En het ziet er gewoon cool uit.
 
 ### 🚨 Moderatie
 

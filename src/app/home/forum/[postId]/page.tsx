@@ -43,7 +43,7 @@ export async function generateMetadata({
 
   // If postId is actually a tab identifier, return default metadata
   if (
-    ["questions", "my-questions", "my-answers", "how-the-forum-works"].includes(
+    ["questions", "my-questions", "my-answers", "how-the-forum-works", "advancements"].includes(
       postId
     )
   ) {
@@ -95,7 +95,7 @@ export default async function Page({
   const { postId } = await params;
   // If postId is actually a tab identifier, delegate to ForumHome
   if (
-    ["questions", "my-questions", "my-answers", "how-the-forum-works"].includes(
+    ["questions", "my-questions", "my-answers", "how-the-forum-works", "advancements"].includes(
       postId
     )
   ) {
