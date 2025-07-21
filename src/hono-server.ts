@@ -11,7 +11,6 @@ async function decodeCookieHono(cookie: string): Promise<string | null> {
     const { plaintext } = await compactDecrypt(cookie, secret);
     const decoded = JSON.parse(new TextDecoder().decode(plaintext)) as { sessionId: string; exp: number };
     if (decoded.exp < Math.floor(Date.now() / 1000)) {
-      // console.debug("decodeCookie: Token expired");
       return null;
     }
     return decoded.sessionId;
@@ -65,10 +64,6 @@ app.get('/ws', upgradeWebSocket((c) => {
         let user = null
         if (session && session.id) {
           user = await prisma.user.findUnique({ where: { id: session.userId } })
-        } else {
-          if (session) {
-            console.warn('Session found but no userId:', session)
-          }
         }
         if (user) {
           wsUsers.set(ws.raw as WebSocket, { id: user.id, name: user.name ?? 'anonymous' })

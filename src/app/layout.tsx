@@ -19,6 +19,8 @@ import TourInitializer from "@/components/TourInitializer";
 import TourNavigator from "@/components/TourNavigator";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ReactScan } from "@/components/ReactScan";
+import { decodeCookie } from "@/utils/auth/session";
+import { prisma } from "@/utils/prisma";
 
 const steps = [
   {
@@ -257,9 +259,28 @@ export default async function RootLayout({
     -->
     `;
 
-  // Pre-render Footer outside React tree to prevent re-renders
   const footerContent = await Footer();
 
+  let isAdmin = false
+
+  const cookie = (await cookies()).get('polarlearn.session-id')?.value
+  if (!cookie) return
+  const sessionId = await decodeCookie(cookie);
+  if (!sessionId) return
+  const session = await prisma.session.findFirst({
+    where: {
+      sessionID: sessionId as string
+    }
+  })
+  if (!session) return
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session?.userId
+    }
+  })
+  if (!user) return
+  isAdmin = user.role === "admin"
+  
   return (
     <html
       lang="nl"
@@ -326,7 +347,7 @@ export default async function RootLayout({
                       <>
                         <ImpersonationCheck />
                         <ImpersonationStyles />
-                        <TopNavBar />
+                        <TopNavBar isAdmin={isAdmin} />
                         {children}
                       </>
                       {footerContent}
@@ -341,7 +362,7 @@ export default async function RootLayout({
                   <>
                     <ImpersonationCheck />
                     <ImpersonationStyles />
-                    <TopNavBar />
+                    <TopNavBar isAdmin={isAdmin} />
                     {children}
                   </>
                   {footerContent}
