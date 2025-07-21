@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Button1 from "@/components/button/Button1";
+import Jdenticon from "@/components/Jdenticon";
 
 export type ChatSendMessage = {
   event: "chat";
@@ -24,8 +25,10 @@ export type ChatSendMessage = {
 
 export default function Chat({
   chatContent,
+  isAdmin
 }: {
   chatContent: GroupChatContent[];
+  isAdmin: boolean;
 }) {
   const path = usePathname();
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -133,31 +136,41 @@ export default function Chat({
                 key={i}
                 className="mb-4 p-3 bg-neutral-800 rounded-lg flex justify-between items-center"
               >
-                <div>
-                  <div className="text-sm text-neutral-400 mb-1 flex items-center gap-2">
-                    {chatItem.creatorImage && (
-                      <img
-                        src={chatItem.creatorImage}
-                        alt={chatItem.creator + "'s profielfoto"}
-                        className="w-6 h-6 rounded-full object-cover border border-neutral-700"
+                <div className="flex items-center gap-3">
+                  {chatItem.creatorImage ? (
+                    <img
+                      src={chatItem.creatorImage}
+                      alt={chatItem.creator + "'s profielfoto"}
+                      className="w-10 h-10 rounded-full object-cover border border-neutral-700"
+                    />
+                  ) : (
+                      <Jdenticon
+                        value={chatItem.creator}
+                        size={40}
+                        className="w-10 h-10 rounded-full object-cover"
                       />
-                    )}
-                    <span>{chatItem.creator}</span>
-                    <span className="mx-1">-</span>
-                    <span>{formatRelativeTime(new Date(chatItem.time))}</span>
+                  )}
+                  <div>
+                    <div className="text-sm text-neutral-400 mb-1 flex items-center gap-2">
+                      <span>{chatItem.creator}</span>
+                      <span className="mx-1">-</span>
+                      <span>{formatRelativeTime(new Date(chatItem.time))}</span>
+                    </div>
+                    <div className="text-neutral-200">{chatItem.content}</div>
                   </div>
-                  <div className="text-neutral-200">{chatItem.content}</div>
                 </div>
-                <button
-                  onClick={() => {
-                    setMessageToDelete(chatItem);
-                    setDeleteDialogOpen(true);
-                  }}
-                  className="text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-900/20 z-10 transition-all"
-                  title="Verwijderen"
-                >
-                  <Trash2 size={18} />
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      setMessageToDelete(chatItem);
+                      setDeleteDialogOpen(true);
+                    }}
+                    className="text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-900/20 z-10 transition-all"
+                    title="Verwijderen"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
               </div>
             ))
           )}
@@ -173,8 +186,8 @@ export default function Chat({
           />
           <Send
             className={`text-neutral-200 transition-colors ${!inputValue.trim()
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:text-neutral-400 cursor-pointer"
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:text-neutral-400 cursor-pointer"
               }`}
             onClick={() => {
               if (!websocket || websocket.readyState !== WebSocket.OPEN) {

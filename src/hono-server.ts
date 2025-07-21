@@ -54,7 +54,7 @@ app.get('/ws', upgradeWebSocket((c) => {
         const cookies = parseCookies(c.req.header('cookie'))
         const sessionId = cookies['polarlearn.session-id']
         if (!sessionId) {
-          console.warn('No session ID found in cookies')
+          return
         }
         const sessionDecoded = await decodeCookieHono(sessionId)
         const session = await prisma.session.findFirst({
@@ -139,9 +139,24 @@ app.get('/ws', upgradeWebSocket((c) => {
         }
         if (data.event === "delete-chat-message") {
           const groupId = data.group;
-          // Remove the message from chatContent by matching time, creator, and content
+          const user = wsUsers.get(ws.raw as WebSocket);
+          if (!user) return;
+          // Fetch group info
           const group = await prisma.group.findUnique({ where: { groupId } });
-          if (group && Array.isArray(group.chatContent)) {
+          if (!group) return;
+          // RBAC: Only group creator, group admins, or platform admins can delete
+          const isCreator = group.creator === user.id || group.creator === user.name;
+          const isAdmin = Array.isArray(group.admins) && group.admins.includes(user.id);
+          // Platform admin check (user.role === 'admin')
+          let isPlatformAdmin = false;
+          const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } });
+          if (dbUser && dbUser.role === 'admin') isPlatformAdmin = true;
+          if (!(isCreator || isAdmin || isPlatformAdmin)) {
+            // Not authorized
+            ws.send(JSON.stringify({ type: 'error', message: 'Je hebt geen rechten om dit bericht te verwijderen.' }));
+            return;
+          }
+          if (Array.isArray(group.chatContent)) {
             // Filter out nulls to avoid Prisma type errors
             const filteredChatContent = group.chatContent.filter(
               (msg: any) =>

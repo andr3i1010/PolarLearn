@@ -336,7 +336,7 @@ export default async function Page({
       id: "chat",
       label: "Groepschat",
       content: (
-        <Chat chatContent={chatContent} />
+        <Chat chatContent={chatContent} isAdmin={isCreator || isAdmin || isPlatformAdmin} />
       ),
     },
     ...(isAdmin || isCreator || currentUser?.role === "admin" ? [{
