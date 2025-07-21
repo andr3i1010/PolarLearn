@@ -4,22 +4,24 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, captchaToken } = body;
-    // Verify captcha token
-    if (!captchaToken) {
-      return NextResponse.json({ error: "Captcha verificatie vereist" }, { status: 400 });
-    }
-    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        secret: process.env.TURNSTILE_SECRET_KEY || "",
-        response: captchaToken,
-      }),
-    });
-    const verifyData = await verifyRes.json();
-    if (!verifyData.success) {
-      return NextResponse.json({ error: "Ongeldige captcha" }, { status: 400 });
+    const { email, password, captchaToken, turnstileEnabled = true } = body;
+    // Only require captcha if turnstileEnabled is true (default)
+    if (turnstileEnabled) {
+      if (!captchaToken) {
+        return NextResponse.json({ error: "Captcha verificatie vereist" }, { status: 400 });
+      }
+      const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret: process.env.TURNSTILE_SECRET_KEY || "",
+          response: captchaToken,
+        }),
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyData.success) {
+        return NextResponse.json({ error: "Ongeldige captcha" }, { status: 400 });
+      }
     }
     if (!email || !password) {
       return NextResponse.json(

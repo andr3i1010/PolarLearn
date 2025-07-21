@@ -44,7 +44,7 @@ app.prepare().then(() => {
     const parsedUrl = parse(req.url!, true)
     if (req.url?.startsWith('/api/v1/ws')) {
       req.url = req.url.replace(/^\/api(\/v1)?\/ws/, '/ws')
-      proxy.web(req, res, { target: `http://localhost:${honoPort}` })
+      proxy.web(req, res, { target: `http://0.0.0.0:${honoPort}` })
     } else {
       handle(req, res, parsedUrl)
     }
@@ -54,7 +54,7 @@ app.prepare().then(() => {
   nextServer.on('upgrade', (req, socket, head) => {
     if (req.url?.startsWith('/api/v1/ws')) {
       req.url = req.url.replace(/^\/api(\/v1)?\/ws/, '/ws')
-      proxy.ws(req, socket, head, { target: `ws://localhost:${honoPort}` })
+      proxy.ws(req, socket, head, { target: `ws://0.0.0.0:${honoPort}` })
     } else {
       // Let Next.js handle all other upgrades (e.g. HMR)
       // Do nothing here; Next.js will handle it internally

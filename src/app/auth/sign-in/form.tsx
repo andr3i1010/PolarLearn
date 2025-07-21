@@ -28,7 +28,7 @@ function getCookie(cname: string) {
   return "";
 }
 
-export default function SignInForm() {
+export default function SignInForm({ googleEnabled = true, githubEnabled = true, turnstileEnabled = true }: { googleEnabled?: boolean; githubEnabled?: boolean; turnstileEnabled?: boolean }) {
   const router = useRouter();
   const params = useSearchParams();
   const formRef = useRef<HTMLFormElement>(null);
@@ -185,6 +185,7 @@ export default function SignInForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   useEffect(() => {
+    if (!turnstileEnabled) return;
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
     script.async = true;
@@ -205,14 +206,14 @@ export default function SignInForm() {
         setWidgetId(id);
       }
     };
-  }, []);
+  }, [turnstileEnabled]);
 
   return (
     <div className="relative">
       <div className="flex flex-col">
         <div className="flex flex-row items-center justify-center space-x-4">
-          <GoogleLogin />
-          <GithubLogin />
+          {googleEnabled && <GoogleLogin />}
+          {githubEnabled && <GithubLogin />}
         </div>
 
         <div className="flex items-center my-4">
@@ -333,13 +334,15 @@ export default function SignInForm() {
             <br />
           </div>
 
-          <div id="turnstile-signin" className="flex justify-center"></div>
+          {turnstileEnabled && (
+            <div id="turnstile-signin" className="flex justify-center"></div>
+          )}
           <Button1
             type="submit"
-            text={captchaLoading ? "CAPTCHA uitvoeren..." : "Log In"}
+            text={captchaLoading ? (turnstileEnabled ? "CAPTCHA uitvoeren..." : "Log In") : "Log In"}
             className="w-full"
-            disabled={captchaLoading || !captchaToken}
-            icon={captchaLoading ? <Loader2 className="animate-spin" /> : null}
+            disabled={turnstileEnabled ? (captchaLoading || !captchaToken) : false}
+            icon={captchaLoading && turnstileEnabled ? <Loader2 className="animate-spin" /> : null}
           />
           <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center mt-2">
             Heb je nog geen account?{" "}
@@ -362,7 +365,7 @@ export default function SignInForm() {
               </button>
             </p>
           )}
-          <Honeypot/>
+          <Honeypot />
         </form>
       </div>
     </div>

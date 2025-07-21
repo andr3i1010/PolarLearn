@@ -1,1 +1,1 @@
-Als je een zwakke punt in PolarLearn vindt, meld het gelijk aan `beveiliging@polarlearn.tech`. Misbruik maken van de gevonden zwakke punt wordt gezien als hacken en wordt gemeld bij de politie.
+Als je een zwakke punt in PolarLearn vindt, meld het gelijk aan `beveiliging@polarlearn.tech`. Misbruik maken van de gevonden zwakke punt (op de managed versie op https://polarlearn.tech) wordt gezien als hacken en wordt gemeld bij de politie.

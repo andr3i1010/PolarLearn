@@ -17,6 +17,12 @@ interface PasswordActionResult {
 export async function sendSignUpEmail(email: string, username: string, token: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
+      if (!transporter) {
+        const msg = "SMTP not configured: missing SMTP_HOST, SMTP_PORT, SMTP_USER, or SMTP_PASSWORD env vars. Skipping email verification.";
+        console.warn(msg);
+        // Simulate success, but warn that no email was sent
+        return resolve("no-email-sent");
+      }
       await transporter.verify();
       const activationUrl = `${process.env.NEXT_PUBLIC_URL || 'https://polarlearn.tech'}/auth/activate?token=${token}`;
       const htmlTemplate = `<!DOCTYPE html>
@@ -255,15 +261,25 @@ export async function createUserCredentials(
 
       console.log("User created successfully:", user.id);
 
-      // Send activation email
+      // Send activation email (or skip if SMTP not configured)
+      let emailResult: string | undefined = undefined;
       try {
         console.log("Sending activation email...");
-        await sendSignUpEmail(email, username, activationToken);
-        console.log("Activation email sent successfully");
+        emailResult = await sendSignUpEmail(email, username, activationToken);
+        if (emailResult === "no-email-sent") {
+          // Mark user as verified if no email was sent
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { emailVerified: new Date(), loginAllowed: true, forumAllowed: true },
+          });
+          console.warn("No SMTP configured: user marked as verified automatically.");
+        } else {
+          console.log("Activation email sent successfully");
+        }
         resolve({ success: true, userdata: user });
       } catch (emailError) {
         console.error("Email sending failed:", emailError);
-        // If email sending fails, delete the created user
+        // If email sending fails for other reasons, delete the created user
         try {
           await prisma.user.delete({ where: { id: user.id } });
           console.log("User deleted due to email send failure");
