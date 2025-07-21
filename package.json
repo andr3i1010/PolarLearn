@@ -1,12 +1,12 @@
 {
   "name": "polarlearn",
-  "version": "v1-PRERELEASE-5.0",
+  "version": "v1-PRERELEASE-8.0",
   "description": "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door en voor studenten.",
   "private": false,
   "scripts": {
     "dev": " NODE_ENV=development tsx src/main.ts",
     "build": "rm -rf .next/; next build --turbopack",
-    "start": "next start",
+    "start": "NODE_ENV=production tsx src/main.ts",
     "postinstall": "prisma db push"
   },
   "dependencies": {
@@ -74,6 +74,7 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-loader-spinner": "^6.1.6",
     "react-markdown": "^10.1.0",
+    "react-scan": "^0.4.3",
     "react-scroll-motion": "^0.3.5",
     "react-toastify": "^11.0.5",
     "rehype-highlight": "^7.0.2",

@@ -18,13 +18,14 @@ import GroepLijsten from "@/app/learn/group/[id]/GroepLijsten";
 import { Metadata } from "next";
 import { sendNotificationToUser } from '@/utils/notifications/sendNotification';
 import { getUserNameById } from '@/serverActions/getUserName';
-import ChatInput from "./Chat";
 import Chat from "./Chat";
 
 export type GroupChatContent = {
-  creator: string; // UUID van de poster
+  creator: string; // Naam van de poster
+  creatorId?: string; // UUID van de poster
   content: string; // Berichtinhoud
   time: Date; // Tijd van het bericht
+  creatorImage?: string; // profielfoto
 }
 
 // UUID validation regex pattern
@@ -182,7 +183,25 @@ export default async function Page({
 
   // Safely parse and validate chat content
   const rawChatContent = groupData.chatContent;
-  const chatContent: GroupChatContent[] = isValidChatContent(rawChatContent) ? rawChatContent : [];
+  let chatContent: GroupChatContent[] = isValidChatContent(rawChatContent) ? rawChatContent : [];
+  // Enrich chatContent with the latest profile picture for each creator
+  if (chatContent.length > 0) {
+    // Only use creatorId that are valid UUIDs
+    const uniqueCreatorIds = Array.from(new Set(chatContent.map(msg => msg.creatorId))).filter((c): c is string => typeof c === 'string' && UUID_REGEX.test(c));
+    let userImageMap: Record<string, string | undefined> = {};
+    let users: { id: string, image: string | null }[] = [];
+    if (uniqueCreatorIds.length > 0) {
+      users = await prisma.user.findMany({
+        where: { id: { in: uniqueCreatorIds } },
+        select: { id: true, image: true },
+      });
+      userImageMap = Object.fromEntries(users.map(u => [u.id, u.image ?? undefined]));
+    }
+    chatContent = chatContent.map(msg => ({
+      ...msg,
+      creatorImage: (typeof msg.creatorId === 'string' && UUID_REGEX.test(msg.creatorId)) ? userImageMap[msg.creatorId] || undefined : undefined,
+    }));
+  }
 
   // Define tabs for this page
   const tabs: TabItem[] = [

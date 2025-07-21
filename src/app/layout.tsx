@@ -18,6 +18,7 @@ import { getTourState } from "@/serverActions/getTourState";
 import TourInitializer from "@/components/TourInitializer";
 import TourNavigator from "@/components/TourNavigator";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ReactScan } from "@/components/ReactScan";
 
 const steps = [
   {
@@ -265,10 +266,11 @@ export default async function RootLayout({
       className={`${geistSans.className} antialiased`}
       suppressHydrationWarning
     >
+      {/* Schakel dit in als je PolarLearn wilt optimizeren :) */}
+      {/* <ReactScan/> */}
       <Head>
         <link rel="icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        {/* Prevent FOUC and hydration mismatch by setting theme before React loads */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -291,18 +293,11 @@ export default async function RootLayout({
           }}
         />
       </Head>
-      {/* <head>
-          <script
-            crossOrigin="anonymous"
-            src="//unpkg.com/react-scan/dist/auto.global.js"
-          />
-        </head> */}
       <body className="antialiased flex flex-col min-h-screen">
         <noscript>
           <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
             <div className="flex flex-col items-center">
               <p className="text-6xl pb-4">❌</p>
-
               <p className="text-xl">
                 PolarLearn werkt niet zonder JavaScript. Zet JavaScript aan om
                 verder te gaan.
