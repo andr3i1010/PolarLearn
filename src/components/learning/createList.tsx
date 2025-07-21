@@ -8,7 +8,6 @@
 // Met vriendelijke groeten, andrei1010
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Virtualizer } from "virtua";
 import { motion, AnimatePresence } from "motion/react";
 import { GripVertical, Import, Plus, Trash2, X } from "lucide-react";
 import {
@@ -39,20 +38,11 @@ async function sendListRequest(listData: any) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(listData),
   });
-
-  let data;
-  try {
-    data = await response.json();
-  } catch {
-    data = null;
-  }
-
   if (!response.ok) {
-    throw new Error(
-      `Error ${isUpdate ? 'updating' : 'creating'} list: ${data?.error || response.statusText}`
-    );
+    const errorText = await response.text();
+    throw new Error(`Error ${isUpdate ? 'updating' : 'creating'} list: ${errorText}`);
   }
-  return data;
+  return response.json();
 }
 
 // import { createListAction } from "@/serverActions/createList";
@@ -163,10 +153,10 @@ export default function CreateListTool({
   const [hasChanges, setHasChanges] = useState(false);
   const debouncedSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const translationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const reverseTranslationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const currentTranslationRequestRef = useRef<string | null>(null);
-  const currentReverseTranslationRequestRef = useRef<string | null>(null);
+  const translationTimeoutRef = useRef<NodeJS.Timeout | null>(null); // NEW: Add timeout ref for translation debouncing
+  const reverseTranslationTimeoutRef = useRef<NodeJS.Timeout | null>(null); // NEW: Add timeout ref for reverse translation debouncing
+  const currentTranslationRequestRef = useRef<string | null>(null); // NEW: Track current translation request to prevent race conditions
+  const currentReverseTranslationRequestRef = useRef<string | null>(null); // NEW: Track current reverse translation request to prevent race conditions
   const [isTranslationButtonFocused, setIsTranslationButtonFocused] = useState(false);
   const isEditMode = listToEdit;
   const [importText, setImportText] = useState<string>("");
@@ -1212,317 +1202,330 @@ export default function CreateListTool({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragStart={() => setIsDragging(true)}
+        onDragStart={() => setIsDragging(true)} // NEW: Set dragging state on drag start
         onDragEnd={handleDragEnd}
       >
         <SortableContext
           items={pairs.map((pair) => pair.id)}
           strategy={verticalListSortingStrategy}
         >
-          <Virtualizer>
-            <div className="flex flex-col gap-4">
-              <AnimatePresence>
-                {pairs.map((pair, index) => (
-                  <motion.div
-                    key={pair.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.9,
-                      transition: { duration: 0.2 },
-                    }}
-                    style={{ zIndex: 10 }}
-                    tabIndex={-1}
-                  >
-                    <SortableItem id={pair.id}>
-                      {({ dragListeners }) => (
-                        <div
-                          className="relative flex flex-col bg-neutral-800 shadow-lg rounded-lg transition-all p-4 cursor-default"
-                          tabIndex={-1}
-                        >
-                          {/* ...existing code for each pair... */}
-                          <div className="flex flex-row items-center gap-2">
-                            <span className="text-white mr-2 text-xl">
-                              {index + 1}
-                            </span>
-                            {/* ...existing code for inputs and controls... */}
-                            <div className="flex flex-col md:flex-row items-center gap-2 w-full">
-                              {/* ...existing code for Input fields... */}
-                              <Input
-                                value={pair["1"]}
-                                onChange={(e) =>
-                                  handleWordChange(pair.id, e.target.value)
-                                }
-                                onFocus={() => {
-                                  if (blurTimeoutRef.current) {
-                                    clearTimeout(blurTimeoutRef.current);
-                                    blurTimeoutRef.current = null;
-                                  }
-                                  setSelectedPairId(pair.id);
-                                  setSelectedInput("word");
-                                  setTimeout(() => {
-                                    const trimmedWord = pair["2"].trim();
-                                    if (trimmedWord.length > 0) {
-                                      currentReverseTranslationRequestRef.current = null;
-                                      getReverseTranslation(pair["2"], pair.id);
-                                    }
-                                  }, 50);
-                                }}
-                                onBlur={(e) => {
-                                  const relatedTarget = e.relatedTarget as HTMLElement;
-                                  if ((relatedTarget && relatedTarget.closest('[data-translation-button="true"]')) ||
-                                    isTranslationButtonFocused) {
-                                    return;
-                                  }
-                                  blurTimeoutRef.current = setTimeout(() => {
-                                    setSelectedPairId(null);
-                                    setSelectedInput(null);
-                                    setLeftInputTranslations({});
-                                  }, 150);
-                                }}
-                                className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pr-4 text-xl"
-                                type="text"
-                                placeholder={
-                                  isLanguage
-                                    ? "Woord in het " +
-                                    (krijgVak(
-                                      vanDropdownRef.current?.getSelectedItem() ||
-                                      "NL"
-                                    )?.naam || "")
-                                    : "Begrip"
-                                }
-                                data-pair-id={pair.id}
-                                data-input-type="1"
-                              />
-                              <Input
-                                value={pair["2"]}
-                                onChange={(e) =>
-                                  handleSecondInputChange(pair.id, e.target.value)
-                                }
-                                onFocus={() => {
-                                  if (blurTimeoutRef.current) {
-                                    clearTimeout(blurTimeoutRef.current);
-                                    blurTimeoutRef.current = null;
-                                  }
-                                  setSelectedPairId(pair.id);
-                                  setSelectedInput("secondInput");
-                                  setTimeout(() => {
-                                    const trimmedWord = pair["1"].trim();
-                                    if (trimmedWord.length > 0) {
-                                      getTranslation(pair["1"], pair.id);
-                                    }
-                                  }, 50);
-                                }}
-                                onBlur={(e) => {
-                                  const relatedTarget = e.relatedTarget as HTMLElement;
-                                  if ((relatedTarget && relatedTarget.closest('[data-translation-button="true"]')) ||
-                                    isTranslationButtonFocused) {
-                                    return;
-                                  }
-                                  blurTimeoutRef.current = setTimeout(() => {
-                                    setSelectedPairId(null);
-                                    setSelectedInput(null);
-                                    setTranslations({});
-                                  }, 150);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Tab" && !e.shiftKey) {
-                                    const isLastPair = index === pairs.length - 1;
-                                    if (isLastPair) {
-                                      e.preventDefault();
-                                      const newPair = {
-                                        id: nextId,
-                                        "1": "",
-                                        "2": "",
-                                      };
-                                      setPairs([...pairs, newPair]);
-                                      setNextId(nextId + 1);
-                                      markHasChanges();
-                                      setTimeout(() => {
-                                        const newPairInput =
-                                          document.querySelector(
-                                            `input[data-pair-id=\"${nextId}\"][data-input-type=\"1\"]`
-                                          ) as HTMLInputElement;
-                                        if (newPairInput) {
-                                          newPairInput.focus();
-                                        }
-                                      }, 0);
-                                    }
-                                  }
-                                }}
-                                className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
-                                type="text"
-                                placeholder={
-                                  isLanguage
-                                    ? "Vertaling"
-                                    : "Uitleg van het begrip"
-                                }
-                                data-pair-id={pair.id}
-                                data-input-type="2"
-                              />
-                            </div>
-                            <div className="flex flex-col md:flex-row items-center">
-                              <div
-                                className="cursor-grab"
-                                {...dragListeners}
-                                onMouseDown={(e) =>
-                                  (e.currentTarget.style.cursor = "grabbing")
-                                }
-                                onMouseUp={(e) =>
-                                  (e.currentTarget.style.cursor = "grab")
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.cursor = "grab")
-                                }
-                                tabIndex={-1}
-                              >
-                                <GripVertical />
-                              </div>
-                              <button
-                                onClick={() => removePair(pair.id)}
-                                className="ml-2 flex-none cursor-pointer"
-                                tabIndex={-1}
-                              >
-                                <Trash2 />
-                              </button>
-                            </div>
-                          </div>
-                          {translations[pair.id] &&
-                            selectedPairId === pair.id &&
-                            selectedInput === "secondInput" && (
-                              <div className="mt-2 border-t border-neutral-600 pt-2 flex justify-end">
-                                <div
-                                  data-translation-button="true"
-                                  onFocus={() => setIsTranslationButtonFocused(true)}
-                                  onBlur={() => setIsTranslationButtonFocused(false)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                      e.preventDefault();
-                                      setPairs((p) =>
-                                        p.map((innerPair) =>
-                                          innerPair.id === pair.id
-                                            ? {
-                                              ...innerPair,
-                                              "2": translations[pair.id],
-                                            }
-                                            : innerPair
-                                        )
-                                      );
-                                      setTranslations((prev) => {
-                                        const { [pair.id]: removed, ...rest } =
-                                          prev;
-                                        return rest;
-                                      });
-                                      setSelectedPairId(null);
-                                      setSelectedInput(null);
-                                    }
-                                  }}
-                                >
-                                  <Button1
-                                    text={translations[pair.id]}
-                                    tabIndex={0}
-                                    onClick={() => {
-                                      setPairs((p) =>
-                                        p.map((innerPair) =>
-                                          innerPair.id === pair.id
-                                            ? {
-                                              ...innerPair,
-                                              "2": translations[pair.id],
-                                            }
-                                            : innerPair
-                                        )
-                                      );
-                                      setTranslations((prev) => {
-                                        const { [pair.id]: removed, ...rest } =
-                                          prev;
-                                        return rest;
-                                      });
-                                      setSelectedPairId(null);
-                                      setSelectedInput(null);
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          {leftInputTranslations[pair.id] &&
-                            selectedPairId === pair.id &&
-                            selectedInput === "word" && (
-                              <div className="mt-2 border-t border-neutral-600 pt-2 flex justify-start">
-                                <div
-                                  data-translation-button="true"
-                                  onFocus={() => setIsTranslationButtonFocused(true)}
-                                  onBlur={() => setIsTranslationButtonFocused(false)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                      e.preventDefault();
-                                      setPairs((p) =>
-                                        p.map((innerPair) =>
-                                          innerPair.id === pair.id
-                                            ? {
-                                              ...innerPair,
-                                              "1": leftInputTranslations[pair.id],
-                                            }
-                                            : innerPair
-                                        )
-                                      );
-                                      setLeftInputTranslations((prev) => {
-                                        const { [pair.id]: removed, ...rest } =
-                                          prev;
-                                        return rest;
-                                      });
-                                      setSelectedPairId(null);
-                                      setSelectedInput(null);
-                                    }
-                                  }}
-                                >
-                                  <Button1
-                                    text={leftInputTranslations[pair.id]}
-                                    tabIndex={0}
-                                    onClick={() => {
-                                      setPairs((p) =>
-                                        p.map((innerPair) =>
-                                          innerPair.id === pair.id
-                                            ? {
-                                              ...innerPair,
-                                              "1": leftInputTranslations[pair.id],
-                                            }
-                                            : innerPair
-                                        )
-                                      );
-                                      setLeftInputTranslations((prev) => {
-                                        const { [pair.id]: removed, ...rest } =
-                                          prev;
-                                        return rest;
-                                      });
-                                      setSelectedPairId(null);
-                                      setSelectedInput(null);
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                        </div>
-                      )}
-                    </SortableItem>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              <div
-                className="relative flex items-center rounded-lg bg-neutral-800 shadow-lg p-4 h-20 transition-all hover:bg-neutral-700"
-                style={{ cursor: isDragging ? "grabbing" : "default" }}
-              >
-                <button
-                  onClick={addPair}
-                  className="absolute inset-0 flex items-center justify-center gap-2 text-xl"
+          <div className="space-y-4">
+            <AnimatePresence>
+              {pairs.map((pair, index) => (
+                <motion.div
+                  key={pair.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.9,
+                    transition: { duration: 0.2 },
+                  }}
+                  style={{ zIndex: 10 }} // significantly lowered z-index to prevent overlap with alerts
+                  tabIndex={-1}
                 >
-                  <Plus />
-                  <span>Nieuw paar</span>
-                </button>
-              </div>
-              <div className="h-1" />
+                  <SortableItem id={pair.id}>
+                    {({ dragListeners }) => (
+                      <div
+                        className="relative flex flex-col bg-neutral-800 shadow-lg rounded-lg transition-all p-4 cursor-default"
+                        tabIndex={-1}
+                      >
+                        <div className="flex flex-row items-center gap-2">
+                          <span className="text-white mr-2 text-xl">
+                            {index + 1}
+                          </span>
+
+                          <div className="flex flex-col md:flex-row items-center gap-2 w-full">
+                            <Input
+                              value={pair["1"]}
+                              onChange={(e) =>
+                                handleWordChange(pair.id, e.target.value)
+                              }
+                              onFocus={() => {
+                                // Clear any pending blur timeout
+                                if (blurTimeoutRef.current) {
+                                  clearTimeout(blurTimeoutRef.current);
+                                  blurTimeoutRef.current = null;
+                                }
+                                setSelectedPairId(pair.id);
+                                setSelectedInput("word");
+                                // Small delay to ensure state is set before fetching translation
+                                setTimeout(() => {
+                                  const trimmedWord = pair["2"].trim();
+                                  if (trimmedWord.length > 0) {
+                                    // Clear any existing reverse translation request
+                                    currentReverseTranslationRequestRef.current = null;
+                                    getReverseTranslation(pair["2"], pair.id);
+                                  }
+                                }, 50);
+                              }}
+                              onBlur={(e) => {
+                                // Don't clear state if clicking on a translation button or if translation button is focused
+                                const relatedTarget = e.relatedTarget as HTMLElement;
+                                if ((relatedTarget && relatedTarget.closest('[data-translation-button="true"]')) ||
+                                  isTranslationButtonFocused) {
+                                  return;
+                                }
+                                // Use timeout to allow button click to process
+                                blurTimeoutRef.current = setTimeout(() => {
+                                  setSelectedPairId(null);
+                                  setSelectedInput(null);
+                                  setLeftInputTranslations({});
+                                }, 150);
+                              }}
+                              className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pr-4 text-xl"
+                              type="text"
+                              placeholder={
+                                isLanguage
+                                  ? "Woord in het " +
+                                  (krijgVak(
+                                    vanDropdownRef.current?.getSelectedItem() ||
+                                    "NL"
+                                  )?.naam || "")
+                                  : "Begrip"
+                              }
+                              data-pair-id={pair.id}
+                              data-input-type="1"
+                            />
+                            <Input
+                              value={pair["2"]}
+                              onChange={(e) =>
+                                handleSecondInputChange(pair.id, e.target.value)
+                              }
+                              onFocus={() => {
+                                // Clear any pending blur timeout
+                                if (blurTimeoutRef.current) {
+                                  clearTimeout(blurTimeoutRef.current);
+                                  blurTimeoutRef.current = null;
+                                }
+                                setSelectedPairId(pair.id);
+                                setSelectedInput("secondInput");
+                                // Small delay to ensure state is set before fetching translation
+                                setTimeout(() => {
+                                  const trimmedWord = pair["1"].trim();
+                                  if (trimmedWord.length > 0) {
+                                    getTranslation(pair["1"], pair.id);
+                                  }
+                                }, 50);
+                              }}
+                              onBlur={(e) => {
+                                // Don't clear state if clicking on a translation button or if translation button is focused
+                                const relatedTarget = e.relatedTarget as HTMLElement;
+                                if ((relatedTarget && relatedTarget.closest('[data-translation-button="true"]')) ||
+                                  isTranslationButtonFocused) {
+                                  return;
+                                }
+                                // Use timeout to allow button click to process
+                                blurTimeoutRef.current = setTimeout(() => {
+                                  setSelectedPairId(null);
+                                  setSelectedInput(null);
+                                  setTranslations({});
+                                }, 150);
+                              }}
+                              onKeyDown={(e) => {
+                                // Check if Tab key is pressed and this is the last input of the last pair
+                                if (e.key === "Tab" && !e.shiftKey) {
+                                  const isLastPair = index === pairs.length - 1;
+                                  if (isLastPair) {
+                                    e.preventDefault();
+                                    // Add new pair
+                                    const newPair = {
+                                      id: nextId,
+                                      "1": "",
+                                      "2": "",
+                                    };
+                                    setPairs([...pairs, newPair]);
+                                    setNextId(nextId + 1);
+                                    markHasChanges();
+
+                                    // Focus the first input of the new pair after it's rendered
+                                    setTimeout(() => {
+                                      const newPairInput =
+                                        document.querySelector(
+                                          `input[data-pair-id="${nextId}"][data-input-type="1"]`
+                                        ) as HTMLInputElement;
+                                      if (newPairInput) {
+                                        newPairInput.focus();
+                                      }
+                                    }, 0);
+                                  }
+                                }
+                              }}
+                              className="bg-neutral-700 text-white h-12 flex-grow rounded-lg text-center pl-4 text-xl"
+                              type="text"
+                              placeholder={
+                                isLanguage
+                                  ? "Vertaling"
+                                  : "Uitleg van het begrip"
+                              }
+                              data-pair-id={pair.id}
+                              data-input-type="2"
+                            />
+                          </div>
+                          <div className="flex flex-col md:flex-row items-center">
+                            <div
+                              className="cursor-grab"
+                              {...dragListeners}
+                              onMouseDown={(e) =>
+                                (e.currentTarget.style.cursor = "grabbing")
+                              }
+                              onMouseUp={(e) =>
+                                (e.currentTarget.style.cursor = "grab")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.cursor = "grab")
+                              }
+                              tabIndex={-1}
+                            >
+                              <GripVertical />
+                            </div>
+                            <button
+                              onClick={() => removePair(pair.id)}
+                              className="ml-2 flex-none cursor-pointer"
+                              tabIndex={-1}
+                            >
+                              <Trash2 />
+                            </button>
+                          </div>
+                        </div>
+                        {translations[pair.id] &&
+                          selectedPairId === pair.id &&
+                          selectedInput === "secondInput" && (
+                            <div className="mt-2 border-t border-neutral-600 pt-2 flex justify-end">
+                              <div
+                                data-translation-button="true"
+                                onFocus={() => setIsTranslationButtonFocused(true)}
+                                onBlur={() => setIsTranslationButtonFocused(false)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setPairs((p) =>
+                                      p.map((innerPair) =>
+                                        innerPair.id === pair.id
+                                          ? {
+                                            ...innerPair,
+                                            "2": translations[pair.id],
+                                          }
+                                          : innerPair
+                                      )
+                                    );
+                                    setTranslations((prev) => {
+                                      const { [pair.id]: removed, ...rest } =
+                                        prev;
+                                      return rest;
+                                    });
+                                    // Clear the selection state after applying translation
+                                    setSelectedPairId(null);
+                                    setSelectedInput(null);
+                                  }
+                                }}
+                              >
+                                <Button1
+                                  text={translations[pair.id]}
+                                  tabIndex={0}
+                                  onClick={() => {
+                                    setPairs((p) =>
+                                      p.map((innerPair) =>
+                                        innerPair.id === pair.id
+                                          ? {
+                                            ...innerPair,
+                                            "2": translations[pair.id],
+                                          }
+                                          : innerPair
+                                      )
+                                    );
+                                    setTranslations((prev) => {
+                                      const { [pair.id]: removed, ...rest } =
+                                        prev;
+                                      return rest;
+                                    });
+                                    // Clear the selection state after applying translation
+                                    setSelectedPairId(null);
+                                    setSelectedInput(null);
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        {leftInputTranslations[pair.id] &&
+                          selectedPairId === pair.id &&
+                          selectedInput === "word" && (
+                            <div className="mt-2 border-t border-neutral-600 pt-2 flex justify-start">
+                              <div
+                                data-translation-button="true"
+                                onFocus={() => setIsTranslationButtonFocused(true)}
+                                onBlur={() => setIsTranslationButtonFocused(false)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setPairs((p) =>
+                                      p.map((innerPair) =>
+                                        innerPair.id === pair.id
+                                          ? {
+                                            ...innerPair,
+                                            "1": leftInputTranslations[pair.id],
+                                          }
+                                          : innerPair
+                                      )
+                                    );
+                                    setLeftInputTranslations((prev) => {
+                                      const { [pair.id]: removed, ...rest } =
+                                        prev;
+                                      return rest;
+                                    });
+                                    // Clear the selection state after applying translation
+                                    setSelectedPairId(null);
+                                    setSelectedInput(null);
+                                  }
+                                }}
+                              >
+                                <Button1
+                                  text={leftInputTranslations[pair.id]}
+                                  tabIndex={0}
+                                  onClick={() => {
+                                    setPairs((p) =>
+                                      p.map((innerPair) =>
+                                        innerPair.id === pair.id
+                                          ? {
+                                            ...innerPair,
+                                            "1": leftInputTranslations[pair.id],
+                                          }
+                                          : innerPair
+                                      )
+                                    );
+                                    setLeftInputTranslations((prev) => {
+                                      const { [pair.id]: removed, ...rest } =
+                                        prev;
+                                      return rest;
+                                    });
+                                    // Clear the selection state after applying translation
+                                    setSelectedPairId(null);
+                                    setSelectedInput(null);
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                      </div>
+                    )}
+                  </SortableItem>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            <div
+              className="relative flex items-center rounded-lg bg-neutral-800 shadow-lg p-4 h-20 transition-all hover:bg-neutral-700"
+              style={{ cursor: isDragging ? "grabbing" : "default" }}
+            >
+              <button
+                onClick={addPair}
+                className="absolute inset-0 flex items-center justify-center gap-2 text-xl"
+              >
+                <Plus />
+                <span>Nieuw paar</span>
+              </button>
             </div>
-          </Virtualizer>
+            <div className="h-1" />
+          </div>
         </SortableContext>
       </DndContext>
       <div className="mt-4 flex justify-center space-x-4">
