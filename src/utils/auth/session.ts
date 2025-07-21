@@ -58,8 +58,6 @@ export async function ensureSessionTTLIndex() {
   return setupSessionTTLIndex();
 }
 
-// Ensure TTL index is set up on module load
-ensureSessionTTLIndex();
 
 export async function createSession(userid: string) {
   // console.debug("createSession: Attempting session creation for user", userid);
