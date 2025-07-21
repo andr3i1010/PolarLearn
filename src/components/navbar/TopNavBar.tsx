@@ -5,7 +5,18 @@ import NavBtn from "@/components/button/Button1";
 import pl500 from "@/app/img/pl-500.svg";
 import DropdownBtn from "@/components/button/DropdownBtn";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { MoveLeft, Search, Menu, X, Users, GraduationCap, Folder } from "lucide-react";
+import {
+  MoveLeft,
+  Search,
+  Menu,
+  X,
+  Users,
+  GraduationCap,
+  Folder,
+  Settings,
+  LogOut,
+  ShieldUser,
+} from "lucide-react";
 import Link from "next/link";
 import StreakNavbarThing from "../streak/streakNav";
 import NotificationNav from "../notification/notificiationNav";
@@ -13,14 +24,8 @@ import PlusBtn from "@/components/button/plusbutton";
 
 // SearchBar component
 const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
-  const router = useRouter();
-
   const handleSearchClick = () => {
     onExpand();
-    // Use setTimeout to allow the UI to update before navigation
-    setTimeout(() => {
-      router.push("/home/search");
-    }, 100);
   };
 
   return (
@@ -119,14 +124,14 @@ const dropdownMatrixStart: [React.ReactNode, string][] = [
       <span className="font-medium">Vakken</span>
     </div>,
     "/learn/subjects",
-    ],
-    [
-        <div className="flex items-center">
-            <Folder className="mr-2" />
-            <span className="font-medium">Mappen</span>
-        </div>,
-        "/learn/mappen"
-  ]
+  ],
+  [
+    <div className="flex items-center">
+      <Folder className="mr-2" />
+      <span className="font-medium">Mappen</span>
+    </div>,
+    "/learn/mappen",
+  ],
 ];
 
 // Mobile dropdown component
@@ -307,11 +312,11 @@ const MobileMenu = memo(
 // Memoized navigation links component
 const NavigationLinks = memo(
   ({
-    pathname,
     onExpandSearch,
+    isAdmin = false,
   }: {
-    pathname: string;
     onExpandSearch: () => void;
+    isAdmin?: boolean;
   }) => (
     <>
       <div className="hidden md:flex items-center space-x-4 flex-grow">
@@ -321,11 +326,13 @@ const NavigationLinks = memo(
           useClNav={true}
           className="startbutton"
         />
-        {/* Wrapper for forum button tour step */}
-        <div id="forumbutton">
-          <NavBtn text="Forum" redirectTo="/home/forum" useClNav={true} />
-        </div>
-        <div className="relative block mb-12" style={{ textAlign: "left" }}>
+        <NavBtn
+          text="Forum"
+          redirectTo="/home/forum"
+          useClNav={true}
+          className="forumbutton"
+        />
+        <div className="relative block mb-12 w-95">
           <DropdownBtn
             selectorMode={false}
             text={"Leren"}
@@ -333,23 +340,44 @@ const NavigationLinks = memo(
             className="lerendropdown"
           />
         </div>
-        <div className="w-39" />
-
-        <div className="w-70 mr-1 searchbar">
+        <div className="w-full mr-2 searchbar">
           <SearchBar onExpand={onExpandSearch} />
         </div>
         <StreakNavbarThing />
         <NotificationNav />
         <PlusBtn />
-        <div className="ml-auto relative block dropdown-right">
+        <div className="relative block dropdown-right mr-40 mb-12">
           <DropdownBtn
+            width={160}
             selectorMode={false}
             text={"Account"}
             dropdownMatrix={[
-              ["Instellingen", "/home/settings"],
-              ["Uitloggen", "/auth/sign-out"],
+              [
+                <div className="flex items-center">
+                  <Settings className="mr-1"/>
+                  <span className="font-medium">Instellingen</span>
+                </div>,
+                "/home/settings",
+              ],
+              [
+                <div className="flex items-center">
+                  <LogOut className="mr-1" />
+                  <span className="font-medium">Uitloggen</span>
+                </div>,
+                "/auth/sign-out",
+              ],
+              ...(isAdmin
+                ? [
+                    [
+                      <div className="flex items-center">
+                        <ShieldUser className="mr-1" />
+                        <span className="font-medium">Admin</span>
+                      </div>,
+                      "/home/admin",
+                    ] as [React.ReactNode, string],
+                  ]
+                : []),
             ]}
-            className="accountdropdown"
           />
         </div>
       </div>
@@ -364,7 +392,11 @@ const LoginButton = memo(() => (
   </div>
 ));
 
-export const TopNavBar = memo(function TopNavBar() {
+export const TopNavBar = memo(function TopNavBar({
+  isAdmin,
+}: {
+  isAdmin?: boolean;
+}) {
   const pathname = usePathname();
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -381,7 +413,8 @@ export const TopNavBar = memo(function TopNavBar() {
     const isSearchRoute = pathname.startsWith("/home/search");
 
     const showOnGroups =
-      pathname === "/learn/groups" || pathname.startsWith("/learn/group/") ||
+      pathname === "/learn/groups" ||
+      pathname.startsWith("/learn/group/") ||
       pathname.startsWith("/learn/map");
     return {
       showOnViewList,
@@ -465,7 +498,6 @@ export const TopNavBar = memo(function TopNavBar() {
               {/* Desktop navigation */}
               {displayConditions.showNavLinks && (
                 <>
-                  {/* Mobile menu button */}
                   <button
                     className="md:hidden ml-auto p-2 rounded-full hover:bg-neutral-800"
                     onClick={() => setIsMobileMenuOpen(true)}
@@ -473,7 +505,6 @@ export const TopNavBar = memo(function TopNavBar() {
                     <Menu size={24} />
                   </button>
 
-                  {/* Mobile search button */}
                   <button
                     className="md:hidden p-2 rounded-full hover:bg-neutral-800 mr-2"
                     onClick={handleExpandSearch}
@@ -481,8 +512,8 @@ export const TopNavBar = memo(function TopNavBar() {
                     <Search size={24} />
                   </button>
                   <NavigationLinks
-                    pathname={pathname}
                     onExpandSearch={handleExpandSearch}
+                    isAdmin={isAdmin}
                   />
                   {displayConditions.showLoginButton && <LoginButton />}
                 </>
@@ -502,12 +533,7 @@ export const TopNavBar = memo(function TopNavBar() {
       />
 
       <div className="h-16" />
-      <style jsx global>{`
-        .dropdown-right > div.absolute {
-          right: 5px !important;
-          top: -24px !important;
-        }
-
+      <style>{`
         /* Ensure smooth transition when impersonation banner appears/disappears */
         nav.fixed {
           transition: top 0.3s ease;

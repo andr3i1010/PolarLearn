@@ -150,11 +150,6 @@ export default async function Footer() {
             >
               Bug melden
             </a>
-            {user?.role === "admin" ? (
-              <Button1 text="Admin" redirectTo="/admin" />
-            ) : (
-              ""
-            )}
           </div>
         </div>
       </div>

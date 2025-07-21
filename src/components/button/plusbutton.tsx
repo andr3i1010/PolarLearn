@@ -34,7 +34,7 @@ export default function PlusBtn() {
         <>
             <Popover>
                 <PopoverTrigger asChild>
-                    <button className="flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-700 transition-all text-white">
+                    <button className="flex items-center justify-center min-w-10 min-h-10 rounded-full bg-neutral-800 hover:bg-neutral-700 transition-all text-white">
                         <Plus />
                     </button>
                 </PopoverTrigger>

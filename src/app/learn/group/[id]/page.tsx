@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { Badge } from "@/components/ui/badge";
 import { getGroupLists, getPendingApprovals, getAvailableLists } from "@/serverActions/groupActions";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Send } from "lucide-react";
 import SettingsForm from "@/components/groups/SettingsForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import AdminToggleButton from "@/components/groups/AdminToggleButton";
@@ -18,6 +18,15 @@ import GroepLijsten from "@/app/learn/group/[id]/GroepLijsten";
 import { Metadata } from "next";
 import { sendNotificationToUser } from '@/utils/notifications/sendNotification';
 import { getUserNameById } from '@/serverActions/getUserName';
+import Chat from "./Chat";
+
+export type GroupChatContent = {
+  creator: string; // Naam van de poster
+  creatorId?: string; // UUID van de poster
+  content: string; // Berichtinhoud
+  time: Date; // Tijd van het bericht
+  creatorImage?: string; // profielfoto
+}
 
 // UUID validation regex pattern
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -161,6 +170,39 @@ export default async function Page({
     }
   }
 
+  // Type guard to check if the chat content is valid
+  const isValidChatContent = (content: any): content is GroupChatContent[] => {
+    return Array.isArray(content) && content.every(item =>
+      item &&
+      typeof item === 'object' &&
+      typeof item.creator === 'string' &&
+      typeof item.content === 'string' &&
+      item.time
+    );
+  };
+
+  // Safely parse and validate chat content
+  const rawChatContent = groupData.chatContent;
+  let chatContent: GroupChatContent[] = isValidChatContent(rawChatContent) ? rawChatContent : [];
+  // Enrich chatContent with the latest profile picture for each creator
+  if (chatContent.length > 0) {
+    // Only use creatorId that are valid UUIDs
+    const uniqueCreatorIds = Array.from(new Set(chatContent.map(msg => msg.creatorId))).filter((c): c is string => typeof c === 'string' && UUID_REGEX.test(c));
+    let userImageMap: Record<string, string | undefined> = {};
+    let users: { id: string, image: string | null }[] = [];
+    if (uniqueCreatorIds.length > 0) {
+      users = await prisma.user.findMany({
+        where: { id: { in: uniqueCreatorIds } },
+        select: { id: true, image: true },
+      });
+      userImageMap = Object.fromEntries(users.map(u => [u.id, u.image ?? undefined]));
+    }
+    chatContent = chatContent.map(msg => ({
+      ...msg,
+      creatorImage: (typeof msg.creatorId === 'string' && UUID_REGEX.test(msg.creatorId)) ? userImageMap[msg.creatorId] || undefined : undefined,
+    }));
+  }
+
   // Define tabs for this page
   const tabs: TabItem[] = [
     {
@@ -288,6 +330,13 @@ export default async function Page({
             </div>
           )}
         </div>
+      ),
+    },
+    {
+      id: "chat",
+      label: "Groepschat",
+      content: (
+        <Chat chatContent={chatContent} isAdmin={isCreator || isAdmin || isPlatformAdmin} />
       ),
     },
     ...(isAdmin || isCreator || currentUser?.role === "admin" ? [{

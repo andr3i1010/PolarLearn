@@ -146,9 +146,10 @@ model group {
   members Json?
   admins  String[]
 
-  listsAdded Json?
-  scheduledDeletion DateTime? // schedule for TTL deletion or transfer
+  listsAdded  Json?
+  chatContent Json[] @default([]) 
 
+  scheduledDeletion DateTime? // schedule for TTL deletion or transfer
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

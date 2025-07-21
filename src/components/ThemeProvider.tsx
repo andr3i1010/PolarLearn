@@ -17,7 +17,7 @@ function ThemeSync() {
 
     if (!storedTheme) {
       // Fetch theme from server if not in localStorage
-      fetch("/api/user/theme")
+      fetch("/api/v1/settings/theme")
         .then(res => res.json())
         .then(data => {
           if (data.theme) {
@@ -33,7 +33,7 @@ function ThemeSync() {
   useEffect(() => {
     // Sync theme changes to server
     if (theme && theme !== "system") {
-      fetch("/api/user/theme", {
+      fetch("/api/v1/settings/theme", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
