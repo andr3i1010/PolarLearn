@@ -6,8 +6,8 @@ WORKDIR /app
 # Install pnpm globally
 RUN npm install -g pnpm
 
-# Only copy the lockfile and package.json for caching dependencies
-COPY pnpm-lock.yaml package.json  ./
+# Copy only dependency-related files and prisma schema for caching
+COPY package.json pnpm-lock.yaml prisma/schema.prisma ./prisma/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
