@@ -69,14 +69,6 @@ export async function POST(request: NextRequest) {
 
     // Ensure we have a valid string key for the votes_data object
     const userName = user.name as string;
-
-    if (validatedData.content.includes("studygo")) {
-      validatedData.content = validatedData.content.replace(/studygo/g, "st*dygo 🤢");
-    }
-
-    if (validatedData.content.includes("tutor")) {
-      validatedData.content = validatedData.content.replace(/tutor/g, "t*tor 🤢");
-    }
   
     await prisma.forum.create({
       data: {
