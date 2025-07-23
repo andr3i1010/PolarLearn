@@ -16,7 +16,7 @@ export default function AppearancePage() {
   const saveThemeToServer = async (newTheme: string) => {
     setIsSaving(true)
     try {
-      const response = await fetch('/api/user/theme', {
+      const response = await fetch('/api/v1/settings/theme', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export default function AppearancePage() {
   }
 
   if (!mounted) {
-    return <div>Loading...</div>
+    return <div>Laden...</div>
   }
 
   return (
