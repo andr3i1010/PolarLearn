@@ -5,7 +5,7 @@
   "private": false,
   "scripts": {
     "dev": " NODE_ENV=development tsx src/main.ts",
-    "build": "rm -rf .next/; next build --turbopack",
+    "build": "GITINF=\"$(git rev-parse --short HEAD)@$(git rev-parse --abbrev-ref HEAD)\" rm -rf .next/; next build --turbopack",
     "start": "NODE_ENV=production tsx src/main.ts",
     "postinstall": "prisma generate"
   },

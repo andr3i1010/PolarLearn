@@ -9,13 +9,13 @@ RUN npm install -g pnpm typescript
 # Copy only dependency-related files and prisma schema for caching
 COPY package.json pnpm-lock.yaml ./
 COPY prisma/schema.prisma ./prisma/
+COPY .git ./.git
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
 # Now copy the rest of the source code
 COPY . .
-
 
 # Build the app (Next.js build and others)
 RUN pnpm build

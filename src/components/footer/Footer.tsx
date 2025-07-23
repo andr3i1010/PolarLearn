@@ -1,6 +1,5 @@
 import { faCodeCommit } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { gitInfo } from "@/utils/datatool";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import pkg from "@/../package.json";
 import { cookies } from "next/headers";
@@ -9,17 +8,8 @@ import Image from "next/image";
 import pl500 from "@/app/img/pl-500.svg";
 import kofi from "@/app/img/kofi_symbol.webp";
 import Link from "next/link";
-import Button1 from "../button/Button1";
 
 export default async function Footer() {
-  const git = await gitInfo();
-  const gitInfoData =
-    git !== "error" && git !== null
-      ? {
-        gitCommit: git.includes("@") ? git.split("@")[0] : git,
-        gitBranch: git.includes("@") ? git.split("@")[1] : "stable",
-      }
-      : null;
   const user = await getUserFromSession(
     (await cookies()).get("polarlearn.session-id")?.value as string
   );
@@ -39,9 +29,7 @@ export default async function Footer() {
                 icon={faCodeCommit as IconProp}
                 className="size-5"
               />
-              <p>{gitInfoData
-                ? `${gitInfoData.gitCommit}${gitInfoData.gitBranch ? `@${gitInfoData.gitBranch}` : ''}`
-                : 'Unknown version'}</p>
+              <p>{process.env.GITINF}</p>
             </div>
             <p>PolarLearn versie: {pkg.version}</p>
             {process.env.NODE_ENV === "development" && user && (
