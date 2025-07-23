@@ -308,31 +308,30 @@ export default async function RootLayout({
       className={`${geistSans.className} antialiased`}
       suppressHydrationWarning
     >
-      {/* Theme script runs before any CSS/JS to prevent flicker */}
-      <Script id="theme-script" strategy="beforeInteractive">
-        {`
-          (function() {
-            try {
-              var theme = localStorage.getItem('polarlearn.theme') || 'dark';
-              if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-              } else {
-                document.documentElement.classList.remove('dark');
-              }
-              document.documentElement.style.colorScheme = theme;
-            } catch (e) {
-              // fallback to dark theme
-              document.documentElement.classList.add('dark');
-              document.documentElement.style.colorScheme = 'dark';
-            }
-          })();
-        `}
-      </Script>
       <Head>
+        {/* Theme script FIRST in <Head> to minimize flicker and unhide body after theme is set */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('polarlearn.theme') || 'dark';
+                  document.documentElement.classList.remove('light', 'dark');
+                  document.documentElement.classList.add(theme);
+                  document.documentElement.style.colorScheme = theme;
+                } catch(e) {
+                  document.documentElement.classList.add('dark');
+                  document.documentElement.style.colorScheme = 'dark';
+                }
+                document.body.style.opacity = '1';
+              })();
+            `,
+          }}
+        />
         <link rel="icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </Head>
-      <body className="antialiased flex flex-col min-h-screen">
+      <body className="antialiased flex flex-col min-h-screen" style={{ opacity: 0 }}>
         <noscript>
           <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
             <div className="flex flex-col items-center">
