@@ -265,26 +265,40 @@ export default async function RootLayout({
   let isAdmin = false;
   try {
     const cookie = (await cookies()).get('polarlearn.session-id')?.value;
-    if (cookie) {
+    if (!cookie) {
+      // No session cookie, user is not logged in
+      isAdmin = false;
+    } else {
       const sessionId = await decodeCookie(cookie);
-      if (sessionId) {
+      if (!sessionId) {
+        // Cookie could not be decoded, treat as not admin
+        isAdmin = false;
+      } else {
         const session = await prisma.session.findFirst({
           where: {
             sessionID: sessionId as string
           }
         });
-        if (session) {
+        if (!session) {
+          // No session found in DB, treat as not admin
+          isAdmin = false;
+        } else {
           const user = await prisma.user.findUnique({
             where: {
-              id: session?.userId
+              id: session.userId
             }
           });
-          if (user) isAdmin = user.role === "admin";
+          if (user && user.role === "admin") {
+            isAdmin = true;
+          } else {
+            isAdmin = false;
+          }
         }
       }
     }
   } catch (e) {
-    // ignore, isAdmin stays false
+    // Any error, treat as not admin
+    isAdmin = false;
   }
 
   return (
