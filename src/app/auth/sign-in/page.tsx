@@ -39,8 +39,8 @@ export default async function SignInPage() {
                   !!process.env.GITHUB_SECRET && !!process.env.GITHUB_ID
                 }
                 googleEnabled={
-                  !!process.env.GOOGLE_CLIENT_ID &&
-                  !!process.env.GOOGLE_CLIENT_SECRET
+                  !!process.env.GOOGLE_ID &&
+                  !!process.env.GOOGLE_SECRET
                 }
                 turnstileEnabled={
                   !!process.env.TURNSTILE_SECRET &&
