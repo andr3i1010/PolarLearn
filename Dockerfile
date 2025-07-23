@@ -12,6 +12,7 @@ COPY prisma/schema.prisma ./prisma/
 COPY .git ./.git
 
 # Install dependencies
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 RUN pnpm install --frozen-lockfile
 
 # Now copy the rest of the source code

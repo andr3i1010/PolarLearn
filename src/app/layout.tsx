@@ -307,11 +307,8 @@ export default async function RootLayout({
       className={`${geistSans.className} antialiased`}
       suppressHydrationWarning
     >
-      {/* Schakel dit in als je PolarLearn wilt optimizeren :) */}
-      {/* <ReactScan/> */}
       <Head>
-        <link rel="icon" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        {/* Inline theme script FIRST to prevent flicker */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -333,6 +330,8 @@ export default async function RootLayout({
             `,
           }}
         />
+        <link rel="icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </Head>
       <body className="antialiased flex flex-col min-h-screen">
         <noscript>
