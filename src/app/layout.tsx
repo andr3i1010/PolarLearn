@@ -328,10 +328,17 @@ export default async function RootLayout({
             `,
           }}
         />
+        {/* Fallback: always unhide body after 0.5s in case JS is delayed */}
+        <style>{`
+          body { opacity: 0; transition: opacity 0.2s; }
+          body.unhide { opacity: 1 !important; }
+          @keyframes unhideBody { to { opacity: 1 !important; } }
+          body { animation: unhideBody 0s 0.5s forwards; }
+        `}</style>
         <link rel="icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </Head>
-      <body className="antialiased flex flex-col min-h-screen" style={{ opacity: 0 }}>
+      <body className="antialiased flex flex-col min-h-screen">
         <noscript>
           <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-white text-center p-4">
             <div className="flex flex-col items-center">
