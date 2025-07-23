@@ -20,8 +20,8 @@ COPY . .
 # Build the app (Next.js build and others)
 RUN pnpm build
 
-# Compile custom server files to dist/
-RUN tsc -p tsconfig.builder.json
+# Bundle server files with tsup to rewrite path aliases
+RUN pnpm exec tsup src/main.ts src/hono-server.ts --out-dir dist --format cjs
 
 ## ---- Production Stage ----
 FROM gcr.io/distroless/nodejs22-debian12
