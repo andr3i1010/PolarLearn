@@ -6,7 +6,6 @@ import { Geist } from "next/font/google";
 import ToastProvider from "@/components/toast/toast";
 import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
-import Script from "next/script";
 import SessionWrapper from "@/components/SessionWrapper";
 import ImpersonationCheck from "@/components/ImpersonationCheck";
 import ImpersonationStyles from "@/components/ImpersonationStyles";
@@ -309,32 +308,28 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <Head>
-        {/* Theme script FIRST in <Head> to minimize flicker and unhide body after theme is set */}
+        {/* Inline theme script FIRST to prevent flicker */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
                   var theme = localStorage.getItem('polarlearn.theme') || 'dark';
-                  document.documentElement.classList.remove('light', 'dark');
-                  document.documentElement.classList.add(theme);
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
                   document.documentElement.style.colorScheme = theme;
-                } catch(e) {
+                } catch (e) {
+                  // fallback to dark theme
                   document.documentElement.classList.add('dark');
                   document.documentElement.style.colorScheme = 'dark';
                 }
-                document.body.style.opacity = '1';
               })();
             `,
           }}
         />
-        {/* Fallback: always unhide body after 0.5s in case JS is delayed */}
-        <style>{`
-          body { opacity: 0; transition: opacity 0.2s; }
-          body.unhide { opacity: 1 !important; }
-          @keyframes unhideBody { to { opacity: 1 !important; } }
-          body { animation: unhideBody 0s 0.5s forwards; }
-        `}</style>
         <link rel="icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </Head>
