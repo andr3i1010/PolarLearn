@@ -6,6 +6,7 @@ import { Geist } from "next/font/google";
 import ToastProvider from "@/components/toast/toast";
 import { WSProvider } from "../components/ws-provider";
 import Head from "next/head";
+import Script from "next/script";
 import SessionWrapper from "@/components/SessionWrapper";
 import ImpersonationCheck from "@/components/ImpersonationCheck";
 import ImpersonationStyles from "@/components/ImpersonationStyles";
@@ -307,29 +308,27 @@ export default async function RootLayout({
       className={`${geistSans.className} antialiased`}
       suppressHydrationWarning
     >
+      {/* Theme script runs before any CSS/JS to prevent flicker */}
+      <Script id="theme-script" strategy="beforeInteractive">
+        {`
+          (function() {
+            try {
+              var theme = localStorage.getItem('polarlearn.theme') || 'dark';
+              if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
+              }
+              document.documentElement.style.colorScheme = theme;
+            } catch (e) {
+              // fallback to dark theme
+              document.documentElement.classList.add('dark');
+              document.documentElement.style.colorScheme = 'dark';
+            }
+          })();
+        `}
+      </Script>
       <Head>
-        {/* Inline theme script FIRST to prevent flicker */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('polarlearn.theme') || 'dark';
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                  document.documentElement.style.colorScheme = theme;
-                } catch (e) {
-                  // fallback to dark theme
-                  document.documentElement.classList.add('dark');
-                  document.documentElement.style.colorScheme = 'dark';
-                }
-              })();
-            `,
-          }}
-        />
         <link rel="icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </Head>
