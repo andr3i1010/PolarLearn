@@ -31,7 +31,7 @@ Schrijf in het commit-bericht alles wat er toegevoegs/gewijzigd is.
 
 ## Licentie
 
-Polarlearn is gelicenseerd onder de GNU General Public License v3.0. Dit betekent dat je de code mag gebruiken, aanpassen en verspreiden, zolang je de broncode beschikbaar stelt en dezelfde licentie gebruikt voor afgeleide werken. We waarderen het als je je wijzigingen terugstuurt naar het project, zodat anderen er ook gebruik van kunnen maken.
+Polarlearn is gelicenseerd onder de GNU Affero General Public License v3.0. Dit betekent dat je de code mag gebruiken, aanpassen en verspreiden, zolang je de broncode beschikbaar stelt en dezelfde licentie gebruikt voor afgeleide werken. We waarderen het als je je wijzigingen terugstuurt naar het project, zodat anderen er ook gebruik van kunnen maken.
 
 ## Contact
 
