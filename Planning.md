@@ -10,16 +10,16 @@
 - [x] Beheerders/Leden in Groepen
 - [x] Openbaar/Prive instelling voor Groepen
 - [x] Groepbeschrijving
-- [ ] Groepfoto aanpassen
-- [ ] Licht/Donker Thema
-- [ ] Forums in groepen
+- [x] Groepfoto aanpassen
+- [x] Licht/Donker Thema
+- [x] Groepchat
 - [ ] Vak en leerjaar gerelateerde groepen
 - [ ] Titels en Prestaties
-- [ ] Profielen aanpassen (Bio, profielfoto, etc.)
+- [x] Profielen aanpassen (profielfoto, etc.)
 - [ ] LiveQuiz
-- [ ] Accountinstellingen
-- [ ] Meldingen
+- [x] Accountinstellingen
+- [x] Meldingen
 - [ ] Quizzen
-- [ ] Mappen
+- [x] Mappen
 - [ ] Pomodoro Timer
 - [ ] Spaced Repetition
