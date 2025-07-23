@@ -67,4 +67,3 @@ Je kan bijdragen aan PolarLearn door de code te downloaden en te kijken wat je k
 Als je een suggestie hebt voor een nieuwe functie of er is een fout in het systeem, ga dan naar de [issue pagina vab GitHub](https://github.com/polarnl/PolarLearn/issues), en maak daar een nieuwe issue aan. Label hem correct en wees duidelijk en je funcite komt er misschien wel in. Je kan ook in de [discord chat](https://discord.gg/TdYzXDzqSB) praten en contact opnemen.
 
 Als je wilt bijdragen aan PolarLearn en kan programmeren in TS met Nextjs, kan je het best in de [Discord](https://discord.gg/TdYzXDzqSB) vragen hoe je kan helpen. lees ook de [CONTRIBUTING.md](https://github.com/polarnl/PolarLearn/blob/stable/CONTRIBUTING.md)
-

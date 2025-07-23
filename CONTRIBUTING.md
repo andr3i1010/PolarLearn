@@ -27,7 +27,7 @@ Als je een bug vindt of een verbetering wilt voorstellen, laat dit dan weten via
 
 Submit graag pull requests via Github naar de `beta` branch, behalve als het gaat om een hele nieuwe functie waar we een aparte branch voor hebben, zoals notificaties etc.
 We gaan ervan uit dat je de code in pull requests hebt getest voordat je een pull request maakt.
-Schrijf in het commit-bericht alles wat er toegevoegs/gewijzigd is. 
+Schrijf in het commit-bericht alles wat er toegevoegs/gewijzigd is.
 
 ## Licentie
 
@@ -45,6 +45,6 @@ Je wordt vanzelf uitgenodigd voor het projectteam als je actief bent in de [Disc
 
 Bedankt voor je interesse in Polarlearn! We waarderen erg je enthousiasme en we kijken er naar uit om met je samen te werken!
 
-### Door iets in te sturen ga je hiermee akkoord:
+### Door iets in te sturen ga je hiermee akkoord
 
 Wanneer je bijdraagt ​​aan dit project, moet je ermee akkoord gaan dat je 100% van de content hebt geschreven, dat je de benodigde rechten op de content hebt en dat de content die je bijdraagt ​​onder de projectlicentie mag worden verstrekt.

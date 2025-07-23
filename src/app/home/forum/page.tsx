@@ -177,7 +177,7 @@ Met punten verdien je prestaties die je als titel in kan stellen naast je naam! 
 
 Alleen vragen die ongepast, spam of beledigend zijn, worden verwijderd.
 
-In tegenstelling tot StudyGo mag je hier dus ook vragen stellen die niet over school gaan, en er zullen geen tutors zijn die alles verwijderen!
+Je mag hier dus ook vragen stellen die niet over school gaan, en er zullen geen mensen zijn die alles verwijderen!
 
 ### Meerdere keren een verwijderde post kan leiden tot een (permanente) verbanning. Dit kan ook meteen gebeuren als je iets heel ongepast zegt.
 ---

@@ -77,7 +77,7 @@ export default function Home() {
                                             width={64}
                                             style={{ width: '4rem', height: 'auto' }}
                                         />
-                                        <h1 className="text-6xl font-bold leading-tight bg-gradient-to-r from-sky-500 to-sky-100 bg-clip-text text-transparent ml-6">
+                                        <h1 className="text-6xl font-bold leading-tight bg-gradient-to-r from-sky-400 to-sky-100 bg-clip-text text-transparent ml-6">
                                             PolarLearn
                                         </h1>
                                     </div>
@@ -219,7 +219,6 @@ export default function Home() {
                             <ReviewCard stars={5} author='andrei1010' comment='Door de gratis forum en de samenvattingen heb ik eindelijk topcijfers voor geschiedenis!' />
                             <ReviewCard stars={4.7} author='EGaming200' comment='PolarLearn heeft mij geholpen met leren voor toetsen' />
                             <ReviewCard stars={5} author='MrApfelstrudel' comment='Door PolarLearn heb ik eindelijk goede cijfers voor frans!' />
-                            <ReviewCard stars={0} author='StudyGo Admin' comment='waarom bestaat dit' />
                             <ReviewCard stars={5} author='anoniem' comment='Ik merk dat PolarLearn veeel sneller is dan StudyGo, ook heel fijn dat het gratis is' />
                             <ReviewCard stars={5} author='kabab33' comment='Ik had een StudyGo abonnement, maar nu niet meer! Bedankt voor mijn € 95,88 per jaar besparen PolarLearn!' />
                             <ReviewCard stars={5} author='luna' comment="Mijn cijfers waren eerst heel slecht, maar sinds ik PolarLearn gebruik zijn ze super hoog!" />
@@ -328,7 +327,7 @@ export default function Home() {
                                             whileInView={{ y: 0, opacity: 1 }}
                                             transition={{ duration: 0.7, delay: 1 }}
                                         >
-                                            PolarLearn gebruikt de nieuwste beveiligingstechnologieën, zoals Argon2id <a target='_blank' className='text-sky-400' href='https://www.sentinelone.com/cybersecurity-101/cybersecurity/hashing/'>hashing</a>, salting, en password peppers om jouw gegevens zo veilig mogelijk te houden. Zo kan je met een gerust hart leren. PolarLearn verzamelt en verkoopt je persoonlijke data juist niet, in tegenstelling tot StudyGo.
+                                            PolarLearn gebruikt de nieuwste beveiligingstechnologieën, zoals Argon2id <a target='_blank' className='bg-gradient-to-r from-sky-500 to-sky-100 bg-clip-text text-transparent' href='https://www.sentinelone.com/cybersecurity-101/cybersecurity/hashing/'>hashing</a>, salting, en password peppers om jouw gegevens zo veilig mogelijk te houden. Zo kan je met een gerust hart leren. PolarLearn verzamelt en verkoopt je persoonlijke data juist niet.
                                         </motion.p>
                                     </div>
                                     <div className="border-r border-neutral-600 h-full"></div>
@@ -366,7 +365,7 @@ export default function Home() {
                         width={64}
                         style={{ width: '3rem', height: 'auto' }}
                     />
-                    <h1 className="text-5xl font-bold leading-tight bg-gradient-to-r from-sky-500 to-sky-100 bg-clip-text text-transparent ml-6">
+                    <h1 className="text-5xl font-bold leading-tight bg-gradient-to-r from-sky-400 to-sky-100 bg-clip-text text-transparent ml-6">
                         PolarLearn
                     </h1>
                 </div>

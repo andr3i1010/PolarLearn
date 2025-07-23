@@ -12,7 +12,7 @@ export default function GithubLogin() {
         };
         fetchAuthUrl();
     }, []);
-
+    // ngl dit dark mode maken is wel een van mijn beste commits ooit
     return (
         <a href={authUrl}>
             <button

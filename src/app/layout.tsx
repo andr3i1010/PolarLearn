@@ -161,21 +161,17 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 export async function generateMetadata(): Promise<Metadata> {
-  const cookieStore = await cookies();
-  const hasSG = cookieStore.has("SG");
   return {
-    title: hasSG ? "Studygo" : "PolarLearn",
+    title: "PolarLearn",
     description:
       "PolarLearn is de gratis en Open-Source leerprogramma, gemaakt voor, en door studenten.",
     authors: [
       { name: "andrei1010", url: "https://andrei1010.me" },
-      { name: "supersiem", url: "https://siemvk.nl/" },
+      { name: "siemvk", url: "https://siemvk.nl/" },
     ],
     icons: [
       {
-        url: hasSG
-          ? `${process.env.NEXT_PUBLIC_URL}/SG.png`
-          : `${process.env.NEXT_PUBLIC_URL}/icon.png`,
+        url: `${process.env.NEXT_PUBLIC_URL}/icon.png`,
         type: "image/png",
         rel: "icon",
       },
@@ -191,6 +187,11 @@ export async function generateMetadata(): Promise<Metadata> {
       "studenten",
       "gratis",
       "open-source",
+      'foss',
+      "forum",
+      "samenvattingen",
+      "lijsten",
+      "groepen",
     ],
     creator: "andrei1010",
     openGraph: {

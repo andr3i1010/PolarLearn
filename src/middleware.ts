@@ -49,18 +49,7 @@ export async function middleware(request: NextRequest, response: NextResponse) {
 
   // Make sure headers get applied
   resp.headers.set("X-Content-Type-Options", "nosniff");
-  // Check for UTM source and set cookie if it's 'studygo'
-  const utmSource = request.nextUrl.searchParams.get("utm_source");
-  if (utmSource === "studygo") {
-    // Set cookie to track the source - expires in 30 days
-    resp.cookies.set("SG", "true", {
-      path: "/",
-      maxAge: 30 * 24 * 60 * 60, // 30 days in seconds
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-  }
+
   const { finishedTour } = await getTourState();
   if (
     !finishedTour &&

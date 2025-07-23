@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { GoogleAnalytics } from '@next/third-parties/google'
 
 const ANALYTICS_COOKIE_NAME = "polarlearn.enable-analytics"
+// is dit niet prive??
 const ANALYTICS_ID = "G-C17NNNRTEM" 
 
 export function AnalyticsProvider() {
