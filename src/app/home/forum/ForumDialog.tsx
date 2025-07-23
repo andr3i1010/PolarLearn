@@ -9,13 +9,13 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { formSchema } from "./formSchema";
+import { formSchema as baseFormSchema } from "./formSchema";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
 import Tabs, { TabItem } from "@/components/Tabs";
 import { SelectCategoryCombobox } from "./selectCategoryCombobox";
-import { getUserFromSession } from "@/utils/auth/auth";
+import { useUserDataStore } from "@/store/user/UserDataProvider";
 
 // Memoized markdown preview component
 const MarkdownPreview = memo(({ content }: { content: string }) => (
@@ -197,10 +197,42 @@ const CategoryField = memo(({ control, isAdmin }: { control: any; isAdmin: boole
 function ForumDialog({ banned, banreason, banEnd, forumDisabled }: { banned: boolean; banreason: string | null | undefined; banEnd: Date | null | undefined, forumDisabled: boolean }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const userStore = useUserDataStore();
+  const isAdmin = userStore.getState().isAdmin;
   const router = useRouter();
 
-  // Initialize form with react-hook-form and zod validation
+
+  // Dynamic schema for admin bypass
+  const getFormSchema = (isAdmin: boolean) => {
+    return z.object({
+      title: isAdmin
+        ? z.string().min(1, "Titel is verplicht")
+        : z.string().min(1, "Titel is verplicht").max(100, "Titel mag maximaal 100 tekens bevatten"),
+      content: isAdmin
+        ? z.string().min(1, "Postinhoud is verplicht")
+        : z.string().min(1, "Postinhoud is verplicht").max(5000, "Inhoud mag maximaal 5000 tekens bevatten"),
+      category: z.string().min(1, "Selecteer een categorie"),
+      subject: z.string(),
+    }).refine(
+      (data) => {
+        if (data.category !== "school") return true;
+        return data.subject.length > 0;
+      },
+      {
+        message: "Selecteer een vak",
+        path: ["subject"],
+      }
+    );
+  };
+
+  // Store schema in state to allow dynamic update
+  const [formSchema, setFormSchema] = useState(() => getFormSchema(false));
+
+  // Update schema when admin status changes
+  useEffect(() => {
+    setFormSchema(getFormSchema(isAdmin));
+  }, [isAdmin]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -211,20 +243,7 @@ function ForumDialog({ banned, banreason, banEnd, forumDisabled }: { banned: boo
     },
   });
 
-  // Fetch user session and check if admin
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      try {
-        const user = await getUserFromSession();
-        setIsAdmin(user?.role === "admin");
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-        setIsAdmin(false);
-      }
-    };
-
-    checkAdminStatus();
-  }, []);
+  // No need to fetch admin status, useUserDataStore provides it
 
   // Extract content separately to avoid re-rendering the entire form
   const content = form.watch("content");

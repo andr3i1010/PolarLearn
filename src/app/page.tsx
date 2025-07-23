@@ -41,6 +41,7 @@ export default function Home() {
     return (
         <div className='p-0 m-0'>
             {/* ontcomment dit als de db in de brand staat */}
+            {/* Siem als de db in de brand staat dan werkt heel polarlearn niet */}
             {/* AI CODE START */}
             {/* <div className="bg-yellow-400 text-yellow-800 p-3 w-full flex justify-center items-center">
                 <div className="flex items-center gap-2 max-w-4xl">

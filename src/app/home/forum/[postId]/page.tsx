@@ -322,7 +322,6 @@ export default async function Page({
                     postId={post.post_id}
                     isCreator={isPostCreator}
                     isMainPost={true}
-                    isAdmin={isAdmin}
                   />
                   <DeletePostButton
                     postId={post.post_id}
@@ -354,9 +353,7 @@ export default async function Page({
 
         <h1 className="text-3xl mb-4 font-bold">{post.title}</h1>
         <hr className="border-neutral-600 mb-4" />
-        <div className="prose prose-invert max-w-none whitespace-pre-line">
-          <MarkdownRenderer content={post.content} />
-        </div>
+        <MarkdownRenderer content={post.content} />
       </div>
 
       <div className="mt-6">

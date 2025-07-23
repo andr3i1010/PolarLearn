@@ -10,6 +10,7 @@ import SessionWrapper from "@/components/SessionWrapper";
 import ImpersonationCheck from "@/components/ImpersonationCheck";
 import ImpersonationStyles from "@/components/ImpersonationStyles";
 import React from "react";
+import { UserDataProvider } from "../store/user/UserDataProvider";
 import { cookies } from "next/headers";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
 import { NextStepProvider, NextStep } from "nextstepjs";
@@ -262,43 +263,32 @@ export default async function RootLayout({
 
   const footerContent = await Footer();
 
-  let isAdmin = false;
+  // Server-side user data hydration
+  let userData = { id: '', name: '', isAdmin: false };
   try {
     const cookie = (await cookies()).get('polarlearn.session-id')?.value;
-    if (!cookie) {
-      // No session cookie, user is not logged in
-      isAdmin = false;
-    } else {
+    if (cookie) {
       const sessionId = await decodeCookie(cookie);
-      if (!sessionId) {
-        // Cookie could not be decoded, treat as not admin
-        isAdmin = false;
-      } else {
+      if (sessionId) {
         const session = await prisma.session.findFirst({
-          where: {
-            sessionID: sessionId as string
-          }
+          where: { sessionID: sessionId as string }
         });
-        if (!session) {
-          // No session found in DB, treat as not admin
-          isAdmin = false;
-        } else {
+        if (session) {
           const user = await prisma.user.findUnique({
-            where: {
-              id: session.userId
-            }
+            where: { id: session.userId }
           });
-          if (user && user.role === "admin") {
-            isAdmin = true;
-          } else {
-            isAdmin = false;
+          if (user) {
+            userData = {
+              id: user.id,
+              name: user.name || '',
+              isAdmin: user.role === 'admin',
+            };
           }
         }
       }
     }
   } catch (e) {
-    // Any error, treat as not admin
-    isAdmin = false;
+    // fallback: keep userData as default
   }
 
   return (
@@ -350,46 +340,48 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: art }}
         />
         <SessionWrapper>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
-            storageKey="polarlearn.theme"
-          >
-            {!finishedTour ? (
-              <NextStepProvider>
-                <TourInitializer tourName="mainTour" />
-                <NextStep steps={steps} cardComponent={DarkCard}>
-                  <TourNavigator />
-                  <ToastProvider>
-                    <WSProvider>
-                      <>
-                        <ImpersonationCheck />
-                        <ImpersonationStyles />
-                        <TopNavBar isAdmin={isAdmin} />
-                        {children}
-                      </>
-                      {footerContent}
-                      <AnalyticsProvider />
-                    </WSProvider>
-                  </ToastProvider>
-                </NextStep>
-              </NextStepProvider>
-            ) : (
-              <ToastProvider>
-                <WSProvider>
-                  <>
-                    <ImpersonationCheck />
-                    <ImpersonationStyles />
-                    <TopNavBar isAdmin={isAdmin} />
-                    {children}
-                  </>
-                  {footerContent}
-                  <AnalyticsProvider />
-                </WSProvider>
-              </ToastProvider>
-            )}
-          </ThemeProvider>
+          <UserDataProvider userData={userData}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem={false}
+              storageKey="polarlearn.theme"
+            >
+              {!finishedTour ? (
+                <NextStepProvider>
+                  <TourInitializer tourName="mainTour" />
+                  <NextStep steps={steps} cardComponent={DarkCard}>
+                    <TourNavigator />
+                    <ToastProvider>
+                      <WSProvider>
+                        <>
+                          <ImpersonationCheck />
+                          <ImpersonationStyles />
+                          <TopNavBar isAdmin={userData.isAdmin} />
+                          {children}
+                        </>
+                        {footerContent}
+                        <AnalyticsProvider />
+                      </WSProvider>
+                    </ToastProvider>
+                  </NextStep>
+                </NextStepProvider>
+              ) : (
+                <ToastProvider>
+                  <WSProvider>
+                    <>
+                      <ImpersonationCheck />
+                      <ImpersonationStyles />
+                      <TopNavBar isAdmin={userData.isAdmin} />
+                      {children}
+                    </>
+                    {footerContent}
+                    <AnalyticsProvider />
+                  </WSProvider>
+                </ToastProvider>
+              )}
+            </ThemeProvider>
+          </UserDataProvider>
         </SessionWrapper>
       </body>
     </html>

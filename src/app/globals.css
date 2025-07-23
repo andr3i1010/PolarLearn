@@ -8,6 +8,24 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+@layer components {
+  .prose ul,
+  .prose ol {
+    padding-left: 1.5em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+  .prose ul {
+    list-style-type: disc;
+  }
+  .prose ol {
+    list-style-type: decimal;
+  }
+  .prose li {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+  }
+}
 
 :root {
   /* Light theme */
@@ -447,5 +465,34 @@
   }
   .bg-neutral-700\/70 {
     background-color: rgb(from var(--neutral-700) r g b / 0.7) !important;
+  }
+}
+
+@layer components {
+  .prose :where(h1, h2, h3, h4, h5, h6) {
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose h1 {
+    font-size: 2rem;
+  }
+
+  .prose h2 {
+    font-size: 1.5rem;
+  }
+
+  .prose h3 {
+    font-size: 1.25rem;
+  }
+
+  .prose h4 {
+    font-size: 1.125rem;
+  }
+
+  .prose h5,
+  .prose h6 {
+    font-size: 1rem;
   }
 }

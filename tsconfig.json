@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
     "lib": [
       "dom",
       "dom.iterable",
@@ -17,7 +16,6 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "assumeChangesOnlyAffectDirectDependencies": true,
     "plugins": [
       {
         "name": "next"
@@ -27,14 +25,14 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    "src/middleware.ts"
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

@@ -3,33 +3,29 @@ import { prisma } from "@/utils/prisma";
 import { getUserFromSession } from "@/utils/auth/auth";
 import { z } from "zod";
 
-// Define the form schema for validation
-const editPostSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Titel is verplicht")
-    .max(100, "Titel mag maximaal 100 tekens bevatten"),
-  content: z
-    .string()
-    .min(1, "Postinhoud is verplicht")
-    .max(5000, "Inhoud mag maximaal 5000 tekens bevatten"),
-  category: z.string().min(1, "Selecteer een categorie"),
-  subject: z.string(),
-}).refine(
-  (data) => {
-    // Only require subject selection when category is school
-    if (data.category !== "school") {
-      return true;
-    }
 
-    // For school category, subject is required
-    return data.subject.length > 0;
-  },
-  {
-    message: "Selecteer een vak",
-    path: ["subject"],
-  }
-);
+// Dynamic schema for admin bypass
+const getEditPostSchema = (isAdmin: boolean) => {
+  return z.object({
+    title: isAdmin
+      ? z.string().min(1, "Titel is verplicht")
+      : z.string().min(1, "Titel is verplicht").max(100, "Titel mag maximaal 100 tekens bevatten"),
+    content: isAdmin
+      ? z.string().min(1, "Postinhoud is verplicht")
+      : z.string().min(1, "Postinhoud is verplicht").max(5000, "Inhoud mag maximaal 5000 tekens bevatten"),
+    category: z.string().min(1, "Selecteer een categorie"),
+    subject: z.string(),
+  }).refine(
+    (data) => {
+      if (data.category !== "school") return true;
+      return data.subject.length > 0;
+    },
+    {
+      message: "Selecteer een vak",
+      path: ["subject"],
+    }
+  );
+};
 
 const editReplySchema = z.object({
   content: z
@@ -99,8 +95,9 @@ export async function PUT(request: NextRequest) {
         { status: 200 }
       );
     } else {
+
       // This is a main post - validate all fields
-      const validatedData = editPostSchema.parse(body);
+      const validatedData = getEditPostSchema(user.role === "admin").parse(body);
 
       // Update the post in the database
       const updateData: any = {

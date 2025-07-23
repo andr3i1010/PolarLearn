@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo, useEffect } from "react";
+import { useUserDataStore } from "@/store/user/UserDataProvider";
 import { getPost } from "@/actions/forum";
 import { useRouter } from "next/navigation";
 import {
@@ -25,65 +26,62 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { formSchema } from "../formSchema";
+// Dynamic schema for admin bypass
+const getFormSchema = (isAdmin: boolean) => {
+  return z.object({
+    title: isAdmin
+      ? z.string().min(1, "Titel is verplicht")
+      : z.string().min(1, "Titel is verplicht").max(100, "Titel mag maximaal 100 tekens bevatten"),
+    content: isAdmin
+      ? z.string().min(1, "Postinhoud is verplicht")
+      : z.string().min(1, "Postinhoud is verplicht").max(5000, "Inhoud mag maximaal 5000 tekens bevatten"),
+    category: z.string().min(1, "Selecteer een categorie"),
+    subject: z.string(),
+  }).refine(
+    (data) => {
+      if (data.category !== "school") return true;
+      return data.subject.length > 0;
+    },
+    {
+      message: "Selecteer een vak",
+      path: ["subject"],
+    }
+  );
+};
 import ReactMarkdown from "react-markdown";
 import Tabs from "@/components/Tabs";
 import { Combobox } from "../selectSubjCombobox";
 import { SelectCategoryCombobox } from "../selectCategoryCombobox";
 import { toast } from "react-toastify";
+import MarkdownRenderer from "@/components/md";
+
 
 interface EditPostButtonProps {
   postId: string;
   isCreator: boolean;
   isMainPost?: boolean;
-  isAdmin?: boolean;
 }
 
-// Memoized markdown preview component
-const MarkdownPreview = memo(({ content }: { content: string }) => (
-  <div className="bg-neutral-800 border border-neutral-700 h-40 overflow-y-auto p-3 rounded-md prose prose-invert max-w-none whitespace-pre-line">
-    {content ? (
-      <ReactMarkdown
-        components={{
-          h1: ({ node, ...props }) => (
-            <h1 className="text-4xl font-bold my-4" {...props} />
-          ),
-          h2: ({ node, ...props }) => (
-            <h2 className="text-3xl font-bold my-3" {...props} />
-          ),
-          h3: ({ node, ...props }) => (
-            <h3 className="text-2xl font-semibold my-2" {...props} />
-          ),
-          img: ({ src, alt, ...props }) => (
-            <img
-              src={src}
-              alt={alt || ""}
-              style={{ maxWidth: "100%", maxHeight: "400px", height: "auto" }}
-              {...props}
-            />
-          ),
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-    ) : (
-      <p className="text-gray-400">Voorbeeldweergave verschijnt hier...</p>
-    )}
-  </div>
-));
 
 function EditPostButton({
   postId,
   isCreator,
   isMainPost = false,
-  isAdmin = false,
 }: EditPostButtonProps) {
+  const userStore = useUserDataStore();
+  const isAdmin = userStore.getState().isAdmin;
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [formSchema, setFormSchema] = useState(() => getFormSchema(isAdmin));
   const router = useRouter();
+
+  // Update schema when admin status changes
+  useEffect(() => {
+    setFormSchema(getFormSchema(isAdmin));
+  }, [isAdmin]);
 
   // Initialize form with default empty values
   const form = useForm<z.infer<typeof formSchema>>({
@@ -330,7 +328,7 @@ function EditPostButton({
                           {
                             id: "preview",
                             label: "Voorbeeld",
-                            content: <MarkdownPreview content={content} />,
+                            content: <MarkdownRenderer content={content} />,
                           },
                         ]}
                         defaultActiveTab="write"
