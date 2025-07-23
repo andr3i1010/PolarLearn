@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM node:20-alpine AS builder
+FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
@@ -16,8 +16,12 @@ RUN pnpm install --frozen-lockfile
 # Now copy the rest of the source code
 COPY . .
 
-# Build the app
+
+# Build the app (Next.js build and others)
 RUN pnpm build
+
+# Compile custom server files to dist/
+RUN tsc src/hono-server.ts src/main.ts --outDir dist
 
 ## ---- Production Stage ----
 FROM gcr.io/distroless/nodejs22-debian12
@@ -32,10 +36,12 @@ COPY --from=builder /app/node_modules ./node_modules
 
 COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
-COPY --from=builder /app/src/hono-server.ts ./src/hono-server.ts
-COPY --from=builder /app/src/main.ts ./src/main.ts
+
+# Copy compiled server files
+COPY --from=builder /app/dist/hono-server.js ./dist/hono-server.js
+COPY --from=builder /app/dist/main.js ./dist/main.js
 # Add any other files needed at runtime here
 
 EXPOSE 3000
 
-CMD ["./node_modules/.bin/tsx", "./src/main.ts"]
+CMD ["node", "dist/main.js"]
