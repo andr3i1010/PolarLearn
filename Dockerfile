@@ -4,7 +4,7 @@ FROM node:lts-alpine AS builder
 WORKDIR /app
 
 # Install pnpm globally
-RUN npm install -g pnpm
+RUN npm install -g pnpm typescript
 
 # Copy only dependency-related files and prisma schema for caching
 COPY package.json pnpm-lock.yaml ./
