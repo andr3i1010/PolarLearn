@@ -43,5 +43,6 @@ COPY --from=builder /app/dist/main.js ./dist/main.js
 # Add any other files needed at runtime here
 
 EXPOSE 3000
+ENV NODE_ENV=production
 
 CMD ["-r", "tsconfig-paths/register", "dist/main.js"]
