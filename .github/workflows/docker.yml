@@ -11,22 +11,29 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
-      - name: Checkout source code
+      - name: Broncode kopiëren
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
+      - name: Docker BuildX instellen
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
+      - name: Inloggen met GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: PolarLearn bouwen en pushen naar GHCR
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/polarlearn:latest
+
+      - name: Webhook voor automatische deploy (moet aleen op de managed/hosted versie)
+        run: |
+          curl -fsSL "$DOKPLOY_WEBHOOK" || echo "Webhook gefaald, waarschijnlijk is dit niet de hosted versie van PolarLearn."
+        env:
+          DOKPLOY_WEBHOOK: ${{ secrets.DOKPLOY_WEBHOOK }}
+        continue-on-error: true
