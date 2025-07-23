@@ -261,26 +261,31 @@ export default async function RootLayout({
 
   const footerContent = await Footer();
 
-  let isAdmin = false
+  let isAdmin = false;
+  try {
+    const cookie = (await cookies()).get('polarlearn.session-id')?.value;
+    if (cookie) {
+      const sessionId = await decodeCookie(cookie);
+      if (sessionId) {
+        const session = await prisma.session.findFirst({
+          where: {
+            sessionID: sessionId as string
+          }
+        });
+        if (session) {
+          const user = await prisma.user.findUnique({
+            where: {
+              id: session?.userId
+            }
+          });
+          if (user) isAdmin = user.role === "admin";
+        }
+      }
+    }
+  } catch (e) {
+    // ignore, isAdmin stays false
+  }
 
-  const cookie = (await cookies()).get('polarlearn.session-id')?.value
-  if (!cookie) return
-  const sessionId = await decodeCookie(cookie);
-  if (!sessionId) return
-  const session = await prisma.session.findFirst({
-    where: {
-      sessionID: sessionId as string
-    }
-  })
-  if (!session) return
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session?.userId
-    }
-  })
-  if (!user) return
-  isAdmin = user.role === "admin"
-  
   return (
     <html
       lang="nl"

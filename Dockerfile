@@ -21,7 +21,7 @@ COPY . .
 RUN pnpm build
 
 # Compile custom server files to dist/
-RUN tsc src/hono-server.ts src/main.ts --outDir dist
+RUN tsc -p tsconfig.builder.json
 
 ## ---- Production Stage ----
 FROM gcr.io/distroless/nodejs22-debian12

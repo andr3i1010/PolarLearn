@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "noEmit": false,
+    "outDir": "dist"
+  },
+  "include": [
+    "src/hono-server.ts",
+    "src/main.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
+  ]
+}
