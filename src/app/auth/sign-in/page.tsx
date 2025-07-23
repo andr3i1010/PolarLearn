@@ -43,7 +43,7 @@ export default async function SignInPage() {
                   !!process.env.GOOGLE_SECRET
                 }
                 turnstileEnabled={
-                  !!process.env.TURNSTILE_SECRET &&
+                  !!process.env.TURNSTILE_SECRET_KEY &&
                   !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
                 }
               />

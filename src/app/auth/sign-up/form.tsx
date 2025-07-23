@@ -7,7 +7,7 @@ import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
 import Honeypot from "../honeypot";
 
-export default function SignUpForm() {
+export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnabled?: boolean } = {}) {
   const [usernameError, setUsernameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -55,6 +55,10 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    if (!turnstileEnabled) {
+      setCaptchaReady(true);
+      return;
+    }
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
     script.async = true;
@@ -121,18 +125,56 @@ export default function SignUpForm() {
         setWidgetId(id);
       }
     };
-  }, []);
+    // Cleanup script on unmount
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [turnstileEnabled]);
 
   return (
     <form
       ref={formRef}
       className="space-y-4 md:space-y-6"
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        if (widgetId !== null && window.turnstile) {
-          window.turnstile.execute(widgetId);
+        if (turnstileEnabled) {
+          if (widgetId !== null && window.turnstile) {
+            window.turnstile.execute(widgetId);
+          } else {
+            toast.error("Bevestig dat je geen robot bent.");
+          }
         } else {
-          toast.error("Bevestig dat je geen robot bent.");
+          // No turnstile: do validation and submit directly
+          const form = formRef.current!;
+          const formData = new FormData(form);
+          const username = formData.get("username") as string;
+          const email = formData.get("email") as string;
+          const password = formData.get("password") as string;
+          const usernameValid = validateUsername(username);
+          const emailValid = validateEmail(email);
+          const passwordValid = validatePassword(password);
+          if (!usernameValid || !emailValid || !passwordValid) return;
+          try {
+            const response = await fetch("/api/v1/auth/sign-up", {
+              method: "POST",
+              credentials: 'include',
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username, email, password }),
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+              toast.success(result.message || "Account succesvol aangemaakt! Controleer je e-mail om je account te activeren.");
+              await delay(3000);
+              router.push("/auth/sign-in?message=check_email");
+            } else {
+              toast.error(result.error || "Er is een fout opgetreden");
+            }
+          } catch (err) {
+            console.error("Sign-up error:", err);
+            toast.error("Er is een fout opgetreden bij het aanmaken van je account");
+          }
         }
       }}
     >
@@ -205,12 +247,12 @@ export default function SignUpForm() {
           <p className="mt-1 text-sm text-red-500">{passwordError}</p>
         )}
       </div>
-      <div id="turnstile-signup" className="flex justify-center"></div>
+      {turnstileEnabled && <div id="turnstile-signup" className="flex justify-center"></div>}
       <Button1
-        text={captchaReady ? "Maak 'm aan!" : "CAPTCHA laden..."}
+        text={turnstileEnabled ? (captchaReady ? "Maak 'm aan!" : "CAPTCHA laden...") : "Maak 'm aan!"}
         className="w-full"
         type="submit"
-        disabled={!captchaReady}
+        disabled={turnstileEnabled ? !captchaReady : false}
       />
       <Honeypot />
     </form>
