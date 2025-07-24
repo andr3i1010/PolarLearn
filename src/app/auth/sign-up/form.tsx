@@ -137,6 +137,15 @@ export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnab
       className="space-y-4 md:space-y-6"
       onSubmit={async (e) => {
         e.preventDefault();
+        const form = formRef.current!;
+        const formData = new FormData(form);
+        const username = formData.get("username") as string;
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+        const usernameValid = validateUsername(username);
+        const emailValid = validateEmail(email);
+        const passwordValid = validatePassword(password);
+        if (!usernameValid || !emailValid || !passwordValid) return;
         if (turnstileEnabled) {
           if (widgetId !== null && window.turnstile) {
             window.turnstile.execute(widgetId);
@@ -144,16 +153,6 @@ export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnab
             toast.error("Bevestig dat je geen robot bent.");
           }
         } else {
-          // No turnstile: do validation and submit directly
-          const form = formRef.current!;
-          const formData = new FormData(form);
-          const username = formData.get("username") as string;
-          const email = formData.get("email") as string;
-          const password = formData.get("password") as string;
-          const usernameValid = validateUsername(username);
-          const emailValid = validateEmail(email);
-          const passwordValid = validatePassword(password);
-          if (!usernameValid || !emailValid || !passwordValid) return;
           try {
             const response = await fetch("/api/v1/auth/sign-up", {
               method: "POST",

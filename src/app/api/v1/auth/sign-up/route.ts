@@ -5,10 +5,10 @@ import disposable from 'disposable-email';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, email, password, captchaToken, turnstileEnabled = true } = body;
+    const { username, email, password, captchaToken } = body;
 
     // Only require captcha if turnstileEnabled is true (default)
-    if (turnstileEnabled) {
+    if (!!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !!process.env.TURNSTILE_SECRET_KEY) {
       if (!captchaToken) {
         return NextResponse.json(
           { error: "Captcha verificatie vereist" },

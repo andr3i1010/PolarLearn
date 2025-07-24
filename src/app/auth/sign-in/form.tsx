@@ -228,19 +228,24 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
           ref={formRef}
           onSubmit={async (e) => {
             e.preventDefault();
-            if (!captchaToken) {
-              toast.error("Bevestig dat je geen robot bent.");
-              return;
-            }
             const formData = new FormData(e.currentTarget);
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
+            let tokenToSend = captchaToken;
+            if (turnstileEnabled) {
+              if (!captchaToken) {
+                toast.error("Bevestig dat je geen robot bent.");
+                return;
+              }
+            } else {
+              tokenToSend = "";
+            }
             try {
               const response = await fetch("/api/v1/auth/sign-in", {
                 method: "POST",
                 credentials: 'include',
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password, captchaToken }),
+                body: JSON.stringify({ email, password, captchaToken: tokenToSend }),
               });
               const data = await response.json();
               if (response.ok && data.success) {
@@ -259,11 +264,6 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
                   // Try router first, fallback to window.location
                   try {
                     router.push(gotoPath);
-                    // setTimeout(() => {
-                    //   if (window.location.pathname === '/auth/sign-in') {
-                    //     window.location.href = gotoPath;
-                    //   }
-                    // }, 1000);
                   } catch (err) {
                     console.warn("nextjs router redirect gefaald:", err);
                     window.location.href = gotoPath;
@@ -276,7 +276,7 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
                 }
                 toast.error(data.error || "Er is een fout opgetreden");
                 // Reset captcha on login failure
-                if (window.turnstile && widgetId !== null) {
+                if (window.turnstile && widgetId !== null && turnstileEnabled) {
                   window.turnstile.reset(widgetId);
                   setCaptchaToken("");
                   setCaptchaLoading(true);
@@ -286,7 +286,7 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
               console.error("Sign-in error:", error);
               toast.error("Er is een fout opgetreden bij het inloggen");
               // Reset captcha on network/other errors
-              if (window.turnstile && widgetId !== null) {
+              if (window.turnstile && widgetId !== null && turnstileEnabled) {
                 window.turnstile.reset(widgetId);
                 setCaptchaToken("");
                 setCaptchaLoading(true);
