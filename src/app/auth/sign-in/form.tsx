@@ -30,6 +30,8 @@ function getCookie(cname: string) {
 
 export default function SignInForm({ googleEnabled = true, githubEnabled = true, turnstileEnabled = true }: { googleEnabled?: boolean; githubEnabled?: boolean; turnstileEnabled?: boolean }) {
   const router = useRouter();
+  // Debug: log the sitekey to verify if it's available in the client-side
+  //console.log('NEXT_PUBLIC_TURNSTILE_SITE_KEY:', process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
   const params = useSearchParams();
   const formRef = useRef<HTMLFormElement>(null);
   const [captchaToken, setCaptchaToken] = useState("");
