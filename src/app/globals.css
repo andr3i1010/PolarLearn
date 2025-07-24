@@ -1,3 +1,22 @@
+/* Syntax highlighting for code blocks using highlight.js GitHub dark theme */
+@import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css");
+/* GitHub-like Markdown table styling */
+.prose table {
+  background-color: #181a20;
+  border-radius: 8px;
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.prose th,
+.prose td {
+  background-color: #181a20;
+  border: 1px solid #2d2f36;
+  padding: 0.5em 1em;
+}
+.prose th {
+  font-weight: 600;
+}
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
