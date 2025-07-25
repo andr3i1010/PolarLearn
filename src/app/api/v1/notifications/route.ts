@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    
     const body = await request.json();
     const { userId, content, icon = "MessageSquare" } = body;
 
@@ -53,6 +54,14 @@ export async function POST(request: NextRequest) {
         { error: "Gebruiker ID en inhoud zijn verplicht" },
         { status: 400 }
       );
+    }
+    const Cuser = await getUserFromSession();
+
+    if (!Cuser) {
+      return NextResponse.json({}, { status: 400 });
+    }
+    if(Cuser.role !== 'admin'){
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     // Get the user's current notification data
