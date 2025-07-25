@@ -1487,17 +1487,6 @@ const LearnTool = ({
 
   return (
     <div className="bg-neutral-800 relative min-w-[240px] w-full max-w-[600px] h-[60vh] rounded-lg flex flex-col justify-center overflow-hidden p-4">
-      {/* Add a subtle grayed-out overlay when locked */}
-      <div className="w-full items-center justify-center flex">
-        {mode === "leren" && (
-          <Badge
-            className="bg-blue-500 text-xl -mb-4 cursor-pointer hover:bg-blue-600 transition-all"
-            onClick={() => setIsBadgeDialogOpen(true)}
-          >
-            BETA
-          </Badge>
-        )}
-      </div>
       {locked && (
         <div
           className="absolute inset-0 bg-neutral-800 opacity-40 z-40 pointer-events-none"
@@ -1771,26 +1760,6 @@ const LearnTool = ({
           />
         )}
       </AnimatePresence>
-
-      {/* Beta Dialog */}
-      <Dialog open={isBadgeDialogOpen} onOpenChange={setIsBadgeDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Leren [BETA]</DialogTitle>
-            <DialogDescription>
-              Leren is nog in beta. Er kunnen nog bugs en onvolkomenheden zijn.
-              We werken er hard aan om de ervaring te verbeteren!
-              Maar probeer ook zelf te melden als je een bug ziet, Bedankt!
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button1
-              text="Begrepen!"
-              onClick={() => setIsBadgeDialogOpen(false)}
-            />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
