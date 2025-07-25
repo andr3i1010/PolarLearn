@@ -41,62 +41,6 @@ export default async function AdminLayout({
         );
     }
 
-    // Fetch initial data for client component (first page only)
-    const take = 20;
-    const skip = 0;
-
-    // Fetch initial data for users, lists, and groups concurrently
-    const [usersData, listsData, groupsData] = await Promise.all([
-        prisma.user.findMany({
-            orderBy: { createdAt: "desc" },
-            skip,
-            take,
-        }),
-        prisma.practice.findMany({
-            orderBy: { createdAt: "desc" },
-            skip,
-            take,
-        }),
-        prisma.group.findMany({
-            orderBy: { createdAt: "desc" },
-            skip,
-            take,
-        }),
-    ]);
-
-    // Get creator IDs from lists
-    const creatorIds = [...new Set([...listsData].map((post) => post.creator))];
-
-    // Fetch users for the creator IDs
-    const users = await prisma.user.findMany({
-        where: {
-            OR: [{ id: { in: creatorIds } }, { name: { in: creatorIds } }],
-        },
-        select: {
-            id: true,
-            name: true,
-            image: true,
-        },
-    });
-
-    // Create user map by ID
-    const userMapById = users.reduce(
-        (acc: Record<string, any>, user: any) => {
-            acc[user.id] = user;
-            return acc;
-        },
-        {} as Record<string, any>
-    );
-
-    // Count totals concurrently
-    const [usersTotal, listsTotal, groupsTotal] = await Promise.all([
-        prisma.user.count(),
-        prisma.practice.count(),
-        prisma.group.count(),
-    ]);
-
-    const currentUserId = session?.id;
-
     return (
         <div className="py-6 pl-6">
             <div className="flex items-center">

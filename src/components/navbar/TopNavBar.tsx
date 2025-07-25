@@ -371,7 +371,7 @@ const NavigationLinks = memo(
                       <ShieldUser className="mr-1" />
                       <span className="font-medium">Admin</span>
                     </div>,
-                    "/home/admin",
+                    "/admin",
                   ] as [React.ReactNode, string],
                 ]
                 : []),
