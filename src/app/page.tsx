@@ -370,7 +370,7 @@ export default function Home() {
                         PolarLearn
                     </h1>
                 </div>
-                <h1>Polarlearn op kleine scherme is nog in beta, will je doorgaan?</h1>
+                <h1>Polarlearn op kleine schermen is nog in beta, will je doorgaan?</h1>
                 <Button1 text='ja!' redirectTo='/home/start' />
             </div>
         </div>

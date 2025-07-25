@@ -21,6 +21,7 @@ import Link from "next/link";
 import StreakNavbarThing from "../streak/streakNav";
 import NotificationNav from "../notification/notificiationNav";
 import PlusBtn from "@/components/button/plusbutton";
+import PlusBtnMb from "@/components/button/plusbuttonmobile";
 
 // SearchBar component
 const SearchBar = memo(({ onExpand }: { onExpand: () => void }) => {
@@ -300,6 +301,7 @@ const MobileMenu = memo(
             isOpen={accountOpen}
             onToggle={() => setAccountOpen(!accountOpen)}
           />
+              <PlusBtnMb />
         </div>
       </div>
     );
