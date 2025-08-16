@@ -94,6 +94,13 @@ install_node() {
             echo "✅ Node.js succesvol bijgewerkt naar de laatste LTS versie."
         fi
         echo "🚀 pnpm updaten..."
+        
+        # Check if node is working before updating pnpm
+        if ! node --version &> /dev/null; then
+            echo "❌ Node.js werkt niet correct, kan pnpm niet updaten!"
+            exit 1
+        fi
+        
         npm install -g pnpm@latest-10
         if ! command -v pnpm &> /dev/null; then
             echo "❌ pnpm update is mislukt!"
@@ -108,7 +115,39 @@ install_node() {
     if is_termux; then
         echo "📱 Termux gedetecteerd - Node.js installeren via pkg..."
         pkg update
+        # Install OpenSSL first to ensure compatibility
+        pkg install -y openssl
         pkg install -y nodejs
+        
+        # Check if node works properly
+        if ! node --version &> /dev/null; then
+            echo "⚠️ Node.js van pkg heeft linking problemen, proberen met nvm..."
+            # Remove the problematic nodejs installation
+            pkg uninstall -y nodejs
+            
+            # Install curl for nvm if not available
+            if ! command -v curl &> /dev/null; then
+                pkg install -y curl
+            fi
+            
+            # Install nvm
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+            
+            # Source nvm
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            # Install latest LTS Node.js via nvm
+            nvm install --lts
+            nvm use --lts
+            
+            # Check if node works now
+            if ! node --version &> /dev/null; then
+                echo "❌ Node.js installatie via nvm is ook mislukt!"
+                exit 1
+            fi
+        fi
+        
         # In Termux, npm is typically included with nodejs
         if ! command -v npm &> /dev/null; then
             echo "ℹ️ npm niet gevonden, installeren via pkg..."
@@ -150,6 +189,13 @@ install_node() {
     fi
     echo "✅ Node.js succesvol geïnstalleerd."
     echo "🚀 pnpm installeren..."
+    
+    # Check if node is working before installing pnpm
+    if ! node --version &> /dev/null; then
+        echo "❌ Node.js werkt niet correct, kan pnpm niet installeren!"
+        exit 1
+    fi
+    
     npm install -g pnpm@latest-10
     if ! command -v pnpm &> /dev/null; then
         echo "❌ pnpm installatie is mislukt!"
