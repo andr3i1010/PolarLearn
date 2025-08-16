@@ -11,6 +11,11 @@ echo "
 echo " 
 als er een error is, geen paniek! Probeer de installatie opnieuw uit te voeren.
 "
+
+# Detect if we're running in Termux
+is_termux() {
+    [ -n "$TERMUX_VERSION" ] || [ -d "/data/data/com.termux" ]
+}
 # 📦 Installeren van MongoDB
 install_mongodb() {
     if command -v mongod &> /dev/null; then
@@ -19,38 +24,45 @@ install_mongodb() {
     fi
 
     echo "🚀 MongoDB installeren..."
-    case "$OSTYPE" in
-    "linux"* )
-        if command apt -v &> /dev/null; then
-            # Voor Debian/Ubuntu
-                sudo apt-get update # Copilot suggestie
-                sudo apt-get install -y gnupg curl
-                curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
-                echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] http://repo.mongodb.org/apt/debian bookworm/mongodb-org/8.0 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
-                sudo apt-get update
-                sudo apt-get install -y mongodb-org
-            elif command dnf --version &> /dev/null; then
-                sudo dnf install -y mongodb
-            elif command yay --version &> /dev/null; then
-            #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
-                yay -S aur/mongodb-bin
-            else
-                echo "❌ Geen compatibele package manager/distro gevonden!"
-                exit 1
-        fi ;;
+    
+    if is_termux; then
+        echo "📱 Termux gedetecteerd - MongoDB installeren via pkg..."
+        pkg update
+        pkg install -y mongodb
+    else
+        case "$OSTYPE" in
+        "linux"* )
+            if command apt -v &> /dev/null; then
+                # Voor Debian/Ubuntu
+                    sudo apt-get update # Copilot suggestie
+                    sudo apt-get install -y gnupg curl
+                    curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+                    echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] http://repo.mongodb.org/apt/debian bookworm/mongodb-org/8.0 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+                    sudo apt-get update
+                    sudo apt-get install -y mongodb-org
+                elif command dnf --version &> /dev/null; then
+                    sudo dnf install -y mongodb
+                elif command yay --version &> /dev/null; then
+                #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
+                    yay -S aur/mongodb-bin
+                else
+                    echo "❌ Geen compatibele package manager/distro gevonden!"
+                    exit 1
+            fi ;;
 
-    "darwin"* )
-        #macos. niet zeker of ook moderne versies darwin zijn maar ik heb geen manier om te checken
-        if command brew -v &> /dev/null; then
-                brew tap mongodb/brew
-                brew install mongodb-community@8.0
-            else
-                echo "❌ Geen compatibele package manager gevonden!"
-                exit 1
-        fi ;;
-    * )
-        echo '❌ Geen compatibele OS gevonden! (hoe voer je dit script dan uit!?)'
-esac
+        "darwin"* )
+            #macos. niet zeker of ook moderne versies darwin zijn maar ik heb geen manier om te checken
+            if command brew -v &> /dev/null; then
+                    brew tap mongodb/brew
+                    brew install mongodb-community@8.0
+                else
+                    echo "❌ Geen compatibele package manager gevonden!"
+                    exit 1
+            fi ;;
+        * )
+            echo '❌ Geen compatibele OS gevonden! (hoe voer je dit script dan uit!?)'
+        esac
+    fi
 
     if ! command -v mongod &> /dev/null; then
         echo "❌ MongoDB installatie is mislukt!"
@@ -92,33 +104,41 @@ install_node() {
     fi
 
     echo "🚀 Node.js installeren..."
-    case "$OSTYPE" in
-    "linux"* )
-            if command -v apt &> /dev/null; then
-                sudo apt update && sudo apt install -y nodejs
-                sudo apt install npm -y
-            elif command -v dnf &> /dev/null; then
-                sudo dnf install -y nodejs
-                elif command brew -v &> /dev/null; then
+    
+    if is_termux; then
+        echo "📱 Termux gedetecteerd - Node.js installeren via pkg..."
+        pkg update
+        pkg install -y nodejs npm
+    else
+        case "$OSTYPE" in
+        "linux"* )
+                if command -v apt &> /dev/null; then
+                    sudo apt update && sudo apt install -y nodejs
+                    sudo apt install npm -y
+                elif command -v dnf &> /dev/null; then
+                    sudo dnf install -y nodejs
+                    elif command brew -v &> /dev/null; then
+                        brew install node
+                    elif command yay --version &> /dev/null; then
+                    #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
+                        yay -S extra/nodejs
+                else
+                    echo "❌ Geen compatibele package manager gevonden!"            
+                    exit 1
+            fi ;;
+        "darwin"* )
+            #macos. niet zeker of ook moderne versies darwin zijn maar ik heb geen manier om te checken
+            if command brew -v &> /dev/null; then
                     brew install node
-                elif command yay --version &> /dev/null; then
-                #ik kan geen manier vinden om het te automatiseren. Dus als jij het weet stop het er in!
-                    yay -S extra/nodejs
-            else
-                echo "❌ Geen compatibele package manager gevonden!"            
-                exit 1
-        fi ;;
-    "darwin"* )
-        #macos. niet zeker of ook moderne versies darwin zijn maar ik heb geen manier om te checken
-        if command brew -v &> /dev/null; then
-                brew install node
-            else 
-            echo "❌ Geen compatibele package manager gevonden! Installeer brew via https://brew.sh/"            
-                exit 1
-        fi ;;
-    * )
-        echo '❌ Oeps! Dit script is niet geconfigureerd voor jouw OS. Probeer het handmatig te installeren.'
-esac
+                else 
+                echo "❌ Geen compatibele package manager gevonden! Installeer brew via https://brew.sh/"            
+                    exit 1
+            fi ;;
+        * )
+            echo '❌ Oeps! Dit script is niet geconfigureerd voor jouw OS. Probeer het handmatig te installeren.'
+        esac
+    fi
+    
     if ! command -v node &> /dev/null; then
         echo "❌ Node.js installatie is mislukt!"
         exit 1
@@ -141,7 +161,11 @@ install_node
 install_mongodb
 
 # Stop MongoDB als het al draait
-pgrep mongod &> /dev/null && { echo "🛑 Stoppen van draaiende MongoDB-processen..."; pkill mongod; sleep 10; }
+if is_termux; then
+    pgrep mongod &> /dev/null && { echo "🛑 Stoppen van draaiende MongoDB-processen..."; pkill mongod; sleep 10; }
+else
+    pgrep mongod &> /dev/null && { echo "🛑 Stoppen van draaiende MongoDB-processen..."; sudo pkill mongod; sleep 10; }
+fi
 
 # Database directories opnieuw aanmaken
 mkdir -p "$SCRIPT_DIR/mongo/rs1" "$SCRIPT_DIR/mongo/rs2" "$SCRIPT_DIR/mongo/rs3"
@@ -249,8 +273,12 @@ echo "🛠️ Test de build met:"
 echo "  pnpm build"
 echo
 echo "🛑 Stop de database met:"
-echo "  sudo pkill mongod"
-echo "🟩 Of als je systemd gebruikt:"
-echo "  sudo systemctl stop mongod"
+if is_termux; then
+    echo "  pkill mongod"
+else
+    echo "  sudo pkill mongod"
+    echo "🟩 Of als je systemd gebruikt:"
+    echo "  sudo systemctl stop mongod"
+fi
 echo
 echo "Veel succes! 🚀"
