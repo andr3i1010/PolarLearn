@@ -108,7 +108,12 @@ install_node() {
     if is_termux; then
         echo "📱 Termux gedetecteerd - Node.js installeren via pkg..."
         pkg update
-        pkg install -y nodejs npm
+        pkg install -y nodejs
+        # In Termux, npm is typically included with nodejs
+        if ! command -v npm &> /dev/null; then
+            echo "ℹ️ npm niet gevonden, installeren via pkg..."
+            pkg install -y npm || echo "⚠️ npm package niet beschikbaar, mogelijk al gebundeld met nodejs"
+        fi
     else
         case "$OSTYPE" in
         "linux"* )
@@ -155,7 +160,19 @@ install_node() {
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 DB_NAME="polarlearn"
-random_string=$(openssl rand -base64 32)
+
+# Generate random string - use different methods based on available tools
+if command -v openssl &> /dev/null; then
+    random_string=$(openssl rand -base64 32)
+elif command -v xxd &> /dev/null && [ -r /dev/urandom ]; then
+    random_string=$(head -c 24 /dev/urandom | xxd -p)
+elif command -v sha256sum &> /dev/null; then
+    # Fallback for systems without openssl or xxd
+    random_string=$(date +%s%N | sha256sum | head -c 32)
+else
+    # Ultimate fallback using basic tools
+    random_string=$(date +%s%N)$(whoami)$(hostname 2>/dev/null || echo "unknown") | md5sum 2>/dev/null | head -c 32 || date +%s%N
+fi
 
 install_node
 install_mongodb
