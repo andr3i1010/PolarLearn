@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   experimental: {
     nodeMiddleware: true,
     ppr: 'incremental',
-    reactCompiler: process.env.NODE_ENV === 'production', // Only enable in production
+    reactCompiler: false, // Temporarily disabled to test WebSocket issue
     // Optimize bundling
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },

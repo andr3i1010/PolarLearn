@@ -8,9 +8,19 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const baseUrl = `${process.env.NODE_ENV === "production" ? "wss://" : "ws://"}${window.location.host}`;
+      // Smart protocol detection: use wss if the current page is served over https,
+      // or if we're not on localhost/127.0.0.1. Otherwise use ws.
+      const isSecure = window.location.protocol === 'https:' ||
+        (!window.location.hostname.includes('localhost') &&
+          !window.location.hostname.includes('127.0.0.1') &&
+          !window.location.hostname.includes('0.0.0.0'));
+
+      const protocol = isSecure ? "wss://" : "ws://";
+      const baseUrl = `${protocol}${window.location.host}`;
       const wsUrl = baseUrl + "/api/v1/ws";
       let attempts = 0;
+
+      console.log(`WebSocket connecting to: ${wsUrl} (secure: ${isSecure})`);
 
       const createConnection = () => {
         const socket = new WebSocket(wsUrl);
