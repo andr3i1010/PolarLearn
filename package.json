@@ -55,7 +55,7 @@
     "figlet": "^1.8.2",
     "google-translate-api-x": "^10.7.2",
     "gradient-string": "^3.0.0",
-    "hono": "^4.9.5",
+    "hono": "^4.9.6",
     "http-proxy": "^1.18.1",
     "http-proxy-middleware": "^3.0.5",
     "import-in-the-middle": "^1.14.2",

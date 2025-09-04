@@ -31,10 +31,10 @@ importers:
         version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@19.1.0)
       '@hono/node-server':
         specifier: ^1.19.1
-        version: 1.19.1(hono@4.9.5)
+        version: 1.19.1(hono@4.9.6)
       '@hono/node-ws':
         specifier: ^1.2.0
-        version: 1.2.0(@hono/node-server@1.19.1(hono@4.9.5))(hono@4.9.5)
+        version: 1.2.0(@hono/node-server@1.19.1(hono@4.9.6))(hono@4.9.6)
       '@hookform/resolvers':
         specifier: ^5.2.1
         version: 5.2.1(react-hook-form@7.62.0(react@19.1.0))
@@ -144,8 +144,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       hono:
-        specifier: ^4.9.5
-        version: 4.9.5
+        specifier: ^4.9.6
+        version: 4.9.6
       http-proxy:
         specifier: ^1.18.1
         version: 1.18.1(debug@4.4.1)
@@ -2461,6 +2461,9 @@ packages:
   '@types/node@24.3.0':
     resolution: {integrity: sha512-aPTXCrfwnDLj4VvXrm+UUCQjNEvJgNA8s5F1cvwQU+3KNltTOkBm1j30uNLyqqPNe7gE3KFzImYoZEfLhp4Yow==}
 
+  '@types/node@24.3.1':
+    resolution: {integrity: sha512-3vXmQDXy+woz+gnrTvuvNrPzekOi+Ds0ReMxw0LzBiK3a+1k0kQn9f2NWk+lgD4rJehFUmYy2gMhJ2ZI+7YP9g==}
+
   '@types/nodemailer@6.4.19':
     resolution: {integrity: sha512-Fi8DwmuAduTk1/1MpkR9EwS0SsDvYXx5RxivAVII1InDCIxmhj/iQm3W8S3EVb/0arnblr6PK0FK4wYa7bwdLg==}
 
@@ -3626,8 +3629,8 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.9.5:
-    resolution: {integrity: sha512-aLAVl5/67ifNnoFVxnhR89dpmSLsgwBprw/PT671ASwUpJqmd7Ne8KPTQo37DbRZfgpHaHeZ4bPVUvbOkeedMw==}
+  hono@4.9.6:
+    resolution: {integrity: sha512-doVjXhSFvYZ7y0dNokjwwSahcrAfdz+/BCLvAMa/vHLzjj8+CFyV5xteThGUsKdkaasgN+gF2mUxao+SGLpUeA==}
     engines: {node: '>=16.9.0'}
 
   html-url-attributes@3.0.1:
@@ -6215,14 +6218,14 @@ snapshots:
       prop-types: 15.8.1
       react: 19.1.0
 
-  '@hono/node-server@1.19.1(hono@4.9.5)':
+  '@hono/node-server@1.19.1(hono@4.9.6)':
     dependencies:
-      hono: 4.9.5
+      hono: 4.9.6
 
-  '@hono/node-ws@1.2.0(@hono/node-server@1.19.1(hono@4.9.5))(hono@4.9.5)':
+  '@hono/node-ws@1.2.0(@hono/node-server@1.19.1(hono@4.9.6))(hono@4.9.6)':
     dependencies:
-      '@hono/node-server': 1.19.1(hono@4.9.5)
-      hono: 4.9.5
+      '@hono/node-server': 1.19.1(hono@4.9.6)
+      hono: 4.9.6
       ws: 8.18.3
     transitivePeerDependencies:
       - bufferutil
@@ -8052,6 +8055,10 @@ snapshots:
     dependencies:
       undici-types: 7.10.0
 
+  '@types/node@24.3.1':
+    dependencies:
+      undici-types: 7.10.0
+
   '@types/nodemailer@6.4.19':
     dependencies:
       '@aws-sdk/client-ses': 3.879.0
@@ -9482,7 +9489,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.9.5: {}
+  hono@4.9.6: {}
 
   html-url-attributes@3.0.1: {}
 
@@ -9703,7 +9710,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 24.3.0
+      '@types/node': 24.3.1
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
