@@ -51,3 +51,4 @@ nohup.out
 
 # BELANGERIJK NIET VERWIJDEREN DIT IS VOOR DE DB ALS JE DE INSTALLER GEBRUIKT
 install/mongo/*
+package-lock.json
