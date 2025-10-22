@@ -146,18 +146,20 @@ export default async function SubjectTabPage({
   if (forumPosts.length > 0) {
     const postIds = forumPosts.map((post: { post_id: any; }) => post.post_id);
     const replyCounts = await prisma.forum.groupBy({
-      by: ['post_id'],
+      by: ['replyTo'],
       where: {
-        post_id: { in: postIds },
+        replyTo: { in: postIds },
         type: "reply"
       },
       _count: {
-        post_id: true,
+        replyTo: true,
       }
     });
 
-    replyCounts.forEach((item: { post_id: string | number; _count: { post_id: number; }; }) => {
-      replyCountMap[item.post_id] = item._count.post_id;
+    replyCounts.forEach((item: { replyTo: string | number; _count: { replyTo: number; }; }) => {
+      if (item.replyTo) {
+        replyCountMap[item.replyTo] = item._count.replyTo;
+      }
     });
   }
 
