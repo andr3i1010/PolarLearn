@@ -11,7 +11,7 @@ export default function PrivacySettings() {
                 <CardHeader>
                     <CardTitle>Analytics</CardTitle>
                     <CardDescription className="text-neutral-400">
-                        Dit is tijdenlijk uitgeschakeld omdat
+                        Dit is tijdenlijk uitgeschakeld omdat ja
                     </CardDescription>
                 </CardHeader>
             </Card>
