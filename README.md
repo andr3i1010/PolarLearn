@@ -1,3 +1,6 @@
+> [!WARN]
+> dit is de oude versie van polarlearn. als je hier komt om te contributen is dit niet de plek!
+
 <div align="center">
   
 <img src="https://github.com/polarnl/PolarLearn/blob/stable/public/icon.svg?raw=true" width=100/> <h1>PolarLearn</h1>
