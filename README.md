@@ -1,5 +1,5 @@
-> [!WARN]
-> dit is de oude versie van polarlearn. als je hier komt om te contributen is dit niet de plek!
+> [!WARNING]
+> dit is de nextjs versie van polarlearn. als je hier komt om te contributen is dit niet de plek!
 
 <div align="center">
   
