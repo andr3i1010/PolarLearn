@@ -77,6 +77,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // check if it's a valid category
+    if (!(validatedData.category === "announcement" || validatedData.category === "help" || validatedData.category === "school" || validatedData.category === "general" || validatedData.category === "fr")) {
+      return NextResponse.json(
+        { error: "Category bestaat niet." },
+        { status: 400 }
+      );
+    }
+
+    // check if subject exists
+    const subjects = ["EN", "FR", "DE", "NL", "LA", "GR", "ES", "WI", "NSK", "BI", "AK", "GS", "MU", "OT", "GL", "CKV"]
+    if (!subjects.includes(validatedData.subject) && validatedData.category === "school") {
+      return NextResponse.json(
+        { error: "Vak bestaat niet." },
+        { status: 400 }
+      )
+    }
+    
     // Generate a unique post ID
     const postId = crypto.randomUUID();
 
