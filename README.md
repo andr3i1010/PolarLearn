@@ -1,5 +1,5 @@
 > [!WARNING]
-> dit is de nextjs versie van polarlearn. als je hier komt om te contributen is dit niet de plek!
+> Dit is de oude (Next.js) versie van PolarLearn. Als je bij wilt dragen, moet je naar https://github.com/polarnl/pl-rewrite gaan. Zal later gemerged worden met deze repository.
 
 <div align="center">
   
