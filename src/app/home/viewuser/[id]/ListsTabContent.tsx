@@ -55,9 +55,9 @@ export default function ListsTabContent({
                                             {list.name}
                                         </span>
                                         {!list.published && (
-                                            <span className="ml-2 inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">
+                                            <Badge variant="secondary" className="ml-2 bg-amber-600/20 text-amber-500 border border-amber-600/50 text-xs">
                                                 Concept
-                                            </span>
+                                            </Badge>
                                         )}
                                     </div>
                                     <div className="flex-grow"></div>
