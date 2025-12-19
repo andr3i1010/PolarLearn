@@ -4,7 +4,7 @@ import { PencilIcon } from "lucide-react";
 import DeleteListButton from "@/components/learning/DeleteListButton";
 import { getSubjectIcon, getSubjectName } from "@/components/icons";
 import CreatorLink from "@/components/CreatorLink";
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/badge';
 
 interface PracticeList {
     list_id: string;
