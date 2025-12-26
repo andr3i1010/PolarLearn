@@ -48,7 +48,7 @@ Je kan voor PolarLearn kiezen, omdat:
 
 - ## **Veilig:**
 
-  PolarLearn is veilig. We gebruiken de nieuwste technologieën om ervoor te zorgen dat jouw gegevens veilig zijn. Ook kan je zelf je gegevens verwijderen op aanvraag.
+  PolarLearn is veilig. We gebruiken de nieuwste technologieën om ervoor te zorgen dat jouw gegevens veilig zijn. Ook kan je zelf je gegevens verwijderen op aanvraag. Dat is nou eens handig.
 
 - ## **Snel:**
 
