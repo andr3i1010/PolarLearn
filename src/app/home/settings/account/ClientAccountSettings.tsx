@@ -21,6 +21,8 @@ import {
   Upload,
   X,
   User,
+  AlertCircle,
+  CircleCheck,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Button1 from "@/components/button/Button1";
@@ -68,6 +70,7 @@ export default function ClientAccountSettings({ initialData }: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [exportLoading, setExportLoading] = useState(false);
 
   // Bot API settings state
   const [botAccount, setBotAccount] = useState<{
@@ -292,6 +295,72 @@ export default function ClientAccountSettings({ initialData }: Props) {
         "Er is een fout opgetreden bij het annuleren van de verwijdering: " + (error as Error).message
       );
     }
+  };
+
+
+  const handleExportData = () => {
+    setExportLoading(true);
+    // Use toast.promise to handle pending, success, and error states
+    const exportPromise = fetch("/api/v1/settings/export")
+      .then((res) => res.json())
+      .then(
+        (result) =>
+          new Promise<void>((resolve, reject) => {
+            if (!result.success) {
+              reject(new Error(result.message));
+            } else {
+              // Trigger file download
+              const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+                type: "application/json",
+              });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `polarlearn-export-${new Date().toISOString()}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+              resolve();
+            }
+          })
+      );
+    toast
+      .promise(exportPromise, {
+        pending: {
+          render: "Data wordt geëxporteerd...",
+          icon: <Loader2 className="animate-spin" />,
+          style: {
+            background: "linear-gradient(to right, #38bdf8, #e0f2fe)",
+            color: "#fff",
+          },
+        },
+        success: {
+          render() {
+            return `Je data is succesvol geëxporteerd!`;
+          },
+          icon: <CircleCheck />,
+          style: {
+            background: "#07bc0c",
+            color: "#fff",
+          },
+        },
+        error: {
+          render({ data }: { data: Error }) {
+            return (
+              data.message ||
+              "Er is een fout opgetreden bij het exporteren van je data."
+            );
+          },
+          icon: <AlertCircle />,
+          style: {
+            background: "hsl(6, 78%, 57%)",
+            color: "#fff",
+          },
+        },
+      },
+      )
+      .finally(() => {
+        setExportLoading(false);
+      });
   };
 
   return (
@@ -556,6 +625,23 @@ export default function ClientAccountSettings({ initialData }: Props) {
             />
           </CardFooter>
         </form>
+      </Card>
+
+      <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
+        <CardHeader>
+          <CardTitle>Data-export</CardTitle>
+          <CardDescription className="text-neutral-400">
+            Exporteer je gegevens in JSON-formaat. Deze actie kan slechts elke
+            30 dagen worden uitgevoerd.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <Button1
+            text={exportLoading ? "Bezig exporteren..." : "Exporteer data"}
+            onClick={handleExportData}
+            disabled={exportLoading}
+          />
+        </CardFooter>
       </Card>
 
       <Card className="mb-6 bg-neutral-800 text-white border-neutral-700">
