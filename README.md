@@ -1,9 +1,10 @@
 > [!WARNING]
-> Dit is de oude (Next.js) versie van PolarLearn. Als je bij wilt dragen, moet je naar https://github.com/polarnl/pl-rewrite gaan. Zal later gemerged worden met deze repository.
+> Deze versie van PolarLearn is verouderd en zal geen functie-updates meer krijgen. Hier zullen alleen nog bugfixes en beveiligingsupdates worden doorgevoerd. Ga voor de nieuwste versie naar [deze link](https://github.com/polarnl/pl-rewrite).
 
 <div align="center">
-  
+
 <img src="https://github.com/polarnl/PolarLearn/blob/stable/public/icon.svg?raw=true" width=100/> <h1>PolarLearn</h1>
+
 </div>
 
 <div align="center">
@@ -30,7 +31,6 @@
 ## Wat kan PolarLearn tot nu toe?
 
 Check [Planning.md](Planning.md)
-
 
 ---
 
