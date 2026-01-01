@@ -243,8 +243,6 @@ export async function createUserCredentials(
         password: await hashPassword(password, salt),
         salt: salt,
         emailVerified: null, // Email not verified yet
-        loginAllowed: false, // Don't allow login until email is verified
-        forumAllowed: false, // Don't allow forum access until email is verified
         // Use unique placeholder values for OAuth fields
         githubOAuthID: id,
         googleOAuthID: id,
