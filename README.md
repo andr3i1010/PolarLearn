@@ -1,11 +1,11 @@
 # PolarLearn rewrite poging 2
 
-nu gebruiken we rrv7 + tRPC en nog wat spullen
+Nu gebruiken we rrv7 + tRPC en nog wat spullen die raar zijn!
 
 ## Setup
 
-als je het niet lukt vraag in de discord
+Als je het niet lukt vraag in de discord.
 
 ## runnen
 
-waarom probeer je te helpen als je dit zelf niet weet?
+Waarom probeer je te helpen als je dit zelf niet weet?
