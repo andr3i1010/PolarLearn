@@ -261,12 +261,12 @@ export default function SignUpForm({ turnstileSiteKey }: { turnstileSiteKey?: st
           <p className="mt-1 text-sm text-red-500">{passwordError}</p>
         )}
       </div>
-      {turnstileEnabled && <div id="turnstile-signup" className="flex justify-center"></div>}
+      {turnstileSiteKey && <div id="turnstile-signup" className="flex justify-center"></div>}
       <Button1
-        text={turnstileEnabled ? (captchaReady ? "Maak 'm aan!" : "CAPTCHA laden...") : "Maak 'm aan!"}
+        text={turnstileSiteKey ? (captchaReady ? "Maak 'm aan!" : "CAPTCHA laden...") : "Maak 'm aan!"}
         className="w-full"
         type="submit"
-        disabled={turnstileEnabled ? !captchaReady : false}
+        disabled={turnstileSiteKey ? !captchaReady : false}
       />
       <Honeypot />
     </form>
