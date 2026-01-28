@@ -50,7 +50,7 @@ export default async function SignUpPage() {
               {isRegistrationEnabled ? (
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                   <h1 className="text-3xl font-bold">Account aanmaken</h1>
-                  <SignUpForm turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
+                  <SignUpForm turnstileSiteKey={process.env.TURNSTILE_SITE_KEY} />
                 </div>
               ) : (
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8 text-center">

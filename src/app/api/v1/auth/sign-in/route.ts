@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, captchaToken } = body;
     // Only require captcha if turnstileEnabled is true (default)
-    if (!!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !!process.env.TURNSTILE_SECRET_KEY) {
+    if (!!process.env.TURNSTILE_SITE_KEY && !!process.env.TURNSTILE_SECRET_KEY) {
       if (!captchaToken) {
         return NextResponse.json({ error: "Captcha verificatie vereist" }, { status: 400 });
       }

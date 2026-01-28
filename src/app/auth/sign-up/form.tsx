@@ -82,7 +82,7 @@ export default function SignUpForm({ turnstileSiteKey }: { turnstileSiteKey?: st
     script.onload = () => {
       if (window.turnstile) {
         const id = window.turnstile.render("#turnstile-signup", {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+          sitekey: process.env.TURNSTILE_SITE_KEY || "",
           callback: async (token: string) => {
             setCaptchaReady(true);
             // perform sign-up after invisible captcha
