@@ -22,7 +22,7 @@ declare global {
   }
 }
 
-export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnabled?: boolean } = {}) {
+export default function SignUpForm({ turnstileSiteKey }: { turnstileSiteKey?: string } = {}) {
   const [usernameError, setUsernameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -70,7 +70,7 @@ export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnab
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (!turnstileEnabled) {
+    if (!turnstileSiteKey) {
       setCaptchaReady(true);
       return;
     }
@@ -97,7 +97,7 @@ export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnab
             const passwordValid = validatePassword(password);
 
             if (!usernameValid || !emailValid || !passwordValid) {
-              if (window.turnstile && widgetId !== null) {
+              if (window.turnstile && widgetId !== null && turnstileSiteKey) {
                 window.turnstile.reset(widgetId);
                 setCaptchaReady(false);
               }
@@ -130,7 +130,7 @@ export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnab
               console.error("Sign-up error:", err);
               toast.error("Er is een fout opgetreden bij het aanmaken van je account");
               // Reset captcha on network/other errors
-              if (window.turnstile && widgetId !== null) {
+              if (window.turnstile && widgetId !== null && turnstileSiteKey) {
                 window.turnstile.reset(widgetId);
                 setCaptchaReady(false);
               }
@@ -144,7 +144,7 @@ export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnab
     return () => {
       document.body.removeChild(script);
     };
-  }, [turnstileEnabled]);
+  }, [turnstileSiteKey]);
 
   return (
     <form
@@ -161,7 +161,7 @@ export default function SignUpForm({ turnstileEnabled = false }: { turnstileEnab
         const emailValid = validateEmail(email);
         const passwordValid = validatePassword(password);
         if (!usernameValid || !emailValid || !passwordValid) return;
-        if (turnstileEnabled) {
+        if (turnstileSiteKey) {
           if (widgetId !== null && window.turnstile) {
             window.turnstile.execute(widgetId);
           } else {

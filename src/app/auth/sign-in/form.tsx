@@ -43,7 +43,7 @@ function getCookie(cname: string) {
   return "";
 }
 
-export default function SignInForm({ googleEnabled = true, githubEnabled = true, turnstileEnabled = true }: { googleEnabled?: boolean; githubEnabled?: boolean; turnstileEnabled?: boolean }) {
+export default function SignInForm({ googleEnabled = true, githubEnabled = true, turnstileSiteKey }: { googleEnabled?: boolean; githubEnabled?: boolean; turnstileSiteKey?: string }) {
   const router = useRouter();
   const params = useSearchParams();
   const formRef = useRef<HTMLFormElement>(null);
@@ -200,7 +200,7 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
 
   const [showPassword, setShowPassword] = useState(false);
   useEffect(() => {
-    if (!turnstileEnabled) return;
+    if (!turnstileSiteKey) return;
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
     script.async = true;
@@ -209,7 +209,7 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
     script.onload = () => {
       if (window.turnstile) {
         const id = window.turnstile.render("#turnstile-signin", {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+          sitekey: turnstileSiteKey || "",
           callback: (token: string) => {
             setCaptchaToken(token);
             setCaptchaLoading(false);
@@ -221,7 +221,7 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
         setWidgetId(id);
       }
     };
-  }, [turnstileEnabled]);
+  }, [turnstileSiteKey]);
 
   return (
     <div className="relative">
@@ -245,7 +245,7 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
             let tokenToSend = captchaToken;
-            if (turnstileEnabled) {
+            if (turnstileSiteKey) {
               if (!captchaToken) {
                 toast.error("Bevestig dat je geen robot bent.");
                 return;
@@ -288,7 +288,7 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
                   setShowResendActivation(true);
                 }
                 toast.error(data.error || "Er is een fout opgetreden");
-                if (window.turnstile && widgetId !== null && turnstileEnabled) {
+                if (window.turnstile && widgetId !== null && turnstileSiteKey) {
                   window.turnstile.reset(widgetId);
                   setCaptchaToken("");
                   setCaptchaLoading(true);
@@ -298,7 +298,7 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
               console.error("Sign-in error:", error);
               toast.error("Er is een fout opgetreden bij het inloggen");
               // Reset captcha on network/other errors
-              if (window.turnstile && widgetId !== null && turnstileEnabled) {
+              if (window.turnstile && widgetId !== null && turnstileSiteKey) {
                 window.turnstile.reset(widgetId);
                 setCaptchaToken("");
                 setCaptchaLoading(true);
@@ -348,15 +348,15 @@ export default function SignInForm({ googleEnabled = true, githubEnabled = true,
             <br />
           </div>
 
-          {turnstileEnabled && (
+          {turnstileSiteKey && (
             <div id="turnstile-signin" className="flex justify-center"></div>
           )}
           <Button1
             type="submit"
-            text={captchaLoading ? (turnstileEnabled ? "CAPTCHA uitvoeren..." : "Log In") : "Log In"}
+            text={captchaLoading ? (turnstileSiteKey ? "CAPTCHA uitvoeren..." : "Log In") : "Log In"}
             className="w-full"
-            disabled={turnstileEnabled ? (captchaLoading || !captchaToken) : false}
-            icon={captchaLoading && turnstileEnabled ? <Loader2 className="animate-spin" /> : null}
+            disabled={turnstileSiteKey ? (captchaLoading || !captchaToken) : false}
+            icon={captchaLoading && turnstileSiteKey ? <Loader2 className="animate-spin" /> : null}
           />
           <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center mt-2">
             Heb je nog geen account?{" "}
