@@ -41,34 +41,45 @@ export default async function VoteServer(postId: string, direction: VoteDirectio
       votesData.users = {};
     }
 
-    // Get current vote (if any)
-    const currentVote = votesData.users[user];
+    // Get current vote (if any), treat unknown values as null
+    let currentVote = votesData.users[user];
+    if (currentVote !== "up" && currentVote !== "down" && currentVote !== null) {
+      currentVote = null;
+    }
 
     // Calculate vote change
     let voteChange = 0;
 
-    // Copy the userVotes object to manipulate it
-    const updatedUserVotes: Record<string, VoteDirection> = { ...votesData.users };
+    // Copy the userVotes object to manipulate it, filtering out any invalid values
+    const updatedUserVotes: Record<string, VoteDirection> = {};
+    for (const [k, v] of Object.entries(votesData.users)) {
+      if (v === "up" || v === "down" || v === null) {
+        updatedUserVotes[k] = v;
+      }
+    }
 
     if (currentVote === direction) {
-      // Cancel vote if clicking the same button
-      voteChange = currentVote === "up" ? -1 : 1;
-      delete updatedUserVotes[user]; // Remove the user's vote
+      // Idempotent: repeated same vote does nothing (no voteChange)
+      voteChange = 0;
+      // Optionally, could remove vote if clicking same button (toggle), but for idempotency, do nothing
     }
     else if (direction === null) {
       // Remove vote
       voteChange = currentVote === "up" ? -1 : currentVote === "down" ? 1 : 0;
       delete updatedUserVotes[user];
     }
-    else {
+    else if (direction === "up" || direction === "down") {
       // New vote or change vote
       if (!currentVote) {
         voteChange = direction === "up" ? 1 : -1;
-      } else {
+        updatedUserVotes[user] = direction;
+      } else if (currentVote !== direction) {
+        // Only allow changing vote, not stacking
         voteChange = direction === "up" ? 2 : -2;
+        updatedUserVotes[user] = direction;
       }
-      updatedUserVotes[user] = direction; // Set the user's vote
-    }
+      // else: already voted this direction, do nothing
+    } // else: direction is invalid, do nothing
 
     // Update the votes_data with modified user votes
     votesData.users = updatedUserVotes;
