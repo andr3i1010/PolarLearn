@@ -302,6 +302,10 @@ export async function createUserCredentials(
 }
 
 export async function resetUserPassword(userId: string): Promise<PasswordActionResult> {
+  const operator = await getUserFromSession()
+  if (!operator || !(operator.role !== "admin")) {
+    return { success: false, error: 'Unauthorized' }
+  }
   try {
     // Generate a random temporary password
     const tempPassword = crypto.randomBytes(8).toString('base64');
@@ -345,6 +349,10 @@ export async function resetUserPassword(userId: string): Promise<PasswordActionR
 }
 
 export async function setCustomPassword(userId: string, password: string): Promise<PasswordActionResult> {
+  const operator = await getUserFromSession()
+  if (!operator || !(operator.role !== "admin")) {
+    return { success: false, error: 'Unauthorized' }
+  }
   try {
     const salt = crypto.randomBytes(16).toString("base64");
 
@@ -386,6 +394,10 @@ export async function setCustomPassword(userId: string, password: string): Promi
 }
 
 export async function deleteUser(userId: string) {
+  const operator = await getUserFromSession()
+  if (!operator || !(operator.role !== "admin")) {
+    return { success: false, error: 'Unauthorized' }
+  }
   try {
     // First, delete all sessions for this user
     await prisma.session.deleteMany({

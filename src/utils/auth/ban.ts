@@ -16,7 +16,14 @@ async function sendDiscordEmbed(embed: Embed) {
 }
 
 export async function banUserPlatform(userId: string, banReason: string, banEnd?: string) {
+    const operator = await getUserFromSession()
+    if (!operator) {
+        throw new Error('Not allowed')
+    }
     try {
+        if (operator.role !== "admin") {
+            return { success: false, error: 'Unauthorized' }
+        }
         const updateData: any = {
             loginAllowed: false,
             banReason: banReason
@@ -63,6 +70,10 @@ export async function banUserPlatform(userId: string, banReason: string, banEnd?
 }
 
 export async function banUserForum(userId: string, banReason: string, banEnd?: string) {
+    const operator = await getUserFromSession()
+    if (!operator || !(operator.role !== "admin")) {
+        return { success: false, error: 'Unauthorized' }
+    }
     try {
         const updateData: any = {
             forumAllowed: false,
@@ -99,6 +110,10 @@ export async function banUserForum(userId: string, banReason: string, banEnd?: s
     }
 }
 export async function unbanUserPlatform(userId: string) {
+    const operator = await getUserFromSession()
+    if (!operator || !(operator.role !== "admin")) {
+        return { success: false, error: 'Unauthorized' }
+    }
     try {
         await prisma.user.update({
             where: {
@@ -131,6 +146,10 @@ export async function unbanUserPlatform(userId: string) {
     }
 }
 export async function unbanUserForum(userId: string) {
+    const operator = await getUserFromSession()
+    if (!operator || !(operator.role !== "admin")) {
+        return { success: false, error: 'Unauthorized' }
+    }
     try {
         await prisma.user.update({
             where: {
