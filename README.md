@@ -1,5 +1,5 @@
 > [!WARNING]
-> Deze versie van PolarLearn is verouderd en zal geen functie-updates meer krijgen. Hier zullen alleen nog bugfixes en beveiligingsupdates worden doorgevoerd. Ga voor de nieuwste versie naar [deze link](https://github.com/polarnl/pl-rewrite).
+> Deze versie van PolarLearn is verouderd en zal geen functie-updates meer krijgen. Hier zullen alleen nog bugfixes en beveiligingsupdates worden doorgevoerd. Ga voor de nieuwste versie naar [deze link](https://github.com/polarnl/PolarLearn/tree/fix/rewrite).
 
 <div align="center">
 
