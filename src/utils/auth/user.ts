@@ -303,7 +303,7 @@ export async function createUserCredentials(
 
 export async function resetUserPassword(userId: string): Promise<PasswordActionResult> {
   const operator = await getUserFromSession()
-  if (!operator || !(operator.role !== "admin")) {
+  if (!operator || operator.role !== "admin") {
     return { success: false, error: 'Unauthorized' }
   }
   try {
