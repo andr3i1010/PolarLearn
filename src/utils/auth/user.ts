@@ -242,8 +242,7 @@ export async function createUserCredentials(
         email: email,
         password: await hashPassword(password, salt),
         salt: salt,
-        emailVerified: null, // Email not verified yet
-        // Use unique placeholder values for OAuth fields
+        emailVerified: null,
         githubOAuthID: id,
         googleOAuthID: id,
         list_data: {
@@ -253,12 +252,13 @@ export async function createUserCredentials(
         }
       };
 
-      // Add activation token and scheduled deletion if supported
-      try {
-        (userData as any).activationToken = activationToken;
-        (userData as any).scheduledDeletion = scheduledDeletion;
-      } catch {
-        console.warn("Prisma schema may not include activationToken/scheduledDeletion fields");
+      if (process.env.SMTP_HOST) {
+        try {
+          (userData as any).activationToken = activationToken;
+          (userData as any).scheduledDeletion = scheduledDeletion;
+        } catch {
+          console.warn("Prisma schema may not include activationToken/scheduledDeletion fields");
+        }
       }
 
       const user = await prisma.user.create({

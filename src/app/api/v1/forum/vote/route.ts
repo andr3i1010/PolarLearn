@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import VoteServer from "@/components/voteServer"
 
-type VoteDirection = "up" | "down" | null
-
-interface VoteRequestBody {
-  postId: string
-  direction: VoteDirection
-}
-
 export async function POST(request: NextRequest) {
   try {
     // Parse request body
