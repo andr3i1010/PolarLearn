@@ -1,20 +1,9 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { getGithubAuthUrl } from '@/utils/auth/oauth';
 
 export default function GithubLogin() {
-    const [authUrl, setAuthUrl] = useState('#');
-
-    useEffect(() => {
-        const fetchAuthUrl = async () => {
-            const url = await getGithubAuthUrl();
-            setAuthUrl(url);
-        };
-        fetchAuthUrl();
-    }, []);
     // ngl dit dark mode maken is wel een van mijn beste commits ooit
     return (
-        <a href={authUrl}>
+        <a href="/api/v1/auth/github">
             <button
                 type="button"
                 className="flex rounded-lg w-fit h-10 bg-neutral-800 border border-neutral-700 hover:border-neutral-500 hover:bg-neutral-750 transition duration-200"

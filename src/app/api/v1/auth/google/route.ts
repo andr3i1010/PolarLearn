@@ -4,6 +4,7 @@ import { createSession } from "@/utils/auth/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getValidRedirectPath } from "@/utils/auth/redirect";
+import { randomBytes } from "crypto";
 
 export async function GET(request: Request) {
   const baseUrl = process.env.NEXT_PUBLIC_URL && process.env.NEXT_PUBLIC_URL.trim() !== ""
@@ -11,16 +12,42 @@ export async function GET(request: Request) {
     : "http://localhost:3000";
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+  const stateParam = searchParams.get("state");
+  const requestCookies = await cookies();
 
   if (!code) {
-    const url = await getGoogleAuthUrl();
-    return Response.redirect(url, 302);
+    const state = randomBytes(32).toString("hex");
+    const url = await getGoogleAuthUrl(state);
+    const response = NextResponse.redirect(url, 302);
+    const secure = process.env.NODE_ENV === "production";
+    response.cookies.set("polarlearn.oauth_state_google", state, {
+      httpOnly: true,
+      secure,
+      sameSite: "lax",
+      path: "/api/v1/auth",
+      maxAge: 60 * 15,
+    });
+    return response;
+  }
+
+  // Verify the state parameter matches a previously set cookie
+  const stateCookie = requestCookies.get("polarlearn.oauth_state_google")?.value;
+  if (!stateParam || !stateCookie || stateParam !== stateCookie) {
+    const errResponse = NextResponse.redirect(
+      new URL("/auth/sign-in?error=invalid_state&provider=google", baseUrl),
+      302
+    );
+    // Clean up any leftover state cookie
+    errResponse.cookies.delete("polarlearn.oauth_state_google");
+    return errResponse;
   }
 
   const tokens = await getGoogleTokens(code);
   const idToken = tokens.id_token;
   if (!idToken) {
-    return new Response("geen id_token", { status: 400 });
+    const badResponse = new NextResponse("geen id_token", { status: 400 });
+    badResponse.cookies.delete('polarlearn.oauth_state_google');
+    return badResponse;
   }
 
   const payloadBase64Url = idToken.split(".")[1];
@@ -31,10 +58,12 @@ export async function GET(request: Request) {
   const email = payload.email;
 
   if (!email) {
-    return NextResponse.redirect(
+    const errResponse = NextResponse.redirect(
       new URL("/auth/sign-in?error=oautherror&provider=google", baseUrl),
       302
     );
+    errResponse.cookies.delete('polarlearn.oauth_state_google');
+    return errResponse;
   }
 
   // Only allow OAuth sign‑in if a user with the email already exists
@@ -50,10 +79,12 @@ export async function GET(request: Request) {
   }
 
   if (!user) {
-    return NextResponse.redirect(
+    const errResponse = NextResponse.redirect(
       new URL("/auth/sign-in?error=usernotfound&provider=google", baseUrl),
       302
     );
+    errResponse.cookies.delete('polarlearn.oauth_state_google');
+    return errResponse;
   }
 
   // If user's googleOAuthID is not set, update it
@@ -70,9 +101,10 @@ export async function GET(request: Request) {
   const gotoCookie = (await cookies()).get('polarlearn.goto');
   const redirectPath = getValidRedirectPath(gotoCookie?.value);
 
-  // Create response with redirect and clear the goto cookie
+  // Create response with redirect and clear the goto cookie and oauth state cookie
   const response = NextResponse.redirect(new URL(redirectPath, baseUrl), 302);
   response.cookies.delete('polarlearn.goto');
+  response.cookies.delete('polarlearn.oauth_state_google');
 
   return response;
 }

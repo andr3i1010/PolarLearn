@@ -7,7 +7,7 @@ class GoogleOAuth {
     private redirectUri: string = (process.env.NEXT_PUBLIC_URL || "http://localhost:3000") + "/api/v1/auth/google";
     private scope: string = "openid profile email https://www.googleapis.com/auth/user.emails.read";
 
-    getAuthUrl(): string {
+    getAuthUrl(state?: string): string {
         const params = new URLSearchParams({
             client_id: this.clientId,
             redirect_uri: this.redirectUri,
@@ -16,6 +16,7 @@ class GoogleOAuth {
             access_type: "offline",
             prompt: "consent"
         });
+        if (state) params.set("state", state);
         return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
     }
 
@@ -107,12 +108,13 @@ class GithubOAuth {
         process.env.NEXT_PUBLIC_URL + "/api/v1/auth/github";
     private scope: string = "read:user user:email";
 
-    getAuthUrl(): string {
+    getAuthUrl(state?: string): string {
         const params = new URLSearchParams({
             client_id: this.clientId,
             redirect_uri: this.redirectUri,
             scope: this.scope,
         });
+        if (state) params.set("state", state);
         return `https://github.com/login/oauth/authorize?${params.toString()}`;
     }
 
@@ -186,12 +188,12 @@ const googleOAuth = new GoogleOAuth();
 const githubOAuth = new GithubOAuth();
 
 // Add server functions to generate auth URLs
-export async function getGoogleAuthUrl() {
-    return googleOAuth.getAuthUrl();
+export async function getGoogleAuthUrl(state?: string) {
+    return googleOAuth.getAuthUrl(state);
 }
 
-export async function getGithubAuthUrl() {
-    return githubOAuth.getAuthUrl();
+export async function getGithubAuthUrl(state?: string) {
+    return githubOAuth.getAuthUrl(state);
 }
 
 // Export async functions for server actions

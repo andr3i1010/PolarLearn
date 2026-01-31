@@ -1,20 +1,8 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { getGoogleAuthUrl } from '@/utils/auth/oauth';
 
 export default function GoogleLogin() {
-  const [authUrl, setAuthUrl] = useState('#');
-
-  useEffect(() => {
-    const fetchAuthUrl = async () => {
-      const url = await getGoogleAuthUrl();
-      setAuthUrl(url);
-    };
-    fetchAuthUrl();
-  }, []);
-
   return (
-    <a href={authUrl}>
+    <a href="/api/v1/auth/google">
       <button
         type="button"
         className="flex rounded-lg w-fit h-10 bg-neutral-800 border border-neutral-700 hover:border-neutral-500 hover:bg-neutral-750 transition duration-200"
