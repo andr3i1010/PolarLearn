@@ -6,6 +6,9 @@ import { createSession, decodeCookie } from "./session";
 import { cookies } from "next/headers";
 import { sendSignUpEmail } from "./user";
 import crypto from "crypto";
+// Dummy salt used to ensure Argon2 hashing runs even when a user is not found,
+// preventing timing-based user enumeration (GHSA-wcr9-mvr9-4qh5).
+const DUMMY_SALT = crypto.randomBytes(16).toString("base64");
 
 export async function signInCredentials(
   email: string,
@@ -16,6 +19,14 @@ export async function signInCredentials(
       where: { email },
     });
 
+    // Use a dummy salt for non-existent users so the Argon2 hashing step is always executed
+    const salt = user?.salt ?? DUMMY_SALT;
+
+    // Always perform the expensive hash to mitigate timing-based user enumeration
+    const hashedPassword = await hashPassword(password, salt);
+
+    // If the user does not exist, return a generic invalid credentials response
+    // after performing the expensive operation above to avoid timing leakage.
     if (!user) {
       return "invcreds";
     }
@@ -68,12 +79,29 @@ export async function signInCredentials(
       };
     }
 
-    const hashedPassword = await hashPassword(password, user.salt);
+    // Compare hashes using a timing-safe comparison when possible
+    const storedHashBuffer = Buffer.from(user.password);
+    const computedHashBuffer = Buffer.from(hashedPassword);
 
-    if (user.password === hashedPassword) {
+    let passwordMatches = false;
+    if (storedHashBuffer.length === computedHashBuffer.length) {
+      try {
+        passwordMatches = crypto.timingSafeEqual(storedHashBuffer, computedHashBuffer);
+      } catch {
+        // If timingSafeEqual fails for any reason, fallback to strict equality
+        passwordMatches = user.password === hashedPassword;
+      }
+    } else {
+      // Different lengths — fallback to strict equality
+      passwordMatches = user.password === hashedPassword;
+    }
+
+    if (passwordMatches) {
       await createSession(user.id);
       return true;
-    } else return ("invcreds");
+    } else {
+      return "invcreds";
+    }
   } catch (error) {
     console.error("Error in signInCredentials:", error);
     // Ensure we always return a string, never null/undefined
