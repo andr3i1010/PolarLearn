@@ -134,7 +134,7 @@ export default function UsersTabContent({
                                     </div>
                                 </Link>
                                 <div className="flex flex-wrap gap-2 mt-2 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2 md:w-7/12 md:justify-end">
-                                    {!user.role || user.role !== "admin" ? (
+                                    {user.role !== "admin" ? (
                                         <>
                                             {!user.forumAllowed ? (
                                                 <BanButton userId={user.id} text="Unban Forum" platform={false} unban={true} />
