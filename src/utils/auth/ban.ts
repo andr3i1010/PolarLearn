@@ -71,7 +71,7 @@ export async function banUserPlatform(userId: string, banReason: string, banEnd?
 
 export async function banUserForum(userId: string, banReason: string, banEnd?: string) {
     const operator = await getUserFromSession()
-    if (!operator || !(operator.role !== "admin")) {
+    if (operator.role !== "admin") {
         return { success: false, error: 'Unauthorized' }
     }
     try {
@@ -111,7 +111,7 @@ export async function banUserForum(userId: string, banReason: string, banEnd?: s
 }
 export async function unbanUserPlatform(userId: string) {
     const operator = await getUserFromSession()
-    if (!operator || !(operator.role !== "admin")) {
+    if (operator.role !== "admin") {
         return { success: false, error: 'Unauthorized' }
     }
     try {
@@ -147,7 +147,7 @@ export async function unbanUserPlatform(userId: string) {
 }
 export async function unbanUserForum(userId: string) {
     const operator = await getUserFromSession()
-    if (!operator || !(operator.role !== "admin")) {
+    if (operator.role !== "admin") {
         return { success: false, error: 'Unauthorized' }
     }
     try {
