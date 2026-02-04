@@ -71,7 +71,7 @@ export async function banUserPlatform(userId: string, banReason: string, banEnd?
 
 export async function banUserForum(userId: string, banReason: string, banEnd?: string) {
     const operator = await getUserFromSession()
-    if (!operator || !(operator.role !== "admin")) {
+    if (operator.role !== "admin") {
         return { success: false, error: 'Unauthorized' }
     }
     try {
