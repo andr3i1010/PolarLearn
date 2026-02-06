@@ -156,6 +156,9 @@ app.get('/ws', upgradeWebSocket((c) => {
         }
         if (user) {
           wsUsers.set(ws.raw as WebSocket, { id: user.id, name: user.name ?? 'onbekend' })
+        } else {
+            ws.close()
+            return
         }
       } catch (err) {
         console.error('Failed to fetch user for websocket:', err)
