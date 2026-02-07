@@ -46,8 +46,8 @@ const DELETE_CHAT_TOPIC = 'delete-chat-messages'
 const connections = new Set<WebSocket>()
 // Map to track group subscriptions: WebSocket -> groupId
 const wsGroups = new Map<WebSocket, string>()
-// Map to store user info from session: WebSocket -> { id, name }
-const wsUsers = new Map<WebSocket, { id: string, name: string }>()
+// Map to store user info from session: WebSocket -> { id, name, role? }
+const wsUsers = new Map<WebSocket, { id: string, name: string, role?: string }>()
 
 // Initialize Kafka producer and consumer
 async function initKafka() {
@@ -155,10 +155,8 @@ app.get('/ws', upgradeWebSocket((c) => {
           user = await prisma.user.findUnique({ where: { id: session.userId } })
         }
         if (user) {
-          wsUsers.set(ws.raw as WebSocket, { id: user.id, name: user.name ?? 'onbekend' })
-        } else {
-            ws.close()
-            return
+          // Store id, name and role to use for permission checks in message handler
+          wsUsers.set(ws.raw as WebSocket, { id: user.id, name: user.name ?? 'onbekend', role: user.role || "" })
         }
       } catch (err) {
         console.error('Failed to fetch user for websocket:', err)
@@ -170,9 +168,36 @@ app.get('/ws', upgradeWebSocket((c) => {
         if (data.event === "subscribe") {
           // Extract groupId from the page path (e.g., /learn/group/[id])
           const groupId = typeof data.page === "string" ? data.page.split("/")[3] : undefined
-          if (groupId) {
-            wsGroups.set(ws.raw as WebSocket, groupId)
+          if (!groupId) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Ongeldige groepspagina.' }))
+            return
           }
+          const user = wsUsers.get(ws.raw as WebSocket)
+          if (!user) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Je moet ingelogd zijn om de groepschat te bekijken.' }))
+            return
+          }
+
+          // Verify the user is allowed to subscribe to this group
+          const group = await prisma.group.findUnique({ where: { groupId } })
+          if (!group) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Groep niet gevonden.' }))
+            return
+          }
+
+          const members = Array.isArray(group.members) ? group.members as string[] : []
+          const isCreator = group.creator === user.id || group.creator === user.name
+          const isAdmin = Array.isArray(group.admins) && user ? group.admins.includes(user.id) : false
+          const isMember = members.includes(user.id) || members.includes(user.name) || isCreator
+          const isPlatformAdmin = user.role === 'admin'
+
+          if (!(isMember || isAdmin || isPlatformAdmin)) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Je bent geen lid van deze groep.' }))
+            return
+          }
+
+          wsGroups.set(ws.raw as WebSocket, groupId)
+          ws.send(JSON.stringify({ type: 'subscribed', groupId }))
         }
         if (data.event === "unsubscribe") {
           // Remove the WebSocket from group subscription
@@ -180,29 +205,66 @@ app.get('/ws', upgradeWebSocket((c) => {
         }
         if (data.event === "chat") {
           const groupId = data.group;
-          const user = wsUsers.get(ws.raw as WebSocket);
-          let creatorImage: string | undefined = undefined;
-          if (user?.id) {
-            // Fetch user from DB to get image if available
-            const dbUser = await prisma.user.findUnique({
-              where: { id: user.id },
-              select: { image: true, id: true, name: true },
-            });
-            if (dbUser && dbUser.image) {
-              creatorImage = dbUser.image;
-            }
+          if (!groupId) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Ongeldige groep.' }))
+            return
           }
-          // Use the creator from the client message
+
+          const user = wsUsers.get(ws.raw as WebSocket)
+          if (!user) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Je moet ingelogd zijn om berichten te plaatsen.' }))
+            return
+          }
+
+          // Fetch group to verify membership/permissions
+          const group = await prisma.group.findUnique({ where: { groupId } })
+          if (!group) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Groep niet gevonden.' }))
+            return
+          }
+
+          const members = Array.isArray(group.members) ? group.members as string[] : []
+          const isCreator = group.creator === user.id || group.creator === user.name
+          const isAdmin = Array.isArray(group.admins) && user ? group.admins.includes(user.id) : false
+
+          // Check platform admin, prefer role stored from onOpen but verify with DB if missing
+          let isPlatformAdmin = user.role === 'admin'
+          if (!isPlatformAdmin) {
+            const roleCheck = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
+            if (roleCheck && roleCheck.role === 'admin') isPlatformAdmin = true
+          }
+
+          const isMember = members.includes(user.id) || members.includes(user.name) || isCreator
+          if (!(isMember || isAdmin || isPlatformAdmin)) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Je hebt geen toestemming om in deze groep te chatten.' }))
+            return
+          }
+
+          // Fetch user details (for image/name) and sanitize message
+          const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { image: true, id: true, name: true },
+          })
+
+          const messageText = typeof data.message === 'string' ? data.message.trim() : ''
+          if (!messageText) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Leeg bericht.' }))
+            return
+          }
+          const truncatedMessage = messageText.length > 2000 ? messageText.slice(0, 2000) : messageText
+          const creatorImage = dbUser?.image
+
           const chatMessage: any = {
             group: groupId,
-            content: data.message,
-            creator: user?.name || "?",
-            creatorId: user?.id || null,
+            content: truncatedMessage,
+            creator: dbUser?.name || user.name || "?",
+            creatorId: user.id,
             time: new Date().toISOString(),
-          };
-          if (creatorImage) {
-            chatMessage.creatorImage = creatorImage;
           }
+          if (creatorImage) {
+            chatMessage.creatorImage = creatorImage
+          }
+
           // Push message to group's chatContent array in DB
           await prisma.group.update({
             where: { groupId },
@@ -211,7 +273,7 @@ app.get('/ws', upgradeWebSocket((c) => {
                 push: chatMessage,
               },
             },
-          });
+          })
 
           // Publish message to Kafka for broadcasting to all instances
           if (producer) {
