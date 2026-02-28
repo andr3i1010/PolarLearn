@@ -1,20 +1,28 @@
 "use client";
-import Celebration from '@/components/streak/Celebration';
-import { useStreakUpdate } from '@/hooks/useStreakUpdate';
-import { useStreak } from '@/store/streak/StreakProvider';
-import React, { useState, useEffect, useRef } from 'react';
-import { useListStore } from './listStore';
-import Button1 from '@/components/button/Button1';
-import { Input } from '../ui/input';
-import { detectTypfout } from './typfout';
-import { CircleAlert, CircleCheck, CircleX } from 'lucide-react';
-import { Progress } from '../ui/progress';
-import { motion, AnimatePresence } from 'motion/react';
-import { saveLearnSession } from '@/utils/saveLearnSession';
-import type { ListStoreState } from './listStore';
-import { useRouter } from 'next/navigation';
+import Celebration from "@/components/streak/Celebration";
+import { useStreakUpdate } from "@/hooks/useStreakUpdate";
+import { useStreak } from "@/store/streak/StreakProvider";
+import React, { useState, useEffect, useRef } from "react";
+import { useListStore } from "./listStore";
+import Button1 from "@/components/button/Button1";
+import { Input } from "../ui/input";
+import { detectTypfout } from "./typfout";
+import { CircleAlert, CircleCheck, CircleX } from "lucide-react";
+import { Progress } from "../ui/progress";
+import { motion, AnimatePresence } from "motion/react";
+import { saveLearnSession } from "@/utils/saveLearnSession";
+import type { ListStoreState } from "./listStore";
+import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
 
-function TypfoutScreen({ show, userInput, correctAnswer, onMark, progress, showProgress }: {
+function TypfoutScreen({
+  show,
+  userInput,
+  correctAnswer,
+  onMark,
+  progress,
+  showProgress,
+}: {
   show: boolean;
   userInput: string;
   correctAnswer: string;
@@ -39,13 +47,25 @@ function TypfoutScreen({ show, userInput, correctAnswer, onMark, progress, showP
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
-            style={{ pointerEvents: 'auto' }}
+            style={{ pointerEvents: "auto" }}
           >
             <CircleAlert size={50} />
-            <h1 className="text-2xl font-bold mt-2">Je hebt een typfout gemaakt!</h1>
+            <h1 className="text-2xl font-bold mt-2">
+              Je hebt een typfout gemaakt!
+            </h1>
             <div className="mt-4 text-lg">
-              <span className="block">Ingevuld: <span className="font-mono bg-neutral-900/60 px-2 py-1 rounded">{userInput}</span></span>
-              <span className="block mt-1">Verwacht: <span className="font-mono bg-neutral-900/60 px-2 py-1 rounded">{correctAnswer}</span></span>
+              <span className="block">
+                Ingevuld:{" "}
+                <span className="font-mono bg-neutral-900/60 px-2 py-1 rounded">
+                  {userInput}
+                </span>
+              </span>
+              <span className="block mt-1">
+                Verwacht:{" "}
+                <span className="font-mono bg-neutral-900/60 px-2 py-1 rounded">
+                  {correctAnswer}
+                </span>
+              </span>
             </div>
             <div className="flex gap-4 mt-6">
               <Button1 text="Goed rekenen" onClick={() => onMark(true)} />
@@ -69,7 +89,11 @@ function TypfoutScreen({ show, userInput, correctAnswer, onMark, progress, showP
   );
 }
 
-function CorrectScreen({ show, progress, showProgress }: {
+function CorrectScreen({
+  show,
+  progress,
+  showProgress,
+}: {
   show: boolean;
   progress: number;
   showProgress: boolean;
@@ -79,22 +103,21 @@ function CorrectScreen({ show, progress, showProgress }: {
       {show && (
         <>
           <motion.div
-            className='absolute inset-0 bg-green-500    rounded-lg pointer-events-none'
+            className="absolute inset-0 bg-green-500    rounded-lg pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.35 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           />
           <motion.div
-            className='absolute inset-0 flex items-center justify-center text-white pointer-events-none z-10 flex-col'
+            className="absolute inset-0 flex items-center justify-center text-white pointer-events-none z-10 flex-col"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
-
           >
             <CircleCheck size={50} />
-            <h1 className='text-2xl font-bold'>Correct!</h1>
+            <h1 className="text-2xl font-bold">Correct!</h1>
           </motion.div>
           {showProgress && (
             <motion.div
@@ -110,45 +133,49 @@ function CorrectScreen({ show, progress, showProgress }: {
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
-function IncorrectScreen({ show, correctAnswer, progress, showProgress, setIsCorrect }: {
+function IncorrectScreen({
+  show,
+  correctAnswer,
+  progress,
+  showProgress,
+  setIsCorrect,
+}: {
   show: boolean;
   correctAnswer: string;
   progress: number;
   showProgress: boolean;
   setIsCorrect: (correct: boolean) => void;
-
 }) {
   return (
     <AnimatePresence>
       {show && (
         <>
           <motion.div
-            className='absolute inset-0 bg-red-500    rounded-lg pointer-events-none'
+            className="absolute inset-0 bg-red-500    rounded-lg pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.35 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           />
           <motion.div
-            className='absolute inset-0 flex items-center justify-center text-white pointer-events-none z-10 flex-col'
+            className="absolute inset-0 flex items-center justify-center text-white pointer-events-none z-10 flex-col"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
-            style={{ pointerEvents: 'auto' }}
+            style={{ pointerEvents: "auto" }}
           >
             <CircleX size={50} />
-            <h1 className='text-2xl font-bold'>Incorrect!</h1>
+            <h1 className="text-2xl font-bold">Incorrect!</h1>
             <p className="mt-2 text-lg">
               Het juiste antwoord is: <strong>{correctAnswer}</strong>
             </p>
             <div className="flex gap-4 mt-6">
               <Button1 text="Goed rekenen" onClick={() => setIsCorrect(true)} />
             </div>
-
           </motion.div>
           {showProgress && (
             <motion.div
@@ -164,10 +191,14 @@ function IncorrectScreen({ show, correctAnswer, progress, showProgress, setIsCor
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
-function BlueReview({ show, answer, onMark }: {
+function BlueReview({
+  show,
+  answer,
+  onMark,
+}: {
   show: boolean;
   answer: string;
   onMark: (correct: boolean) => void;
@@ -178,7 +209,7 @@ function BlueReview({ show, answer, onMark }: {
         <>
           <motion.div
             // background overlay - positioned under the content
-            className='absolute inset-0 bg-blue-500 rounded-lg pointer-events-none z-10'
+            className="absolute inset-0 bg-blue-500 rounded-lg pointer-events-none z-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.7 }}
             exit={{ opacity: 0 }}
@@ -186,17 +217,17 @@ function BlueReview({ show, answer, onMark }: {
           />
           <motion.div
             // content container - allow pointer events so buttons are clickable
-            className='absolute inset-0 flex items-center justify-center text-white z-20 flex-col'
+            className="absolute inset-0 flex items-center justify-center text-white z-20 flex-col"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
-            style={{ pointerEvents: 'auto' }}
+            style={{ pointerEvents: "auto" }}
           >
-            <h1 className='text-xl font-bold'>Het antwoord is: </h1>
-            <h1 className='text-2xl font-bold'>{answer}</h1>
-            <h1 className='text-xl font-bold'>Had je het goed?</h1>
-            <div className='flex flex-row gap-4 mt-2'>
+            <h1 className="text-xl font-bold">Het antwoord is: </h1>
+            <h1 className="text-2xl font-bold">{answer}</h1>
+            <h1 className="text-xl font-bold">Had je het goed?</h1>
+            <div className="flex flex-row gap-4 mt-2">
               <Button1 text="Ja" onClick={() => onMark(true)} />
               <Button1 text="Nee" onClick={() => onMark(false)} />
             </div>
@@ -204,24 +235,26 @@ function BlueReview({ show, answer, onMark }: {
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 // Function to generate hint from answer
 function generateHint(answer: string): string {
-  if (!answer) return '';
+  if (!answer) return "";
 
-  const words = answer.split(' ');
-  return words.map(word => {
-    if (word.length <= 2) {
-      return word; // Keep short words intact
-    }
+  const words = answer.split(" ");
+  return words
+    .map((word) => {
+      if (word.length <= 2) {
+        return word; // Keep short words intact
+      }
 
-    // For longer words, show first letter and underscores for the rest
-    const firstChar = word[0];
-    const underscores = '_'.repeat(word.length - 1);
-    return firstChar + underscores;
-  }).join(' ');
+      // For longer words, show first letter and underscores for the rest
+      const firstChar = word[0];
+      const underscores = "_".repeat(word.length - 1);
+      return firstChar + underscores;
+    })
+    .join(" ");
 }
 
 export default function LearnTool() {
@@ -243,23 +276,34 @@ export default function LearnTool() {
     incorrectAnswerLog,
   } = storeState;
 
-  const [userInput, setUserInput] = useState('');
+  const [userInput, setUserInput] = useState("");
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showTypfout, setShowTypfout] = useState(false);
-  const [streakUpdate, setStreakUpdate] = useState<{ success?: boolean; streakUpdated?: boolean; currentStreak?: number; isNewStreak?: boolean } | null>(null);
+  const [streakUpdate, setStreakUpdate] = useState<{
+    success?: boolean;
+    streakUpdated?: boolean;
+    currentStreak?: number;
+    isNewStreak?: boolean;
+  } | null>(null);
   const [progress, setProgress] = useState(100);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [cardKey, setCardKey] = useState(0); // Key to trigger card animation
   // Determine effective mode: if we're in learnlist and have a queue, use the first queue item's mode
-  const queueFirst = (learnListQueue && learnListQueue.length > 0) ? learnListQueue[0] : null;
+  const queueFirst =
+    learnListQueue && learnListQueue.length > 0 ? learnListQueue[0] : null;
   // Determine a canonical mode to drive the UI. The queue uses short names like 'mc'.
-  const modeSource = (currentMethod === 'learnlist' && queueFirst) ? queueFirst.mode : currentMethod;
-  const effectiveMode = modeSource === 'mc' ? 'multichoice' : modeSource;
-  const router = useRouter()
+  const modeSource =
+    currentMethod === "learnlist" && queueFirst
+      ? queueFirst.mode
+      : currentMethod;
+  const effectiveMode = modeSource === "mc" ? "multichoice" : modeSource;
+  const router = useRouter();
 
   // For multiple choice: options should be provided server-side on the currentWord as `options`.
-  const mcOptions = Array.isArray((currentWord as any)?.options) ? (currentWord as any).options as string[] : [];
+  const mcOptions = Array.isArray((currentWord as any)?.options)
+    ? ((currentWord as any).options as string[])
+    : [];
   // Mind mode state: show blue review overlay
   const [showBlueReview, setShowBlueReview] = useState(false);
 
@@ -273,13 +317,17 @@ export default function LearnTool() {
     }
 
     try {
-      await saveLearnSession(currentList.list_id, storeState as ListStoreState, isPaused, isCompleted, sessionId || undefined);
+      await saveLearnSession(
+        currentList.list_id,
+        storeState as ListStoreState,
+        isPaused,
+        isCompleted,
+        sessionId || undefined,
+      );
     } catch (error) {
-      console.error('[LearnTool] Failed to save session:', error);
+      console.error("[LearnTool] Failed to save session:", error);
     }
   };
-
-
 
   // Timer for overlay visibility (both correct and incorrect)
   useEffect(() => {
@@ -320,10 +368,17 @@ export default function LearnTool() {
       return;
     }
 
-    if (mainMode === 'learnlist' && learnListQueue && currentQueueLength < (prevQueueLengthRef.current ?? 0)) {
+    if (
+      mainMode === "learnlist" &&
+      learnListQueue &&
+      currentQueueLength < (prevQueueLengthRef.current ?? 0)
+    ) {
       saveSession(true, false);
-    }
-    else if (mainMode !== 'learnlist' && currentWordId !== prevWordIdRef.current && prevWordIdRef.current !== null) {
+    } else if (
+      mainMode !== "learnlist" &&
+      currentWordId !== prevWordIdRef.current &&
+      prevWordIdRef.current !== null
+    ) {
       saveSession(true, false);
     }
 
@@ -331,15 +386,18 @@ export default function LearnTool() {
     prevWordIdRef.current = currentWordId;
   }, [learnListQueue?.length, currentWord?.id, mainMode]);
 
-
   // Global handler: when an overlay is visible (result screens), allow Enter to advance
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Enter') return;
+      if (e.key !== "Enter") return;
 
       // if an input or textarea is focused, don't hijack Enter (let onKeyPress handle it)
       const active = document.activeElement as HTMLElement | null;
-      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+      if (
+        active &&
+        (active.tagName === "INPUT" || active.tagName === "TEXTAREA")
+      )
+        return;
 
       // if typfout overlay is visible, we don't advance here (user should choose Good/Wrong)
       if (showTypfout) return;
@@ -349,8 +407,8 @@ export default function LearnTool() {
       }
     };
 
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [showResult, showTypfout]);
 
   // Auto-focus input when a new word is shown
@@ -365,7 +423,7 @@ export default function LearnTool() {
 
   const handleSubmit = () => {
     if (!currentWord || !userInput.trim()) return;
-    const answer = currentWord["2"] || '';
+    const answer = currentWord["2"] || "";
     const correct = checkAnswer(userInput);
     const typfout = !correct && detectTypfout(userInput, answer);
     setIsCorrect(correct);
@@ -384,6 +442,19 @@ export default function LearnTool() {
       answerWrong(userInput);
     }
   };
+
+  const handleDontKnow = () => {
+    if (!currentWord || showResult || showTypfout || showBlueReview) return;
+
+    setUserInput("");
+    setIsCorrect(false);
+    setShowTypfout(false);
+    setShowResult(true);
+    setProgress(100);
+    setIsTimerActive(true);
+    answerWrong("");
+  };
+
   // Handler voor typfout popup
   const handleTypfoutMark = (wasCorrect: boolean) => {
     setIsCorrect(wasCorrect);
@@ -409,12 +480,12 @@ export default function LearnTool() {
     if (wasCorrect) {
       answerCorrect();
     } else {
-      answerWrong('');
+      answerWrong("");
     }
 
     // Reset UI state and move to next word
     setShowBlueReview(false);
-    setUserInput('');
+    setUserInput("");
     setShowResult(false);
     setIsTimerActive(false);
     setProgress(100);
@@ -442,14 +513,14 @@ export default function LearnTool() {
     }
   };
   const handleNext = () => {
-    setUserInput('');
+    setUserInput("");
     setShowResult(false);
     setIsTimerActive(false);
     setProgress(100);
     setShowBlueReview(false);
 
     // Trigger card animation
-    setCardKey(prev => prev + 1);
+    setCardKey((prev) => prev + 1);
 
     if (learnListQueue && learnListQueue.length > 0) {
       dequeueLearnItem();
@@ -458,9 +529,10 @@ export default function LearnTool() {
     }
   };
 
-  const isCompleted = (mainMode === 'learnlist' && learnListQueue)
-    ? learnListQueue.length === 0
-    : (!currentList || !currentList.data?.length);
+  const isCompleted =
+    mainMode === "learnlist" && learnListQueue
+      ? learnListQueue.length === 0
+      : !currentList || !currentList.data?.length;
 
   const { handleListCompletion } = useStreakUpdate();
   const completedTriggeredRef = useRef(false);
@@ -502,8 +574,10 @@ export default function LearnTool() {
       if (!isCustomSession && isCompleted && currentList?.list_id) {
         // Delete the temporary session
         fetch(`/api/v1/lists/${currentList.list_id}/session`, {
-          method: 'DELETE',
-        }).catch(err => console.error('Failed to delete temporary session:', err));
+          method: "DELETE",
+        }).catch((err) =>
+          console.error("Failed to delete temporary session:", err),
+        );
       }
     };
   }, [isCompleted, currentList?.list_id, isCustomSession]);
@@ -537,8 +611,8 @@ export default function LearnTool() {
 
     if (isCustomSession && Array.isArray(incorrectAnswerLog)) {
       incorrectAnswerLog.forEach((entry: any) => {
-        const question = entry.word?.["1"] || '';
-        const correctAnswer = entry.word?.["2"] || '';
+        const question = entry.word?.["1"] || "";
+        const correctAnswer = entry.word?.["2"] || "";
         const key = `${question}|||${correctAnswer}`;
         const existing = wrongWordsMap.get(key);
 
@@ -548,14 +622,15 @@ export default function LearnTool() {
           wrongWordsMap.set(key, {
             word: question,
             answer: correctAnswer,
-            wrongCount: 1
+            wrongCount: 1,
           });
         }
       });
     }
 
-    const wrongWords = Array.from(wrongWordsMap.values())
-      .sort((a, b) => b.wrongCount - a.wrongCount);
+    const wrongWords = Array.from(wrongWordsMap.values()).sort(
+      (a, b) => b.wrongCount - a.wrongCount,
+    );
 
     return (
       <div className="w-full max-w-2xl mx-auto space-y-6">
@@ -575,7 +650,9 @@ export default function LearnTool() {
                 ) : null}
               </>
             ) : null}
-            <p className="text-lg text-neutral-300">Je hebt alle woorden geoefend. Goed gedaan!</p>
+            <p className="text-lg text-neutral-300">
+              Je hebt alle woorden geoefend. Goed gedaan!
+            </p>
 
             {/* Show stats calculation message for custom sessions */}
             {isCustomSession && isCalculatingStats && (
@@ -584,23 +661,25 @@ export default function LearnTool() {
               </p>
             )}
 
-            <div className='pt-4 flex flex-row gap-4 justify-center'>
+            <div className="pt-4 flex flex-row gap-4 justify-center">
               <Button1
                 text="Opnieuw oefenen"
                 onClick={() => {
-                  window.location.reload()
+                  window.location.reload();
                 }}
               />
               <Button1
                 text="Terug naar home"
                 onClick={() => {
-                  router.push('/home/start')
+                  router.push("/home/start");
                 }}
               />
               <Button1
                 text="Naar statistieken"
                 onClick={() => {
-                  router.push(`/learn/viewlist/${currentList?.list_id}/resultaten`)
+                  router.push(
+                    `/learn/viewlist/${currentList?.list_id}/resultaten`,
+                  );
                 }}
               />
             </div>
@@ -620,12 +699,18 @@ export default function LearnTool() {
               )}
               <div className="bg-neutral-800 rounded-lg p-4 border border-neutral-700">
                 <div className="text-sm text-neutral-400 mb-1">Score</div>
-                <div className="text-3xl font-bold">{percentage.toFixed(0)}%</div>
-                <div className="text-xs text-neutral-400 mt-1">{correct} / {total}</div>
+                <div className="text-3xl font-bold">
+                  {percentage.toFixed(0)}%
+                </div>
+                <div className="text-xs text-neutral-400 mt-1">
+                  {correct} / {total}
+                </div>
               </div>
               <div className="bg-neutral-800 rounded-lg p-4 border border-neutral-700">
                 <div className="text-sm text-neutral-400 mb-1">Goed</div>
-                <div className="text-3xl font-bold text-green-500">{correct}</div>
+                <div className="text-3xl font-bold text-green-500">
+                  {correct}
+                </div>
               </div>
               <div className="bg-neutral-800 rounded-lg p-4 border border-neutral-700">
                 <div className="text-sm text-neutral-400 mb-1">Fout</div>
@@ -642,13 +727,24 @@ export default function LearnTool() {
                 </h3>
                 <div className="space-y-4">
                   {wrongWords.map((stat, idx) => (
-                    <div key={idx} className="border-b border-neutral-700 pb-3 last:border-0">
+                    <div
+                      key={idx}
+                      className="border-b border-neutral-700 pb-3 last:border-0"
+                    >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="text-xs text-neutral-400 mb-1">Vraag:</div>
-                          <div className="font-medium text-lg mb-2 text-white">{stat.word}</div>
-                          <div className="text-xs text-neutral-400 mb-1">Correct antwoord:</div>
-                          <div className="text-sm text-green-400 font-semibold">{stat.answer}</div>
+                          <div className="text-xs text-neutral-400 mb-1">
+                            Vraag:
+                          </div>
+                          <div className="font-medium text-lg mb-2 text-white">
+                            {stat.word}
+                          </div>
+                          <div className="text-xs text-neutral-400 mb-1">
+                            Correct antwoord:
+                          </div>
+                          <div className="text-sm text-green-400 font-semibold">
+                            {stat.answer}
+                          </div>
                         </div>
                         <div className="ml-2 bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-medium">
                           {stat.wrongCount}× fout
@@ -665,24 +761,23 @@ export default function LearnTool() {
     );
   }
 
-
   return (
     <div className="w-full max-w-md mx-auto relative overflow-hidden">
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={cardKey}
-          initial={{ x: '100%' }}
+          initial={{ x: "100%" }}
           animate={{ x: 0 }}
-          exit={{ x: '-100%' }}
+          exit={{ x: "-100%" }}
           transition={{
-            type: 'spring',
+            type: "spring",
             stiffness: 400,
-            damping: 35
+            damping: 35,
           }}
           className="bg-neutral-800 rounded-lg p-8 text-white relative"
         >
           <div className="space-y-6">
-            {effectiveMode === 'test' ? (
+            {effectiveMode === "test" ? (
               <>
                 <div className="text-center">
                   <div className="text-2xl font-bold mb-4">
@@ -697,7 +792,7 @@ export default function LearnTool() {
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === "Enter") {
                         e.preventDefault();
                         if (!showResult) {
                           handleSubmit();
@@ -712,20 +807,24 @@ export default function LearnTool() {
 
                   <div className="text-center">
                     {!showResult ? (
-                      <Button1
-                        text="Controleer"
-                        onClick={handleSubmit}
-                      />
+                      <>
+                        <Button1 text="Controleer" onClick={handleSubmit} />
+                        <br />
+                        <button
+                          type="button"
+                          onClick={handleDontKnow}
+                          className="mt-2 text-sm text-neutral-400 underline underline-offset-2 hover:text-neutral-200 transition-colors"
+                        >
+                          Geen idee
+                        </button>
+                      </>
                     ) : (
-                      <Button1
-                        text="Volgende"
-                        onClick={handleNext}
-                      />
+                      <Button1 text="Volgende" onClick={handleNext} />
                     )}
                   </div>
                 </div>
               </>
-            ) : effectiveMode === 'hints' ? (
+            ) : effectiveMode === "hints" ? (
               <>
                 <div className="text-center">
                   <div className="text-2xl font-bold mb-4">
@@ -748,7 +847,7 @@ export default function LearnTool() {
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === "Enter") {
                         e.preventDefault();
                         if (!showResult) {
                           handleSubmit();
@@ -763,20 +862,24 @@ export default function LearnTool() {
 
                   <div className="text-center">
                     {!showResult ? (
-                      <Button1
-                        text="Controleer"
-                        onClick={handleSubmit}
-                      />
+                      <>
+                        <Button1 text="Controleer" onClick={handleSubmit} />
+                        <br />
+                        <button
+                          type="button"
+                          onClick={handleDontKnow}
+                          className="mt-2 text-sm text-neutral-400 underline underline-offset-2 hover:text-neutral-200 transition-colors"
+                        >
+                          Geen idee
+                        </button>
+                      </>
                     ) : (
-                      <Button1
-                        text="Volgende"
-                        onClick={handleNext}
-                      />
+                      <Button1 text="Volgende" onClick={handleNext} />
                     )}
                   </div>
                 </div>
               </>
-            ) : effectiveMode === 'multichoice' ? (
+            ) : effectiveMode === "multichoice" ? (
               <>
                 <div className="text-center">
                   <div className="text-2xl font-bold mb-4">
@@ -797,7 +900,7 @@ export default function LearnTool() {
                   </div>
                 </div>
               </>
-            ) : effectiveMode === 'mind' ? (
+            ) : effectiveMode === "mind" ? (
               <>
                 <div className="text-center">
                   <div className="text-2xl font-bold mb-4">
@@ -820,12 +923,20 @@ export default function LearnTool() {
                 </div>
                 <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-4">
                   <p className="text-blue-300 font-medium">
-                    {currentMethod === 'learnlist' && queueFirst ? `LearnList — ${queueFirst.mode === 'mc' ? 'multichoice' : queueFirst.mode}` : `Mode: ${effectiveMode}`}
+                    {currentMethod === "learnlist" && queueFirst
+                      ? `LearnList — ${queueFirst.mode === "mc" ? "multichoice" : queueFirst.mode}`
+                      : `Mode: ${effectiveMode}`}
                   </p>
-                  {['test', 'hints', 'multichoice', 'mind'].includes(effectiveMode || '') ? (
-                    <p className="text-sm text-neutral-400 mt-2">Gebruik de {effectiveMode} interface om te oefenen.</p>
+                  {["test", "hints", "multichoice", "mind"].includes(
+                    effectiveMode || "",
+                  ) ? (
+                    <p className="text-sm text-neutral-400 mt-2">
+                      Gebruik de {effectiveMode} interface om te oefenen.
+                    </p>
                   ) : (
-                    <p className="text-sm text-neutral-400 mt-2">Deze modus wordt binnenkort geïmplementeerd</p>
+                    <p className="text-sm text-neutral-400 mt-2">
+                      Deze modus wordt binnenkort geïmplementeerd
+                    </p>
                   )}
                 </div>
               </div>
@@ -833,7 +944,9 @@ export default function LearnTool() {
           </div>
 
           {/* Overlay screens - show for test, hints, and multichoice modes */}
-          {(effectiveMode === 'test' || effectiveMode === 'hints' || effectiveMode === 'multichoice') && (
+          {(effectiveMode === "test" ||
+            effectiveMode === "hints" ||
+            effectiveMode === "multichoice") && (
             <>
               <CorrectScreen
                 show={showResult && isCorrect}
@@ -850,17 +963,17 @@ export default function LearnTool() {
               <TypfoutScreen
                 show={showTypfout}
                 userInput={userInput}
-                correctAnswer={currentWord?.["2"] || ''}
+                correctAnswer={currentWord?.["2"] || ""}
                 onMark={handleTypfoutMark}
                 progress={progress}
                 showProgress={false}
               />
             </>
           )}
-          {effectiveMode === 'mind' && (
+          {effectiveMode === "mind" && (
             <BlueReview
               show={showBlueReview}
-              answer={currentWord?.["2"] || ''}
+              answer={currentWord?.["2"] || ""}
               onMark={handleMindMark}
             />
           )}
