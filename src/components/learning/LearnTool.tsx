@@ -422,7 +422,11 @@ export default function LearnTool() {
   }, [cardKey, showResult, showTypfout, showBlueReview]);
 
   const handleSubmit = () => {
-    if (!currentWord || !userInput.trim()) return;
+    if (!currentWord) return;
+    if (!userInput.trim()) {
+      handleDontKnow();
+      return;
+    }
     const answer = currentWord["2"] || "";
     const correct = checkAnswer(userInput);
     const typfout = !correct && detectTypfout(userInput, answer);
