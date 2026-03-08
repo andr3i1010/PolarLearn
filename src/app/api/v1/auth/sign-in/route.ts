@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     if (result === "email_not_verified") {
       return NextResponse.json(
-        { error: "Je e-mailadres is nog niet geverifieerd. Controleer je e-mail en klik op de activatielink. Als je geen e-mail binnenkrijgt, join onze Discord voor hulp." },
+        { error: "Je e-mailadres is nog niet geverifieerd. Controleer je e-mail en klik op de activatielink. Als je geen e-mail binnenkrijgt, stuur een mailtje naar support@polarlearn.nl." },
         { status: 403 }
       );
     }
