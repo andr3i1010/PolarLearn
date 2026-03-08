@@ -1,6 +1,6 @@
 # Bijdragen aan PolarLearn
 
-We vinden het zeer fijn dat je wilt bijdragen aan PolarLearn! Helaas moet je om te kunnen helpen goed zijn in programmeren met TypeScript, React en Next.js. Als je dit niet kunt of wilt doen voor PolarLearn, kan je wel helpen door anderen erover te vertellen, ons een ster op GitHub te geven en problemen te rapporteren in de [Discord](https://discord.gg/TdYzXDzqSB) of in de [Issues](https://github.com/polarnl/PolarLearn/issues). Hier volgen wat regels voor als je helpt!
+We vinden het zeer fijn dat je wilt bijdragen aan PolarLearn! Helaas moet je om te kunnen helpen goed zijn in programmeren met TypeScript, React en Next.js. Als je dit niet kunt of wilt doen voor PolarLearn, kan je wel helpen door anderen erover te vertellen, ons een ster op GitHub te geven en problemen te rapporteren in de [Issues](https://github.com/polarnl/PolarLearn/issues). Hier volgen wat regels voor als je helpt!
 
 ## AI/Kunstmatige Intelligentie
 
@@ -35,11 +35,11 @@ Polarlearn is gelicenseerd onder de GNU Affero General Public License v3.0. Dit 
 
 ## Contact
 
-Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via [Discord](https://discord.gg/TdYzXDzqSB). We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
+Als je vragen hebt of hulp nodig hebt, kun je contact met ons opnemen via support@polarlearn.nl We zijn altijd bereid om te helpen en feedback te geven op je bijdragen.
 
 ## Bij het project team komen
 
-Je wordt vanzelf uitgenodigd voor het projectteam als je actief bent in de [Discord](https://discord.gg/TdYzXDzqSB) en code toevoegt.
+Je wordt vanzelf uitgenodigd voor het projectteam als je actief bent en goede code toevoegt.
 
 ## Dank
 
