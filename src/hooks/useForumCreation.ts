@@ -48,7 +48,7 @@ export function useForumCreation() {
     const handleOpenDialog = useCallback(() => {
         if (banned) {
             const banEndMsg = banEnd ? `Je bent verbannen van de forum tot ${new Date(banEnd).toLocaleDateString()}` : "Je bent permanent verbannen van de forum";
-            toast.error(`${banEndMsg}, met de reden: ${banreason ?? "Geen reden opgegeven"}. Als je denkt dat dit een fout is, join de discord. Die kan je vinden in de forum.`, {
+            toast.error(`${banEndMsg}, met de reden: ${banreason ?? "Geen reden opgegeven"}. Als je denkt dat dit een fout is, neem contact op met support@polarlearn.nl.`, {
                 autoClose: 7000
             });
             return;
@@ -70,7 +70,7 @@ export function useForumCreation() {
 
         if (banned) {
             const banEndMsg = banEnd ? `Je bent verbannen tot ${new Date(banEnd).toLocaleDateString()}` : "Je bent permanent verbannen";
-            toast.error(`${banEndMsg}. Met de reden: ${banreason ?? "Geen reden opgegeven"}. Als je denkt dat dit een fout is, join de discord. Die kan je vinden in de forum.`);
+            toast.error(`${banEndMsg}. Met de reden: ${banreason ?? "Geen reden opgegeven"}. Als je denkt dat dit een fout is, neem contact op met support@polarlearn.nl.`);
             return;
         }
 
