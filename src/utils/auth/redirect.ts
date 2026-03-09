@@ -27,9 +27,7 @@ export function getValidRedirectPath(path: string | null | undefined): string {
     }
 
     // Blacklist certain paths for security
-    // AI CODE START
-    const blockedPaths = ['/api/', '/auth/sign-out', '/manifest.json'];
-    // AI CODE END
+    const blockedPaths = ['/api/', '/auth/sign-out'];
     if (blockedPaths.some(blocked => path.startsWith(blocked))) {
         return defaultPath;
     }

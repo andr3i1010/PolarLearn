@@ -12,9 +12,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/_next") ||
     // pathname.startsWith("/api") ||
     pathname === "/favicon.ico" ||
-    // AI CODE START
-    /\.(css|js|ts|tsx|jsx|woff2?|ttf|png|jpg|jpeg|gif|svg|webmanifest|json)$/.test(pathname) ||
-    // AI CODE END
+    /\.(css|js|ts|tsx|jsx|woff2?|ttf|png|jpg|jpeg|gif|svg|webmanifest)$/.test(pathname) ||
     request.headers.get("purpose") === "prefetch" ||
     request.headers.get("Next-Router-Prefetch") === "1" ||
     request.headers.get("RSC") === "1" ||
