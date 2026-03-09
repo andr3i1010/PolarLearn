@@ -27,7 +27,7 @@ export function getValidRedirectPath(path: string | null | undefined): string {
     }
 
     // Blacklist certain paths for security
-    const blockedPaths = ['/api/', '/auth/sign-out'];
+    const blockedPaths = ['/api/', '/auth/sign-out', '/manifest.json'];
     if (blockedPaths.some(blocked => path.startsWith(blocked))) {
         return defaultPath;
     }
