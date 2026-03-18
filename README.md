@@ -1,11 +1,8 @@
-# PolarLearn rewrite poging 2
-
-nu gebruiken we rrv7 + tRPC en nog wat spullen
+# PolarLearn Rewrite
+Wij gebruiken momenteel rrv7, tRPC, ESNext en meer.
 
 ## Setup
-
-als je het niet lukt vraag in de discord
+Lukt er iets niet? Neem contact op in onze discord.
 
 ## runnen
-
-waarom probeer je te helpen als je dit zelf niet weet?
+We verwachten dat je dit wel kunt!
