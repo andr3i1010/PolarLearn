@@ -7,8 +7,8 @@ import { cookies } from 'next/headers';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'PolarLearn - Account aanmaken',
-  description: 'Accountcreatiepagina van PolarLearn',
+  title: 'polarluwurn ;-; - Account aanmaken',
+  description: 'Accountcreatiepagina van polarluwurn ;-;',
 }
 
 import SignUpForm from "./form";
@@ -43,7 +43,7 @@ export default async function SignUpPage() {
                 width="75"
               />
               <p className="text-center text-4xl font-extrabold leading-tight bg-gradient-to-r from-sky-400 to-sky-100 bg-clip-text text-transparent">
-                PolarLearn
+                polarluwurn ;-;
               </p>
             </div>
             <div className="w-full rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 bg-neutral-800 border-neutral-700">
