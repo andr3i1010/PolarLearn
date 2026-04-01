@@ -1,5 +1,5 @@
 > [!WARNING]
-> Deze versie van polarluwurn ;-; is verouderd en zal geen functie-updates meer krijgen. Hier zullen alleen nog bugfixes en beveiligingsupdates worden doorgevoerd. Ga voor de nieuwste versie naar [deze link](https://github.com/polarnl/PolarLearn/tree/fix/rewrite).
+> polarluwurn ;-; noob
 
 <div align="center">
 
@@ -25,7 +25,7 @@
   <a href="https://ko-fi.com/P5P31BIVLA"><img src="https://ko-fi.com/img/githubbutton_sm.svg" width="122" height= "20"/></a>
   <a href="https://hcb.hackclub.com/donations/start/polarlearn"><img src="https://github.com/tmrxdev/PolarLearn/blob/patch-1/public/polarlearn-hackclub-donate-knop-madebytmrx.png?raw=true" width="122" height= "20"/></a>
   <br/>
-  polarluwurn ;-; is een compleet geile gratis en Open-Source alternatief voor StudyGo.
+  polarluwurn ;-; is een compleet geile Open-Source alternatief voor StudyGo.
 </div>
 
 ## Wat kan polarluwurn ;-; tot nu toe?
