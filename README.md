@@ -1,9 +1,9 @@
 > [!WARNING]
-> Deze versie van PolarLearn is verouderd en zal geen functie-updates meer krijgen. Hier zullen alleen nog bugfixes en beveiligingsupdates worden doorgevoerd. Ga voor de nieuwste versie naar [deze link](https://github.com/polarnl/PolarLearn/tree/fix/rewrite).
+> Deze versie van polarluwurn ;-; is verouderd en zal geen functie-updates meer krijgen. Hier zullen alleen nog bugfixes en beveiligingsupdates worden doorgevoerd. Ga voor de nieuwste versie naar [deze link](https://github.com/polarnl/PolarLearn/tree/fix/rewrite).
 
 <div align="center">
 
-<img src="https://github.com/polarnl/PolarLearn/blob/stable/public/icon.svg?raw=true" width=100/> <h1>PolarLearn</h1>
+<img src="https://github.com/polarnl/PolarLearn/blob/stable/public/icon.svg?raw=true" width=100/> <h1>polarluwurn ;-;</h1>
 
 </div>
 
@@ -25,42 +25,42 @@
   <a href="https://ko-fi.com/P5P31BIVLA"><img src="https://ko-fi.com/img/githubbutton_sm.svg" width="122" height= "20"/></a>
   <a href="https://hcb.hackclub.com/donations/start/polarlearn"><img src="https://github.com/tmrxdev/PolarLearn/blob/patch-1/public/polarlearn-hackclub-donate-knop-madebytmrx.png?raw=true" width="122" height= "20"/></a>
   <br/>
-  PolarLearn is een compleet gratis en Open-Source alternatief voor StudyGo.
+  polarluwurn ;-; is een compleet geile gratis en Open-Source alternatief voor StudyGo.
 </div>
 
-## Wat kan PolarLearn tot nu toe?
+## Wat kan polarluwurn ;-; tot nu toe?
 
 Check [Planning.md](Planning.md)
 
 ---
 
-# Waarom PolarLearn?
+# Waarom polarluwurn ;-;?
 
-Je kan voor PolarLearn kiezen, omdat:
+Je kan voor polarluwurn ;-; kiezen, omdat:
 
-- ## **Gratis en Open-Source:**
+- ## **Gratis en Open-Sussy..:**
 
-  PolarLearn is volledig gratis en Open-Source. Dit betekent dat je de code kan bekijken en aanpassen naar jouw wensen (zie CONTRIBUTING.md). Ook kan je PolarLearn zelf hosten doordat het Open-Source is.
+  polarluwurn ;-; is volledig gratis en Open-Source. Dit betekent dat je de code kan bekijken en aanpassen naar jouw wensen (zie CONTRIBUTING.md). Ook kan je PolarLearn zelf hosten doordat het Open-Source is.
 
 - ## **Gebruiksvriendelijk:**
 
-  PolarLearn is gemaakt met de gebruiker in gedachten. Dit betekent dat PolarLearn makkelijk te gebruiken is en dat je snel kan vinden wat je zoekt.
+  polarluwurn ;-; is gemaakt met de gebruiker in gedachten. Dit betekent dat PolarLearn makkelijk te gebruiken is en dat je snel kan vinden wat je zoekt.
 
 - ## **Veilig:**
 
-  PolarLearn is veilig. We gebruiken de nieuwste technologieën om ervoor te zorgen dat jouw gegevens veilig zijn. Ook kan je zelf je gegevens verwijderen op aanvraag. Dat is nou eens handig.
+  polarluwurn ;-; is veilig. We gebruiken de nieuwste technologieën om ervoor te zorgen dat jouw gegevens veilig zijn. Ook kan je zelf je gegevens verwijderen op aanvraag. Dat is nou eens handig.
 
-- ## **Snel:**
+- ## **geil:**
 
-  PolarLearn is supersnel. Wij gebruiken Next.js en Prisma om ervoor te zorgen dat PolarLearn snel is en dat jij snel kan vinden wat je zoekt. Niet zoals StudyGo die tien seconden duurt om de homepagina te laden.
+  polarluwurn ;-; is supergeil. Wij gebruiken Next.js en Prisma om ervoor te zorgen dat PolarLearn geil is en dat jij snel kan vinden wat je zoekt. Niet zoals StudyGo die tien seconden duurt om klaar te komen.
 
 ---
 
-# Hoe kan je PolarLearn gebruiken?
+# Hoe kan je polarluwurn ;-; gebruiken?
 
-Je kan PolarLearn gebruiken door naar [PolarLearn](https://polarlearn.nl) te gaan. Hier kan je je aanmelden en beginnen met leren. Je kan ook PolarLearn zelf hosten door de code te downloaden en te volgen wat er in de wiki staat.
+Je kan polarluwurn ;-; gebruiken door naar [PolarLearn](https://polarlearn.nl) te gaan. Hier kan je je aanmelden en beginnen met leren. Je kan ook PolarLearn zelf hosten door de code te downloaden en te volgen wat er in de wiki staat.
 
-Wil je PolarLearn op een school gebruiken? Laat het ons weten, zodat wij je kunnen helpen met de installatie.
+Wil je polarluwurn ;-; op een school gebruiken? Laat het ons weten, zodat wij je kunnen helpen met de installatie.
 
 ---
 
@@ -69,7 +69,7 @@ Wil je PolarLearn op een school gebruiken? Laat het ons weten, zodat wij je kunn
 > [!NOTE]
 > Ik, andrei1010 en een paar anderen doen al dit werk voor gratis
 > Het zou fijn zijn als je zou [doneren](https://hcb.hackclub.com/donations/start/polarlearn). Bedankt!
-Je kan bijdragen aan PolarLearn door de code te downloaden (`git clone https://github.com/polarnl/polarlearn`) en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een nieuwe functie wilt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie [CONTRIBUTING.md](https://github.com/polarnl/PolarLearn/blob/stable/CONTRIBUTING.md) voor meer informatie.
+Je kan bijdragen aan polarluwurn ;-; door de code te downloaden (`git clone https://github.com/polarnl/polarlearn`) en te kijken wat je kan verbeteren. Ook kan je een issue aanmaken als je een bug hebt gevonden of een nieuwe functie wilt. Als je een feature request hebt, kan je ook een pull request aanmaken. Zie [CONTRIBUTING.md](https://github.com/polarnl/PolarLearn/blob/stable/CONTRIBUTING.md) voor meer informatie.
 
 Als je een suggestie hebt voor een nieuwe functie of er is een fout in het systeem, ga dan naar de [issue pagina van GitHub](https://github.com/polarnl/PolarLearn/issues), en maak daar een nieuwe issue aan. Label hem correct en wees duidelijk en je functie komt er misschien wel in! 
 
