@@ -329,7 +329,7 @@ export default function Home() {
                 </div>
                 <div>
                     <div className='flex flex-col items-center justify-center'>
-                        <h1 className='text-4xl font-bold'>Wat doe jij nog hier? raggen wollah</h1>
+                        <h1 className='text-4xl font-bold'>Wat doe jij nog hier? terug en werken jij</h1>
                         <div className='h-8' />
                         <Button1 text='Start met leren!' redirectTo='/home/start' />
                     </div>
@@ -351,7 +351,7 @@ export default function Home() {
                         PolarLearn
                     </h1>
                 </div>
-                <h1>polarluwurn ;-; op kleine schermen is nog in beta, wil je oogtyfus?</h1>
+                <h1>polarluwurn ;-; op kleine schermen is nog in beta, heb je een werkende bril al van Specsavers??</h1>
                 <Button1 text='ja!' redirectTo='/home/start' />
             </div>
         </div>
