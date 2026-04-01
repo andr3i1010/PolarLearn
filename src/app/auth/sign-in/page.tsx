@@ -8,8 +8,8 @@ import { cookies } from "next/headers";
 import { getValidRedirectPath } from "@/utils/auth/redirect";
 
 export const metadata: Metadata = {
-  title: "PolarLearn - Log in",
-  description: "Inlogpagina van PolarLearn",
+  title: "polarluwurn ;-; - Log in",
+  description: "Inlogpagina van polarluwurn ;-;",
 };
 
 export default async function SignInPage() {
@@ -26,7 +26,7 @@ export default async function SignInPage() {
               width="75"
             />
             <p className="text-center text-4xl font-extrabold leading-tight bg-gradient-to-r from-sky-400 to-sky-100 bg-clip-text text-transparent">
-              PolarLearn
+              polarluwurn ;-;
             </p>
           </div>
           <div className="w-full rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 bg-neutral-800 border-neutral-700">
