@@ -17,7 +17,7 @@ export default async function Footer() {
         <div className="flex flex-row items-center space-x-4 w-min">
           <Image src={pl500} width={50} height={50} alt="PolarLearn logo" />
           <p className="text-3xl font-bold bg-linear-to-r from-sky-400 to-sky-100 bg-clip-text text-transparent">
-            PolarLearn
+            polarluwurn ;-;
           </p>
         </div>
         <div className="mt-2 flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-8 w-full">
