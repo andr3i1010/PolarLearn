@@ -59,14 +59,14 @@ export default function Home() {
                                             style={{ width: '4rem', height: 'auto' }}
                                         />
                                         <h1 className="text-6xl font-bold leading-tight bg-gradient-to-r from-sky-400 to-sky-100 bg-clip-text text-transparent ml-6">
-                                            PolarLearn
+                                            polarluwurn ;-;
                                         </h1>
                                     </div>
                                     <br />
                                     <br />
                                     <div className='w-1/2 items-center justify-center'>
                                         <h1 className="text-center mt-6 flex-col sm:flex-row  text-4xl font-bold leading-tight bg-clip-text drop-down">
-                                            Het gratis en Open-Source leerprogramma voor al je schoolvakken
+                                            Het geile en Open-Source leerprogramma voor al je schoolvakken
                                             <br />
                                         </h1>
                                         <br />
@@ -172,7 +172,7 @@ export default function Home() {
                 </Marquee>
                 <hr className="flex-grow border-neutral-600 m-3" />
                 <div className='flex w-full items-center justify-center flex-col'>
-                    <h1 className='text-2xl font-bold'>Wat onze fans vinden:</h1>
+                    <h1 className='text-2xl font-bold'>Wat onze sletjes vinden:</h1>
                     <div className='flex flex-row gap-x-2 items-center'>
                         <h1 className="text-2xl font-bold">4.2</h1>
                         <div className='flex'>
@@ -198,14 +198,15 @@ export default function Home() {
                     <Marquee direction='left'>
                         <div className='flex flex-row gap-x-4 w-min '>
                             <ReviewCard stars={5} author='andrei1010' comment='Door de gratis forum en de samenvattingen heb ik eindelijk topcijfers voor geschiedenis!' />
-                            <ReviewCard stars={4.7} author='EGaming200' comment='PolarLearn heeft mij geholpen met leren voor toetsen' />
-                            <ReviewCard stars={5} author='MrApfelstrudel' comment='Door PolarLearn heb ik eindelijk goede cijfers voor frans!' />
-                            <ReviewCard stars={5} author='anoniem' comment='Ik merk dat PolarLearn veeel sneller is dan StudyGo, ook heel fijn dat het gratis is' />
+                            <ReviewCard stars={4.7} author='EGaming200' comment='polarluwurn ;-; heeft mij geholpen met leren voor toetsen' />
+                            <ReviewCard stars={5} author='MrApfelstrudel' comment='Door polarluwurn ;-; heb ik eindelijk goede cijfers voor frans!' />
+                            <ReviewCard stars={5} author='anoniem' comment='Ik merk dat polarluwurn ;-; veeel sneller is dan StudyGo, ook heel fijn dat het gratis is' />
                             <ReviewCard stars={5} author='kabab33' comment='Ik had een StudyGo abonnement, maar nu niet meer! Bedankt voor mijn € 95,88 per jaar besparen PolarLearn!' />
-                            <ReviewCard stars={5} author='luna' comment="Mijn cijfers waren eerst heel slecht, maar sinds ik PolarLearn gebruik zijn ze super hoog!" />
+                            <ReviewCard stars={5} author='luna' comment="Mijn cijfers waren eerst heel slecht, maar sinds ik polarluwurn ;-; gebruik zijn ze super hoog!" />
                             <ReviewCard stars={2.5} author='waterliefhebber' comment="Te weinig water" />
                             <ReviewCard stars={5} author='-Mohammed-' comment="Het forum is echt veel beter en fijner! Ik hoop dat iedereen naar PolarLearn gaat! Bij StudyGo haalde ik vijfen en vieren, maar nu ik PolarLearn gebruik, haal ik achten en negenen!" smalltext={true} />
                             <ReviewCard stars={5} author='klokmeister' comment='De beste leerprogramma van ze allemaal' />
+                            <ReviewCard stars={5} author='sean' comment='dit is zo geil dat mijn leraar bang was voor mij' />
                         </div>
                     </Marquee>
                 </div>
@@ -219,7 +220,7 @@ export default function Home() {
                         <ScrollPage>
                             <Animator animation={batch(Fade(), Move(), Sticky())}>
                                 <div className='h-svh flex justify-center items-center flex-col'>
-                                    <h1 className='text-4xl font-bold'>Waarom PolarLearn?</h1>
+                                    <h1 className='text-4xl font-bold'>Waarom polarluwurn ;-;?</h1>
                                     <div className='h-4' />
                                     <div className='flex flex-row gap-x-4'>
                                         <Image src={down} alt="down arrow" width={20} height={20} />
@@ -243,7 +244,7 @@ export default function Home() {
                                                 whileInView={{ y: 0, opacity: 1 }}
                                                 transition={{ duration: 0.7, delay: 0.4 }}
                                                 className='justify-center flex font-bold text-3xl'>
-                                                Wat is PolarLearn?
+                                                Wat is polarluwurn ;-;?
                                             </motion.p>
                                             <div className='h-4' />
                                             <motion.p
@@ -251,7 +252,7 @@ export default function Home() {
                                                 whileInView={{ y: 0, opacity: 1 }}
                                                 transition={{ duration: 0.7, delay: 0.7 }}
                                                 className='text-xl'>
-                                                PolarLearn is een FOSS (gratis en Open-Source) leerplatform, voor al je schoolvakken.
+                                                polarluwurn ;-; is een FOSS (geil en Open-Source) leerplatform, voor al je schoolvakken.
                                             </motion.p>
                                         </div>
                                     </div>
@@ -267,7 +268,7 @@ export default function Home() {
                                             whileInView={{ y: 0, opacity: 1 }}
                                             transition={{ duration: 0.7, delay: 0.8 }}
                                             className='justify-center flex font-bold text-3xl'>
-                                            PolarLearn is snel
+                                            polarluwurn ;-; is geil
                                         </motion.p>
                                         <motion.p
                                             className="mt-4 text-center text-xl"
@@ -275,7 +276,7 @@ export default function Home() {
                                             whileInView={{ y: 0, opacity: 1 }}
                                             transition={{ duration: 0.7, delay: 1 }}
                                         >
-                                            PolarLearn gebruikt de nieuwste technologieën, zoals Next.js, Prisma (ORM) en onze eigen PolarAuth om jouw leerervaring zo snel mogelijk te maken.
+                                            polarluwurn ;-; gebruikt de nieuwste technologieën, zoals Next.js, Prisma (ORM) en onze eigen PolarAuth om jouw leerervaring zo geil mogelijk te maken.
                                         </motion.p>
                                     </div>
                                     <div className="border-r border-neutral-600 h-full"></div>
@@ -300,7 +301,7 @@ export default function Home() {
                                             whileInView={{ y: 0, opacity: 1 }}
                                             transition={{ duration: 0.7, delay: 0.8 }}
                                             className='justify-center flex font-bold text-3xl'>
-                                            PolarLearn is veilig
+                                            polarluwurn ;-; heeft een condoom aan
                                         </motion.p>
                                         <motion.p
                                             className="mt-4 text-center text-xl"
@@ -328,7 +329,7 @@ export default function Home() {
                 </div>
                 <div>
                     <div className='flex flex-col items-center justify-center'>
-                        <h1 className='text-4xl font-bold'>Wat doe jij nog hier?</h1>
+                        <h1 className='text-4xl font-bold'>Wat doe jij nog hier? raggen wollah</h1>
                         <div className='h-8' />
                         <Button1 text='Start met leren!' redirectTo='/home/start' />
                     </div>
@@ -350,7 +351,7 @@ export default function Home() {
                         PolarLearn
                     </h1>
                 </div>
-                <h1>PolarLearn op kleine schermen is nog in beta, will je doorgaan?</h1>
+                <h1>polarluwurn ;-; op kleine schermen is nog in beta, wil je oogtyfus?</h1>
                 <Button1 text='ja!' redirectTo='/home/start' />
             </div>
         </div>
