@@ -66,7 +66,7 @@ export default function Home() {
                                     <br />
                                     <div className='w-1/2 items-center justify-center'>
                                         <h1 className="text-center mt-6 flex-col sm:flex-row  text-4xl font-bold leading-tight bg-clip-text drop-down">
-                                            Het geile en Open-Source leerprogramma voor al je schoolvakken
+                                            Het gare en Open-Source leerprogramma voor al je schoolvakken
                                             <br />
                                         </h1>
                                         <br />
@@ -172,7 +172,7 @@ export default function Home() {
                 </Marquee>
                 <hr className="flex-grow border-neutral-600 m-3" />
                 <div className='flex w-full items-center justify-center flex-col'>
-                    <h1 className='text-2xl font-bold'>Wat onze sletjes vinden:</h1>
+                    <h1 className='text-2xl font-bold'>random meningen van polarluwurn ;-;:</h1>
                     <div className='flex flex-row gap-x-2 items-center'>
                         <h1 className="text-2xl font-bold">4.2</h1>
                         <div className='flex'>
@@ -206,7 +206,7 @@ export default function Home() {
                             <ReviewCard stars={2.5} author='waterliefhebber' comment="Te weinig water" />
                             <ReviewCard stars={5} author='-Mohammed-' comment="Het forum is echt veel beter en fijner! Ik hoop dat iedereen naar PolarLearn gaat! Bij StudyGo haalde ik vijfen en vieren, maar nu ik PolarLearn gebruik, haal ik achten en negenen!" smalltext={true} />
                             <ReviewCard stars={5} author='klokmeister' comment='De beste leerprogramma van ze allemaal' />
-                            <ReviewCard stars={5} author='sean' comment='dit is zo geil dat mijn leraar bang was voor mij' />
+                            <ReviewCard stars={5} author='sean' comment='dit is zo gaar dat mijn leraar bang was voor mij' />
                         </div>
                     </Marquee>
                 </div>
@@ -252,7 +252,7 @@ export default function Home() {
                                                 whileInView={{ y: 0, opacity: 1 }}
                                                 transition={{ duration: 0.7, delay: 0.7 }}
                                                 className='text-xl'>
-                                                polarluwurn ;-; is een FOSS (geil en Open-Source) leerplatform, voor al je schoolvakken.
+                                                polarluwurn ;-; is een FOSS (gaar en Open-Source) leerplatform, voor al je schoolvakken.
                                             </motion.p>
                                         </div>
                                     </div>
@@ -268,7 +268,7 @@ export default function Home() {
                                             whileInView={{ y: 0, opacity: 1 }}
                                             transition={{ duration: 0.7, delay: 0.8 }}
                                             className='justify-center flex font-bold text-3xl'>
-                                            polarluwurn ;-; is geil
+                                            polarluwurn ;-; is gaar
                                         </motion.p>
                                         <motion.p
                                             className="mt-4 text-center text-xl"
@@ -301,7 +301,7 @@ export default function Home() {
                                             whileInView={{ y: 0, opacity: 1 }}
                                             transition={{ duration: 0.7, delay: 0.8 }}
                                             className='justify-center flex font-bold text-3xl'>
-                                            polarluwurn ;-; heeft een condoom aan
+                                            polarluwurn ;-; heeft protectie aan
                                         </motion.p>
                                         <motion.p
                                             className="mt-4 text-center text-xl"
