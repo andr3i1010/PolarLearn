@@ -25,7 +25,7 @@
   <a href="https://ko-fi.com/P5P31BIVLA"><img src="https://ko-fi.com/img/githubbutton_sm.svg" width="122" height= "20"/></a>
   <a href="https://hcb.hackclub.com/donations/start/polarlearn"><img src="https://github.com/tmrxdev/PolarLearn/blob/patch-1/public/polarlearn-hackclub-donate-knop-madebytmrx.png?raw=true" width="122" height= "20"/></a>
   <br/>
-  polarluwurn ;-; is een compleet geile Open-Source alternatief voor StudyGo.
+  polarluwurn ;-; is een compleet gare Open-Source alternatief voor StudyGo.
 </div>
 
 ## Wat kan polarluwurn ;-; tot nu toe?
@@ -52,7 +52,7 @@ Je kan voor polarluwurn ;-; kiezen, omdat:
 
 - ## **geil:**
 
-  polarluwurn ;-; is supergeil. Wij gebruiken Next.js en Prisma om ervoor te zorgen dat PolarLearn geil is en dat jij snel kan vinden wat je zoekt. Niet zoals StudyGo die tien seconden duurt om klaar te komen.
+  polarluwurn ;-; is supergaar. Wij gebruiken Next.js en Prisma om ervoor te zorgen dat PolarLearn gaar is en dat jij snel kan vinden wat je zoekt. Niet zoals StudyGo die tien seconden duurt om eindelijk te laden.
 
 ---
 
