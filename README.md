@@ -40,7 +40,7 @@ Je kan voor polarluwurn ;-; kiezen, omdat:
 
 - ## **Gratis en Open-Sussy..:**
 
-  polarluwurn ;-; is volledig gratis en Open-Source. Dit betekent dat je de code kan bekijken en aanpassen naar jouw wensen (zie CONTRIBUTING.md). Ook kan je PolarLearn zelf hosten doordat het Open-Source is.
+  polarluwurn ;-; is volledig gratis en Open-Source. Dit betekent dat je de code kan bekijken en aanpassen naar jouw wensen (zie CONTRIBUTING.md). Ook kan je polarluwurn ;-; zelf hosten doordat het Open-Source is.
 
 - ## **Gebruiksvriendelijk:**
 
