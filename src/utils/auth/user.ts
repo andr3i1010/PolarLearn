@@ -350,7 +350,7 @@ export async function resetUserPassword(userId: string): Promise<PasswordActionR
 
 export async function setCustomPassword(userId: string, password: string): Promise<PasswordActionResult> {
   const operator = await getUserFromSession()
-  if (!operator || !(operator.role !== "admin")) {
+  if (!operator || operator.role !== "admin") {
     return { success: false, error: 'Unauthorized' }
   }
   try {
@@ -395,7 +395,7 @@ export async function setCustomPassword(userId: string, password: string): Promi
 
 export async function deleteUser(userId: string) {
   const operator = await getUserFromSession()
-  if (!operator || !(operator.role !== "admin")) {
+  if (!operator || operator.role !== "admin") {
     return { success: false, error: 'Unauthorized' }
   }
   try {
@@ -441,4 +441,3 @@ export async function deleteUser(userId: string) {
     return { success: false, error };
   }
 }
-
