@@ -28,10 +28,6 @@
   PolarLearn is een compleet gratis en Open-Source alternatief voor StudyGo.
 </div>
 
-## Wat kan PolarLearn tot nu toe?
-
-Check [Planning.md](Planning.md)
-
 ---
 
 # Waarom PolarLearn?
