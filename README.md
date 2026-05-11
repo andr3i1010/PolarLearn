@@ -14,10 +14,5 @@
   PolarLearn (Rewrite) is een compleet gratis en open-source alternatief voor StudyGo. Momenteel maken wij gebruik van React Router v7, tRPC, ESNext en meer.
 </div>
 
-## Wat kan PolarLearn tot nu toe?
-Momenteel zijn basic authentication en forums gedeeltelijk beschikbaar.
-
----
-
-# Hoe kan je PolarLearn Rewrite starten?
-Omdat deze rewrite nog instabiel is, gaan wij ervan uit dat je zelf bekend bent met het opzetten van het project.
+## PolarLearn Rewrite gaat niet door
+We hebben officieel PolarLearn v2 uitgebracht, PolarLearn Rewrite is niet klaar en is niet prod ready. [Klik hier](https://github.com/polarnl/PolarLearn-v2) om naar PolarLearn v2 te gaan.
