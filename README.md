@@ -1,5 +1,5 @@
-> [!WARNING]
-> Deze versie van PolarLearn is definitief uitgefaseerd en ontvangt geen updates meer. Ga voor de nieuwste versie naar [deze link](https://github.com/polarnl/PolarLearn-v2).
+> [!CAUTION]
+> Deze versie van PolarLearn is definitief uitgefaseerd en ontvangt geen updates meer (Behalve beveiligings updates tot December 2026). Ga voor de nieuwste versie naar [deze link](https://github.com/polarnl/PolarLearn-v2).
 
 <div align="center">
 
